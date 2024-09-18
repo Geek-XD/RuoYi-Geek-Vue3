@@ -31,6 +31,7 @@ const useSettingsStore = defineStore(
         this.theme = storageSetting.theme || config.theme || theme
         this.sideTheme = storageSetting.sideTheme || config.sideTheme || sideTheme
         this.topNav = storageSetting.topNav || config.topNav || topNav
+        this.tagsView = storageSetting.tagsView || config.tagsView || tagsView
         this.fixedHeader = storageSetting.fixedHeader || config.fixedHeader || fixedHeader
         this.sidebarLogo = storageSetting.sidebarLogo || config.sidebarLogo || sidebarLogo
         this.dynamicTitle = storageSetting.dynamicTitle || config.dynamicTitle || dynamicTitle
