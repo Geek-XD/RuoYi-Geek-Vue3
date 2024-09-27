@@ -2,80 +2,76 @@
   <!-- 创建表 -->
   <el-dialog title="创建表" v-model="visible" width="1200px" top="5vh" append-to-body>
     <el-form label-width="120px">
-      <el-form-item label="数据表名">
-        <el-input v-model="tableConfig.name" placeholder="请输入数据表名"></el-input>
-      </el-form-item>
-      <el-form-item label="驱动类型">
-        <el-select v-model="tableConfig.engine" placeholder="请选择驱动类型">
-          <el-option label="InnoDB" value="InnoDB"></el-option>
-          <!-- 可以添加更多选项 -->
-        </el-select>
-      </el-form-item>
-      <el-form-item label="自增增量">
-        <el-input-number
-          v-model="tableConfig.autoIncrementStep"
-          label="自增增量"
-        ></el-input-number>
-      </el-form-item>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="数据表名">
+            <el-input v-model="tableConfig.name" placeholder="请输入数据表名"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="驱动类型">
+            <el-select v-model="tableConfig.engine" placeholder="请选择驱动类型">
+              <el-option label="InnoDB" value="InnoDB"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="自增增量">
+            <el-input-number v-model="tableConfig.autoIncrementStep" label="自增增量"></el-input-number>
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item label="数据表备注">
         <el-input v-model="tableConfig.comment" placeholder="请输入数据表备注"></el-input>
       </el-form-item>
-      <el-form-item label="字段配置">
-        <el-button type="text" @click="addField">添加字段</el-button>
-        <el-table :data="fields" style="width: 100%" border>
-          <el-table-column prop="name" label="字段名">
-            <template #default="{ row, $index }">
-              <el-input
-                v-model="row.name"
-                size="small"
-                placeholder="请输入字段名"
-              ></el-input>
-            </template>
-          </el-table-column>
-          <el-table-column prop="type" label="字段类型">
-            <template #default="{ row, $index }">
-              <!-- <el-input v-model="row.type" size="small" placeholder="请输入字段类型"></el-input> -->
-              <el-autocomplete
-                v-model="row.type"
-                :fetch-suggestions="querySearch"
-                clearable
-                class="inline-input w-50"
-                placeholder="请输入字段类型"
-                @select="handleSelect"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column prop="isNotNull" label="是否非空">
-            <template #default="{ row, $index }">
-              <el-switch v-model="row.isNotNull"></el-switch>
-            </template>
-          </el-table-column>
-          <el-table-column prop="isAutoIncrement" label="是否自增">
-            <template #default="{ row, $index }">
-              <el-switch v-model="row.isAutoIncrement"></el-switch>
-            </template>
-          </el-table-column>
-          <el-table-column prop="isPrimary" label="是否主键">
-            <template #default="{ row, $index }">
-              <el-switch v-model="row.isPrimary"></el-switch>
-            </template>
-          </el-table-column>
-          <el-table-column prop="comment" label="字段备注">
-            <template #default="{ row, $index }">
-              <el-input
-                v-model="row.comment"
-                size="small"
-                placeholder="请输入字段备注"
-              ></el-input>
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
-            <template #default="{ row, $index }">
-              <el-button type="text" @click="removeField($index)">移除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="16">
+          <el-form-item label="字段配置">
+            <el-button type="text" @click="addField">添加字段</el-button>
+            <el-table :data="fields" style="width: 100%" border>
+              <el-table-column prop="name" label="字段名">
+                <template #default="{ row, $index }">
+                  <el-input v-model="row.name" placeholder="请输入字段名"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column prop="type" label="字段类型">
+                <template #default="{ row, $index }">
+                  <el-autocomplete v-model="row.type" :fetch-suggestions="querySearch" clearable
+                    class="inline-input w-50" placeholder="请输入字段类型" @select="handleSelect" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="isNotNull" label="是否非空" width="80">
+                <template #default="{ row, $index }">
+                  <el-checkbox v-model="row.isNotNull" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="isAutoIncrement" label="是否自增" width="80">
+                <template #default="{ row, $index }">
+                  <el-checkbox v-model="row.isAutoIncrement" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="isPrimary" label="是否主键" width="80">
+                <template #default="{ row, $index }">
+                  <el-checkbox v-model="row.isPrimary" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="comment" label="字段备注">
+                <template #default="{ row, $index }">
+                  <el-input v-model="row.comment" placeholder="请输入字段备注"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" label="操作" width="100">
+                <template #default="{ row, $index }">
+                  <el-button type="text" @click="removeField($index)">移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-input v-model="sql" type="textarea" :rows="20" disabled />
+        </el-col>
+      </el-row>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
@@ -185,6 +181,32 @@ const removeField = (index) => {
   fields.value.splice(index, 1);
 };
 
+function createSQL() {
+  if (!tableConfig.name) throw new Error("数据表名不能为空");
+  let sql = `CREATE TABLE \`${tableConfig.name}\` (\n`;
+  let primaryKey = "";
+  fields.value.forEach((field, i) => {
+    sql += `  \`${field.name}\` ${field.type}${field.isNotNull ? " NOT NULL" : ""}${field.isAutoIncrement ? " AUTO_INCREMENT" : ""
+      }${field.isPrimary ? " PRIMARY KEY" : ""} COMMENT '${field.comment}'`;
+    sql += i < fields.value.length - 1 ? ",\n" : "\n";
+    if (field.isPrimary && !primaryKey) {
+      primaryKey = field.name;
+    }
+  });
+  if (!primaryKey && fields.value.some((field) => field.isPrimary)) throw new Error("多个主键定义，请检查字段配置");
+  sql += `) ENGINE=${tableConfig.engine} AUTO_INCREMENT=${tableConfig.autoIncrementStep + 1
+    } COMMENT='${tableConfig.comment}';`;
+  return sql;
+}
+
+const sql = computed(() => {
+  try {
+    return createSQL()
+  } catch (error) {
+    return error.message
+  }
+})
+
 /** 创建按钮操作 */
 const handleCreateTable = () => {
   if (!tableConfig.name) {
@@ -196,9 +218,8 @@ const handleCreateTable = () => {
   let sql = `CREATE TABLE \`${tableConfig.name}\` (\n`;
   let primaryKey = "";
   fields.value.forEach((field, i) => {
-    sql += `  \`${field.name}\` ${field.type}${field.isNotNull ? " NOT NULL" : ""}${
-      field.isAutoIncrement ? " AUTO_INCREMENT" : ""
-    }${field.isPrimary ? " PRIMARY KEY" : ""} COMMENT '${field.comment}'`;
+    sql += `  \`${field.name}\` ${field.type}${field.isNotNull ? " NOT NULL" : ""}${field.isAutoIncrement ? " AUTO_INCREMENT" : ""
+      }${field.isPrimary ? " PRIMARY KEY" : ""} COMMENT '${field.comment}'`;
     sql += i < fields.value.length - 1 ? ",\n" : "\n";
     if (field.isPrimary && !primaryKey) {
       primaryKey = field.name;
@@ -210,9 +231,8 @@ const handleCreateTable = () => {
     return;
   }
 
-  sql += `) ENGINE=${tableConfig.engine} AUTO_INCREMENT=${
-    tableConfig.autoIncrementStep + 1
-  } COMMENT='${tableConfig.comment}';`;
+  sql += `) ENGINE=${tableConfig.engine} AUTO_INCREMENT=${tableConfig.autoIncrementStep + 1
+    } COMMENT='${tableConfig.comment}';`;
 
   console.log(sql);
   createTable({ sql }).then((res) => {
