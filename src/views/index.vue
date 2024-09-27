@@ -8,18 +8,25 @@
 
 <style scoped lang="scss">
 .home {
+  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #676a6c;
+  overflow-x: hidden;
+
   blockquote {
     padding: 10px 20px;
     margin: 0 0 20px;
     font-size: 17.5px;
     border-left: 5px solid #eee;
   }
+
   hr {
     margin-top: 20px;
     margin-bottom: 20px;
     border: 0;
     border-top: 1px solid #eee;
   }
+
   .col-item {
     margin-bottom: 20px;
   }
@@ -28,11 +35,6 @@
     padding: 0;
     margin: 0;
   }
-
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #676a6c;
-  overflow-x: hidden;
 
   ul {
     list-style-type: none;
@@ -69,4 +71,3 @@
   }
 }
 </style>
-

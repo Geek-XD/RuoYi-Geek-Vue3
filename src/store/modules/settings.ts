@@ -1,8 +1,9 @@
 import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
+import { init } from 'echarts'
 import { defineStore } from 'pinia'
 
-const { theme,sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle } = defaultSettings
+const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, initSetting } = defaultSettings
 
 const storageSetting: typeof defaultSettings = JSON.parse(
   localStorage.getItem('layout-setting') || '{}'
@@ -13,16 +14,29 @@ const useSettingsStore = defineStore(
   {
     state: () => ({
       title: '',
-      theme: storageSetting.theme == undefined ? theme : storageSetting.theme,
-      sideTheme: storageSetting.sideTheme == undefined ? sideTheme : storageSetting.sideTheme,
+      theme: undefined,
+      sideTheme: undefined,
       showSettings: showSettings,
-      topNav: storageSetting.topNav === undefined ? topNav : storageSetting.topNav,
-      tagsView: storageSetting.tagsView === undefined ? tagsView : storageSetting.tagsView,
-      fixedHeader: storageSetting.fixedHeader === undefined ? fixedHeader : storageSetting.fixedHeader,
-      sidebarLogo: storageSetting.sidebarLogo === undefined ? sidebarLogo : storageSetting.sidebarLogo,
-      dynamicTitle: storageSetting.dynamicTitle === undefined ? dynamicTitle : storageSetting.dynamicTitle
+      topNav: undefined,
+      tagsView: undefined,
+      fixedHeader: undefined,
+      sidebarLogo: undefined,
+      dynamicTitle: undefined,
+      inited: false
     }),
     actions: {
+      async initSetting() {
+        if (this.inited) return
+        const config = await initSetting()
+        this.theme = storageSetting.theme || config.theme || theme
+        this.sideTheme = storageSetting.sideTheme || config.sideTheme || sideTheme
+        this.topNav = storageSetting.topNav || config.topNav || topNav
+        this.tagsView = storageSetting.tagsView || config.tagsView || tagsView
+        this.fixedHeader = storageSetting.fixedHeader || config.fixedHeader || fixedHeader
+        this.sidebarLogo = storageSetting.sidebarLogo || config.sidebarLogo || sidebarLogo
+        this.dynamicTitle = storageSetting.dynamicTitle || config.dynamicTitle || dynamicTitle
+        this.inited = true
+      },
       // 修改布局设置
       changeSetting(data: { key: keyof typeof storageSetting, value: any }) {
         const { key, value } = data
