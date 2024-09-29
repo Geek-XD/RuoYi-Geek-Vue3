@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, Method } from 'axios'
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { getToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
@@ -13,9 +13,9 @@ let downloadLoadingInstance: any;
 export let isRelogin = { show: false };
 //@ts-ignore
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
-import { RequestConfig, RequestInstance } from '@/types/request'
+import { GeekRequestConfig, GeekResponse } from '@/types/request'
 // 创建axios实例
-const service: RequestInstance = axios.create({
+const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: import.meta.env.VITE_APP_BASE_API,
   // 超时
@@ -23,7 +23,7 @@ const service: RequestInstance = axios.create({
 })
 
 // request拦截器
-service.interceptors.request.use((config: AxiosRequestConfig<RequestConfig>) => {
+service.interceptors.request.use((config) => {
   // 是否需要设置 token
   const isToken = (config.headers || {}).isToken === false
   // 是否需要防止数据重复提交
@@ -77,14 +77,15 @@ type ResponseType = {
 }
 
 // 响应拦截器
-service.interceptors.response.use((res: AxiosResponse<ResponseType>) => {
+// (value: V) => V | Promise<V>) | null) | null, options?: AxiosInterceptorOptions
+service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) => {
   // 未设置状态码则默认成功状态
   const code = String(res.data.code || 200);
   //获取错误信息
   const msg = errorCode[code] || res.data.msg || errorCode['default']
   // 二进制数据则直接返回
   if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
-    return res.data
+    return res
   }
   if (code === '401') {
     if (!isRelogin.show) {
@@ -98,7 +99,7 @@ service.interceptors.response.use((res: AxiosResponse<ResponseType>) => {
         isRelogin.show = false;
       });
     }
-    return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
+    return Promise.reject(new Error('无效的会话，或者会话已过期，请重新登录。'))
   } else if (code === '500') {
     ElMessage({ message: msg, type: 'error' })
     return Promise.reject(new Error(msg))
@@ -109,7 +110,7 @@ service.interceptors.response.use((res: AxiosResponse<ResponseType>) => {
     ElNotification.error({ title: msg })
     return Promise.reject('error')
   } else {
-    return Promise.resolve(res.data)
+    return Promise.resolve(res)
   }
 },
   error => {
@@ -154,7 +155,7 @@ export async function download(url: string, params: any, filename: string, confi
     downloadLoadingInstance.close()
   }
 }
-const request = service
+const request = <T>(config: GeekRequestConfig) => service<GeekRequestConfig, AxiosResponse<GeekResponse<T>>>(config).then(res => res.data)
 export function postAction(url: string, data?: any, isToken: boolean = true) {
   return request({ data, url, method: 'POST', headers: { isToken }, })
 }

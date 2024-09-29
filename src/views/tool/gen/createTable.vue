@@ -85,6 +85,7 @@
 <script setup lang="ts">
 import { createTable } from "@/api/tool/gen";
 import { modal } from "@/plugins/index";
+import { computed, onMounted, reactive, ref } from "vue";
 const emit = defineEmits(["ok"]);
 
 // 遮罩层
@@ -177,7 +178,7 @@ const addField = () => {
 };
 
 // 移除字段
-const removeField = (index) => {
+const removeField = (index:number) => {
   fields.value.splice(index, 1);
 };
 
@@ -202,7 +203,7 @@ function createSQL() {
 const sql = computed(() => {
   try {
     return createSQL()
-  } catch (error) {
+  } catch (error:any) {
     return error.message
   }
 })

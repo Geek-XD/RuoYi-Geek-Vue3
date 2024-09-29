@@ -1,10 +1,10 @@
-import { AxiosInstance, AxiosPromise, Method } from 'axios'
+import { AxiosInstance, AxiosPromise, AxiosRequestHeaders, AxiosResponse, Method } from 'axios'
 
-export type RequestConfig = {
+export type GeekRequestConfig = {
     /** 请求地址 */
-    url: string,
+    url?: string,
     /** get请求映射params参数 */
-    method: Method,
+    method?: Method | string,
     /** 请求数据 */
     data?: any,
     /** get请求映射params参数 */
@@ -14,9 +14,13 @@ export type RequestConfig = {
         isRepeatSubmit?: boolean,
         /** 是否需要设置 token */
         isToken?: boolean,
-    }
+    } | AxiosRequestHeaders
 }
 
-export interface RequestInstance extends AxiosInstance {
-    (config: RequestConfig): AxiosPromise
+export type GeekResponse<T = any> = {
+    code: number;
+    msg: string;
+    data?: T;
+    total?: number;
+    rows?: Array<T>
 }
