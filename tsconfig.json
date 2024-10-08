@@ -16,7 +16,6 @@
     "moduleResolution": "node",
     "module": "ES2022",
     "lib": ["ES2020", "dom"],
-    "types": ["vite/client"],
     "declaration": true,
     "paths": {
       "@": ["src"],
