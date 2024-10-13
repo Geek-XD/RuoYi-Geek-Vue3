@@ -55,7 +55,7 @@ const setting = {
    * 获取后端配置的设置
    * @returns Promise<Object>
    */
-  async initSetting() {
+  async initDbSetting() {
     const config = (key,type=String) => getConfigKey(key).then(res => {
       if(type===String){
         return res.msg
