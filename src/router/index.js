@@ -71,26 +71,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/laboratory',
-    component: Layout,
-    redirect: '/laboratory/three',
-    meta: { title: '实验室', icon: 'dashboard' },
-    children: [
-      {
-        path: 'threeTest',
-        component: () => import('@/views/three/gltfmode'),
-        name: 'threeTest',
-        meta: { title: 'three实验室', icon: 'dashboard' }
-      },
-      {
-        path: 'payTest',
-        component: () => import('@/views/pay/paytest/index'),
-        name: 'payTest',
-        meta: { title: '支付实验室', icon: 'dashboard' }
-      }
-    ]
-  },
-  {
     path: '/user',
     component: Layout,
     hidden: true,
