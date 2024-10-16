@@ -9,6 +9,8 @@ const useTagsViewStore = defineStore("tags-view", {
   }),
   actions: {
     addView(view: RouteLocationNormalizedLoaded) {
+      if (typeof view.meta.group === 'function') view.meta.group = view.meta.group(view)
+      if (typeof view.meta.title === 'function') view.meta.title = view.meta.title(view)
       this.addVisitedView(view);
       this.addCachedView(view);
     },
@@ -22,11 +24,16 @@ const useTagsViewStore = defineStore("tags-view", {
     },
     addVisitedView(view: RouteLocationNormalizedLoaded) {
       if (this.visitedViews.some((v) => v.path === view.path)) return;
-      this.visitedViews.push(
-        Object.assign({}, view, {
-          title: view.meta.title || "no-name",
-        })
-      );
+      const _view = view.meta.group ? this.visitedViews.find((v) => v.meta.group == view.meta.group) : undefined
+      if (_view) {
+        Object.assign(_view, view);
+      } else {
+        this.visitedViews.push(
+          Object.assign({}, view, {
+            title: view.meta.title || "no-name",
+          })
+        );
+      }
     },
     addCachedView(view: RouteLocationNormalizedLoaded) {
       if (this.cachedViews.includes(view.name)) return;
