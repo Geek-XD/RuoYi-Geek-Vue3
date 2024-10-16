@@ -22,7 +22,8 @@ import Layout from '@/layout'
     breadcrumb: false               // 如果设置为false，则不会在breadcrumb面包屑中显示
     activeMenu: '/system/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
     group:"group"                   // 当路由设置了该属性，则相同组的路由共用一个tab标签，可以是route对象里面的内容：(route)=>route.query.xx
-  }
+    transition:"fade-transform"     // 设置该路由的切换动画，默认淡出，不需要动画可以填none，动画需要自己在transition.scss中定义
+    }
  */
 
 // 公共路由
