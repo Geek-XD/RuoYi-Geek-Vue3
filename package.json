@@ -4,6 +4,7 @@
   "description": "若依Geek管理系统",
   "author": "若依",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build:prod": "vite build",
