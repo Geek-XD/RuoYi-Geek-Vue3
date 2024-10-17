@@ -2,8 +2,8 @@
   <el-breadcrumb class="app-breadcrumb" separator="/">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
-        <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">{{ item.meta.title }}</span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta.title }}</a>
+        <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">{{ getTitle(item) }}</span>
+        <a v-else @click.prevent="handleLink(item)">{{ getTitle(item) }}</a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
@@ -13,7 +13,9 @@
 const route = useRoute();
 const router = useRouter();
 const levelList = ref([])
-
+function getTitle(item){
+  return typeof item.meta.title === 'function' ? item.meta.title(route) : item.meta.title
+}
 function getBreadcrumb() {
   // only show routes with meta.title
   let matched = route.matched.filter(item => item.meta && item.meta.title);
