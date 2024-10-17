@@ -20,6 +20,8 @@ const whiteListPatterns = whiteList.map(
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (getToken()) {
+    let title = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
+    title && useSettingsStore().setTitle(title)
     to.meta.title && useSettingsStore().setTitle(to.meta.title)
     /* has token*/
     if (to.path === '/login') {
