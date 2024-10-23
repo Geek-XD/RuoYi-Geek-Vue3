@@ -1,5 +1,17 @@
 import { getConfigKey } from '@/api/system/config'
-
+interface Setting {
+  title: string;
+  theme: string;
+  sideTheme: string;
+  showSettings: boolean;
+  topNav: boolean;
+  tagsView: boolean;
+  fixedHeader: boolean;
+  sidebarLogo: boolean;
+  dynamicTitle: boolean;
+  errorLog: string | string[];
+  initDbSetting: () => Promise<Setting>;
+}
 const setting = {
   /**
    * 网页标题
@@ -56,7 +68,7 @@ const setting = {
    * @returns Promise<Object>
    */
   async initDbSetting() {
-    const config = (key,type=String) => getConfigKey(key).then(res => {
+    const config =(key:string,type:any) => getConfigKey(key).then(res => {
       if(type===String){
         return res.msg
       }else if(type===Number){
@@ -70,14 +82,14 @@ const setting = {
       }
     })
     return {
-      theme: await config("sys.index.theme"),
-      sideTheme: await config("sys.index.sideTheme"),
-      topNav: await config("sys.index.topNav",Boolean),
-      tagsView: await config("sys.index.tagsView",Boolean),
-      fixedHeader: await config("sys.index.fixedHeader",Boolean),
-      sidebarLogo: await config("sys.index.sidebarLogo",Boolean),
-      dynamicTitle: await config("sys.index.dynamicTitle"),
-    }
+      theme: await config("sys.index.theme", String),
+      sideTheme: await config("sys.index.sideTheme", String),
+      topNav: await config("sys.index.topNav", Boolean),
+      tagsView: await config("sys.index.tagsView", Boolean),
+      fixedHeader: await config("sys.index.fixedHeader", Boolean),
+      sidebarLogo: await config("sys.index.sidebarLogo", Boolean),
+      dynamicTitle: await config("sys.index.dynamicTitle", Boolean),
+    } as Setting;
   }
 }
 
