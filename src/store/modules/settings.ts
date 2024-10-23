@@ -2,7 +2,7 @@ import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
 import { init } from 'echarts'
 import { defineStore } from 'pinia'
-
+import { handleThemeStyle } from '@/utils/theme'
 const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, initDbSetting } = defaultSettings
 
 const storageSetting: typeof defaultSettings = JSON.parse(
@@ -12,14 +12,14 @@ const storageSetting: typeof defaultSettings = JSON.parse(
 const useSettingsStore = defineStore('settings', {
   state: () => ({
     title: '',
-    theme: undefined,
-    sideTheme: undefined,
+    theme: '#11A983',
+    sideTheme: 'theme-light',
     showSettings: showSettings,
-    topNav: undefined,
-    tagsView: undefined,
-    fixedHeader: undefined,
-    sidebarLogo: undefined,
-    dynamicTitle: undefined,
+    topNav: false,
+    tagsView: true,
+    fixedHeader: true,
+    sidebarLogo: true,
+    dynamicTitle: true,
     inited: false
   }),
   actions: {
@@ -59,7 +59,7 @@ const useSettingsStore = defineStore('settings', {
         this.dynamicTitle = storageSetting.dynamicTitle
       }
       this.inited = true
-
+      handleThemeStyle(this.theme)
       console.log('initSetting', storageSetting, config, this.fixedHeader)
     },
     // 修改布局设置
