@@ -132,12 +132,13 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
 export async function download(url: string, params: any, filename: string, config: any) {
   downloadLoadingInstance = ElLoading.service({ text: "正在下载数据，请稍候", background: "rgba(0, 0, 0, 0.7)", })
   try {
-    const data: Blob = await service.post(url, params, {
+    const res = await service.post(url, params, {
       transformRequest: [(params_1) => { return tansParams(params_1) }],
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       responseType: 'blob',
       ...config
     })
+    const data: Blob = res.data
     const isLogin = await blobValidate(data)
     if (isLogin) {
       const blob = new Blob([data])
