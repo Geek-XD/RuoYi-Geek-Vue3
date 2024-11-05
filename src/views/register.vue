@@ -1,8 +1,18 @@
 <template>
   <div class="register">
     <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
-      <h3 class="title">若依后台管理系统</h3>
-      <el-form-item prop="username">
+      <h3 class="title">数智宝</h3>
+      <el-form-item prop="username" v-if="emileEnabled">
+        <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" placeholder="邮箱">
+          <template #prefix><svg-icon icon-class="email" class="el-input__icon input-icon" /></template>
+        </el-input>
+      </el-form-item>
+      <el-form-item prop="username" v-else-if="phoneEnabled">
+        <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" placeholder="手机号">
+          <template #prefix><svg-icon icon-class="phone" class="el-input__icon input-icon" /></template>
+        </el-input>
+      </el-form-item>
+      <el-form-item prop="username" v-else>
         <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" placeholder="账号">
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
         </el-input>
@@ -31,26 +41,42 @@
           <img :src="codeUrl" @click="getCode" class="register-code-img" />
         </div>
       </el-form-item>
+      <el-form-item prop="code" v-if="emileEnabled || phoneEnabled">
+        <el-input size="large" v-model="registerForm.code" auto-complete="off" placeholder="验证码" style="width: 63%"
+          @keyup.enter="handleRegister">
+
+          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
+        </el-input>
+        <div class="register-code">
+          <el-button class="register-code-img" style="margin-left: 12px;width: 100%;"
+            @click="sendCode">发送验证码</el-button>
+        </div>
+      </el-form-item>
       <el-form-item style="width:100%;">
         <el-button :loading="loading" size="large" type="primary" style="width:100%;" @click.prevent="handleRegister">
           <span v-if="!loading">注 册</span>
           <span v-else>注 册 中...</span>
         </el-button>
-        <div style="float: right;">
-          <router-link class="link-type" :to="'/login'">使用已有账户登录</router-link>
+        <div style="display: flex; justify-content: space-between;width: 100%;">
+          <el-link class="link-type" :underline="false" @click="$router.push('/login')">使用已有账户登录</el-link>
+          <el-link class="link-type" :underline="false" @click="useEmile()" v-if="!emileEnabled">使用邮箱注册</el-link>
+          <el-link class="link-type" :underline="false" @click="usePhone()" v-if="!phoneEnabled">使用手机号注册</el-link>
+          <el-link class="link-type" :underline="false" @click="useUsername()" v-if="emileEnabled || phoneEnabled">使用账号注册</el-link>
         </div>
       </el-form-item>
     </el-form>
     <!--  底部  -->
     <div class="el-register-footer">
-      <span>Copyright © 2018-2024 ruoyi.vip All Rights Reserved.</span>
+      <span>Copyright © 2018-2024 数智宝 All Rights Reserved.</span>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ElMessageBox } from "element-plus";
-import { getCodeImg, register } from "@/api/login";
+import { getCodeImg, register, sendEmailCode, verifyEmailCode,sendPhoneCode,verifyPhoneCode } from "@/api/login";
+import { getConfigKey } from '@/api/system/config'
+import { ref } from "vue";
 
 const router = useRouter();
 const { proxy } = getCurrentInstance();
@@ -91,12 +117,41 @@ const registerRules = {
 const codeUrl = ref("");
 const loading = ref(false);
 const captchaEnabled = ref(true);
+const emileEnabled = ref(false);
+const phoneEnabled = ref(false);
+
+function useEmile() {
+  captchaEnabled.value = false
+  phoneEnabled.value = false
+  emileEnabled.value = true
+}
+
+function useUsername() {
+  getConfigKey("sys.account.captchaEnabled").then(res => captchaEnabled.value = res.msg === 'true')
+  phoneEnabled.value = false
+  emileEnabled.value = false
+}
+
+function usePhone(){
+  captchaEnabled.value = false
+  phoneEnabled.value = true
+  emileEnabled.value = false
+}
+
 
 function handleRegister() {
   proxy.$refs.registerRef.validate(valid => {
     if (valid) {
       loading.value = true;
-      register(registerForm.value).then(res => {
+      let handleRegister = register;
+      if (emileEnabled.value) {
+        registerForm.value.email = registerForm.value.username
+        handleRegister = verifyEmailCode
+      }else if(phoneEnabled.value){
+        registerForm.value.phone = registerForm.value.username
+        handleRegister = verifyPhoneCode
+      }
+      handleRegister(registerForm.value).then(res => {
         const username = registerForm.value.username;
         ElMessageBox.alert("<font color='red'>恭喜你，您的账号 " + username + " 注册成功！</font>", "系统提示", {
           dangerouslyUseHTMLString: true,
@@ -124,6 +179,16 @@ function getCode() {
   });
 }
 
+function sendCode() {
+  if(emileEnabled.value){
+    registerForm.value.email = registerForm.value.username
+    sendEmailCode(registerForm.value)
+  }else if(phoneEnabled.value){
+    registerForm.value.phonenumber = registerForm.value.username
+    sendPhoneCode(registerForm.value)
+  }
+}
+
 getCode();
 </script>
 
@@ -133,7 +198,7 @@ getCode();
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("../assets/images/login-background.jpg");
+  background-image: url("../assets/images/login-background.png");
   background-size: cover;
 }
 
