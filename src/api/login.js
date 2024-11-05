@@ -57,3 +57,51 @@ export function getCodeImg() {
     timeout: 20000
   })
 }
+
+export function sendEmailCode(data){
+  return request({
+    url: '/auth/mail/send/register',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    timeout: 20000,
+    data
+  })
+}
+
+export function verifyEmailCode(data){
+  return request({
+    url: '/auth/mail/verify/register',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    timeout: 20000,
+    data
+  })
+}
+
+export function sendPhoneCode(data){
+  return request({
+    url: '/auth/phone/send/register',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    timeout: 20000,
+    data
+  })
+}
+
+export function verifyPhoneCode(data){
+  return request({
+    url: '/auth/phone/verify/register',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    timeout: 20000,
+    data
+  })
+}
