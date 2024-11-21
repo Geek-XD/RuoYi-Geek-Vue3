@@ -44,7 +44,9 @@ yarn dev
 
 ## Electron
 
-请注意：electron不可以使用pnpm进行install
+electron项目已经迁移至：
+
+https://gitee.com/geek-xd/ruoyi-geek-electron.git
 
 ## 内置功能
 
