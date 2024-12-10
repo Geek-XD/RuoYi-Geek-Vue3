@@ -234,8 +234,7 @@ const handleCreateTable = () => {
 
   sql += `) ENGINE=${tableConfig.engine} AUTO_INCREMENT=${tableConfig.autoIncrementStep + 1
     } COMMENT='${tableConfig.comment}';`;
-
-  console.log(sql);
+     
   createTable({ sql }).then((res) => {
     modal.msgSuccess(res.msg);
     if (res.code === 200) {

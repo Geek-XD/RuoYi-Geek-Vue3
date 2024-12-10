@@ -64,7 +64,6 @@ service.interceptors.request.use((config) => {
   }
   return config
 }, error => {
-  console.log(error)
   Promise.reject(error)
 })
 
@@ -114,7 +113,6 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
   }
 },
   error => {
-    console.log('err' + error)
     let { message } = error;
     if (message == "Network Error") {
       message = "后端接口连接异常";

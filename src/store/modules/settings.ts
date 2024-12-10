@@ -1,6 +1,5 @@
 import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
-import { init } from 'echarts'
 import { defineStore } from 'pinia'
 import { handleThemeStyle } from '@/utils/theme'
 const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, initDbSetting } = defaultSettings

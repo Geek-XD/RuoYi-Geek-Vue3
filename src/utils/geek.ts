@@ -90,7 +90,6 @@ export async function getCode() {
   // 截取url中的code方法
   function getUrlCode() {
     let url = location.search;
-    console.log(url);
     let theRequest: any = new Object();
     if (url.indexOf("?") != -1) {
       let str = url.substr(1);
@@ -105,7 +104,6 @@ export async function getCode() {
   code = getUrlCode().code; // 截取code
   if (code == undefined || code == "" || code == null) {
     // 如果没有code，则去请求
-    console.log("h5");
     window.location.href =
       "https://open.weixin.qq.com/connect/oauth2/authorize?" +
       tansParams({

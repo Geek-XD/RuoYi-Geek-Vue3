@@ -58,7 +58,6 @@ const loginForm = ref({
   code: "",
   uuid: ""
 });
-console.log(loginForm)
 const loginRules = {
   username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
   password: [{ required: true, trigger: "blur", message: "请输入您的密码" }],

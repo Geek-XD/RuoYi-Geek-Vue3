@@ -70,8 +70,10 @@
                 <p class="title">时间表达式</p>
                 <table>
                     <thead>
-                        <th v-for="item of tabTitles" :key="item">{{item}}</th>
-                        <th>Cron 表达式</th>
+                        <tr>
+                            <th v-for="item of tabTitles" :key="item">{{item}}</th>
+                            <th>Cron 表达式</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <td>
