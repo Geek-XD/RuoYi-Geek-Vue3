@@ -74,7 +74,7 @@ export const constantRoutes = [
   },
   {
     path: '/laboratory',
-    component: Layout,
+    // component: Layout,
     redirect: '/laboratory/three',
     meta: { title: '实验室', icon: 'dashboard' },
     children: [

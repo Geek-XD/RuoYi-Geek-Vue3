@@ -37,12 +37,8 @@ watch(() => props.model, () => {
 </script>
 <template>
     <div>
-        <el-descriptions>
-            <el-descriptions-item label="名称">{{ model.name }}</el-descriptions-item>
-        </el-descriptions>
-        <el-descriptions v-if="material">
-            <el-descriptions-item label="材质名称">{{ material.name }}</el-descriptions-item>
-        </el-descriptions>
+        <div>名称：{{ model.name }}</div>
+        <div v-if="material">材质名称：{{ material.name }}</div>
         <div v-if="model.userData.Parameters">
             <Parameters :parameters="model.userData.Parameters"></Parameters>
         </div>
@@ -76,7 +72,10 @@ watch(() => props.model, () => {
 
     & ul {
         list-style-type: none;
-        padding: 0;
+        padding: 0 10px;
+        overflow: auto;
+        max-height: 150px;
+        font-size: 12px;
 
         .parameter-item {
             line-height: 1.5;

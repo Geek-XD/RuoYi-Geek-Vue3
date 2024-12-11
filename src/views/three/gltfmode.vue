@@ -12,6 +12,11 @@ const treeProps = {
 const canvas = ref()
 const CanvasContainerRef = ref()
 const FPS = ref(30)
+watch(FPS, () => {
+    if (director) {
+        director.FPS = FPS.value
+    }
+})
 let director: Director | undefined
 const modelthree = ref(new Array<TreeNode>())
 const reload = ref(1)
@@ -66,10 +71,20 @@ watch(baozha, value => {
     }
 })
 function main() {
-    director = new Director({ canvas: canvas.value, width: 800, height: 500 })
+
+}
+const ThreeContainerRef = ref<HTMLElement | null>(null)
+onMounted(() => {
+    if (ThreeContainerRef.value == null) return
+    // 获取ThreeContainerRef的宽高
+    director = new Director({
+        canvas: canvas.value,
+        width: ThreeContainerRef.value.offsetWidth,
+        height: ThreeContainerRef.value.offsetHeight
+    })
     director.switchAxesHelper(true)
     director.switchGridHelper(true)
-    director.startRender(fps => FPS.value = fps)
+    director.startRender()
     director.stats.dom.style.position = 'absolute'
     director.renderer.domElement.parentElement!.appendChild(director.stats.dom)
     director.scene.background = new THREE.TextureLoader().load("/glb/environment/bg.jpeg")
@@ -91,63 +106,63 @@ function main() {
             document.body.removeChild(label);
         }, 5000);
     }
-}
-
-onMounted(() => {
-    main()
 })
 
 import ModelPanel from './ModelPanel.vue'
 </script>
 
 <template>
-    <div class="app-container">
-        <el-row>
-            <el-col :span="4">
-                <div>
-                    <el-form>
-                        <el-form-item label="加载模型">
-                            <el-button @click="handelLoadModel" v-loading="LoadModelLoading">加载模型</el-button>
-                        </el-form-item>
-                        <el-form-item label="FPS">
-                            {{ FPS }}
-                        </el-form-item>
-                        <el-form-item label="环境光强度">
-                            <el-slider v-model="ambientLight.intensity" :step="0.1" :max="30" />
-                        </el-form-item>
-                        <el-form-item label="爆炸距离" v-if="selected">
-                            <el-slider v-model="baozha" :step="1" :max="30" :min="1" />
-                        </el-form-item>
-                    </el-form>
-                </div>
-            </el-col>
-            <el-col :span="16">
-                <div class="canvas-container" ref="CanvasContainerRef">
-                    <canvas id="canvas" ref="canvas" style="border: 1px solid;"></canvas>
-                </div>
-            </el-col>
-            <el-col :span="4">
-                <h1>模型树</h1>
-                <div style="overflow: auto;height: 100%;" :key="reload">
-                    <el-tree-v2 style="height: 100%" :data="modelthree" node-key="id" :props="treeProps"
-                        @node-click="handleNodeClick" :expand-on-click-node="false">
-                    </el-tree-v2>
-                </div>
-            </el-col>
-        </el-row>
-        <div v-if="selected">
+    <div class="three-container" ref="ThreeContainerRef" style="position: relative;">
+        <canvas id="canvas" ref="canvas" style="border: 1px solid;" />
+        <div class="panel" style="left: 10px;top: 100px;width: 200px;">
+            <el-form label-width="80px" size="small">
+                <el-form-item label="加载模型">
+                    <el-button @click="handelLoadModel" v-loading="LoadModelLoading">加载模型</el-button>
+                </el-form-item>
+                <el-form-item label="FPS">
+                    <el-select v-model="FPS" placeholder="Select" style="width: 100%">
+                        <el-option v-for="item in [15,30,45,60,90,120]" :key="item" :label="item" :value="item" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="环境光强度">
+                    <el-slider v-model="ambientLight.intensity" :step="0.1" :max="30" />
+                </el-form-item>
+                <el-form-item label="爆炸距离" v-if="selected">
+                    <el-slider v-model="baozha" :step="1" :max="30" :min="1" />
+                </el-form-item>
+            </el-form>
+        </div>
+        <div class="panel" style="right: 10px;top: 100px;width: 200px;">
+            <div>模型树</div>
+            <div style="overflow: auto;height: 100%;" :key="reload">
+                <el-tree-v2 style="height: 100%;background: none;" :data="modelthree" node-key="id" :props="treeProps"
+                    @node-click="handleNodeClick" :expand-on-click-node="false">
+                </el-tree-v2>
+            </div>
+        </div>
+        <div class="panel" style="bottom: 0;" v-if="selected">
             <ModelPanel :model="selected"></ModelPanel>
         </div>
     </div>
 </template>
 <style scoped lang="scss">
-.canvas-container {
+.three-container {
     width: 100%;
     height: 100%;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+}
+
+.panel {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    color: white;
+    max-height: 300px;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }
 </style>

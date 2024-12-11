@@ -1,6 +1,5 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls.js'
 import * as THREE from 'three'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -282,12 +281,11 @@ export class Director {
     startRender(onRander?: (FPS: number) => void) {
         let timeS = 0;
         let realFPS = 0;
-        let renderT = 1 / this.FPS; //单位秒  间隔多长时间渲染渲染一次
         const animate = () => {
             requestAnimationFrame(animate)
             let T = this.clock.getDelta();
             timeS = timeS + T;
-            if (timeS > renderT) {
+            if (timeS > 1 / this.FPS) {
                 this.stats.update()
                 this.controls.update(T);
                 this.composer.render();
