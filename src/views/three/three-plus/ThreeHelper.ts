@@ -8,7 +8,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
+import { SelectControls } from './SelectControls';
 /**
  * gltf/glb  fbx  obj+mtl(材质) 
  * @param model 
@@ -61,6 +61,12 @@ export function loadModel(model: { gltf?: string, obj?: string, mtl?: string, fb
 
 export function getWorldCenterPosition(box: THREE.Box3, scalar = 0.5): THREE.Vector3 {
     return new THREE.Vector3().addVectors(box.max, box.min).multiplyScalar(scalar);
+}
+
+class ExplodeControls extends THREE.Controls<{}> {
+    constructor(object: THREE.Object3D) {
+        super(object, null)
+    }
 }
 // 初始化爆炸数据保存到每个mesh的userdata上
 export function initExplodeModel(modelObject: THREE.Object3D) {
@@ -131,6 +137,7 @@ export interface TreeNode {
     id: string;
     children: TreeNode[];
 }
+
 export class Director {
     /** 场景 */
     scene = new THREE.Scene()
@@ -142,6 +149,7 @@ export class Director {
     renderer: THREE.WebGLRenderer
     /** 轨道控制器 */
     controls: THREE.Controls<{}>
+    selectControls: SelectControls
     /** 渲染组合器 */
     composer: EffectComposer
     /** FPS */
@@ -159,11 +167,6 @@ export class Director {
     /** 窗口大小 */
     width: number
     height: number
-
-    /** 模型选择相关配置 */
-    selected: OutlinePass
-    onSelect?: (obj: THREE.Object3D<THREE.Object3DEventMap>, event: MouseEvent) => void
-
 
     constructor(options: DirectorOption) {
         this.width = options.width
@@ -184,43 +187,11 @@ export class Director {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement)
         this.composer = new EffectComposer(this.renderer);
         // 创建描边选项
-        const v2 = new THREE.Vector2(this.width, this.height);
-        this.selected = new OutlinePass(v2, this.scene, this.camera);
-        this.selected.edgeStrength = 3; // 描边宽度
-        this.selected.edgeGlow = 0.5; // 边缘发光强度
-        this.selected.visibleEdgeColor.set(new THREE.Color(255, 0, 0)); // 红色描边
+        this.selectControls = new SelectControls(this.scene, this.camera, this.renderer.domElement)
         this.composer.addPass(renderPass);
-        this.composer.addPass(this.selected);
-        
+        this.composer.addPass(this.selectControls.outlinePass);
+
         this.FPS = options.FPS || 30
-
-        this.renderer.domElement.addEventListener("click", (event: MouseEvent) => {
-            const rect = this.renderer.domElement.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((event.clientX - rect.left) / rect.width) * 2 - 1,
-                -((event.clientY - rect.top) / rect.height) * 2 + 1
-            );
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.scene.children, true);
-            console.log("Mouse position:", mouse);
-            console.log("Intersects:", intersects);
-
-            if (intersects.length > 0) {
-                let obj3D = intersects[0].object
-                if (obj3D.type == 'GridHelper' || obj3D.type == 'AxesHelper') {
-                    return
-                }
-                this.selected.selectedObjects = [obj3D]
-
-                if (this.onSelect) {
-                    this.onSelect(obj3D, event)
-                }
-            }
-        })
-
-
-
     }
     switchAxesHelper(show: boolean) {
         if (show && !this.showAxesHelper) {

@@ -31,9 +31,6 @@ const material: ComputedRef<any> = computed(() => {
         return {}
     }
 })
-watch(() => props.model, () => {
-    console.log(props.model,JSON.stringify(props.model));
-}) 
 </script>
 <template>
     <div>
@@ -48,7 +45,9 @@ watch(() => props.model, () => {
                 <ul>
                     <li v-for="(param, paramIndex) in group.Parameters" :key="paramIndex" class="parameter-item">
                         <div class="parameter-name">{{ param.name }}:</div>
-                        <div class="parameter-value">{{ param.value !== undefined ? param.value : '未定义' }}</div>
+                        <div class="parameter-value">
+                            {{ param.value !== undefined ? param.value : '未定义' }}
+                        </div>
                     </li>
                 </ul>
             </div>
