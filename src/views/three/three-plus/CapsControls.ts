@@ -1,43 +1,86 @@
 import * as THREE from 'three'
 import { loadModel } from './ThreeHelper';
 
-// calculate mouse position in normalized device coordinates
 type AxisKey = "x1" | "y1" | "z1" | "x2" | "y2" | "z2";
 export function setToNormalizedDeviceCoordinates(
 	vector: THREE.Vector2,
 	event: MouseEvent | TouchEvent,
 	window: Window
-): THREE.Vector2 {
+) {
 	vector.x = event instanceof MouseEvent ? event.clientX : (event.touches && event.touches[0].clientX);
 	vector.y = event instanceof MouseEvent ? event.clientY : (event.touches && event.touches[0].clientY);
 	vector.x = (vector.x / window.innerWidth) * 2 - 1;
 	vector.y = - (vector.y / window.innerHeight) * 2 + 1;
-	return vector;
 }
 
-class PlaneGeometry extends THREE.BufferGeometry {
-	dynamic: boolean = true
-	verticesNeedUpdate: boolean = true
+class Geometry extends THREE.BufferGeometry {
+	private vertices: THREE.Vector3[] = [];
+
+	constructor() {
+		super();
+	}
+
+	push(...args: THREE.Vector3[]) {
+		this.vertices = this.vertices.concat(args);
+		const points = this.vertices.flatMap(v => [v.x, v.y, v.z]);
+		const positionAttribute = new THREE.Float32BufferAttribute(points, 3);
+		this.setAttribute('position', positionAttribute);
+	}
+
+	set dynamic(value: boolean) {
+		this.attributes.position.needsUpdate = value;
+	}
+
+	get dynamic() {
+		return this.attributes.position.needsUpdate;
+	}
+
+	set verticesNeedUpdate(value: boolean) {
+		const points = this.vertices.flatMap(v => [v.x, v.y, v.z]);
+		const positionAttribute = new THREE.Float32BufferAttribute(points, 3);
+		this.setAttribute('position', positionAttribute);
+		this.attributes.position.needsUpdate = value;
+	}
+
+	get verticesNeedUpdate() {
+		return this.attributes.position.needsUpdate;
+	}
+
+	computeLineDistances() {
+		const positions = this.attributes.position.array;
+		if (positions.length === 0) return;
+
+		const lineDistances = [0];
+		let totalDistance = 0;
+
+		for (let i = 1; i < positions.length / 3; i++) {
+			const x1 = positions[(i - 1) * 3];
+			const y1 = positions[(i - 1) * 3 + 1];
+			const z1 = positions[(i - 1) * 3 + 2];
+
+			const x2 = positions[i * 3];
+			const y2 = positions[i * 3 + 1];
+			const z2 = positions[i * 3 + 2];
+
+			const dx = x2 - x1;
+			const dy = y2 - y1;
+			const dz = z2 - z1;
+
+			const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+			totalDistance += distance;
+			lineDistances.push(totalDistance);
+		}
+
+		const lineDistancesAttribute = new THREE.Float32BufferAttribute(lineDistances, 1);
+		this.setAttribute('lineDistance', lineDistancesAttribute);
+	}
+}
+class PlaneGeometry extends Geometry {
 	constructor(v0: THREE.Vector3, v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
 		super();
-
-		// 创建顶点数组
-		const vertices = new Float32Array([
-			v0.x, v0.y, v0.z,
-			v1.x, v1.y, v1.z,
-			v2.x, v2.y, v2.z,
-			v3.x, v3.y, v3.z
-		]);
-
-		// 创建索引数组
-		const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-
-		// 创建顶点属性
-		this.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-		this.setIndex(new THREE.BufferAttribute(indices, 1));
-
+		super.push(v0, v1, v2, v3);
 		// 计算法线
-		this.computeVertexNormals();
+		super.computeVertexNormals();
 	}
 }
 class CapsMesh extends THREE.Mesh {
@@ -83,22 +126,12 @@ class SelectionBoxFace {
 class SelectionBoxLine {
 	line: THREE.LineSegments;
 	constructor(v0: THREE.Vector3, v1: THREE.Vector3, f0: SelectionBoxFace, f1: SelectionBoxFace, selection: Selection) {
-		const lineGeometry = new THREE.BufferGeometry();
-
-		// 创建顶点数组
-		const vertices = new Float32Array([
-			v0.x, v0.y, v0.z,
-			v1.x, v1.y, v1.z
-		]);
-
-		// 设置顶点属性
-		lineGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-
+		const lineGeometry = new Geometry();
+		lineGeometry.push(v0, v1);
 		// 手动计算线段距离
-		const distances = [0, v0.distanceTo(v1)];
-		lineGeometry.setAttribute('lineDistance', new THREE.BufferAttribute(new Float32Array(distances), 1));
-		(lineGeometry as PlaneGeometry).dynamic = true;
-		selection.lineGeometries.push(lineGeometry as PlaneGeometry);
+		lineGeometry.computeLineDistances();
+		lineGeometry.dynamic = true;
+		selection.lineGeometries.push(lineGeometry);
 
 		this.line = new THREE.LineSegments(lineGeometry, CAPS.MATERIAL.BoxWireframe);
 		selection.displayMeshes.add(this.line);
@@ -112,25 +145,18 @@ class SelectionBoxLine {
 	}
 }
 class Selection {
-	faces: SelectionBoxFace[]
-	limitLow: THREE.Vector3;
-	limitHigh: THREE.Vector3;
-	box: THREE.BoxGeometry;
+	faces: SelectionBoxFace[] = [];
+	box: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
 	boxMesh: THREE.Mesh;
 	vertices: THREE.Vector3[];
-	touchMeshes: THREE.Object3D;
-	displayMeshes: THREE.Object3D;
-	meshGeometries: PlaneGeometry[];
-	lineGeometries: PlaneGeometry[];
-	selectables: THREE.Mesh[];
+	touchMeshes: THREE.Object3D = new THREE.Object3D();
+	displayMeshes: THREE.Object3D = new THREE.Object3D();
+	meshGeometries: PlaneGeometry[] = [];
+	lineGeometries: Geometry[] = [];
+	selectables: THREE.Mesh[] = [];
 
-	constructor(low: THREE.Vector3, high: THREE.Vector3) {
-		this.limitLow = low;
-		this.limitHigh = high;
-
-		this.box = new THREE.BoxGeometry(1, 1, 1);
-		this.boxMesh = new THREE.Mesh(this.box, CAPS.MATERIAL.cap);
-
+	constructor(public limitLow: THREE.Vector3, public limitHigh: THREE.Vector3) {
+		this.boxMesh = new THREE.Mesh(this.box, CAPS.MATERIAL.cap());
 		this.vertices = [
 			new THREE.Vector3(), new THREE.Vector3(),
 			new THREE.Vector3(), new THREE.Vector3(),
@@ -138,15 +164,7 @@ class Selection {
 			new THREE.Vector3(), new THREE.Vector3()
 		];
 		this.updateVertices();
-
 		const v = this.vertices;
-
-		this.touchMeshes = new THREE.Object3D();
-		this.displayMeshes = new THREE.Object3D();
-		this.meshGeometries = [];
-		this.lineGeometries = [];
-		this.selectables = [];
-		this.faces = [];
 		const f = this.faces;
 		this.faces.push(new CAPS.SelectionBoxFace('y1', v[0], v[1], v[5], v[4], this));
 		this.faces.push(new CAPS.SelectionBoxFace('z1', v[0], v[2], v[3], v[1], this));
@@ -235,11 +253,10 @@ class Selection {
 	}
 }
 class Simulation {
-	capsScene: THREE.Scene;
-	backStencil: THREE.Scene;
-	frontStencil: THREE.Scene;
+	capsScene: THREE.Scene = new THREE.Scene();
+	backStencil: THREE.Scene = new THREE.Scene();
+	frontStencil: THREE.Scene = new THREE.Scene();
 	selection: Selection;
-	throttledRender: Function;
 	showCaps: boolean = true
 	constructor(
 		public renderer: THREE.WebGLRenderer,
@@ -248,29 +265,20 @@ class Simulation {
 		public controls: THREE.Controls<{}>,
 
 	) {
-		this.capsScene = new THREE.Scene();
-		this.backStencil = new THREE.Scene();
-		this.frontStencil = new THREE.Scene();
 		this.selection = new CAPS.Selection(
 			new THREE.Vector3(-7, -14, -14),
 			new THREE.Vector3(14, 9, 3)
 		);
-		const throttledRender = CAPS.SCHEDULE.deferringThrottle(this._render.bind(this), this, 40);
-		this.throttledRender = throttledRender;
 		this.init();
 	}
 
 	init() {
 		const self = this;
-		loadModel({ gltf: '/glb/5.glb' }, "glb").then(m => {
-			m.scale.set(2, 2, 2)
+		loadModel({ gltf: '/glb/2.glb' }, "glb").then(m => {
 			self.initScene(m);
 		})
 		this.camera.position.set(20, 20, 30);
 		this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-
-
 		this.capsScene.add(this.selection.boxMesh);
 		this.scene.add(this.selection.touchMeshes);
 		this.scene.add(this.selection.displayMeshes);
@@ -280,35 +288,24 @@ class Simulation {
 		this.renderer.setClearColor(0xffffff);
 		this.renderer.autoClear = false;
 
-		CAPS.picking(this); // must come before OrbitControls, so it can cancel them
-		// @ts-ignore
-		this.controls.addEventListener('change', throttledRender);
+		CAPS.picking(this); // must come before 
 
 		const onWindowResize = () => {
 			this.camera.aspect = window.innerWidth / window.innerHeight;
 			this.camera.updateProjectionMatrix();
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
-			this.throttledRender();
 		};
 		window.addEventListener('resize', onWindowResize, false);
-
-		const showCapsInput = document.getElementById('showCaps') as HTMLInputElement;
-		this.showCaps = showCapsInput.checked;
-		const onShowCaps = () => {
-			this.showCaps = showCapsInput.checked;
-			this.throttledRender();
-		};
-		showCapsInput.addEventListener('change', onShowCaps, false);
-
-		this.throttledRender();
 	}
 
 	initScene(collada: THREE.Object3D) {
-		const setMaterial = (node: THREE.Object3D, material: THREE.ShaderMaterial) => {
-			// 打印node原型链
-			console.log(node.constructor.name);
+		const setMaterial = (node: THREE.Object3D, material: THREE.ShaderMaterial | ((...age: any[]) => THREE.ShaderMaterial)) => {
 			if (node instanceof THREE.Mesh || node instanceof THREE.Line) {
-				node.material = material;
+				if (typeof material === 'function') {
+					node.material = material(node.material);
+				} else {
+					node.material = material;
+				}
 			}
 			if (node.children) {
 				for (let i = 0; i < node.children.length; i++) {
@@ -316,7 +313,7 @@ class Simulation {
 				}
 			}
 		};
-		const scale = 1
+		const scale = 0.3
 		const back = collada.clone();
 		setMaterial(back, CAPS.MATERIAL.backStencil);
 		back.scale.set(scale, scale, scale);
@@ -333,37 +330,77 @@ class Simulation {
 		collada.scale.set(scale, scale, scale);
 		collada.updateMatrix();
 		this.scene.add(collada);
-
-		this.throttledRender();
 	}
 
-	_render() {
-		this.renderer.clear();
-
-		const gl = this.renderer.getContext();
-
-		if (this.showCaps) {
-			gl.enable(gl.STENCIL_TEST);
-
-			gl.stencilFunc(gl.ALWAYS, 1, 0xff);
-			gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
-			this.renderer.render(this.backStencil, this.camera);
-
-			gl.stencilFunc(gl.ALWAYS, 1, 0xff);
-			gl.stencilOp(gl.KEEP, gl.KEEP, gl.DECR);
-			this.renderer.render(this.frontStencil, this.camera);
-
-			gl.stencilFunc(gl.EQUAL, 1, 0xff);
-			gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-			this.renderer.render(this.capsScene, this.camera);
-
-			gl.disable(gl.STENCIL_TEST);
-		}
-
-		this.renderer.render(this.scene, this.camera);
+	update() {
+		this.renderer.render(this.backStencil, this.camera);
+		this.renderer.render(this.capsScene, this.camera);
+		this.renderer.render(this.frontStencil, this.camera);
 	}
 }
+const MeshStandardMaterialToShaderMaterial = (msm: THREE.MeshStandardMaterial, sm: THREE.ShaderMaterial) => {
+	// 迁移基础属性
+	if (msm.color) {
+		sm.uniforms['color'].value.copy(msm.color);
+	}
+	sm.uniforms['roughness'].value = msm.roughness;
+	sm.uniforms['metalness'].value = msm.metalness;
+	if (msm.emissive) {
+		sm.uniforms['emissive'].value.copy(msm.emissive);
+	}
+	sm.uniforms['opacity'].value = msm.opacity;
 
+	// 迁移纹理属性
+	if (msm.envMap) {
+		sm.uniforms['envMap'].value = msm.envMap;
+		sm.uniforms['envMapIntensity'].value = msm.envMapIntensity;
+	}
+
+	if (msm.lightMap) {
+		sm.uniforms['lightMap'].value = msm.lightMap;
+		sm.uniforms['lightMapIntensity'].value = msm.lightMapIntensity;
+	}
+
+	if (msm.aoMap) {
+		sm.uniforms['aoMap'].value = msm.aoMap;
+		sm.uniforms['aoMapIntensity'].value = msm.aoMapIntensity;
+	}
+
+	if (msm.bumpMap) {
+		sm.uniforms['bumpMap'].value = msm.bumpMap;
+		sm.uniforms['bumpScale'].value = msm.bumpScale;
+	}
+
+	if (msm.normalMap) {
+		sm.uniforms['normalMap'].value = msm.normalMap;
+		sm.uniforms['normalScale'].value.copy(msm.normalScale);
+	}
+
+	if (msm.displacementMap) {
+		sm.uniforms['displacementMap'].value = msm.displacementMap;
+		sm.uniforms['displacementScale'].value = msm.displacementScale;
+		sm.uniforms['displacementBias'].value = msm.displacementBias;
+	}
+
+	if (msm.alphaMap) {
+		sm.uniforms['alphaMap'].value = msm.alphaMap;
+	}
+
+	// 确保其他属性也被正确设置
+	sm.side = msm.side;
+	sm.transparent = msm.transparent;
+	sm.depthTest = msm.depthTest;
+	sm.depthWrite = msm.depthWrite;
+	sm.blending = msm.blending;
+	sm.alphaTest = msm.alphaTest;
+	sm.blendSrc = msm.blendSrc;
+	sm.blendDst = msm.blendDst;
+	sm.blendEquation = msm.blendEquation;
+	sm.dithering = msm.dithering;
+	sm.premultipliedAlpha = msm.premultipliedAlpha;
+	sm.visible = msm.visible;
+	sm.toneMapped = msm.toneMapped;
+}
 const CAPS = {
 	PlaneGeometry,
 	SelectionBoxFace,
@@ -391,38 +428,6 @@ const CAPS = {
 				}, wait);
 			};
 		},
-
-		deferringThrottle: (callback: Function, context: any, wait: number) => {
-			// wait 60 = 16fps // wait 40 = 25fps // wait 20 = 50fps
-
-			const execute = (args: any[]) => {
-				callback.apply(context, args);
-				setTimeout(() => {
-					if (deferredCalls) {
-						deferredCalls = false;
-						execute(args);
-					} else {
-						blocked = false;
-					}
-				}, wait);
-			};
-
-			let blocked = false;
-			let deferredCalls = false;
-			let args: any[] | undefined;
-
-			return (...newArgs: any[]) => {
-				if (blocked) {
-					args = newArgs;
-					deferredCalls = true;
-					return;
-				} else {
-					blocked = true;
-					deferredCalls = false;
-					execute(newArgs);
-				}
-			};
-		}
 	},
 	SHADER: {
 		vertex: `
@@ -559,8 +564,46 @@ const CAPS = {
 		BoxBackFace: new THREE.MeshBasicMaterial({ color: 0xEEDDCC, transparent: true }),
 		BoxWireframe: new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }),
 		BoxWireActive: new THREE.LineBasicMaterial({ color: 0xf83610, linewidth: 4 }),
-		sheet: {} as THREE.ShaderMaterial,
-		cap: {} as THREE.ShaderMaterial,
+		cap: () => {
+			return new THREE.ShaderMaterial({
+				uniforms: CAPS.UNIFORMS.caps,
+				vertexShader: CAPS.SHADER.vertex,
+				fragmentShader: CAPS.SHADER.fragment
+			})
+		},
+
+		sheet: (material?: THREE.MeshStandardMaterial): THREE.ShaderMaterial => {
+			const shaderMaterial = new THREE.ShaderMaterial({
+				// 设置默认值
+				uniforms: {
+					...CAPS.UNIFORMS.clipping,
+					color: { value: new THREE.Color(0xffffff) }, // 默认白色
+					roughness: { value: 0.5 },
+					metalness: { value: 0.5 },
+					emissive: { value: new THREE.Color(0x000000) },
+					opacity: { value: 1.0 },
+					envMap: { value: null },
+					envMapIntensity: { value: 1.0 },
+					lightMap: { value: null },
+					lightMapIntensity: { value: 1.0 },
+					aoMap: { value: null },
+					aoMapIntensity: { value: 1.0 },
+					bumpMap: { value: null },
+					bumpScale: { value: 1 },
+					normalMap: { value: null },
+					normalScale: { value: new THREE.Vector2(1, 1) },
+					displacementMap: { value: null },
+					displacementScale: { value: 1 },
+					displacementBias: { value: 0 },
+					specularMap: { value: null },
+					alphaMap: { value: null }
+				},
+				vertexShader: CAPS.SHADER.vertexClipping,
+				fragmentShader: CAPS.SHADER.fragmentClipping,
+			});
+			if (material) MeshStandardMaterialToShaderMaterial(material, shaderMaterial)
+			return shaderMaterial;
+		},
 		backStencil: {} as THREE.ShaderMaterial,
 		frontStencil: {} as THREE.ShaderMaterial,
 		Invisible: {} as THREE.ShaderMaterial
@@ -584,63 +627,37 @@ const CAPS = {
 		simulation.scene.add(plane);
 
 		const targeting = (event: MouseEvent | TouchEvent) => {
-
 			setToNormalizedDeviceCoordinates(mouse, event, window);
-
 			ray.setFromCamera(mouse, simulation.camera);
-
 			const intersects = ray.intersectObjects(simulation.selection.selectables);
-
 			if (intersects.length > 0) {
-
 				const candidate = intersects[0].object as CapsMesh;
-
 				if (intersected !== candidate) {
-
 					if (intersected !== null) {
 						intersected.guardian.rayOut();
 					}
-
 					candidate.guardian.rayOver();
-
 					intersected = candidate;
-
 					simulation.renderer.domElement.style.cursor = 'pointer';
-					simulation.throttledRender();
-
 				}
-
 			} else if (intersected !== null) {
-
 				intersected.guardian.rayOut();
 				intersected = null;
-
 				simulation.renderer.domElement.style.cursor = 'auto';
-				simulation.throttledRender();
-
 			}
-
 		};
 
 		const beginDrag = (event: MouseEvent | TouchEvent) => {
-
 			setToNormalizedDeviceCoordinates(mouse, event, window);
-
 			ray.setFromCamera(mouse, simulation.camera);
-
 			const intersects = ray.intersectObjects(simulation.selection.selectables);
-
 			if (intersects.length > 0) {
-
 				event.preventDefault();
 				event.stopPropagation();
-
 				simulation.controls.enabled = false;
-
 				const intersectionPoint = intersects[0].point;
 				const object = intersects[0].object as CapsMesh
 				const axis = object.axis;
-
 				if (axis === 'x1' || axis === 'x2') {
 					intersectionPoint.setX(0);
 				} else if (axis === 'y1' || axis === 'y2') {
@@ -649,28 +666,18 @@ const CAPS = {
 					intersectionPoint.setZ(0);
 				}
 				plane.position.copy(intersectionPoint);
-
 				const newNormal = simulation.camera.position.clone().sub(
 					simulation.camera.position.clone().projectOnVector(normals[axis])
 				);
 				plane.lookAt(newNormal.add(intersectionPoint));
-
 				simulation.renderer.domElement.style.cursor = 'move';
-				simulation.throttledRender();
-
 				const continueDrag = (event: MouseEvent | TouchEvent) => {
-
 					event.preventDefault();
 					event.stopPropagation();
-
 					setToNormalizedDeviceCoordinates(mouse, event, window);
-
 					ray.setFromCamera(mouse, simulation.camera);
-
 					const intersects = ray.intersectObject(plane);
-
 					if (intersects.length > 0) {
-
 						let value: number = NaN;
 						if (axis === 'x1' || axis === 'x2') {
 							value = intersects[0].point.x;
@@ -679,33 +686,22 @@ const CAPS = {
 						} else if (axis === 'z1' || axis === 'z2') {
 							value = intersects[0].point.z;
 						}
-
 						simulation.selection.setValue(axis, value);
-						simulation.throttledRender();
-
 					}
-
 				};
-
 				const endDrag = () => {
-
 					simulation.controls.enabled = true;
-
 					simulation.renderer.domElement.style.cursor = 'pointer';
-
 					document.removeEventListener('mousemove', continueDrag, true);
 					document.removeEventListener('touchmove', continueDrag, true);
-
 					document.removeEventListener('mouseup', endDrag, false);
 					document.removeEventListener('touchend', endDrag, false);
 					document.removeEventListener('touchcancel', endDrag, false);
 					document.removeEventListener('touchleave', endDrag, false);
-
 				};
 
 				document.addEventListener('mousemove', continueDrag, true);
 				document.addEventListener('touchmove', continueDrag, true);
-
 				document.addEventListener('mouseup', endDrag, false);
 				document.addEventListener('touchend', endDrag, false);
 				document.addEventListener('touchcancel', endDrag, false);
@@ -721,17 +717,6 @@ const CAPS = {
 
 	}
 }
-CAPS.MATERIAL.sheet = new THREE.ShaderMaterial({
-	uniforms: CAPS.UNIFORMS.clipping,
-	vertexShader: CAPS.SHADER.vertexClipping,
-	fragmentShader: CAPS.SHADER.fragmentClipping
-})
-
-CAPS.MATERIAL.cap = new THREE.ShaderMaterial({
-	uniforms: CAPS.UNIFORMS.caps,
-	vertexShader: CAPS.SHADER.vertex,
-	fragmentShader: CAPS.SHADER.fragment
-})
 
 CAPS.MATERIAL.backStencil = new THREE.ShaderMaterial({
 	uniforms: CAPS.UNIFORMS.clipping,

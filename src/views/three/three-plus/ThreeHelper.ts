@@ -153,7 +153,7 @@ export class Director {
     /** 渲染组合器 */
     composer: EffectComposer
     /** FPS */
-    FPS: number
+    wait: number = 0
     /** 环境光 */
     ambientLight: THREE.AmbientLight = new THREE.AmbientLight(0xffffff, 2)
     /** 辅助坐标 */
@@ -168,6 +168,12 @@ export class Director {
     width: number
     height: number
 
+    get FPS() {
+        return 1 / this.wait
+    }
+    set FPS(fps: number) {
+        this.wait = 1 / fps
+    }
     constructor(options: DirectorOption) {
         this.width = options.width
         this.height = options.height
@@ -256,13 +262,14 @@ export class Director {
             requestAnimationFrame(animate)
             let T = this.clock.getDelta();
             timeS = timeS + T;
-            if (timeS > 1 / this.FPS) {
+            if (timeS > this.wait) {
+                if (onRander) onRander(realFPS)
+                this.renderer.clear();
                 this.stats.update()
                 this.controls.update(T);
                 this.composer.render();
                 realFPS = 1 / timeS
                 timeS = 0;
-                if (onRander) onRander(realFPS)
             }
         }
         animate()

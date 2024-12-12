@@ -26,7 +26,6 @@ export class SelectControls extends THREE.Controls<{}> {
                 if (obj3D.type == 'GridHelper' || obj3D.type == 'AxesHelper') {
                     continue
                 }
-                console.log("se", obj3D);
                 this.outlinePass.selectedObjects = [obj3D]
                 if (this.onSelect) this.onSelect(obj3D, event)
                 return

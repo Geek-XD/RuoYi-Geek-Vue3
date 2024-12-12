@@ -27,7 +27,7 @@ const LoadModelStatus = ref("加载模型")
 async function handelLoadModel() {
     if (!director) return
     LoadModelLoading.value = true
-    const m = await loadModel({ gltf: '/glb/5.glb' }, "glb", progress => {
+    const m = await loadModel({ gltf: '/glb/2.glb' }, "glb", progress => {
         // 当前进度
         LoadModelStatus.value = `当前进度${Math.round(progress.loaded / progress.total * 100)}%`
     })
@@ -69,11 +69,13 @@ onMounted(() => {
     })
     director.switchAxesHelper(true)
     director.switchGridHelper(true)
-    director.startRender()
+    const caps = new CAPS.Simulation(director.renderer,director.camera,director.scene,director.controls)
+    director.startRender(()=>{
+        caps.update()
+    })
     director.stats.dom.style.position = 'absolute'
     director.renderer.domElement.parentElement!.appendChild(director.stats.dom)
     director.scene.background = new THREE.TextureLoader().load("/glb/environment/bg.jpeg")
-    new CAPS.Simulation(director.renderer,director.camera,director.scene,director.controls)
     ambientLight.value = director.ambientLight
     // 创建轮廓效果Pass
     director.selectControls.onSelect = (obj: THREE.Object3D, event: MouseEvent) => {
