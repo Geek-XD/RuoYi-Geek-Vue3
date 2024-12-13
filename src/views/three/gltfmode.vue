@@ -1,11 +1,14 @@
 <script setup name="Index" lang="ts">
 import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js'
-import { loadModel, Director, TreeNode, initExplodeModel, explodeModel } from './three-plus/ThreeHelper'
+import { Director, TreeNode } from './three-plus/ThreeHelper'
 import { onMounted, ref, watch } from 'vue';
 import ModelPanel from './ModelPanel.vue'
 import ThreePanel from './ThreePanel.vue'
 import CAPS from './three-plus/CapsControls';
+import { loadModel } from './three-plus/utils';
+import { explodeModel, initExplodeModel } from './three-plus/ExplodeControls';
+import CapsControls from './three-plus/CapsControls';
 
 const canvas = ref()
 const FPS = ref(30)
@@ -18,34 +21,37 @@ const handleNodeClick = (node: TreeNode) => {
     const obj = director.getObjectByUUID(node.id)
 
     if (obj) {
-        director.selectControls.outlinePass.selectedObjects = [obj]
+        director.controls.selectControls.outlinePass.selectedObjects = [obj]
         selected.value = obj
     }
 }
 const LoadModelLoading = ref(false)
 const LoadModelStatus = ref("加载模型")
+function refreshThree() {
+    if (!director) return
+    modelthree.value = director.generateTreeData()
+}
+let globModel: THREE.Object3D | null = null
 async function handelLoadModel() {
     if (!director) return
     LoadModelLoading.value = true
-    const m = await loadModel({ gltf: '/glb/2.glb' }, "glb", progress => {
+    const m = await loadModel({ gltf: '/glb/1.glb' }, "glb", progress => {
         // 当前进度
         LoadModelStatus.value = `当前进度${Math.round(progress.loaded / progress.total * 100)}%`
     })
     m.scale.set(0.3, 0.3, 0.3)
+    globModel = m
     director.scene.add(m)
-    modelthree.value = director.generateTreeData()
-    // const dControls = new DragControls([], director.camera, director.renderer.domElement)
-    // dControls.objects = [m]
-    // dControls.addEventListener('dragstart', function () {
-    //     if (director) director.controls.enabled = false
-    // })
-    // dControls.addEventListener('dragend', function () {
-    //     if (director) director.controls.enabled = true
-    // })
+    refreshThree()
+
     LoadModelStatus.value = "完成"
     LoadModelLoading.value = false
 }
-
+function handelCapModel() {
+    if (director && globModel) {
+        director.controls.capsControls.objects = globModel
+    }
+}
 const ambientLight = ref({ intensity: 0 })
 const baozha = ref(0)
 watch(baozha, value => {
@@ -69,16 +75,13 @@ onMounted(() => {
     })
     director.switchAxesHelper(true)
     director.switchGridHelper(true)
-    const caps = new CAPS.Simulation(director.renderer,director.camera,director.scene,director.controls)
-    director.startRender(()=>{
-        caps.update()
-    })
+    director.startRender()
     director.stats.dom.style.position = 'absolute'
     director.renderer.domElement.parentElement!.appendChild(director.stats.dom)
-    director.scene.background = new THREE.TextureLoader().load("/glb/environment/bg.jpeg")
+    director.scene.background = new THREE.TextureLoader().load("/glb/bg.jpeg")
     ambientLight.value = director.ambientLight
     // 创建轮廓效果Pass
-    director.selectControls.onSelect = (obj: THREE.Object3D, event: MouseEvent) => {
+    director.controls.selectControls.onSelect = (obj: THREE.Object3D, event: MouseEvent) => {
         selected.value = obj
         const label = document.createElement('div');
         label.textContent = obj.name;
@@ -99,13 +102,17 @@ onMounted(() => {
 
 <template>
     <div class="three-container" ref="ThreeContainerRef" id="showCaps" style="position: relative;">
-        <label><input id="showCaps" type="checkbox" checked /> Show caps</label>
         <canvas id="canvas" ref="canvas" style="border: 1px solid;" />
         <div class="panel" style="left: 10px;top: 100px;width: 200px;">
             <el-form label-width="80px" size="small">
                 <el-form-item label="加载模型">
                     <el-button @click="handelLoadModel" v-loading="LoadModelLoading">
                         {{ LoadModelStatus }}
+                    </el-button>
+                </el-form-item>
+                <el-form-item label="刨面模型">
+                    <el-button @click="handelCapModel">
+                        刨面模型
                     </el-button>
                 </el-form-item>
                 <el-form-item label="FPS">
@@ -122,7 +129,7 @@ onMounted(() => {
             </el-form>
         </div>
         <div class="panel" style="right: 10px;top: 100px;width: 200px;">
-            <ThreePanel :modelthree="modelthree" @handleNodeClick="handleNodeClick" />
+            <ThreePanel :modelthree="modelthree" @handleNodeClick="handleNodeClick" @refresh="refreshThree" />
         </div>
         <div class="panel" style="bottom: 0;" v-if="selected">
             <ModelPanel :model="selected" />

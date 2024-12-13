@@ -11,7 +11,7 @@ const treeProps = {
 </script>
 <template>
     <div>
-        <div>模型树</div>
+        <div>模型树 <el-button @click="$emit('refresh')" size="small">重新加载模型树</el-button></div>
         <div style="overflow: auto;height: 100%;">
             <el-tree-v2 style="height: 100%;background: none;" :data="modelthree" node-key="id" :props="treeProps"
                 @node-click="$emit('handleNodeClick', $event)" :expand-on-click-node="false">

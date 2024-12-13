@@ -1,23 +1,14 @@
 import * as THREE from 'three'
-import { loadModel } from './ThreeHelper';
+import { loadModel, MeshBasicMaterialToShaderMaterial } from './utils';
+import { setToNormalizedDeviceCoordinates, MeshStandardMaterialToShaderMaterial } from './utils';
 
 type AxisKey = "x1" | "y1" | "z1" | "x2" | "y2" | "z2";
-export function setToNormalizedDeviceCoordinates(
-	vector: THREE.Vector2,
-	event: MouseEvent | TouchEvent,
-	window: Window
-) {
-	vector.x = event instanceof MouseEvent ? event.clientX : (event.touches && event.touches[0].clientX);
-	vector.y = event instanceof MouseEvent ? event.clientY : (event.touches && event.touches[0].clientY);
-	vector.x = (vector.x / window.innerWidth) * 2 - 1;
-	vector.y = - (vector.y / window.innerHeight) * 2 + 1;
-}
 
 class Geometry extends THREE.BufferGeometry {
-	private vertices: THREE.Vector3[] = [];
-
+	public vertices: THREE.Vector3[] = [];
 	constructor() {
 		super();
+		this.name = "Geometry"
 	}
 
 	push(...args: THREE.Vector3[]) {
@@ -78,32 +69,53 @@ class Geometry extends THREE.BufferGeometry {
 class PlaneGeometry extends Geometry {
 	constructor(v0: THREE.Vector3, v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
 		super();
+		this.name = "PlaneGeometry";
 		super.push(v0, v1, v2, v3);
-		// 计算法线
+
+		const indices = [
+			0, 1, 2,
+			0, 2, 3
+		];
+		const indexAttribute = new THREE.Uint16BufferAttribute(indices, 1);
+		this.setIndex(indexAttribute);
+
 		super.computeVertexNormals();
 	}
 }
 class CapsMesh extends THREE.Mesh {
-	constructor(geometry: PlaneGeometry, material: THREE.ShaderMaterial, public axis: AxisKey, public guardian: SelectionBoxFace) {
+	constructor(
+		geometry: PlaneGeometry,
+		material: THREE.ShaderMaterial,
+		public axis: AxisKey,
+		public guardian: SelectionBoxFace
+	) {
 		super(geometry, material);
+		this.name = 'CapsMesh'
 	}
 }
 class SelectionBoxFace {
 	lines: SelectionBoxLine[] = []
 	constructor(axis: AxisKey, v0: THREE.Vector3, v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, selection: Selection) {
-		const frontFaceGeometry = new CAPS.PlaneGeometry(v0, v1, v2, v3);
+		const frontFaceGeometry = new PlaneGeometry(v0, v1, v2, v3);
+		frontFaceGeometry.name = "frontFaceGeometry"
 		frontFaceGeometry.dynamic = true;
 		selection.meshGeometries.push(frontFaceGeometry);
 
 		const frontFaceMesh = new CapsMesh(frontFaceGeometry, CAPS.MATERIAL.Invisible, axis, this);
+		frontFaceMesh.name = "frontFaceMesh"
+		frontFaceMesh.userData.isCanSelect = false;
 		selection.touchMeshes.add(frontFaceMesh);
 		selection.selectables.push(frontFaceMesh);
 
-		const backFaceGeometry = new CAPS.PlaneGeometry(v3, v2, v1, v0);
+		const backFaceGeometry = new PlaneGeometry(v3, v2, v1, v0);
+		backFaceGeometry.name = "backFaceGeometry"
+		backFaceGeometry.userData.isCanSelect = false;
 		backFaceGeometry.dynamic = true;
 		selection.meshGeometries.push(backFaceGeometry);
 
 		const backFaceMesh = new THREE.Mesh(backFaceGeometry, CAPS.MATERIAL.BoxBackFace);
+		backFaceMesh.name = "backFaceMesh"
+		backFaceMesh.userData.isCanSelect = false;
 		selection.displayMeshes.add(backFaceMesh);
 	}
 
@@ -121,12 +133,11 @@ class SelectionBoxFace {
 		}
 	}
 }
-
-
 class SelectionBoxLine {
 	line: THREE.LineSegments;
 	constructor(v0: THREE.Vector3, v1: THREE.Vector3, f0: SelectionBoxFace, f1: SelectionBoxFace, selection: Selection) {
 		const lineGeometry = new Geometry();
+		lineGeometry.name = "lineGeometry"
 		lineGeometry.push(v0, v1);
 		// 手动计算线段距离
 		lineGeometry.computeLineDistances();
@@ -134,6 +145,8 @@ class SelectionBoxLine {
 		selection.lineGeometries.push(lineGeometry);
 
 		this.line = new THREE.LineSegments(lineGeometry, CAPS.MATERIAL.BoxWireframe);
+		this.line.name = "LineSegments"
+		this.line.userData.isCanSelect = false;
 		selection.displayMeshes.add(this.line);
 
 		f0.lines.push(this);
@@ -156,7 +169,10 @@ class Selection {
 	selectables: THREE.Mesh[] = [];
 
 	constructor(public limitLow: THREE.Vector3, public limitHigh: THREE.Vector3) {
+		this.touchMeshes.name = "touchMeshes"
+		this.displayMeshes.name = "displayMeshes"
 		this.boxMesh = new THREE.Mesh(this.box, CAPS.MATERIAL.cap());
+		this.boxMesh.name = "boxMesh";
 		this.vertices = [
 			new THREE.Vector3(), new THREE.Vector3(),
 			new THREE.Vector3(), new THREE.Vector3(),
@@ -166,25 +182,25 @@ class Selection {
 		this.updateVertices();
 		const v = this.vertices;
 		const f = this.faces;
-		this.faces.push(new CAPS.SelectionBoxFace('y1', v[0], v[1], v[5], v[4], this));
-		this.faces.push(new CAPS.SelectionBoxFace('z1', v[0], v[2], v[3], v[1], this));
-		this.faces.push(new CAPS.SelectionBoxFace('x1', v[0], v[4], v[6], v[2], this));
-		this.faces.push(new CAPS.SelectionBoxFace('x2', v[7], v[5], v[1], v[3], this));
-		this.faces.push(new CAPS.SelectionBoxFace('y2', v[7], v[3], v[2], v[6], this));
-		this.faces.push(new CAPS.SelectionBoxFace('z2', v[7], v[6], v[4], v[5], this));
+		this.faces.push(new SelectionBoxFace('y1', v[0], v[1], v[5], v[4], this));
+		this.faces.push(new SelectionBoxFace('z1', v[0], v[2], v[3], v[1], this));
+		this.faces.push(new SelectionBoxFace('x1', v[0], v[4], v[6], v[2], this));
+		this.faces.push(new SelectionBoxFace('x2', v[7], v[5], v[1], v[3], this));
+		this.faces.push(new SelectionBoxFace('y2', v[7], v[3], v[2], v[6], this));
+		this.faces.push(new SelectionBoxFace('z2', v[7], v[6], v[4], v[5], this));
 
-		const l0 = new CAPS.SelectionBoxLine(v[0], v[1], f[0], f[1], this);
-		const l1 = new CAPS.SelectionBoxLine(v[0], v[2], f[1], f[2], this);
-		const l2 = new CAPS.SelectionBoxLine(v[0], v[4], f[0], f[2], this);
-		const l3 = new CAPS.SelectionBoxLine(v[1], v[3], f[1], f[3], this);
-		const l4 = new CAPS.SelectionBoxLine(v[1], v[5], f[0], f[3], this);
-		const l5 = new CAPS.SelectionBoxLine(v[2], v[3], f[1], f[4], this);
-		const l6 = new CAPS.SelectionBoxLine(v[2], v[6], f[2], f[4], this);
-		const l7 = new CAPS.SelectionBoxLine(v[3], v[7], f[3], f[4], this);
-		const l8 = new CAPS.SelectionBoxLine(v[4], v[5], f[0], f[5], this);
-		const l9 = new CAPS.SelectionBoxLine(v[4], v[6], f[2], f[5], this);
-		const l10 = new CAPS.SelectionBoxLine(v[5], v[7], f[3], f[5], this);
-		const l11 = new CAPS.SelectionBoxLine(v[6], v[7], f[4], f[5], this);
+		const l0 = new SelectionBoxLine(v[0], v[1], f[0], f[1], this);
+		const l1 = new SelectionBoxLine(v[0], v[2], f[1], f[2], this);
+		const l2 = new SelectionBoxLine(v[0], v[4], f[0], f[2], this);
+		const l3 = new SelectionBoxLine(v[1], v[3], f[1], f[3], this);
+		const l4 = new SelectionBoxLine(v[1], v[5], f[0], f[3], this);
+		const l5 = new SelectionBoxLine(v[2], v[3], f[1], f[4], this);
+		const l6 = new SelectionBoxLine(v[2], v[6], f[2], f[4], this);
+		const l7 = new SelectionBoxLine(v[3], v[7], f[3], f[4], this);
+		const l8 = new SelectionBoxLine(v[4], v[5], f[0], f[5], this);
+		const l9 = new SelectionBoxLine(v[4], v[6], f[2], f[5], this);
+		const l10 = new SelectionBoxLine(v[5], v[7], f[3], f[5], this);
+		const l11 = new SelectionBoxLine(v[6], v[7], f[4], f[5], this);
 
 		this.setBox();
 		this.setUniforms();
@@ -257,15 +273,16 @@ class Simulation {
 	backStencil: THREE.Scene = new THREE.Scene();
 	frontStencil: THREE.Scene = new THREE.Scene();
 	selection: Selection;
+	capGroup: THREE.Group = new THREE.Group();
 	showCaps: boolean = true
 	constructor(
-		public renderer: THREE.WebGLRenderer,
-		public camera: THREE.PerspectiveCamera,
 		public scene: THREE.Scene,
+		public camera: THREE.PerspectiveCamera,
+		public renderer: THREE.WebGLRenderer,
 		public controls: THREE.Controls<{}>,
 
 	) {
-		this.selection = new CAPS.Selection(
+		this.selection = new Selection(
 			new THREE.Vector3(-7, -14, -14),
 			new THREE.Vector3(14, 9, 3)
 		);
@@ -273,22 +290,20 @@ class Simulation {
 	}
 
 	init() {
-		const self = this;
-		loadModel({ gltf: '/glb/2.glb' }, "glb").then(m => {
-			self.initScene(m);
-		})
 		this.camera.position.set(20, 20, 30);
 		this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 		this.capsScene.add(this.selection.boxMesh);
-		this.scene.add(this.selection.touchMeshes);
-		this.scene.add(this.selection.displayMeshes);
+		this.capGroup.add(this.selection.displayMeshes);
+		this.capGroup.add(this.selection.touchMeshes);
+		this.capGroup.name = "CapHelper";
+		this.scene.add(this.capGroup);
 
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.setClearColor(0xffffff);
 		this.renderer.autoClear = false;
 
-		CAPS.picking(this); // must come before 
+		this.picking(); // must come before 
 
 		const onWindowResize = () => {
 			this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -326,99 +341,145 @@ class Simulation {
 		front.updateMatrix();
 		this.frontStencil.add(front);
 
-		setMaterial(collada, CAPS.MATERIAL.sheet);
-		collada.scale.set(scale, scale, scale);
-		collada.updateMatrix();
-		this.scene.add(collada);
+		const cloneCollada = collada.clone()
+		setMaterial(cloneCollada, CAPS.MATERIAL.sheet);
+		cloneCollada.scale.set(scale, scale, scale);
+		cloneCollada.updateMatrix();
+		this.scene.add(cloneCollada);
+		this.scene.remove(collada)
+
+		return {
+			back,
+			front,
+			cloneCollada,
+			collada
+		}
 	}
 
+	picking() {
+
+		let intersected: CapsMesh | null = null;
+		const mouse = new THREE.Vector2();
+		const ray = new THREE.Raycaster();
+
+		const normals = {
+			x1: new THREE.Vector3(-1, 0, 0),
+			x2: new THREE.Vector3(1, 0, 0),
+			y1: new THREE.Vector3(0, -1, 0),
+			y2: new THREE.Vector3(0, 1, 0),
+			z1: new THREE.Vector3(0, 0, -1),
+			z2: new THREE.Vector3(0, 0, 1)
+		};
+
+		const CapPlane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 4, 4), CAPS.MATERIAL.Invisible);
+		CapPlane.name = "CapPlane"
+		CapPlane.userData.isCanSelect = false;
+		this.capGroup.add(CapPlane);
+
+		const targeting = (event: MouseEvent | TouchEvent) => {
+			setToNormalizedDeviceCoordinates(mouse, event, window);
+			ray.setFromCamera(mouse, this.camera);
+			const intersects = ray.intersectObjects(this.selection.selectables);
+			if (intersects.length > 0) {
+				const candidate = intersects[0].object as CapsMesh;
+				if (intersected !== candidate) {
+					if (intersected !== null) {
+						intersected.guardian.rayOut();
+					}
+					candidate.guardian.rayOver();
+					intersected = candidate;
+					this.renderer.domElement.style.cursor = 'pointer';
+				}
+			} else if (intersected !== null) {
+				intersected.guardian.rayOut();
+				intersected = null;
+				this.renderer.domElement.style.cursor = 'auto';
+			}
+		};
+
+		const beginDrag = (event: MouseEvent | TouchEvent) => {
+			setToNormalizedDeviceCoordinates(mouse, event, window);
+			ray.setFromCamera(mouse, this.camera);
+			const intersects = ray.intersectObjects(this.selection.selectables);
+			if (intersects.length > 0) {
+				event.preventDefault();
+				event.stopPropagation();
+				this.controls.enabled = false;
+				const intersectionPoint = intersects[0].point;
+				const object = intersects[0].object as CapsMesh
+				const axis = object.axis;
+				if (axis === 'x1' || axis === 'x2') {
+					intersectionPoint.setX(0);
+				} else if (axis === 'y1' || axis === 'y2') {
+					intersectionPoint.setY(0);
+				} else if (axis === 'z1' || axis === 'z2') {
+					intersectionPoint.setZ(0);
+				}
+				CapPlane.position.copy(intersectionPoint);
+				const newNormal = this.camera.position.clone().sub(
+					this.camera.position.clone().projectOnVector(normals[axis])
+				);
+				CapPlane.lookAt(newNormal.add(intersectionPoint));
+				this.renderer.domElement.style.cursor = 'move';
+				const continueDrag = (event: MouseEvent | TouchEvent) => {
+					event.preventDefault();
+					event.stopPropagation();
+					setToNormalizedDeviceCoordinates(mouse, event, window);
+					ray.setFromCamera(mouse, this.camera);
+					const intersects = ray.intersectObject(CapPlane);
+					if (intersects.length > 0) {
+						let value: number = NaN;
+						if (axis === 'x1' || axis === 'x2') {
+							value = intersects[0].point.x;
+						} else if (axis === 'y1' || axis === 'y2') {
+							value = intersects[0].point.y;
+						} else if (axis === 'z1' || axis === 'z2') {
+							value = intersects[0].point.z;
+						}
+						this.selection.setValue(axis, value);
+					}
+				};
+				const endDrag = () => {
+					this.controls.enabled = true;
+					this.renderer.domElement.style.cursor = 'pointer';
+					document.removeEventListener('mousemove', continueDrag, true);
+					document.removeEventListener('touchmove', continueDrag, true);
+					document.removeEventListener('mouseup', endDrag, false);
+					document.removeEventListener('touchend', endDrag, false);
+					document.removeEventListener('touchcancel', endDrag, false);
+					document.removeEventListener('touchleave', endDrag, false);
+				};
+
+				document.addEventListener('mousemove', continueDrag, true);
+				document.addEventListener('touchmove', continueDrag, true);
+				document.addEventListener('mouseup', endDrag, false);
+				document.addEventListener('touchend', endDrag, false);
+				document.addEventListener('touchcancel', endDrag, false);
+				document.addEventListener('touchleave', endDrag, false);
+			}
+
+		};
+		this.renderer.domElement.addEventListener('mousemove', targeting, true);
+		this.renderer.domElement.addEventListener('mousedown', beginDrag, false);
+		this.renderer.domElement.addEventListener('touchstart', beginDrag, false);
+	}
 	update() {
 		this.renderer.render(this.backStencil, this.camera);
 		this.renderer.render(this.capsScene, this.camera);
 		this.renderer.render(this.frontStencil, this.camera);
 	}
 }
-const MeshStandardMaterialToShaderMaterial = (msm: THREE.MeshStandardMaterial, sm: THREE.ShaderMaterial) => {
-	// 迁移基础属性
-	if (msm.color) {
-		sm.uniforms['color'].value.copy(msm.color);
-	}
-	sm.uniforms['roughness'].value = msm.roughness;
-	sm.uniforms['metalness'].value = msm.metalness;
-	if (msm.emissive) {
-		sm.uniforms['emissive'].value.copy(msm.emissive);
-	}
-	sm.uniforms['opacity'].value = msm.opacity;
-
-	// 迁移纹理属性
-	if (msm.envMap) {
-		sm.uniforms['envMap'].value = msm.envMap;
-		sm.uniforms['envMapIntensity'].value = msm.envMapIntensity;
-	}
-
-	if (msm.lightMap) {
-		sm.uniforms['lightMap'].value = msm.lightMap;
-		sm.uniforms['lightMapIntensity'].value = msm.lightMapIntensity;
-	}
-
-	if (msm.aoMap) {
-		sm.uniforms['aoMap'].value = msm.aoMap;
-		sm.uniforms['aoMapIntensity'].value = msm.aoMapIntensity;
-	}
-
-	if (msm.bumpMap) {
-		sm.uniforms['bumpMap'].value = msm.bumpMap;
-		sm.uniforms['bumpScale'].value = msm.bumpScale;
-	}
-
-	if (msm.normalMap) {
-		sm.uniforms['normalMap'].value = msm.normalMap;
-		sm.uniforms['normalScale'].value.copy(msm.normalScale);
-	}
-
-	if (msm.displacementMap) {
-		sm.uniforms['displacementMap'].value = msm.displacementMap;
-		sm.uniforms['displacementScale'].value = msm.displacementScale;
-		sm.uniforms['displacementBias'].value = msm.displacementBias;
-	}
-
-	if (msm.alphaMap) {
-		sm.uniforms['alphaMap'].value = msm.alphaMap;
-	}
-
-	// 确保其他属性也被正确设置
-	sm.side = msm.side;
-	sm.transparent = msm.transparent;
-	sm.depthTest = msm.depthTest;
-	sm.depthWrite = msm.depthWrite;
-	sm.blending = msm.blending;
-	sm.alphaTest = msm.alphaTest;
-	sm.blendSrc = msm.blendSrc;
-	sm.blendDst = msm.blendDst;
-	sm.blendEquation = msm.blendEquation;
-	sm.dithering = msm.dithering;
-	sm.premultipliedAlpha = msm.premultipliedAlpha;
-	sm.visible = msm.visible;
-	sm.toneMapped = msm.toneMapped;
-}
 const CAPS = {
-	PlaneGeometry,
-	SelectionBoxFace,
-	SelectionBoxLine,
-	Selection,
 	Simulation,
 	UNIFORMS: {
-
 		clipping: {
 			color: { type: "c", value: new THREE.Color(0x3d9ecb) },
 			clippingLow: { type: "v3", value: new THREE.Vector3(0, 0, 0) },
 			clippingHigh: { type: "v3", value: new THREE.Vector3(0, 0, 0) }
 		},
-
 		caps: {
 			color: { type: "c", value: new THREE.Color(0xf83610) }
 		}
-
 	},
 	SCHEDULE: {
 		postpone: (callback: Function, context: any, wait: number) => {
@@ -572,7 +633,7 @@ const CAPS = {
 			})
 		},
 
-		sheet: (material?: THREE.MeshStandardMaterial): THREE.ShaderMaterial => {
+		sheet: (material?: THREE.Material): THREE.ShaderMaterial => {
 			const shaderMaterial = new THREE.ShaderMaterial({
 				// 设置默认值
 				uniforms: {
@@ -596,125 +657,26 @@ const CAPS = {
 					displacementScale: { value: 1 },
 					displacementBias: { value: 0 },
 					specularMap: { value: null },
-					alphaMap: { value: null }
+					alphaMap: { value: null },
+					map: { value: null }
 				},
 				vertexShader: CAPS.SHADER.vertexClipping,
 				fragmentShader: CAPS.SHADER.fragmentClipping,
 			});
-			if (material) MeshStandardMaterialToShaderMaterial(material, shaderMaterial)
+			if (material) {
+				if (material instanceof THREE.MeshStandardMaterial) {
+					MeshStandardMaterialToShaderMaterial(material, shaderMaterial)
+				} else if (material instanceof THREE.MeshBasicMaterial) {
+					MeshBasicMaterialToShaderMaterial(material, shaderMaterial)
+				} else {
+					console.warn("不支持的材质类型:", material.constructor.name)
+				}
+			}
 			return shaderMaterial;
 		},
 		backStencil: {} as THREE.ShaderMaterial,
 		frontStencil: {} as THREE.ShaderMaterial,
 		Invisible: {} as THREE.ShaderMaterial
-	},
-	picking: (simulation: Simulation) => {
-
-		let intersected: CapsMesh | null = null;
-		const mouse = new THREE.Vector2();
-		const ray = new THREE.Raycaster();
-
-		const normals = {
-			x1: new THREE.Vector3(-1, 0, 0),
-			x2: new THREE.Vector3(1, 0, 0),
-			y1: new THREE.Vector3(0, -1, 0),
-			y2: new THREE.Vector3(0, 1, 0),
-			z1: new THREE.Vector3(0, 0, -1),
-			z2: new THREE.Vector3(0, 0, 1)
-		};
-
-		const plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 4, 4), CAPS.MATERIAL.Invisible);
-		simulation.scene.add(plane);
-
-		const targeting = (event: MouseEvent | TouchEvent) => {
-			setToNormalizedDeviceCoordinates(mouse, event, window);
-			ray.setFromCamera(mouse, simulation.camera);
-			const intersects = ray.intersectObjects(simulation.selection.selectables);
-			if (intersects.length > 0) {
-				const candidate = intersects[0].object as CapsMesh;
-				if (intersected !== candidate) {
-					if (intersected !== null) {
-						intersected.guardian.rayOut();
-					}
-					candidate.guardian.rayOver();
-					intersected = candidate;
-					simulation.renderer.domElement.style.cursor = 'pointer';
-				}
-			} else if (intersected !== null) {
-				intersected.guardian.rayOut();
-				intersected = null;
-				simulation.renderer.domElement.style.cursor = 'auto';
-			}
-		};
-
-		const beginDrag = (event: MouseEvent | TouchEvent) => {
-			setToNormalizedDeviceCoordinates(mouse, event, window);
-			ray.setFromCamera(mouse, simulation.camera);
-			const intersects = ray.intersectObjects(simulation.selection.selectables);
-			if (intersects.length > 0) {
-				event.preventDefault();
-				event.stopPropagation();
-				simulation.controls.enabled = false;
-				const intersectionPoint = intersects[0].point;
-				const object = intersects[0].object as CapsMesh
-				const axis = object.axis;
-				if (axis === 'x1' || axis === 'x2') {
-					intersectionPoint.setX(0);
-				} else if (axis === 'y1' || axis === 'y2') {
-					intersectionPoint.setY(0);
-				} else if (axis === 'z1' || axis === 'z2') {
-					intersectionPoint.setZ(0);
-				}
-				plane.position.copy(intersectionPoint);
-				const newNormal = simulation.camera.position.clone().sub(
-					simulation.camera.position.clone().projectOnVector(normals[axis])
-				);
-				plane.lookAt(newNormal.add(intersectionPoint));
-				simulation.renderer.domElement.style.cursor = 'move';
-				const continueDrag = (event: MouseEvent | TouchEvent) => {
-					event.preventDefault();
-					event.stopPropagation();
-					setToNormalizedDeviceCoordinates(mouse, event, window);
-					ray.setFromCamera(mouse, simulation.camera);
-					const intersects = ray.intersectObject(plane);
-					if (intersects.length > 0) {
-						let value: number = NaN;
-						if (axis === 'x1' || axis === 'x2') {
-							value = intersects[0].point.x;
-						} else if (axis === 'y1' || axis === 'y2') {
-							value = intersects[0].point.y;
-						} else if (axis === 'z1' || axis === 'z2') {
-							value = intersects[0].point.z;
-						}
-						simulation.selection.setValue(axis, value);
-					}
-				};
-				const endDrag = () => {
-					simulation.controls.enabled = true;
-					simulation.renderer.domElement.style.cursor = 'pointer';
-					document.removeEventListener('mousemove', continueDrag, true);
-					document.removeEventListener('touchmove', continueDrag, true);
-					document.removeEventListener('mouseup', endDrag, false);
-					document.removeEventListener('touchend', endDrag, false);
-					document.removeEventListener('touchcancel', endDrag, false);
-					document.removeEventListener('touchleave', endDrag, false);
-				};
-
-				document.addEventListener('mousemove', continueDrag, true);
-				document.addEventListener('touchmove', continueDrag, true);
-				document.addEventListener('mouseup', endDrag, false);
-				document.addEventListener('touchend', endDrag, false);
-				document.addEventListener('touchcancel', endDrag, false);
-				document.addEventListener('touchleave', endDrag, false);
-
-			}
-
-		};
-
-		simulation.renderer.domElement.addEventListener('mousemove', targeting, true);
-		simulation.renderer.domElement.addEventListener('mousedown', beginDrag, false);
-		simulation.renderer.domElement.addEventListener('touchstart', beginDrag, false);
-
 	}
 }
 
@@ -738,4 +700,40 @@ CAPS.MATERIAL.Invisible = new THREE.ShaderMaterial({
 	vertexShader: CAPS.SHADER.invisibleVertexShader,
 	fragmentShader: CAPS.SHADER.invisibleFragmentShader
 })
-export default CAPS
+export default class CapsControls extends THREE.Controls<{}> {
+	public simulation: Simulation
+	private _initSceneOpt?: {
+		back: THREE.Object3D<THREE.Object3DEventMap>;
+		front: THREE.Object3D<THREE.Object3DEventMap>;
+		cloneCollada: THREE.Object3D<THREE.Object3DEventMap>;
+		collada: THREE.Object3D;
+	}
+	set objects(obj: THREE.Object3D<THREE.Object3DEventMap>) {
+		if (this._initSceneOpt) {
+			this.simulation.frontStencil.remove(this._initSceneOpt.front)
+			this.simulation.backStencil.remove(this._initSceneOpt.back)
+			this.simulation.scene.remove(this._initSceneOpt.cloneCollada)
+			this.simulation.scene.add(this._initSceneOpt.collada)
+		}
+		this.scene.remove(obj)
+		this._initSceneOpt = this.simulation.initScene(obj)
+	}
+	constructor(
+		public scene: THREE.Scene,
+		public camera: THREE.PerspectiveCamera,
+		public renderer: THREE.WebGLRenderer,
+		public controls: THREE.Controls<{}>
+	) {
+		super(camera, renderer.domElement)
+		this.simulation = new Simulation(
+			this.scene,
+			this.camera,
+			this.renderer,
+			this.controls
+		)
+	}
+
+	public update(): void {
+		this.simulation.update()
+	}
+}
