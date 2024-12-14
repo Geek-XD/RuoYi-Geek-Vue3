@@ -49,6 +49,7 @@ async function handelLoadModel() {
 }
 function handelCapModel() {
     if (director && globModel) {
+        director.controls.capsControls.visible = true
         director.controls.capsControls.objects = globModel
     }
 }

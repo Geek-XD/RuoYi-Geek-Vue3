@@ -316,6 +316,9 @@ class Simulation {
 	initScene(collada: THREE.Object3D) {
 		const setMaterial = (node: THREE.Object3D, material: THREE.ShaderMaterial | ((...age: any[]) => THREE.ShaderMaterial)) => {
 			if (node instanceof THREE.Mesh || node instanceof THREE.Line) {
+				if ("mesh_7_1" === node.name) {
+					console.log(node.material);
+				}
 				if (typeof material === 'function') {
 					node.material = material(node.material);
 				} else {
@@ -469,7 +472,23 @@ class Simulation {
 		this.renderer.render(this.frontStencil, this.camera);
 	}
 }
+import vertexClipping from './glsl/CapsControls/vertexClipping.glsl'
+import vertex from './glsl/CapsControls/vertex.glsl'
+import fragment from './glsl/CapsControls/fragment.glsl'
+import fragmentClipping from './glsl/CapsControls/fragmentClipping.glsl'
+import fragmentClippingFront from './glsl/CapsControls/fragmentClippingFront.glsl'
+import invisibleVertexShader from './glsl/CapsControls/invisibleVertexShader.glsl'
+import invisibleFragmentShader from './glsl/CapsControls/invisibleFragmentShader.glsl'
 const CAPS = {
+	SHADER: {
+		vertex,
+		vertexClipping,
+		fragment,
+		fragmentClipping,
+		fragmentClippingFront,
+		invisibleVertexShader,
+		invisibleFragmentShader,
+	},
 	Simulation,
 	UNIFORMS: {
 		clipping: {
@@ -490,137 +509,6 @@ const CAPS = {
 			};
 		},
 	},
-	SHADER: {
-		vertex: `
-			uniform vec3 color;
-			varying vec3 pixelNormal;
-	
-			void main() {
-	
-				pixelNormal = normal;
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-	
-			}`,
-
-		vertexClipping: `
-			uniform vec3 color;
-			uniform vec3 clippingLow;
-			uniform vec3 clippingHigh;
-	
-			varying vec3 pixelNormal;
-			varying vec4 worldPosition;
-			varying vec3 camPosition;
-	
-			void main() {
-	
-				pixelNormal = normal;
-				worldPosition = modelMatrix * vec4( position, 1.0 );
-				camPosition = cameraPosition;
-	
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-	
-			}`,
-
-		fragment: `
-			uniform vec3 color;
-			varying vec3 pixelNormal;
-	
-			void main( void ) {
-	
-				float shade = (
-					  3.0 * pow ( abs ( pixelNormal.y ), 2.0 )
-					+ 2.0 * pow ( abs ( pixelNormal.z ), 2.0 )
-					+ 1.0 * pow ( abs ( pixelNormal.x ), 2.0 )
-				) / 3.0;
-	
-				gl_FragColor = vec4( color * shade, 1.0 );
-	
-			}`,
-
-		fragmentClipping: `
-			uniform vec3 color;
-			uniform vec3 clippingLow;
-			uniform vec3 clippingHigh;
-	
-			varying vec3 pixelNormal;
-			varying vec4 worldPosition;
-	
-			void main( void ) {
-	
-				float shade = (
-					  3.0 * pow ( abs ( pixelNormal.y ), 2.0 )
-					+ 2.0 * pow ( abs ( pixelNormal.z ), 2.0 )
-					+ 1.0 * pow ( abs ( pixelNormal.x ), 2.0 )
-				) / 3.0;
-	
-				if (
-					   worldPosition.x < clippingLow.x
-					|| worldPosition.x > clippingHigh.x
-					|| worldPosition.y < clippingLow.y
-					|| worldPosition.y > clippingHigh.y
-					|| worldPosition.z < clippingLow.z
-					|| worldPosition.z > clippingHigh.z
-				) {
-	
-					discard;
-	
-				} else {
-	
-					gl_FragColor = vec4( color * shade, 1.0 );
-	
-				}
-	
-			}`,
-
-		fragmentClippingFront: `
-			uniform vec3 color;
-			uniform vec3 clippingLow;
-			uniform vec3 clippingHigh;
-	
-			varying vec3 pixelNormal;
-			varying vec4 worldPosition;
-			varying vec3 camPosition;
-	
-			void main( void ) {
-	
-				float shade = (
-					  3.0 * pow ( abs ( pixelNormal.y ), 2.0 )
-					+ 2.0 * pow ( abs ( pixelNormal.z ), 2.0 )
-					+ 1.0 * pow ( abs ( pixelNormal.x ), 2.0 )
-				) / 3.0;
-	
-				if (
-					   worldPosition.x < clippingLow.x  && camPosition.x < clippingLow.x
-					|| worldPosition.x > clippingHigh.x && camPosition.x > clippingHigh.x
-					|| worldPosition.y < clippingLow.y  && camPosition.y < clippingLow.y
-					|| worldPosition.y > clippingHigh.y && camPosition.y > clippingHigh.y
-					|| worldPosition.z < clippingLow.z  && camPosition.z < clippingLow.z
-					|| worldPosition.z > clippingHigh.z && camPosition.z > clippingHigh.z
-				) {
-	
-					discard;
-	
-				} else {
-	
-					gl_FragColor = vec4( color * shade, 1.0 );
-	
-				}
-	
-			}`,
-
-		invisibleVertexShader: `
-			void main() {
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-				gl_Position = projectionMatrix * mvPosition;
-			}`,
-
-		invisibleFragmentShader: `
-			void main( void ) {
-				gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-				discard;
-			}`
-
-	},
 	MATERIAL: {
 		BoxBackFace: new THREE.MeshBasicMaterial({ color: 0xEEDDCC, transparent: true }),
 		BoxWireframe: new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }),
@@ -632,7 +520,6 @@ const CAPS = {
 				fragmentShader: CAPS.SHADER.fragment
 			})
 		},
-
 		sheet: (material?: THREE.Material): THREE.ShaderMaterial => {
 			const shaderMaterial = new THREE.ShaderMaterial({
 				// 设置默认值
@@ -658,7 +545,7 @@ const CAPS = {
 					displacementBias: { value: 0 },
 					specularMap: { value: null },
 					alphaMap: { value: null },
-					map: { value: null }
+					map: { value: null },
 				},
 				vertexShader: CAPS.SHADER.vertexClipping,
 				fragmentShader: CAPS.SHADER.fragmentClipping,
@@ -702,6 +589,13 @@ CAPS.MATERIAL.Invisible = new THREE.ShaderMaterial({
 })
 export default class CapsControls extends THREE.Controls<{}> {
 	public simulation: Simulation
+	set visible(b: boolean) {
+		if (b) {
+			this.scene.add(this.simulation.capGroup)
+		} else {
+			this.scene.remove(this.simulation.capGroup)
+		}
+	}
 	private _initSceneOpt?: {
 		back: THREE.Object3D<THREE.Object3DEventMap>;
 		front: THREE.Object3D<THREE.Object3DEventMap>;

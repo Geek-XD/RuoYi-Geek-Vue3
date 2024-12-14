@@ -78,7 +78,6 @@ export function getWorldCenterPosition(box: THREE.Box3, scalar = 0.5): THREE.Vec
 }
 
 export function MeshStandardMaterialToShaderMaterial(msm: THREE.MeshStandardMaterial, sm: THREE.ShaderMaterial) {
-
     // 迁移基础属性
     if (msm.color) {
         sm.uniforms['color'].value.copy(msm.color);

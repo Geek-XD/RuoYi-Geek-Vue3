@@ -4,9 +4,10 @@ import createAutoImport from './auto-import'
 import createSvgIcon from './svg-icon'
 import createCompression from './compression'
 import createSetupExtend from './setup-extend'
+import glsl from "vite-plugin-glsl";
 
 export default function createVitePlugins(viteEnv, isBuild = false) {
-    const vitePlugins = [vue()]
+    const vitePlugins = [vue(),glsl()]
     vitePlugins.push(createAutoImport())
 	vitePlugins.push(createSetupExtend())
     vitePlugins.push(createSvgIcon(isBuild))

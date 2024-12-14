@@ -84,6 +84,7 @@ export class Director {
         this.composer = new EffectComposer(this.renderer);
         const selectControls = new SelectControls(this.scene, this.camera, this.renderer.domElement)
         const capsControls = new CapsControls(this.scene, this.camera, this.renderer, orbitControls)
+        capsControls.visible = false
         const dragControls = new DragControls([], this.camera, this.renderer.domElement)
         dragControls.addEventListener('dragstart', () => this.controls.orbitControls.enabled = false)
         dragControls.addEventListener('dragend', () => this.controls.orbitControls.enabled = true)

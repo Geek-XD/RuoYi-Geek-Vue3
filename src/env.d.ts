@@ -16,5 +16,10 @@ declare module "*.vue" {
   export default component;
 }
 
+declare module '*.glsl' {
+  const value: string;
+  export default value;
+}
+
 declare module 'particles.vue3';
 declare module 'jsencrypt/bin/jsencrypt.min';
