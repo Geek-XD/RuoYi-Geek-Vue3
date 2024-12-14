@@ -5,9 +5,9 @@ varying vec3 pixelNormal;
 varying vec4 worldPosition;
 varying vec3 camPosition;
 
-
+varying vec2 vUv;  // 纹理坐标
 void main() {
-
+    vUv = uv;
     pixelNormal = normal;
     worldPosition = modelMatrix * vec4(position, 1.0);
     camPosition = cameraPosition;

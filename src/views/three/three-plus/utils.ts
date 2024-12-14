@@ -87,9 +87,12 @@ export function MeshStandardMaterialToShaderMaterial(msm: THREE.MeshStandardMate
     if (msm.emissive) {
         sm.uniforms['emissive'].value.copy(msm.emissive);
     }
-    sm.uniforms['opacity'].value = msm.opacity;
-
+    
     // 迁移纹理属性
+    if (msm.map) {
+        sm.uniforms['map'].value = msm.map;
+    }
+
     if (msm.envMap) {
         sm.uniforms['envMap'].value = msm.envMap;
         sm.uniforms['envMapIntensity'].value = msm.envMapIntensity;
@@ -128,6 +131,7 @@ export function MeshStandardMaterialToShaderMaterial(msm: THREE.MeshStandardMate
     // 确保其他属性也被正确设置
     sm.side = msm.side;
     sm.transparent = msm.transparent;
+    sm.opacity = msm.opacity;
     sm.depthTest = msm.depthTest;
     sm.depthWrite = msm.depthWrite;
     sm.blending = msm.blending;
