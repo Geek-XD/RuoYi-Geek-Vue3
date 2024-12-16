@@ -16,7 +16,7 @@ interface ParameterGroup {
 
 // 使用 defineProps 来定义 props 并指定其类型
 const props = defineProps<{ model: THREE.Object3D }>();
-watch(()=>props.model,()=>console.log(props.model));
+watch(() => props.model, () => console.log(props.model));
 const parameters: ComputedRef<ParameterGroup[]> = computed(() => {
     if (props.model) {
         return props.model.userData.Parameters

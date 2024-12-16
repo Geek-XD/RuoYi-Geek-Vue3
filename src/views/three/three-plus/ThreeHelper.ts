@@ -22,6 +22,7 @@ export interface TreeNode {
     label: string;
     id: string;
     children: TreeNode[];
+    type: string
 }
 
 export class Director {
@@ -59,7 +60,7 @@ export class Director {
     height: number
 
     get FPS() {
-        return 1 / this.wait
+        return this.wait
     }
     set FPS(fps: number) {
         this.wait = 1 / fps
@@ -116,6 +117,7 @@ export class Director {
             const treeItem = {
                 label: node.name || node.type,
                 id: `${parent ? parent.id + '.' : ''}${node.uuid}`, // 使用唯一标识符作为id
+                type: node.type,
                 children: new Array<TreeNode>()
             }
             if (node.children && node.children.length > 0) {
@@ -154,10 +156,9 @@ export class Director {
         let timeS = 0;
         let realFPS = 0;
         const animate = () => {
-            requestAnimationFrame(animate)
             let T = this.clock.getDelta();
             timeS = timeS + T;
-            if (timeS > this.wait) {
+            if (timeS >= this.wait) {
                 if (onRander) onRander(realFPS)
                 this.renderer.clear();
                 this.stats.update()
@@ -166,6 +167,7 @@ export class Director {
                 realFPS = 1 / timeS
                 timeS = 0;
             }
+            requestAnimationFrame(animate)
         }
         animate()
 

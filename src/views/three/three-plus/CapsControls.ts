@@ -589,13 +589,28 @@ CAPS.MATERIAL.Invisible = new THREE.ShaderMaterial({
 })
 export default class CapsControls extends THREE.Controls<{}> {
 	public simulation: Simulation
+	private _visible: boolean = false
 	set visible(b: boolean) {
 		if (b) {
 			this.scene.add(this.simulation.capGroup)
+			this._visible = true
 		} else {
+			if (this._initSceneOpt) {
+				this.simulation.frontStencil.remove(this._initSceneOpt.front)
+				this.simulation.backStencil.remove(this._initSceneOpt.back)
+				this.simulation.scene.remove(this._initSceneOpt.cloneCollada)
+				this.simulation.scene.add(this._initSceneOpt.collada)
+			}
 			this.scene.remove(this.simulation.capGroup)
+			this._visible = false
 		}
 	}
+
+	get visible() {
+		return this._visible
+	}
+
+
 	private _initSceneOpt?: {
 		back: THREE.Object3D<THREE.Object3DEventMap>;
 		front: THREE.Object3D<THREE.Object3DEventMap>;

@@ -1,14 +1,11 @@
 <script setup name="Index" lang="ts">
 import * as THREE from 'three'
-import { DragControls } from 'three/examples/jsm/controls/DragControls.js'
 import { Director, TreeNode } from './three-plus/ThreeHelper'
 import { onMounted, ref, watch } from 'vue';
 import ModelPanel from './ModelPanel.vue'
 import ThreePanel from './ThreePanel.vue'
-import CAPS from './three-plus/CapsControls';
 import { loadModel } from './three-plus/utils';
 import { explodeModel, initExplodeModel } from './three-plus/ExplodeControls';
-import CapsControls from './three-plus/CapsControls';
 
 const canvas = ref()
 const FPS = ref(30)
@@ -16,10 +13,15 @@ watch(FPS, () => director ? director.FPS = FPS.value : void 0)
 let director: Director | undefined
 const modelthree = ref(new Array<TreeNode>())
 const selected = ref()
+watch(selected, () => {
+    if (director) {
+        director.controls.dragControls.objects = director.controls.selectControls.outlinePass.selectedObjects
+        director.controls.dragControls.transformGroup = true
+    }
+})
 const handleNodeClick = (node: TreeNode) => {
     if (!director?.scene) return
     const obj = director.getObjectByUUID(node.id)
-
     if (obj) {
         director.controls.selectControls.outlinePass.selectedObjects = [obj]
         selected.value = obj
@@ -97,8 +99,6 @@ onMounted(() => {
         setTimeout(() => document.body.removeChild(label), 5000);
     }
 })
-
-
 </script>
 
 <template>
@@ -129,7 +129,7 @@ onMounted(() => {
                 </el-form-item>
             </el-form>
         </div>
-        <div class="panel" style="right: 10px;top: 100px;width: 200px;">
+        <div class="panel" style="right: 10px;top: 100px;width: 300px;">
             <ThreePanel :modelthree="modelthree" @handleNodeClick="handleNodeClick" @refresh="refreshThree" />
         </div>
         <div class="panel" style="bottom: 0;" v-if="selected">
@@ -151,7 +151,6 @@ onMounted(() => {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     z-index: 999;
     color: white;
-    max-height: 300px;
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.8);

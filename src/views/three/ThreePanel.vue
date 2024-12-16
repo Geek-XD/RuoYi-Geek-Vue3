@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { onMounted, reactive, ref, watch } from 'vue';
 import { TreeNode } from './three-plus/ThreeHelper';
+import type { TreeNodeData } from 'element-plus/es/components/tree-v2/src/types'
+import { ElTreeV2 } from 'element-plus';
 const props = defineProps<{
     modelthree: TreeNode[]
 }>()
@@ -8,14 +11,63 @@ const treeProps = {
     label: 'label',
     value: 'id'
 }
+const emit = defineEmits(['handleNodeClick', 'refresh'])
+const input = ref('all')
+const types = ref<Array<{ value: string, label: string }>>([
+    { value: 'all', label: '全部' },
+    { value: 'Mesh', label: '网格' },
+    { value: 'Group', label: '组' },
+    { value: 'Object3D', label: '对象' },
+])
+watch(() => props.modelthree, () => {
+    const typesArray = []
+    typesArray.push({ 'value': '', 'label': '全部' })
+    props.modelthree.forEach(item => typesArray.push({ label: item.type, value: item.type }))
+    types.value = typesArray.filter((item, index, array) => array.indexOf(item) === index)
+})
+watch(input, () => treeRef.value!.filter(input.value))
+function handleNodeClick(item: any) {
+    emit('handleNodeClick', item)
+}
+const treeRef = ref<InstanceType<typeof ElTreeV2>>()
+const filterMethod = (query: string, node: TreeNodeData) => node.type === query || query === 'all'
 </script>
 <template>
-    <div>
-        <div>模型树 <el-button @click="$emit('refresh')" size="small">重新加载模型树</el-button></div>
-        <div style="overflow: auto;height: 100%;">
-            <el-tree-v2 style="height: 100%;background: none;" :data="modelthree" node-key="id" :props="treeProps"
-                @node-click="$emit('handleNodeClick', $event)" :expand-on-click-node="false">
-            </el-tree-v2>
+    <div style="width: 100%;">
+        <div class="title">
+            <div>模型树</div>
+            <el-button @click="$emit('refresh')" size="small">
+                <div style="width:124px">重新加载模型树</div>
+            </el-button>
         </div>
+        <div class="search">
+            <div>筛选</div>
+            <el-select size="small" style="width:150px" v-model="input">
+                <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+        </div>
+        <el-tree-v2 :height="500" style="height: 100%;background: none;" :data="modelthree" node-key="id"
+            :props="treeProps" @node-click="handleNodeClick" :expand-on-click-node="false" ref="treeRef"
+            :filter-method="filterMethod">
+            <template #default="{ node }">
+                <span class="prefix" :class="{ 'is-leaf': node.isLeaf }">[{{ node.data.type }}]</span>
+                <span>{{ node.label }}</span>
+            </template>
+        </el-tree-v2>
     </div>
 </template>
+
+<style scoped lang="scss">
+.title {
+    display: flex;
+    justify-content: space-between;
+    height: 35px;
+}
+
+.search {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 10px;
+}
+</style>
