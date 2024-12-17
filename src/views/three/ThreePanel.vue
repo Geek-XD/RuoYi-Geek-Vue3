@@ -66,12 +66,13 @@ const selectMethod = () => {
 
 <style scoped lang="scss">
 .title {
+    height: 35px;
     display: flex;
     justify-content: space-between;
-    height: 35px;
 }
 
 .search {
+    height: 35px;
     display: flex;
     justify-content: space-between;
     border-bottom: 2px solid #eee;

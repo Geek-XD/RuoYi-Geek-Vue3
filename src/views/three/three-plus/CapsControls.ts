@@ -298,39 +298,19 @@ class Simulation {
 		this.capGroup.add(this.selection.touchMeshes);
 		this.capGroup.name = "CapHelper";
 		this.scene.add(this.capGroup);
-
-		this.renderer.setPixelRatio(window.devicePixelRatio);
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
-		this.renderer.setClearColor(0xffffff);
-		this.renderer.autoClear = false;
-
 		this.picking(); // must come before 
-
-		const onWindowResize = () => {
-			this.camera.aspect = window.innerWidth / window.innerHeight;
-			this.camera.updateProjectionMatrix();
-			this.renderer.setSize(window.innerWidth, window.innerHeight);
-		};
-		window.addEventListener('resize', onWindowResize, false);
 	}
 
 	initScene(collada: THREE.Object3D) {
 		const setMaterial = (node: THREE.Object3D, material: THREE.ShaderMaterial | ((...age: any[]) => THREE.ShaderMaterial)) => {
 			if (node instanceof THREE.Mesh || node instanceof THREE.Line) {
-				if ("mesh_7_1" === node.name) {
-					console.log(node.material);
-				}
 				if (typeof material === 'function') {
 					node.material = material(node.material);
 				} else {
 					node.material = material;
 				}
 			}
-			if (node.children) {
-				for (let i = 0; i < node.children.length; i++) {
-					setMaterial(node.children[i], material);
-				}
-			}
+			if (node.children) node.children.forEach(n => setMaterial(n, material))
 		};
 		const scale = 0.3
 		const back = collada.clone();
@@ -352,16 +332,10 @@ class Simulation {
 		this.scene.add(cloneCollada);
 		this.scene.remove(collada)
 
-		return {
-			back,
-			front,
-			cloneCollada,
-			collada
-		}
+		return { back, front, cloneCollada, collada }
 	}
 
 	picking() {
-
 		let intersected: CapsMesh | null = null;
 		const mouse = new THREE.Vector2();
 		const ray = new THREE.Raycaster();
@@ -593,7 +567,7 @@ CAPS.MATERIAL.Invisible = new THREE.ShaderMaterial({
 })
 export default class CapsControls extends THREE.Controls<{}> {
 	public simulation: Simulation
-	set visible(b: boolean) {
+	private set visible(b: boolean) {
 		if (b) {
 			this.scene.add(this.simulation.capGroup)
 			this.simulation.visible = true
@@ -608,12 +582,9 @@ export default class CapsControls extends THREE.Controls<{}> {
 			this.simulation.visible = false
 		}
 	}
-
-	get visible() {
+	private get visible() {
 		return this.simulation.visible
 	}
-
-
 	private _initSceneOpt?: {
 		back: THREE.Object3D<THREE.Object3DEventMap>;
 		front: THREE.Object3D<THREE.Object3DEventMap>;

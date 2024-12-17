@@ -114,9 +114,22 @@ export class Director {
         this.controls = { orbitControls, selectControls, capsControls, dragControls, transformControls }
         this.composer.addPass(renderPass);
         this.composer.addPass(selectControls.outlinePass);
-        this.scene.add(transformControls.getHelper());
         this.FPS = options.FPS || 30
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0xffffff);
+        this.renderer.autoClear = false;
 
+        this.stats.dom.style.position = 'absolute'
+        this.stats.dom.style.left = ''
+        this.stats.dom.style.right = '0px'
+
+        const onWindowResize = () => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener('resize', onWindowResize, false);
     }
     startRender(onRander?: (FPS: number) => void) {
         let timeS = 0;
@@ -153,6 +166,13 @@ export class Director {
         } else {
             this.scene.remove(this.gridHelper)
             this.showGridHelper = false
+        }
+    }
+    switchStats(show: boolean) {
+        if (show) {
+            this.renderer.domElement.parentElement!.appendChild(this.stats.dom)
+        } else {
+            this.renderer.domElement.parentElement!.removeChild(this.stats.dom)
         }
     }
     generateTreeData() {
