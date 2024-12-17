@@ -275,6 +275,7 @@ class Simulation {
 	selection: Selection;
 	capGroup: THREE.Group = new THREE.Group();
 	showCaps: boolean = true
+	visible: boolean = true
 	constructor(
 		public scene: THREE.Scene,
 		public camera: THREE.PerspectiveCamera,
@@ -380,10 +381,12 @@ class Simulation {
 		this.capGroup.add(CapPlane);
 
 		const targeting = (event: MouseEvent | TouchEvent) => {
+			if (!this.visible) return
 			setToNormalizedDeviceCoordinates(mouse, event, window);
 			ray.setFromCamera(mouse, this.camera);
 			const intersects = ray.intersectObjects(this.selection.selectables);
 			if (intersects.length > 0) {
+				console.log("targeting", intersects);
 				const candidate = intersects[0].object as CapsMesh;
 				if (intersected !== candidate) {
 					if (intersected !== null) {
@@ -401,6 +404,7 @@ class Simulation {
 		};
 
 		const beginDrag = (event: MouseEvent | TouchEvent) => {
+			if (!this.visible) return
 			setToNormalizedDeviceCoordinates(mouse, event, window);
 			ray.setFromCamera(mouse, this.camera);
 			const intersects = ray.intersectObjects(this.selection.selectables);
@@ -589,11 +593,10 @@ CAPS.MATERIAL.Invisible = new THREE.ShaderMaterial({
 })
 export default class CapsControls extends THREE.Controls<{}> {
 	public simulation: Simulation
-	private _visible: boolean = false
 	set visible(b: boolean) {
 		if (b) {
 			this.scene.add(this.simulation.capGroup)
-			this._visible = true
+			this.simulation.visible = true
 		} else {
 			if (this._initSceneOpt) {
 				this.simulation.frontStencil.remove(this._initSceneOpt.front)
@@ -602,12 +605,12 @@ export default class CapsControls extends THREE.Controls<{}> {
 				this.simulation.scene.add(this._initSceneOpt.collada)
 			}
 			this.scene.remove(this.simulation.capGroup)
-			this._visible = false
+			this.simulation.visible = false
 		}
 	}
 
 	get visible() {
-		return this._visible
+		return this.simulation.visible
 	}
 
 
@@ -643,6 +646,7 @@ export default class CapsControls extends THREE.Controls<{}> {
 	}
 
 	public update(): void {
+		if (this.visible != this.enabled) this.visible = this.enabled
 		this.simulation.update()
 	}
 }

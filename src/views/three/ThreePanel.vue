@@ -18,19 +18,24 @@ const types = ref<Array<{ value: string, label: string }>>([
     { value: 'Mesh', label: '网格' },
     { value: 'Group', label: '组' },
     { value: 'Object3D', label: '对象' },
+    { value: 'Light', label: '光源' },
 ])
 watch(() => props.modelthree, () => {
     const typesArray = []
-    typesArray.push({ 'value': '', 'label': '全部' })
+    typesArray.push({ 'value': 'all', 'label': '全部' })
     props.modelthree.forEach(item => typesArray.push({ label: item.type, value: item.type }))
     types.value = typesArray.filter((item, index, array) => array.indexOf(item) === index)
 })
-watch(input, () => treeRef.value!.filter(input.value))
 function handleNodeClick(item: any) {
     emit('handleNodeClick', item)
 }
 const treeRef = ref<InstanceType<typeof ElTreeV2>>()
-const filterMethod = (query: string, node: TreeNodeData) => node.type === query || query === 'all'
+const filterMethod = (query: string, node: TreeNodeData) => node.type.includes(query) || query === 'all'
+const selectMethod = () => {
+    console.log(input.value);
+    treeRef.value!.filter(input.value)
+};
+
 </script>
 <template>
     <div style="width: 100%;">
@@ -42,7 +47,7 @@ const filterMethod = (query: string, node: TreeNodeData) => node.type === query 
         </div>
         <div class="search">
             <div>筛选</div>
-            <el-select size="small" style="width:150px" v-model="input">
+            <el-select size="small" style="width:150px" v-model="input" @change="selectMethod">
                 <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
         </div>
@@ -50,7 +55,9 @@ const filterMethod = (query: string, node: TreeNodeData) => node.type === query 
             :props="treeProps" @node-click="handleNodeClick" :expand-on-click-node="false" ref="treeRef"
             :filter-method="filterMethod">
             <template #default="{ node }">
-                <span class="prefix" :class="{ 'is-leaf': node.isLeaf }">[{{ node.data.type }}]</span>
+                <span class="prefix" :class="{ 'is-leaf': node.isLeaf }">
+                    [{{ node.data.type }}]
+                </span>
                 <span>{{ node.label }}</span>
             </template>
         </el-tree-v2>

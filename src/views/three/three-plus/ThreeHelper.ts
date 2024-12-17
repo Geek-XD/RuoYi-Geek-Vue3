@@ -6,6 +6,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { SelectControls } from './SelectControls';
 import CapsControls from './CapsControls';
 import { DragControls } from 'three/examples/jsm/controls/DragControls';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
 
 interface DirectorOption {
     /** canvas DOM */
@@ -40,6 +41,7 @@ export class Director {
         selectControls: SelectControls
         capsControls: CapsControls
         dragControls: DragControls
+        transformControls: TransformControls
     }
     /** 渲染组合器 */
     composer: EffectComposer
@@ -85,15 +87,56 @@ export class Director {
         this.composer = new EffectComposer(this.renderer);
         const selectControls = new SelectControls(this.scene, this.camera, this.renderer.domElement)
         const capsControls = new CapsControls(this.scene, this.camera, this.renderer, orbitControls)
-        capsControls.visible = false
+        capsControls.enabled = false
         const dragControls = new DragControls([], this.camera, this.renderer.domElement)
         dragControls.addEventListener('dragstart', () => this.controls.orbitControls.enabled = false)
         dragControls.addEventListener('dragend', () => this.controls.orbitControls.enabled = true)
-        this.controls = { orbitControls, selectControls, capsControls, dragControls }
+        // dragControls.addEventListener('drag', (evt) => {
+        //     if (evt.object.parent != null) {
+        //         evt.object.parent.position.copy(evt.object.position);  // parent的位置更新为object的位置
+        //         evt.object.position.set(0, 0, 0); // 相对于parent来说, position置为原始状态
+        //     }
+        // })
+        const transformControls = new TransformControls(this.camera, this.renderer.domElement);
+        transformControls.addEventListener('change', () => {
+            console.log('模型拖动')
+        })
+        transformControls.addEventListener('dragging-changed', function (event) {
+            console.log('Dragging changed:', event.value);
+            orbitControls.enabled = !event.value;
+        })
+        transformControls.addEventListener('mouseUp', () => {
+            console.log('Mouse up on TransformControls');
+        });
+        transformControls.addEventListener('mouseDown', () => {
+            console.log('Mouse down on TransformControls');
+        });
+        this.controls = { orbitControls, selectControls, capsControls, dragControls, transformControls }
         this.composer.addPass(renderPass);
         this.composer.addPass(selectControls.outlinePass);
-
+        this.scene.add(transformControls.getHelper());
         this.FPS = options.FPS || 30
+
+    }
+    startRender(onRander?: (FPS: number) => void) {
+        let timeS = 0;
+        let realFPS = 0;
+        const animate = () => {
+            let T = this.clock.getDelta();
+            timeS = timeS + T;
+            if (timeS >= this.wait) {
+                if (onRander) onRander(realFPS)
+                this.renderer.clear();
+                this.stats.update()
+                Object.values(this.controls).forEach(controls => controls.update(T))
+                this.composer.render();
+                realFPS = 1 / timeS
+                timeS = 0;
+            }
+            requestAnimationFrame(animate)
+        }
+        animate()
+
     }
     switchAxesHelper(show: boolean) {
         if (show && !this.showAxesHelper) {
@@ -151,25 +194,5 @@ export class Director {
             currentObject = found;
         }
         return currentObject;
-    }
-    startRender(onRander?: (FPS: number) => void) {
-        let timeS = 0;
-        let realFPS = 0;
-        const animate = () => {
-            let T = this.clock.getDelta();
-            timeS = timeS + T;
-            if (timeS >= this.wait) {
-                if (onRander) onRander(realFPS)
-                this.renderer.clear();
-                this.stats.update()
-                Object.values(this.controls).forEach(controls => controls.update(T))
-                this.composer.render();
-                realFPS = 1 / timeS
-                timeS = 0;
-            }
-            requestAnimationFrame(animate)
-        }
-        animate()
-
     }
 }

@@ -12,6 +12,7 @@ export class SelectControls extends THREE.Controls<{}> {
         this.outlinePass.edgeGlow = 0.3; // 边缘发光强度
         this.outlinePass.visibleEdgeColor.set(new THREE.Color(0, 255, 0)); // 红色描边
         this.domElement.addEventListener("click", (event: MouseEvent) => {
+            if (!this.enabled) return
             if (!this.domElement) throw new Error("domElement is null")
             const rect = this.domElement.getBoundingClientRect();
             const mouse = new THREE.Vector2(
@@ -23,13 +24,14 @@ export class SelectControls extends THREE.Controls<{}> {
             const intersects = raycaster.intersectObjects(scene.children, true);
             for (let intersect of intersects) {
                 let obj3D = intersect.object
-                if (obj3D.type == 'GridHelper' || obj3D.type == 'AxesHelper') {
+                if (obj3D.type == 'GridHelper' || obj3D.type == 'AxesHelper' || obj3D.type == 'TransformControlsPlane') {
                     continue
                 }
-                if(obj3D.userData.isCanSelect === false){
+                if (obj3D.userData.isCanSelect === false) {
                     continue
                 }
                 this.outlinePass.selectedObjects = [obj3D]
+                console.log(obj3D);
                 if (this.onSelect) this.onSelect(obj3D, event)
                 return
             }

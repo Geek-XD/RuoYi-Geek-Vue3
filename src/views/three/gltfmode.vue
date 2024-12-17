@@ -15,8 +15,8 @@ const modelthree = ref(new Array<TreeNode>())
 const selected = ref()
 watch(selected, () => {
     if (director) {
+        director.controls.dragControls.enabled = true
         director.controls.dragControls.objects = director.controls.selectControls.outlinePass.selectedObjects
-        director.controls.dragControls.transformGroup = true
     }
 })
 const handleNodeClick = (node: TreeNode) => {
@@ -24,6 +24,9 @@ const handleNodeClick = (node: TreeNode) => {
     const obj = director.getObjectByUUID(node.id)
     if (obj) {
         director.controls.selectControls.outlinePass.selectedObjects = [obj]
+        // director.controls.dragControls.objects = [obj]
+        director.controls.dragControls.enabled = false
+        director.controls.transformControls.attach(obj)
         selected.value = obj
     }
 }
@@ -37,10 +40,11 @@ let globModel: THREE.Object3D | null = null
 async function handelLoadModel() {
     if (!director) return
     LoadModelLoading.value = true
-    const m = await loadModel({ gltf: '/glb/1.glb' }, "glb", progress => {
-        // 当前进度
-        LoadModelStatus.value = `当前进度${Math.round(progress.loaded / progress.total * 100)}%`
-    })
+    const m = await loadModel(
+        { gltf: '/glb/1.glb' },
+        "glb",
+        progress => LoadModelStatus.value = `当前进度${Math.round(progress.loaded / progress.total * 100)}%`
+    )
     m.scale.set(0.3, 0.3, 0.3)
     globModel = m
     director.scene.add(m)
@@ -51,7 +55,7 @@ async function handelLoadModel() {
 }
 function handelCapModel() {
     if (director && globModel) {
-        director.controls.capsControls.visible = true
+        director.controls.capsControls.enabled = !director.controls.capsControls.enabled
         director.controls.capsControls.objects = globModel
     }
 }
