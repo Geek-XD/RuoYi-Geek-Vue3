@@ -3,6 +3,7 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { TreeNode } from './three-plus/ThreeHelper';
 import type { TreeNodeData } from 'element-plus/es/components/tree-v2/src/types'
 import { ElTreeV2 } from 'element-plus';
+import { transform } from './director';
 const props = defineProps<{
     modelthree: TreeNode[]
 }>()
@@ -31,10 +32,7 @@ function handleNodeClick(item: any) {
 }
 const treeRef = ref<InstanceType<typeof ElTreeV2>>()
 const filterMethod = (query: string, node: TreeNodeData) => node.type.includes(query) || query === 'all'
-const selectMethod = () => {
-    console.log(input.value);
-    treeRef.value!.filter(input.value)
-};
+const selectMethod = () => treeRef.value!.filter(input.value)
 
 </script>
 <template>
@@ -51,11 +49,11 @@ const selectMethod = () => {
                 <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
         </div>
-        <el-tree-v2 :height="500" style="height: 100%;background: none;" :data="modelthree" node-key="id"
+        <el-tree-v2 :height="300" style="height: 100%;background: none;" :data="modelthree" node-key="id"
             :props="treeProps" @node-click="handleNodeClick" :expand-on-click-node="false" ref="treeRef"
             :filter-method="filterMethod">
             <template #default="{ node }">
-                <span class="prefix" :class="{ 'is-leaf': node.isLeaf }">
+                <span class="prefix">
                     [{{ node.data.type }}]
                 </span>
                 <span>{{ node.label }}</span>

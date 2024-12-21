@@ -10,7 +10,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 interface DirectorOption {
     /** canvas DOM */
-    canvas: HTMLCanvasElement,
+    canvas?: HTMLCanvasElement | THREE.OffscreenCanvas,
     /** 宽度 */
     width: number,
     /** 高度 */
@@ -91,26 +91,10 @@ export class Director {
         const dragControls = new DragControls([], this.camera, this.renderer.domElement)
         dragControls.addEventListener('dragstart', () => this.controls.orbitControls.enabled = false)
         dragControls.addEventListener('dragend', () => this.controls.orbitControls.enabled = true)
-        // dragControls.addEventListener('drag', (evt) => {
-        //     if (evt.object.parent != null) {
-        //         evt.object.parent.position.copy(evt.object.position);  // parent的位置更新为object的位置
-        //         evt.object.position.set(0, 0, 0); // 相对于parent来说, position置为原始状态
-        //     }
-        // })
         const transformControls = new TransformControls(this.camera, this.renderer.domElement);
-        transformControls.addEventListener('change', () => {
-            console.log('模型拖动')
-        })
         transformControls.addEventListener('dragging-changed', function (event) {
-            console.log('Dragging changed:', event.value);
             orbitControls.enabled = !event.value;
         })
-        transformControls.addEventListener('mouseUp', () => {
-            console.log('Mouse up on TransformControls');
-        });
-        transformControls.addEventListener('mouseDown', () => {
-            console.log('Mouse down on TransformControls');
-        });
         this.controls = { orbitControls, selectControls, capsControls, dragControls, transformControls }
         this.composer.addPass(renderPass);
         this.composer.addPass(selectControls.outlinePass);
@@ -214,5 +198,21 @@ export class Director {
             currentObject = found;
         }
         return currentObject;
+    }
+    getObjectBySingleUUID(uuid: string): THREE.Object3D | null {
+        const traverseScene = (node: THREE.Object3D): THREE.Object3D | null => {
+            if (node.uuid === uuid) {
+                return node;
+            }
+            for (let i = 0; i < node.children.length; i++) {
+                const found = traverseScene(node.children[i]);
+                if (found) {
+                    return found;
+                }
+            }
+            return null;
+        };
+
+        return traverseScene(this.scene);
     }
 }
