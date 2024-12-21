@@ -57,7 +57,7 @@ onMounted(() => {
         <Panel style="right: 10px;top: 50px;width: 280px;">
             <SelectedPanel />
         </Panel>
-        <Panel style="right: 10px;top: 280px;width: 280px;">
+        <Panel style="left: 10px;top: 250px;width: 280px;">
             <ThreePanel :modelthree="modelthree" @handleNodeClick="handleNodeClick" @refresh="refreshThree" />
         </Panel>
         <Panel style="bottom: 10px;" v-if="selected">

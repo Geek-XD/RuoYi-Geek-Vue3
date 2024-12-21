@@ -8,12 +8,13 @@ const director = new Director({
 })
 function initFastKey() {
     document.addEventListener('keydown', (e) => {
-        e.preventDefault();
         console.log(e.altKey);
         if (e.key === 'Escape') {
+            e.preventDefault();
             unselectObject()
         }
         if (e.key === 'Backspace') {
+            e.preventDefault();
             if (transform.object) {
                 let o = director.getObjectBySingleUUID(transform.object.uuid)
                 if (o) {
@@ -25,12 +26,6 @@ function initFastKey() {
                     refreshThree()
                 }
             }
-        }
-
-
-        if (e.key === 'Alt') {
-            console.log('alt');
-
         }
     })
 }
