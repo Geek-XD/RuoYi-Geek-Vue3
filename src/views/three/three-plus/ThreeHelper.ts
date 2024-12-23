@@ -109,10 +109,13 @@ export class Director {
         this.stats.dom.style.right = '0px'
 
         const onWindowResize = () => {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-        };
+            this.width = window.innerWidth
+            this.height = window.innerHeight
+            this.composer.setSize(this.width, this.height)
+            this.composer.setPixelRatio(window.devicePixelRatio)
+            this.camera.aspect = this.width / this.height
+            this.camera.updateProjectionMatrix()
+        }
         window.addEventListener('resize', onWindowResize, false);
     }
     startRender(onRander?: (FPS: number) => void) {
