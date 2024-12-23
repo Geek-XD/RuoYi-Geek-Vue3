@@ -111,6 +111,8 @@ export class Director {
         const onWindowResize = () => {
             this.width = window.innerWidth
             this.height = window.innerHeight
+            this.renderer.setSize(this.width, this.height)
+            this.renderer.setPixelRatio(window.devicePixelRatio)
             this.composer.setSize(this.width, this.height)
             this.composer.setPixelRatio(window.devicePixelRatio)
             this.camera.aspect = this.width / this.height
