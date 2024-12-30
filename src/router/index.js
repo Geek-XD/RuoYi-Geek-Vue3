@@ -23,6 +23,7 @@ import Layout from '@/layout'
     activeMenu: '/system/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
     group:"group"                   // 当路由设置了该属性，则相同组的路由共用一个tab标签，可以是route对象里面的内容：(route)=>route.query.xx
     transition:"fade-transform"     // 设置该路由的切换动画，默认淡出，不需要动画可以填none，动画需要自己在transition.scss中定义
+    isTopMenu: true                 // 当设置为true时，该路由的第一个子路由会在TopNav模式下显示为顶级菜单
     }
  */
 
