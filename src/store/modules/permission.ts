@@ -9,6 +9,21 @@ import { defineStore } from 'pinia'
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
 
+/**
+ * 权限管理模块
+ * 
+ * 路由生成说明：
+ * 1. generateRoutes方法负责生成所有路由：
+ *    - 从后端获取动态路由数据
+ *    - 处理动态路由数据（过滤、转换组件等）
+ *    - 根据设置决定TopNav菜单的数据来源
+ * 
+ * 2. TopNav菜单数据生成规则：
+ *    - 启用TopNav导入本地路由：constantRoutes + defaultRoutes
+ *    - 关闭TopNav导入本地路由：仅使用defaultRoutes
+ *    - 通过settingsStore.topNavMixMenu控制
+ */
+
 const usePermissionStore = defineStore(
   'permission',
   {
@@ -48,7 +63,7 @@ const usePermissionStore = defineStore(
             this.setRoutes(rewriteRoutes)
             this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
             this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes(defaultRoutes)
+            this.setTopbarRoutes(constantRoutes.concat(defaultRoutes))
             resolve(rewriteRoutes)
           })
         })

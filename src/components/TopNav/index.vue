@@ -1,3 +1,22 @@
+/**
+ * TopNav组件
+ * 
+ * 功能说明：
+ * 1. 顶部导航栏组件，支持显示一级菜单和更多菜单折叠
+ * 2. 支持两种菜单来源：
+ *    - 仅显示后端动态路由（关闭TopNav导入本地路由时）
+ *    - 混合显示本地路由和后端动态路由（开启TopNav导入本地路由时）
+ * 3. 特殊处理：
+ *    - 空路径("")或根路径("/")：显示其第一个子路由为顶级菜单
+ *    - isTopMenu: 将该路由的第一个子路由显示为顶级菜单
+ * 
+ * 配置说明：
+ * 1. 在系统设置中可配置：
+ *    - 开启/关闭TopNav
+ *    - 开启/关闭TopNav导入本地路由
+ * 2. 路由配置中可使用meta.isTopMenu控制菜单行为
+ */
+
 <template>
   <el-menu
     :default-active="activeMenu"
@@ -59,15 +78,40 @@ const topMenus = computed(() => {
   routers.value.map((menu) => {
     if (menu.hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
-      if (menu.path === "/") {
-          topMenus.push(menu.children[0]);
+      if (menu.path === "" || menu.path === "/") {
+        if(menu.children && menu.children[0]) {
+          const child = menu.children[0];
+          // 确保子路由有正确的path
+          child.path = child.path.replace('//', '/');
+          if(!child.meta) {
+            child.meta = {};
+          }
+          if(!child.meta.icon) {
+            child.meta.icon = 'dashboard';
+          }
+          topMenus.push(child);
+        }
+      } else if (menu.meta?.isTopMenu && menu.children?.[0]) {
+        // 使用isTopMenu标处理需要显示子路由为顶级菜单的情况
+        const firstChild = menu.children[0];
+        firstChild.path = menu.path;
+        topMenus.push(firstChild);
       } else {
-          topMenus.push(menu);
+        // 确保menu有meta对象
+        if(!menu.meta) {
+          menu.meta = {};
+        }
+        // 确保menu有icon属性
+        if(!menu.meta.icon) {
+          menu.meta.icon = 'dashboard';
+        }
+        topMenus.push(menu);
       }
     }
   })
   return topMenus;
 })
+
 
 // 设置子路由
 const childrenMenus = computed(() => {
