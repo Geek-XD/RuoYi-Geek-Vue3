@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { computed, ComputedRef, watch } from 'vue';
+import { computed, ComputedRef, ref, watch } from 'vue';
 import * as THREE from 'three'
+import { transform } from './director'
 
 // 定义参数项的类型
 interface ParameterItem {
@@ -13,33 +14,29 @@ interface ParameterGroup {
     GroupName: string;
     Parameters: ParameterItem[];
 }
-
 // 使用 defineProps 来定义 props 并指定其类型
-const props = defineProps<{ model: THREE.Object3D }>();
-watch(() => props.model, () => console.log(props.model));
-const parameters: ComputedRef<ParameterGroup[]> = computed(() => {
-    if (props.model) {
-        return props.model.userData.Parameters
+const parameters = ref<ParameterGroup[]>([])
+const material = ref<THREE.Material>()
+watch(() => transform.object, () => {
+    console.log(transform.object);
+    
+    if (transform.object) {
+        parameters.value = transform.object.userData.Parameters
+        const model: THREE.Mesh = transform.object as THREE.Mesh
+        if (model.material) {
+            material.value = model.material as THREE.Material
+        } else {
+            material.value = {} as THREE.Material
+        }
     } else {
-        return []
+        parameters.value = []
     }
 });
-const material: ComputedRef<any> = computed(() => {
-    const model: THREE.Mesh = props.model as THREE.Mesh
-    if (model.material) {
-        return model.material
-    } else {
-        return {}
-    }
-})
 </script>
 <template>
-    <div>
-        <div>名称：{{ model.name }}</div>
+    <div v-if="transform.object">
+        <div>名称：{{ transform.object.name }}</div>
         <div v-if="material">材质名称：{{ material.name }}</div>
-        <div v-if="model.userData.Parameters">
-            <Parameters :parameters="model.userData.Parameters"></Parameters>
-        </div>
         <div class="parameter-list">
             <div v-for="(group, index) in parameters" :key="index" class="parameter-group">
                 <div class="parameter-group-name">{{ group.GroupName }}</div>

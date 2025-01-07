@@ -1,12 +1,11 @@
 <script setup name="Index" lang="ts">
 import * as THREE from 'three'
-import { Director, TreeNode } from './three-plus/ThreeHelper'
-import { customRef, onMounted, reactive, ref, shallowReactive, shallowRef, watch } from 'vue';
+import { TreeNode } from './three-plus/ThreeHelper'
+import { onMounted, ref, shallowRef, watch } from 'vue';
 import ModelPanel from './ModelPanel.vue'
 import ThreePanel from './ThreePanel.vue'
-import { loadModel } from './three-plus/utils';
 import Panel from './Panel.vue';
-import director, { transform, modelthree, refreshThree, selectNode, selectObject, initDirector } from './director'
+import director, { modelthree, refreshThree, selectNode, selectObject, initDirector } from './director'
 import SelectedPanel from './SelectedPanel.vue';
 import OperatePanel from './OperatePanel.vue';
 
@@ -60,8 +59,8 @@ onMounted(() => {
         <Panel style="left: 10px;top: 250px;width: 280px;">
             <ThreePanel :modelthree="modelthree" @handleNodeClick="handleNodeClick" @refresh="refreshThree" />
         </Panel>
-        <Panel style="bottom: 10px;" v-if="selected">
-            <ModelPanel :model="selected" />
+        <Panel style="bottom: 10px;">
+            <ModelPanel />
         </Panel>
     </div>
 </template>
