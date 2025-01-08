@@ -11,7 +11,7 @@ const useAppStore = defineStore(
         hide: false
       },
       device: 'desktop',
-      size: localStorage.getItem('size') || 'default'
+      size: (localStorage.getItem('size') || 'default') as 'large'|'default'|'small'
     }),
     actions: {
       toggleSideBar(withoutAnimation: boolean) {
@@ -34,7 +34,7 @@ const useAppStore = defineStore(
       toggleDevice(device:string) {
         this.device = device
       },
-      setSize(size:string) {
+      setSize(size:'large'|'default'|'small') {
         this.size = size;
         localStorage.setItem('size', size)
       },
