@@ -2,7 +2,7 @@
 import request from '@/utils/request';
 import { computed } from 'vue';
 
-const porp = defineProps(["path", "tag", "sql", "parameterType", "resultMap", "tagId", "method"])
+const porp = defineProps(["path", "tag", "sqlText", "parameterType", "resultMap", "tagId", "method"])
 const generated = reactive({
   path: "",
   codes: [
@@ -21,7 +21,7 @@ const generated = reactive({
           code += "resultMap=\"" + porp.resultMap + "\" "
         }
         code += ">\n"
-        code += porp.sql
+        code += porp.sqlText
         code += "\n</" + porp.tag + ">"
         return code
       },

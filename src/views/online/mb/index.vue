@@ -161,8 +161,8 @@
           </el-col>
         </el-row>
 
-        <el-form-item label="sql语句" prop="sql">
-          <mybatis-input v-model="form.sql" placeholder="请输入sql语句"></mybatis-input>
+        <el-form-item label="sql语句" prop="sqlText">
+          <mybatis-input v-model="form.sqlText" placeholder="请输入sql语句"></mybatis-input>
         </el-form-item>
         <el-row :gutter="10">
           <el-col :span="12">
@@ -249,7 +249,7 @@ const data = reactive({
     tagId: null,
     parameterType: null,
     resultMap: null,
-    sql: null,
+    sqlText: null,
     path: null,
     method: null,
     resultType: null,
@@ -304,7 +304,7 @@ function reset() {
     tagId: null,
     parameterType: null,
     resultMap: null,
-    sql: null,
+    sqlText: null,
     path: null,
     method: null,
     resultType: null,
