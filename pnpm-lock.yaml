@@ -32,6 +32,9 @@ importers:
       js-cookie:
         specifier: 3.0.5
         version: 3.0.5
+      jsbarcode:
+        specifier: ^3.11.6
+        version: 3.11.6
       jsencrypt:
         specifier: 3.3.2
         version: 3.3.2
@@ -71,7 +74,7 @@ importers:
         version: 0.170.0
       '@vitejs/plugin-vue':
         specifier: 5.1.4
-        version: 5.1.4(vite@5.4.8)(vue@3.5.11)
+        version: 5.1.4(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))(vue@3.5.11)
       '@vue/compiler-sfc':
         specifier: 3.5.11
         version: 3.5.11
@@ -83,22 +86,22 @@ importers:
         version: 2.8.1
       unplugin-auto-import:
         specifier: 0.18.3
-        version: 0.18.3(@vueuse/core@11.1.0)
+        version: 0.18.3(@vueuse/core@11.1.0(vue@3.5.11))(rollup@4.28.1)
       vite:
         specifier: 5.4.8
-        version: 5.4.8(sass@1.79.4)
+        version: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
       vite-plugin-compression:
         specifier: 0.5.1
-        version: 0.5.1(vite@5.4.8)
+        version: 0.5.1(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))
       vite-plugin-glsl:
         specifier: ^1.3.1
-        version: 1.3.1(vite@5.4.8)
+        version: 1.3.1(rollup@4.28.1)(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))
       vite-plugin-svg-icons:
         specifier: 2.0.1
-        version: 2.0.1(vite@5.4.8)
+        version: 2.0.1(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))
       vite-plugin-vue-setup-extend:
         specifier: 0.4.0
-        version: 0.4.0(vite@5.4.8)
+        version: 0.4.0(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))
 
 packages:
 
@@ -1233,6 +1236,9 @@ packages:
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
+  jsbarcode@3.11.6:
+    resolution: {integrity: sha512-G5TKGyKY1zJo0ZQKFM1IIMfy0nF2rs92BLlCz+cU4/TazIc4ZH+X1GYeDRt7TKjrYqmPfTjwTBkU/QnQlsYiuA==}
+
   jsencrypt@3.3.2:
     resolution: {integrity: sha512-arQR1R1ESGdAxY7ZheWr12wCaF2yF47v5qpB76TtV64H1pyGudk9Hvw8Y9tb/FiTIaaTRUyaSnm5T/Y53Ghm/A==}
 
@@ -2070,11 +2076,13 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@rollup/pluginutils@5.1.3':
+  '@rollup/pluginutils@5.1.3(rollup@4.28.1)':
     dependencies:
       '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 4.0.2
+    optionalDependencies:
+      rollup: 4.28.1
 
   '@rollup/rollup-android-arm-eabi@4.28.1':
     optional: true
@@ -2172,9 +2180,9 @@ snapshots:
 
   '@types/webxr@0.5.20': {}
 
-  '@vitejs/plugin-vue@5.1.4(vite@5.4.8)(vue@3.5.11)':
+  '@vitejs/plugin-vue@5.1.4(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4))(vue@3.5.11)':
     dependencies:
-      vite: 5.4.8(sass@1.79.4)
+      vite: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
       vue: 3.5.11
 
   '@vue/compiler-core@3.5.11':
@@ -2774,7 +2782,7 @@ snapshots:
       reusify: 1.0.4
 
   fdir@6.4.2(picomatch@4.0.2):
-    dependencies:
+    optionalDependencies:
       picomatch: 4.0.2
 
   fflate@0.8.2: {}
@@ -3088,6 +3096,8 @@ snapshots:
   js-cookie@3.0.5: {}
 
   js-tokens@9.0.1: {}
+
+  jsbarcode@3.11.6: {}
 
   jsencrypt@3.3.2: {}
 
@@ -3742,9 +3752,9 @@ snapshots:
 
   undici-types@6.20.0: {}
 
-  unimport@3.14.4:
+  unimport@3.14.4(rollup@4.28.1):
     dependencies:
-      '@rollup/pluginutils': 5.1.3
+      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
       acorn: 8.14.0
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
@@ -3770,17 +3780,18 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unplugin-auto-import@0.18.3(@vueuse/core@11.1.0):
+  unplugin-auto-import@0.18.3(@vueuse/core@11.1.0(vue@3.5.11))(rollup@4.28.1):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.3
-      '@vueuse/core': 11.1.0(vue@3.5.11)
+      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
       fast-glob: 3.3.2
       local-pkg: 0.5.1
       magic-string: 0.30.14
       minimatch: 9.0.5
-      unimport: 3.14.4
+      unimport: 3.14.4(rollup@4.28.1)
       unplugin: 1.16.0
+    optionalDependencies:
+      '@vueuse/core': 11.1.0(vue@3.5.11)
     transitivePeerDependencies:
       - rollup
 
@@ -3804,23 +3815,23 @@ snapshots:
 
   vform3-builds@3.0.10: {}
 
-  vite-plugin-compression@0.5.1(vite@5.4.8):
+  vite-plugin-compression@0.5.1(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4)):
     dependencies:
       chalk: 4.1.2
       debug: 4.4.0
       fs-extra: 10.1.0
-      vite: 5.4.8(sass@1.79.4)
+      vite: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-glsl@1.3.1(vite@5.4.8):
+  vite-plugin-glsl@1.3.1(rollup@4.28.1)(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4)):
     dependencies:
-      '@rollup/pluginutils': 5.1.3
-      vite: 5.4.8(sass@1.79.4)
+      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
+      vite: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-svg-icons@2.0.1(vite@5.4.8):
+  vite-plugin-svg-icons@2.0.1(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4)):
     dependencies:
       '@types/svgo': 2.6.4
       cors: 2.8.5
@@ -3830,24 +3841,25 @@ snapshots:
       pathe: 0.2.0
       svg-baker: 1.7.0
       svgo: 2.8.0
-      vite: 5.4.8(sass@1.79.4)
+      vite: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-setup-extend@0.4.0(vite@5.4.8):
+  vite-plugin-vue-setup-extend@0.4.0(vite@5.4.8(@types/node@22.10.1)(sass@1.79.4)):
     dependencies:
       '@vue/compiler-sfc': 3.5.11
       magic-string: 0.25.9
-      vite: 5.4.8(sass@1.79.4)
+      vite: 5.4.8(@types/node@22.10.1)(sass@1.79.4)
 
-  vite@5.4.8(sass@1.79.4):
+  vite@5.4.8(@types/node@22.10.1)(sass@1.79.4):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.49
       rollup: 4.28.1
-      sass: 1.79.4
     optionalDependencies:
+      '@types/node': 22.10.1
       fsevents: 2.3.3
+      sass: 1.79.4
 
   vue-cropper@1.1.1: {}
 

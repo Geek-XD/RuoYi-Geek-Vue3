@@ -28,6 +28,7 @@ function getPayUrl() {
             </el-col>
             <el-col :span="12">
                 <QRCodeView :data="data" :logo="profile"></QRCodeView>
+                <JsBarcodeView :data="data"></JsBarcodeView>
             </el-col>
         </el-row>
     </div>

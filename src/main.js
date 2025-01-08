@@ -46,6 +46,8 @@ import DictTag from '@/components/DictTag'
 import Editor from "@/components/Editor";
 // Qrcode 二维码组件
 import QRCodeView from "@/components/QRCodeView";
+// JsBarcode 条形码组件
+import JsBarcodeView from "@/components/JsBarcodeView";
 
 const app = createApp(App)
 
@@ -69,6 +71,7 @@ app.component('ImagePreview', ImagePreview)
 app.component('RightToolbar', RightToolbar)
 app.component('Editor', Editor)
 app.component('QRCodeView', QRCodeView)
+app.component('JsBarcodeView', JsBarcodeView)
 
 app.use(router)
 app.use(store)
