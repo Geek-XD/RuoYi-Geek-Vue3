@@ -2,14 +2,7 @@ import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
-
-export interface LoginForm {
-  username: string
-  password: string
-  code: string
-  uuid: string
-}
-
+import { LoginForm, RoleInfo, UserInfo } from '@/types/user'
 
 const useUserStore = defineStore(
   'user',
@@ -18,8 +11,11 @@ const useUserStore = defineStore(
       token: getToken(),
       name: '',
       avatar: '',
-      roles: Array(),
-      permissions: []
+      roleName: '',
+      deptName: '',
+      loginDate: '',
+      roles: [] as string[],
+      permissions: [] as string[]
     }),
     actions: {
       // 登录
@@ -40,8 +36,10 @@ const useUserStore = defineStore(
       },
       // 获取用户信息
       getInfo() {
-        return new Promise((resolve, reject) => {
+        return new Promise<{user: UserInfo, roles: RoleInfo[], permissions: string[]}>((resolve, reject) => {
           getInfo().then((res:any) => {
+            console.log(res);
+            
             const user = res.user
             // @ts-ignore
             const avatar = (user.avatar == "" || user.avatar == null) ? defAva : import.meta.env.VITE_APP_BASE_API + user.avatar;
@@ -53,7 +51,12 @@ const useUserStore = defineStore(
               this.roles = ['ROLE_DEFAULT']
             }
             this.name = user.userName
+            this.roleName = user.roles[0]?user.roles[0].roleName:'普通角色'
+            this.deptName = user.dept.deptName
+            this.loginDate = user.loginDate
             this.avatar = avatar;
+            console.log(res);
+            
             resolve(res)
           }).catch(error => {
             reject(error)

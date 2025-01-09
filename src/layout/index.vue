@@ -1,13 +1,18 @@
 <template>
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
-    <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar v-if="!sidebar.hide" class="sidebar-container" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
+    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="handleClickOutside" />
+    <!-- 侧边栏 -->
+    <sidebar v-if="!sidebarOption.hide" class="sidebar-container" />
+    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
+        <!-- 导航栏/面包屑 -->
         <navbar @setLayout="setLayout" />
+        <!-- 标签页 -->
         <tags-view v-if="needTagsView" />
       </div>
+      <!-- 主界面区 -->
       <app-main />
+      <!-- 布局设置 -->
       <settings ref="settingRef" />
     </div>
   </div>
@@ -15,23 +20,22 @@
 
 <script setup>
 import { useWindowSize } from '@vueuse/core'
-import Sidebar from './components/Sidebar/index.vue'
-import { AppMain, Navbar, Settings, TagsView } from './components'
+import { AppMain, Settings, TagsView, Sidebar, Navbar } from './components'
 
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 
 const settingsStore = useSettingsStore()
 const theme = computed(() => settingsStore.theme);
-const sidebar = computed(() => useAppStore().sidebar);
+const sidebarOption = computed(() => useAppStore().sidebar);
 const device = computed(() => useAppStore().device);
 const needTagsView = computed(() => settingsStore.tagsView);
 const fixedHeader = computed(() => settingsStore.fixedHeader);
 
 const classObj = computed(() => ({
-  hideSidebar: !sidebar.value.opened,
-  openSidebar: sidebar.value.opened,
-  withoutAnimation: sidebar.value.withoutAnimation,
+  hideSidebar: !sidebarOption.value.opened,
+  openSidebar: sidebarOption.value.opened,
+  withoutAnimation: sidebarOption.value.withoutAnimation,
   mobile: device.value === 'mobile'
 }))
 
@@ -39,7 +43,7 @@ const { width, height } = useWindowSize();
 const WIDTH = 992; // refer to Bootstrap's responsive design
 
 watchEffect(() => {
-  if (device.value === 'mobile' && sidebar.value.opened) {
+  if (device.value === 'mobile' && sidebarOption.value.opened) {
     useAppStore().closeSideBar({ withoutAnimation: false })
   }
   if (width.value - 1 < WIDTH) {

@@ -20,7 +20,20 @@ export type GeekRequestConfig = {
 export type GeekResponse<T = any> = {
     code: number;
     msg: string;
-    data?: T;
-    total?: number;
-    rows?: Array<T>
+    data: T;
+    total: number;
+    rows: Array<T>
+}
+
+export type GeekResponseForList<T = any> = {
+    code: number;
+    msg: string;
+    total: number;
+    rows: Array<T>
+}
+
+export type GeekResponseForData<T = any> = {
+    code: number;
+    msg: string;
+    data: T;
 }

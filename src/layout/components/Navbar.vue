@@ -1,11 +1,15 @@
 <template>
   <div class="navbar">
+    <!-- 侧边栏切换按钮 -->
     <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"
       @toggleClick="toggleSideBar" />
 
+    <!-- 顶部导航栏 -->
     <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav" />
+    <!-- 面包屑导航栏 -->
     <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-else />
 
+    <!-- 右侧菜单 -->
     <div class="right-menu">
       <template v-if="appStore.device !== 'mobile'">
         <header-search id="header-search" class="right-menu-item" />
