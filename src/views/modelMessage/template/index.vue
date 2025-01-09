@@ -41,8 +41,8 @@
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
+
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改模版管理对话框 -->
@@ -52,7 +52,7 @@
           <el-input v-model="form.templateName" placeholder="请输入模版名称" />
         </el-form-item>
         <el-form-item label="模版CODE" prop="templateCode" label-width="90px">
-          <el-input v-model="form.templateCode" placeholder="请输入模版CODE" @blur="validateTemplateCode" />
+          <el-input v-model="form.templateCode" placeholder="请输入模版CODE" />
         </el-form-item>
         <el-form-item label="模版类型" prop="templateType">
           <el-select v-model="form.templateType" placeholder="请选择模版类型">
@@ -61,7 +61,8 @@
         </el-form-item>
         <el-form-item label="变量" prop="templateVariable">
           <el-select v-model="form.templateVariable" placeholder="请选择变量" multiple @change="handleVariableChange">
-            <el-option v-for="item in variable" :key="item.variableId" :label="item.variableName" :value="item.variableName" />
+            <el-option v-for="item in variable" :key="item.variableId" :label="item.variableName"
+              :value="item.variableName" />
           </el-select>
         </el-form-item>
         <el-form-item label="模版内容" prop="templateContent">
@@ -99,7 +100,7 @@ const title = ref("");
 const variable = ref([]);
 
 const data = reactive({
-  form: {templateContent: ''},
+  form: { templateContent: '' },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -108,7 +109,7 @@ const data = reactive({
   },
   rules: {
     templateName: [{ required: true, message: '请输入模版名称', trigger: 'blur' }],
-    templateCode: [{ required: true, message: '请输入模版CODE', trigger: 'blur' },{validator:validateTemplateCode,trigger: 'blur' }],
+    templateCode: [{ required: true, message: '请输入模版CODE', trigger: 'blur' }],
     templateType: [{ required: true, message: '请选择模版类型', trigger: 'change' }],
     templateVariable: [{ required: true, message: '请选择变量', trigger: 'change' }],
     remark: [{ required: true, message: '请输入场景说明', trigger: 'blur' }],
@@ -136,8 +137,10 @@ function cancel() {
 
 // 表单重置
 function reset() {
-  form.value = {templateId: null, templateName: null, templateCode: null, templateType: null, templateContent: '', 
-    templateVariable: [], createBy: null, createTime: null, updateBy: null, updateTime: null, remark: null};
+  form.value = {
+    templateId: null, templateName: null, templateCode: null, templateType: null, templateContent: '',
+    templateVariable: [], createBy: null, createTime: null, updateBy: null, updateTime: null, remark: null
+  };
   proxy.resetForm("templateRef");
 }
 
@@ -202,25 +205,15 @@ function submitForm() {
     }
   });
 }
-
-/** 验证 templateCode 是否以 SMS_ 开头 */
-function validateTemplateCode(rule, value, callback) {
-  if (!value.startsWith('SMS_')) {
-    callback(new Error('模版CODE必须以SMS_开头'));
-  } else {
-    callback();
-  }
-}
-
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _templateIds = row.templateId || ids.value;
-  proxy.$modal.confirm('是否确认删除模版管理编号为"' + _templateIds + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除模版管理编号为"' + _templateIds + '"的数据项？').then(function () {
     return delTemplate(_templateIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */
@@ -279,15 +272,6 @@ body {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
-.el-button {
-  transition: all 0.3s ease-in-out;
-}
-
-.el-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
 .el-form {
   margin-bottom: 20px;
 }
@@ -296,51 +280,7 @@ body {
   margin-bottom: 18px;
 }
 
-.el-input__inner,
-.el-textarea__inner {
-  border-radius: 4px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
-}
 
-.el-input__inner:focus,
-.el-textarea__inner:focus {
-  border-color: #409eff;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(64, 158, 255, 0.5);
-}
-
-.el-button--primary {
-  color: white;
-  background: linear-gradient(90deg, #66b1ff, #409eff);
-}
-
-.el-button--danger {
-  color: white;
-  background: linear-gradient(90deg, #f8aaaa, #ee9397);
-}
-
-.el-button--warning {
-  color: white;
-  background: linear-gradient(90deg, #f5c185, #e2af92);
-}
-
-.el-table th {
-  background-color: #f5f7fa;
-  color: #909399;
-  font-weight: bold;
-}
-
-.el-table tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-.el-table tbody tr:hover {
-  background-color: #ecf5ff !important;
-}
-
-.el-table .el-table__row td {
-  border-bottom: none;
-}
 
 .dialog-container {
   background-color: #fff;
@@ -359,17 +299,7 @@ body {
   margin-top: 20px;
 }
 
-.el-button--default {
-  background-color: #f5f7fa;
-  border-color: #dcdfe6;
-  color: #606266;
-  transition: all 0.3s ease-in-out;
-}
 
-.el-button--default:hover {
-  background-color: #ebeef5;
-  border-color: #dcdfe6;
-}
 
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {

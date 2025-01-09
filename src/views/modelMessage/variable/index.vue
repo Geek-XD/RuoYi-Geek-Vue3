@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="变量名称" prop="variableName">
-        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" clearable   @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -34,9 +34,9 @@
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize" @pagination="getList" />
+
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改变量管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -109,8 +109,8 @@ const data = reactive({
   }
 });
 
-const { queryParams, form, rules } = toRefs(data); 
- 
+const { queryParams, form, rules } = toRefs(data);
+
 /** 查询变量管理列表 */
 function getList() {
   loading.value = true;
@@ -129,8 +129,10 @@ function cancel() {
 
 // 表单重置
 function reset() {
-  form.value = { variableId: null, variableName: null, variableType: null, variableContent: null, builtInVariable: null,
-    createBy: null, createTime: null, updateBy: null, updateTime: null, remark: null };
+  form.value = {
+    variableId: null, variableName: null, variableType: null, variableContent: null, builtInVariable: null,
+    createBy: null, createTime: null, updateBy: null, updateTime: null, remark: null
+  };
   proxy.resetForm("variableRef");
 }
 
@@ -177,7 +179,7 @@ function handleVariableTypeChange(value) {
     form.value.builtInVariable = null;
     form.value.variableContent = '';
   } else {
-    form.value.variableContent = ''; 
+    form.value.variableContent = '';
   }
 }
 
@@ -208,12 +210,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _variableIds = row.variableId || ids.value;
-  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function() {
-   return delVariable(_variableIds);
+  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function () {
+    return delVariable(_variableIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */
@@ -228,48 +230,12 @@ getList();
 <style scoped>
 .app-container {
   padding: 20px;
-  background-color: #f8f9fa;
 }
 
-.el-form, .el-table, .el-dialog {
+.el-form,
+.el-table,
+.el-dialog {
   margin-bottom: 20px;
-}
-
-.el-button {
-  transition: all 0.3s ease;
-  font-weight: bold;
-}
-
-.el-button:hover {
-  transform: scale(1.05);
-}
-
-.el-button--primary {
-  background: linear-gradient(90deg, #67c23a, #5cb87a);
-  border-color: transparent;
-  color: white;
-}
-
-.el-button--danger {
-  background: linear-gradient(90deg, #f56c6c, #e05b5b);
-  border-color: transparent;
-  color: white;
-}
-
-.el-button--warning {
-  background: linear-gradient(90deg, #e6a23c, #d98e2d);
-  border-color: transparent;
-  color: white;
-}
-
-.el-button--plain {
-  color: #409eff;
-  background-color: #ecf5ff;
-  border-color: #b3d8ff;
-}
-
-.el-button--plain:hover {
-  background: linear-gradient(90deg, #ecf5ff, #d9ecff);
 }
 
 /* Table */
@@ -277,7 +243,7 @@ getList();
   margin-top: 20px;
 }
 
-.el-table th > .cell {
+.el-table th>.cell {
   color: #303133;
   font-weight: bold;
 }
@@ -291,7 +257,8 @@ getList();
   margin-bottom: 10px;
 }
 
-.el-input, .el-select {
+.el-input,
+.el-select {
   width: 100%;
 }
 
@@ -344,5 +311,4 @@ getList();
 .el-button:hover {
   cursor: pointer;
 }
-
 </style>
