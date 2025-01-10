@@ -29,7 +29,7 @@
 
 <script setup>
 import { isExternal } from '@/utils/validate'
-import AppLink from './Link'
+import AppLink from './Link.vue'
 import { getNormalPath } from '@/utils/ruoyi'
 
 const props = defineProps({
