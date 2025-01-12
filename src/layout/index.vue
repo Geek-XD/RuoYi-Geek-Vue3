@@ -65,14 +65,14 @@ function setLayout() {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/mixin.scss";
-@import "@/assets/styles/variables.module.scss";
+@use "@/assets/styles/mixin.scss";
+@use "@/assets/styles/variables.module.scss";
 
 .app-wrapper {
   position: relative;
   height: 100%;
   width: 100%;
-  @include clearfix;
+  @include mixin.clearfix;
 
 
   &.mobile.openSidebar {
@@ -96,7 +96,7 @@ function setLayout() {
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - #{$base-sidebar-width});
+  width: calc(100% - #{variables.$base-sidebar-width});
   transition: width 0.28s;
 }
 

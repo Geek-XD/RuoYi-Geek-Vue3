@@ -36,11 +36,11 @@ $base-sub-menu-background:#000c17;
 $base-sub-menu-hover:#001528;
 */
 
-$--color-primary: #409EFF;
-$--color-success: #67C23A;
-$--color-warning: #E6A23C;
-$--color-danger: #F56C6C;
-$--color-info: #909399;
+$color-primary: #409EFF;
+$color-success: #67C23A;
+$color-warning: #E6A23C;
+$color-danger: #F56C6C;
+$color-info: #909399;
 
 $base-sidebar-width: 200px;
 
@@ -57,9 +57,9 @@ $base-sidebar-width: 200px;
   sideBarWidth: $base-sidebar-width;
   logoTitleColor: $base-logo-title-color;
   logoLightTitleColor: $base-logo-light-title-color;
-  primaryColor: $--color-primary;
-  successColor: $--color-success;
-  dangerColor: $--color-danger;
-  infoColor: $--color-info;
-  warningColor: $--color-warning;
+  primaryColor: $color-primary;
+  successColor: $color-success;
+  dangerColor: $color-danger;
+  infoColor: $color-info;
+  warningColor: $color-warning;
 }

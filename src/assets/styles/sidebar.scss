@@ -1,8 +1,10 @@
+@use "variables.module";
+
 #app {
   .main-container {
     min-height: 100%;
     transition: margin-left 0.28s;
-    margin-left: $base-sidebar-width;
+    margin-left: variables.$base-sidebar-width;
     position: relative;
   }
 
@@ -13,8 +15,8 @@
   .sidebar-container {
     -webkit-transition: width 0.28s;
     transition: width 0.28s;
-    width: $base-sidebar-width !important;
-    background-color: $base-menu-background;
+    width: variables.$base-sidebar-width !important;
+    background-color: variables.$base-menu-background;
     height: 100%;
     position: fixed;
     font-size: 0px;
@@ -96,7 +98,7 @@
 
       & .nest-menu .el-sub-menu > .el-sub-menu__title,
       & .el-sub-menu .el-menu-item {
-        min-width: $base-sidebar-width !important;
+        min-width: variables.$base-sidebar-width !important;
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.06) !important;
@@ -108,15 +110,15 @@
 
     & .theme-dark {
       & .is-active > .el-sub-menu__title {
-        color: $base-menu-color-active !important;
+        color: variables.$base-menu-color-active !important;
       }
 
       & .nest-menu .el-sub-menu > .el-sub-menu__title,
       & .el-sub-menu .el-menu-item {
-        background-color: $base-sub-menu-background !important;
+        background-color: variables.$base-sub-menu-background !important;
 
         &:hover {
-          background-color: $base-sub-menu-hover !important;
+          background-color: variables.$base-sub-menu-hover !important;
         }
       }
     }
@@ -179,7 +181,7 @@
   }
 
   .el-menu--collapse .el-menu .el-sub-menu {
-    min-width: $base-sidebar-width !important;
+    min-width: variables.$base-sidebar-width !important;
   }
 
   // mobile responsive
@@ -190,14 +192,14 @@
 
     .sidebar-container {
       transition: transform 0.28s;
-      width: $base-sidebar-width !important;
+      width: variables.$base-sidebar-width !important;
     }
 
     &.hideSidebar {
       .sidebar-container {
         pointer-events: none;
         transition-duration: 0.3s;
-        transform: translate3d(-$base-sidebar-width, 0, 0);
+        transform: translate3d(-(variables.$base-sidebar-width), 0, 0);
       }
     }
   }
