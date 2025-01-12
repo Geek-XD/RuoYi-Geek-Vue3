@@ -129,7 +129,7 @@ watch(valueId, () => {
 </script>
 
 <style lang='scss' scoped>
-@use "@/assets/styles/variables.module.scss";
+@use "@/assets/styles/variables.scss";
 @use "sass:color";
 
 .el-scrollbar .el-scrollbar__view .el-select-dropdown__item {
