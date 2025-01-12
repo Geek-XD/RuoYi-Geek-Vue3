@@ -66,7 +66,7 @@ function setLayout() {
 
 <style lang="scss" scoped>
 @use "@/assets/styles/mixin.scss";
-@use "@/assets/styles/variables.scss";
+@use "@/assets/styles/variables.module.scss";
 
 .app-wrapper {
   position: relative;
