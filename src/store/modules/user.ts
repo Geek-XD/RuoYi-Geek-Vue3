@@ -52,7 +52,7 @@ const useUserStore = defineStore(
             }
             this.name = user.userName
             this.roleName = user.roles[0]?user.roles[0].roleName:'普通角色'
-            this.deptName = user.dept.deptName
+            this.deptName = user.dept?user.dept.deptName: '暂无部门'
             this.loginDate = user.loginDate
             this.avatar = avatar;
             console.log(res);
