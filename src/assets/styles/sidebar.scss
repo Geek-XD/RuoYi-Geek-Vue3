@@ -12,12 +12,11 @@
     margin-left: 0 !important;
   }
 
+  /** 侧边栏容器 */
   .sidebar-container {
-    -webkit-transition: width 0.28s;
-    transition: width 0.28s;
+    height: 100%;
     width: variables.$base-sidebar-width !important;
     background-color: variables.$base-menu-background;
-    height: 100%;
     position: fixed;
     font-size: 0px;
     top: 0;
@@ -27,6 +26,8 @@
     overflow: hidden;
     -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
     box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+    -webkit-transition: width 0.28s;
+    transition: width 0.28s;
 
     // reset element-ui css
     .horizontal-collapse-transition {
@@ -67,18 +68,18 @@
       height: 100%;
       width: 100%;
 
-      .base-menu {
+      %base-menu {
         .svg-icon {
           margin-right: 16px;
         }
       }
 
       .el-sub-menu {
-        @extend .base-menu;
+        @extend %base-menu;
       }
 
       .el-menu-item {
-        @extend .base-menu;
+        @extend %base-menu;
 
         overflow: hidden !important;
         text-overflow: ellipsis !important;

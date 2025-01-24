@@ -1,6 +1,6 @@
 // global transition css
 
-/* fade */
+/* 淡入淡出（fade） */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.28s;
@@ -11,7 +11,7 @@
   opacity: 0;
 }
 
-/* fade-transform */
+/* 带位移的淡入淡出（fade-transform） */
 .fade-transform--move,
 .fade-transform-leave-active,
 .fade-transform-enter-active {
@@ -32,7 +32,7 @@
   transform: translateX(30px);
 }
 
-/* breadcrumb transition */
+/* 面包屑过度（breadcrumb transition） */
 .breadcrumb-enter-active,
 .breadcrumb-leave-active {
   transition: all .5s;
