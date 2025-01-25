@@ -13,26 +13,23 @@ import { isPathMatch } from '@/utils/validate'
 NProgress.configure({ showSpinner: false });
 
 const whiteList = ['/login', '/register']
-const isWhiteList = (path) => {
+const isWhiteList = (path: string) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (getToken()) {
-    let title = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
+    let title: string = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
     title && useSettingsStore().setTitle(title)
-    to.meta.title && useSettingsStore().setTitle(to.meta.title)
     /* has token*/
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
-    }
-    else if (isWhiteList(to.path)) {
+    } else if (isWhiteList(to.path)) {
       // 在免登录白名单，直接进入
       next()
-    }
-    else {
+    } else {
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息

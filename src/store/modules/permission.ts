@@ -48,7 +48,7 @@ const usePermissionStore = defineStore(
       setSidebarRouters(routes:Array<any>) {
         this.sidebarRouters = routes
       },
-      generateRoutes() {
+      generateRoutes():Promise<Array<any>> {
         return new Promise(resolve => {
           // 向后端请求路由数据
           getRouters().then(res => {

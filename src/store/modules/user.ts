@@ -25,7 +25,7 @@ const useUserStore = defineStore(
         const code = userInfo.code
         const uuid = userInfo.uuid
         return new Promise((resolve, reject) => {
-          login(username, password, code, uuid).then((res:any) => {
+          login(username, password, code, uuid).then((res: any) => {
             setToken(res.token)
             this.token = res.token
             resolve(null)
@@ -36,14 +36,10 @@ const useUserStore = defineStore(
       },
       // 获取用户信息
       getInfo() {
-        return new Promise<{user: UserInfo, roles: RoleInfo[], permissions: string[]}>((resolve, reject) => {
-          getInfo().then((res:any) => {
-            console.log(res);
-            
+        return new Promise<{ user: UserInfo, roles: RoleInfo[], permissions: string[] }>((resolve, reject) => {
+          getInfo().then((res: any) => {
             const user = res.user
-            // @ts-ignore
             const avatar = (user.avatar == "" || user.avatar == null) ? defAva : import.meta.env.VITE_APP_BASE_API + user.avatar;
-
             if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
               this.roles = res.roles
               this.permissions = res.permissions
@@ -51,12 +47,10 @@ const useUserStore = defineStore(
               this.roles = ['ROLE_DEFAULT']
             }
             this.name = user.userName
-            this.roleName = user.roles[0]?user.roles[0].roleName:'普通角色'
-            this.deptName = user.dept?user.dept.deptName: '暂无部门'
+            this.roleName = user.roles[0] ? user.roles[0].roleName : '普通角色'
+            this.deptName = user.dept ? user.dept.deptName : '暂无部门'
             this.loginDate = user.loginDate
             this.avatar = avatar;
-            console.log(res);
-            
             resolve(res)
           }).catch(error => {
             reject(error)
