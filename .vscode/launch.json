@@ -13,11 +13,20 @@
       "type": "node"
     },
     {
-      "name": "Launch Edge",
+      "name": "Debug Edge",
       "request": "launch",
       "type": "msedge",
-      "url": "http://localhost:80", // 写自己的端口号
-      "webRoot": "${workspaceFolder}",
-    },
+      "url": "http://localhost:80",
+      "webRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug All",
+      "configurations": ["DEV", "Debug Edge"],
+      "presentation": {
+        "order": 1
+      }
+    }
   ]
 }
