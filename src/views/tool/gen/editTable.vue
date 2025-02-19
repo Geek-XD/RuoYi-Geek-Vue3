@@ -2,7 +2,7 @@
   <el-card>
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" :tables="tables" v-model:joins="joins" />
+        <basic-info-form ref="basicInfo" :info="info" :tables="tables" v-model:joins="joinTablesMate" v-model="tableDict" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
         <el-switch v-model="info.haveSubColumn" active-value="1" inactive-value="0" active-text="开启字段关联"
@@ -185,7 +185,8 @@ const { proxy } = getCurrentInstance();
 const activeName = ref("columnInfo");
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
 const tables = ref([]);
-const joins = ref([])
+const tableDict = ref({})
+const joinTablesMate = ref([])
 const columns = ref([]);
 const dictOptions = ref([]);
 const info = ref({});
@@ -219,7 +220,7 @@ function submitForm() {
         columns: columns.value,
         joinTables: tables.value,
         joinColumns: [],
-        joins: joins.value
+        joinTablesMate: joinTablesMate.value
       }
       updateGenTable(genTableVo).then(res => {
         proxy.$modal.msgSuccess(res.msg);
@@ -252,7 +253,7 @@ function close() {
       columns.value = res.data.columns;
       info.value = res.data.table;
       tables.value = res.data.joinTables;
-      joins.value = res.data.joins;
+      joinTablesMate.value = res.data.joinTablesMate;
     });
     /** 查询字典下拉列表 */
     getDictOptionselect().then(response => {
