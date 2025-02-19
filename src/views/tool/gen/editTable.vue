@@ -2,7 +2,7 @@
   <el-card>
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" />
+        <basic-info-form ref="basicInfo" :info="info" :tables="tables" v-model:joins="joins" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
         <el-switch v-model="info.haveSubColumn" active-value="1" inactive-value="0" active-text="开启字段关联"
@@ -93,7 +93,8 @@
           <el-table-column label="字典类型" min-width="12%">
             <template #default="scope">
               <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择">
-                <el-option v-for="dict in dictOptions" :key="dict.dictType" :label="dict.dictName" :value="dict.dictType">
+                <el-option v-for="dict in dictOptions" :key="dict.dictType" :label="dict.dictName"
+                  :value="dict.dictType">
                   <span style="float: left">{{ dict.dictName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
                 </el-option>
@@ -175,8 +176,8 @@
 <script setup name="GenEdit">
 import { getGenTable, updateGenTable } from "@/api/tool/gen";
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import basicInfoForm from "./basicInfoForm";
-import genInfoForm from "./genInfoForm";
+import basicInfoForm from "./basicInfoForm.vue";
+import genInfoForm from "./genInfoForm.vue";
 const route = useRoute();
 const { proxy } = getCurrentInstance();
 
@@ -184,6 +185,7 @@ const { proxy } = getCurrentInstance();
 const activeName = ref("columnInfo");
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
 const tables = ref([]);
+const joins = ref([])
 const columns = ref([]);
 const dictOptions = ref([]);
 const info = ref({});
@@ -212,7 +214,14 @@ function submitForm() {
         treeParentCode: info.value.treeParentCode,
         parentMenuId: info.value.parentMenuId
       };
-      updateGenTable(genTable).then(res => {
+      const genTableVo = {
+        table: genTable,
+        columns: columns.value,
+        joinTables: tables.value,
+        joinColumns: [],
+        joins: joins.value
+      }
+      updateGenTable(genTableVo).then(res => {
         proxy.$modal.msgSuccess(res.msg);
         if (res.code === 200) {
           close();
@@ -240,9 +249,10 @@ function close() {
   if (tableId) {
     // 获取表详细信息
     getGenTable(tableId).then(res => {
-      columns.value = res.data.rows;
-      info.value = res.data.info;
-      tables.value = res.data.tables;
+      columns.value = res.data.columns;
+      info.value = res.data.table;
+      tables.value = res.data.joinTables;
+      joins.value = res.data.joins;
     });
     /** 查询字典下拉列表 */
     getDictOptionselect().then(response => {
