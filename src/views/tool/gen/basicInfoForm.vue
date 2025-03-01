@@ -55,7 +55,7 @@
         <el-row :gutter="10">
           <el-col :span="6">
             <el-form-item label="左表">
-              <el-select v-model="join.leftTableId" @change="(val) => handleMainTableChange(val, index)"
+              <el-select v-model="join.leftTableId" @change="(val) => handleLeftTableChange(val, index)"
                 placeholder="选择关联表">
                 <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
                   :value="table.tableId" />
@@ -84,7 +84,7 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="右表">
-              <el-select v-model="join.rightTableId" @change="(val) => handleJoinTableChange(val, index)"
+              <el-select v-model="join.rightTableId" @change="(val) => handleRightTableChange(val, index)"
                 placeholder="选择右表">
                 <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
                   :value="table.tableId" />
@@ -129,7 +129,6 @@
             <el-button style="width: 50%;height: 50%;" type="danger" @click="() => removeJoin(index)">删除</el-button>
           </el-col>
         </el-row>
-
       </el-form>
     </el-form>
   </div>
@@ -137,7 +136,7 @@
 
 <script setup>
 import { listTable, getGenTable } from "@/api/tool/gen";
-import { onMounted, reactive, ref, watch } from 'vue'; // import ref to be used for value and options
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   info: {
@@ -168,6 +167,7 @@ const selectTables = ref([])
 // 表单校验
 const rules = ref({
   tableName: [{ required: true, message: "请输入表名称", trigger: "blur" }],
+  tableAlias: [{ required: true, message: "请输入表别名", trigger: "blur" }],
   tableComment: [{ required: true, message: "请输入表描述", trigger: "blur" }],
   className: [{ required: true, message: "请输入实体类名称", trigger: "blur" }],
   functionAuthor: [{ required: true, message: "请输入作者", trigger: "blur" }]
@@ -179,9 +179,7 @@ const remoteMethod = (query) => {
     loading.value = true;
     listTable({ tableName: query }).then((response) => {
       loading.value = false;
-      options.value = response.rows.map((item) => {
-        return { value: item, label: item.tableName };
-      });
+      options.value = response.rows.map((item) => ({ value: item, label: item.tableName }));
     });
   } else {
     options.value = tables.value.map(table => ({ value: table.tableId, label: table.tableName }));
@@ -207,21 +205,19 @@ const removeJoin = (index) => {
   joins.value.splice(index, 1);
 };
 
-
 // 处理关联表选择变化
-const handleMainTableChange = async (tableId, index) => {
+const handleLeftTableChange = async (tableId, index) => {
   joins.value[index].tableId = props.info.tableId;
   const table = await getTable(tableId);
   joins.value[index].leftTableAlias = table.tableAlias;
   joins.value[index].leftTableId = table.tableId;
 };
 // 处理关联表选择变化
-const handleJoinTableChange = async (tableId, index) => {
+const handleRightTableChange = async (tableId, index) => {
   joins.value[index].tableId = props.info.tableId;
   const table = await getTable(tableId);
   joins.value[index].rightTableAlias = table.tableAlias;
   joins.value[index].rightTableId = table.tableId;
-
 };
 
 </script>
