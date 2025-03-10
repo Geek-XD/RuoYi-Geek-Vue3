@@ -32,6 +32,7 @@
     <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
       <el-table-column label="订单ID" align="center" prop="orderId" />
       <el-table-column label="订单号" align="center" prop="orderNumber" />
+      <el-table-column label="第三方订单号" align="center" prop="thirdNumber" />
       <el-table-column label="订单状态" align="center" prop="orderStatus" />
       <el-table-column label="订单总金额" align="center" prop="totalAmount" />
       <el-table-column label="实际金额" align="center" prop="actualAmount" />
@@ -65,6 +66,9 @@
       <el-form ref="orderRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="订单号" prop="orderNumber">
           <el-input v-model="form.orderNumber" placeholder="请输入订单号" />
+        </el-form-item>
+        <el-form-item label="第三方订单号" prop="thirdNumber">
+          <el-input v-model="form.thirdNumber" placeholder="请输入第三方订单号" />
         </el-form-item>
         <el-form-item label="订单总金额" prop="totalAmount">
           <el-input v-model="form.totalAmount" placeholder="请输入订单总金额" />
@@ -113,6 +117,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     orderNumber: null,
+    thirdNumber: null,
     orderStatus: null,
     totalAmount: null,
     actualAmount: null,
