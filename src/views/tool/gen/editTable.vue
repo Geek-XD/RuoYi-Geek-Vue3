@@ -231,12 +231,22 @@ function submitForm() {
     } else {
       proxy.$modal.msgError("表单校验未通过，请重新检查提交内容");
     }
+  }).catch(error => {
+    for(const errKey in error) {
+      for(const err in error[errKey]) {
+        proxy.$modal.msgError(error[errKey][err].message);
+      }
+    }
   });
 }
 function getFormPromise(form) {
-  return new Promise(resolve => {
-    form.validate(res => {
-      resolve(res);
+  return new Promise((resolve,reject) => {
+    form.validate((res, error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(res);
+      }
     });
   });
 }
