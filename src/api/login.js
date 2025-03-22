@@ -84,7 +84,7 @@ export function verifyEmailCode(data){
 
 export function sendPhoneCode(data){
   return request({
-    url: '/auth/phone/send/register',
+    url: '/auth/dySms/send/register',
     headers: {
       isToken: false
     },
@@ -96,7 +96,7 @@ export function sendPhoneCode(data){
 
 export function verifyPhoneCode(data){
   return request({
-    url: '/auth/phone/verify/register',
+    url: '/auth/dySms/verify/register',
     headers: {
       isToken: false
     },
