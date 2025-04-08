@@ -175,15 +175,11 @@ const rules = ref({
 
 const loading = ref(false);
 const remoteMethod = (query) => {
-  if (query) {
-    loading.value = true;
-    listTable({ tableName: query }).then((response) => {
-      loading.value = false;
-      options.value = response.rows.map((item) => ({ value: item, label: item.tableName }));
-    });
-  } else {
-    options.value = tables.value.map(table => ({ value: table.tableId, label: table.tableName }));
-  }
+  loading.value = true;
+  listTable({ tableName: query }).then((response) => {
+    loading.value = false;
+    options.value = response.rows.map((item) => ({ value: item, label: item.tableName }));
+  });
 }
 // 添加关联关系
 const addJoin = () => {
