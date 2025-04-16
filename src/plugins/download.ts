@@ -9,7 +9,7 @@ const baseURL = import.meta.env.VITE_APP_BASE_API
 
 export default {
   name(name:string, isDelete = true) {
-    var url = baseURL + "/common/download?fileName=" + encodeURIComponent(name) + "&delete=" + isDelete
+    var url = baseURL + "/file/download?fileName=" + encodeURIComponent(name) + "&delete=" + isDelete
     axios({
       method: 'get',
       url: url,
@@ -26,7 +26,7 @@ export default {
     })
   },
   resource(resource:string) {
-    var url = baseURL + "/common/download/resource?resource=" + encodeURIComponent(resource);
+    var url = baseURL + "/file/download/resource?resource=" + encodeURIComponent(resource);
     axios({
       method: 'get',
       url: url,

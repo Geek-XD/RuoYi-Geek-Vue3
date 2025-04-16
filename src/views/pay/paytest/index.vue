@@ -1,6 +1,7 @@
 <script setup>
 import profile from '@/assets/images/profile.jpg'
 import { postAction, getAction } from '@/utils/request';
+import { ref } from 'vue';
 const data = ref('123')
 const orderNumber = ref('20240610163141A001')
 function getPayUrl() {
@@ -8,6 +9,8 @@ function getPayUrl() {
         data.value = res.data
     })
 }
+
+const file = ref('')
 </script>
 <template>
     <div class="app-container">
@@ -31,5 +34,6 @@ function getPayUrl() {
                 <JsBarcodeView :data="data"></JsBarcodeView>
             </el-col>
         </el-row>
+        <ImageUpload v-model="file"></ImageUpload>
     </div>
 </template>

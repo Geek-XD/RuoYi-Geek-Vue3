@@ -51,7 +51,7 @@ const props = defineProps({
     }
 })
 
-const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload") // 上传的图片服务器地址
+const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + "/file/upload") // 上传的图片服务器地址
 const headers = ref({
     Authorization: "Bearer " + getToken()
 })
