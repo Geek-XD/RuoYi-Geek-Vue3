@@ -71,6 +71,11 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  // 新增：自定义上传地址
+  uploadImgUrl: {
+    type: String,
+    default: ''
+  }
 });
 
 const { proxy } = getCurrentInstance();
@@ -80,12 +85,18 @@ const uploadList = ref([]);
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
 const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadImgUrl = ref(import.meta.env.VITE_APP_BASE_API + "/file/upload"); // 上传的图片服务器地址
 const headers = ref({ Authorization: "Bearer " + getToken() });
 const fileList = ref([]);
 const showTip = computed(
   () => props.isShowTip && (props.fileType || props.fileSize)
 );
+const uploadImgUrl = computed(() => {
+  // 优先使用外部传入的 uploadImgUrl 属性
+  if (props.uploadImgUrl) {
+    return props.uploadImgUrl;
+  }
+  return baseUrl + "/file/upload";
+});
 
 watch(() => props.modelValue, val => {
   if (val) {

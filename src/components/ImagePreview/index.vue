@@ -37,6 +37,10 @@ const realSrc = computed(() => {
     return;
   }
   let real_src = props.src.split(",")[0];
+  // 如果是绝对路径（以 http(s):// 或 / 开头），直接返回
+  if (/^(https?:)?\//.test(real_src)) {
+    return real_src;
+  }
   if (isExternal(real_src)) {
     return real_src;
   }
@@ -50,6 +54,9 @@ const realSrcList = computed(() => {
   let real_src_list = props.src.split(",");
   let srcList = [];
   real_src_list.forEach(item => {
+    if (/^(https?:)?\//.test(item)) {
+      return srcList.push(item);
+    }
     if (isExternal(item)) {
       return srcList.push(item);
     }

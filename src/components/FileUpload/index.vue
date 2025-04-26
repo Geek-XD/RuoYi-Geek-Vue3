@@ -62,6 +62,11 @@ const props = defineProps({
   isShowTip: {
     type: Boolean,
     default: true
+  },
+  // 新增：自定义上传地址
+  uploadFileUrl: {
+    type: String,
+    default: ''
   }
 });
 
@@ -70,7 +75,13 @@ const emit = defineEmits();
 const number = ref(0);
 const uploadList = ref([]);
 const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + "/file/upload"); // 上传文件服务器地址
+const uploadFileUrl = computed(() => {
+  // 优先使用外部传入的 uploadFileUrl 属性
+  if (props.uploadFileUrl) {
+    return props.uploadFileUrl;
+  }
+  return baseUrl + "/file/upload";
+});
 const headers = ref({ Authorization: "Bearer " + getToken() });
 const fileList = ref([]);
 const showTip = computed(
