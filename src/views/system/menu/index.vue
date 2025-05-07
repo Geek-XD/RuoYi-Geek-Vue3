@@ -89,6 +89,40 @@
                   </el-form-item>
                </el-col>
                <el-col :span="24" v-if="form.menuType != 'F'">
+                  <el-form-item prop="path">
+                     <template #label>
+                        <span>
+                           <el-tooltip content="访问的路由地址，如：`user`，如外网地址需内链访问则以`http(s)://`开头" placement="top">
+                              <el-icon><question-filled /></el-icon>
+                           </el-tooltip>
+                           路由地址
+                        </span>
+                     </template>
+                     <el-input v-model="form.path" placeholder="请输入路由地址">
+                        <template #prepend>
+                           <div style="width: 80px; text-align: center;">/父级Path/</div>
+                        </template>
+                     </el-input>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="24" v-if="form.menuType == 'C'">
+                  <el-form-item prop="component">
+                     <template #label>
+                        <span>
+                           <el-tooltip content="访问的组件路径，如：`system/user/index`，默认在`views`目录下" placement="top">
+                              <el-icon><question-filled /></el-icon>
+                           </el-tooltip>
+                           组件路径
+                        </span>
+                     </template>
+                     <el-input v-model="form.component" placeholder="请输入组件路径">
+                        <template #prepend>
+                           <div style="width: 80px; text-align: center;">src/view/</div>
+                        </template>
+                     </el-input>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12" v-if="form.menuType != 'F'">
                   <el-form-item label="菜单图标" prop="icon">
                      <el-popover placement="bottom-start" :width="540" v-model:visible="showChooseIcon" trigger="click"
                         @show="showSelectIcon">
@@ -133,36 +167,7 @@
                      </el-radio-group>
                   </el-form-item>
                </el-col>
-               <el-col :span="12" v-if="form.menuType != 'F'">
-                  <el-form-item prop="path">
-                     <template #label>
-                        <span>
-                           <el-tooltip content="访问的路由地址，如：`user`，如外网地址需内链访问则以`http(s)://`开头" placement="top">
-                              <el-icon><question-filled /></el-icon>
-                           </el-tooltip>
-                           路由地址
-                        </span>
-                     </template>
-                     <el-input v-model="form.path" placeholder="请输入路由地址">
-                        <template #prepend>/父级Path/</template>
-                     </el-input>
-                  </el-form-item>
-               </el-col>
-               <el-col :span="12" v-if="form.menuType == 'C'">
-                  <el-form-item prop="component">
-                     <template #label>
-                        <span>
-                           <el-tooltip content="访问的组件路径，如：`system/user/index`，默认在`views`目录下" placement="top">
-                              <el-icon><question-filled /></el-icon>
-                           </el-tooltip>
-                           组件路径
-                        </span>
-                     </template>
-                     <el-input v-model="form.component" placeholder="请输入组件路径">
-                        <template #prepend>src/view/</template>
-                     </el-input>
-                  </el-form-item>
-               </el-col>
+
                <el-col :span="12" v-if="form.menuType != 'M'">
                   <el-form-item>
                      <el-input v-model="form.perms" placeholder="请输入权限标识" maxlength="100" />

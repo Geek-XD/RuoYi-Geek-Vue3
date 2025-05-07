@@ -2,28 +2,13 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="原始文件名" prop="fileName">
-        <el-input
-          v-model="queryParams.fileName"
-          placeholder="请输入原始文件名"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.fileName" placeholder="请输入原始文件名" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="文件大小" prop="fileSize">
-        <el-input
-          v-model="queryParams.fileSize"
-          placeholder="请输入文件大小"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.fileSize" placeholder="请输入文件大小" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="文件MD5" prop="md5">
-        <el-input
-          v-model="queryParams.md5"
-          placeholder="请输入文件MD5"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.md5" placeholder="请输入文件MD5" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -33,42 +18,19 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['file:info:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['file:info:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['file:info:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['file:info:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['file:info:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['file:info:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['file:info:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport"
+          v-hasPermi="['file:info:export']">导出</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
@@ -101,20 +63,17 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['file:info:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['file:info:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['file:info:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['file:info:remove']">删除</el-button>
           <el-button link type="primary" icon="Download" @click="handleDownload(scope.row)">下载</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改文件信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -127,24 +86,14 @@
         </el-form-item>
         <el-form-item label="存储类型" prop="storageType">
           <el-select v-model="form.storageType" multiple filterable remote reserve-keyword remote-show-suffix
-            placeholder="请选择存储类型"
-            :remote-method="remoteMethodStorageType"
-            :loading="loadingStorageType"
-          >
-            <el-option v-for="item in optionsStorageType" :key="item.value"
-              :label="item.label" :value="item.value"
-            />
+            placeholder="请选择存储类型" :remote-method="remoteMethodStorageType" :loading="loadingStorageType">
+            <el-option v-for="item in optionsStorageType" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="文件类型/后缀" prop="fileType">
           <el-select v-model="form.fileType" multiple filterable remote reserve-keyword remote-show-suffix
-            placeholder="请选择文件类型/后缀"
-            :remote-method="remoteMethodFileType"
-            :loading="loadingFileType"
-          >
-            <el-option v-for="item in optionsFileType" :key="item.value"
-              :label="item.label" :value="item.value"
-            />
+            placeholder="请选择文件类型/后缀" :remote-method="remoteMethodFileType" :loading="loadingFileType">
+            <el-option v-for="item in optionsFileType" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="文件大小" prop="fileSize">
@@ -178,35 +127,18 @@
         </el-form-item>
         <el-form-item label="存储Client">
           <el-select v-model="uploadForm.clientKey" placeholder="请选择Client" style="width: 200px">
-            <el-option
-              v-for="item in clientList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item v-if="uploadForm.uploadType === 'image'" label="图片上传">
-          <ImageUpload
-            :limit="5"
-            :fileSize="10"
-            :isShowTip="true"
-            :uploadImgUrl="getUnifiedUploadUrl"
-            @update:modelValue="onUploadSuccess"
-            style="width:100%"
-            :fileType="['jpg','jpeg','png','gif','webp','bmp','svg']"
-          />
+          <ImageUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadImgUrl="getUnifiedUploadUrl"
+            @update:modelValue="onUploadSuccess" style="width:100%"
+            :fileType="['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
         </el-form-item>
         <el-form-item v-else label="文件上传">
-          <FileUpload
-            :limit="5"
-            :fileSize="10"
-            :isShowTip="true"
-            :uploadFileUrl="getUnifiedUploadUrl"
-            @update:modelValue="onUploadSuccess"
-            style="width:100%"
-            :fileType="['doc','xls','ppt','txt','pdf','zip','rar','7z','jpg','jpeg','png','gif','webp','bmp','svg']"
-          />
+          <FileUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadFileUrl="getUnifiedUploadUrl"
+            @update:modelValue="onUploadSuccess" style="width:100%"
+            :fileType="['doc', 'xls', 'ppt', 'txt', 'pdf', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -357,12 +289,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _fileIds = row.fileId || ids.value;
-  proxy.$modal.confirm('是否确认删除文件信息编号为"' + _fileIds + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除文件信息编号为"' + _fileIds + '"的数据项？').then(function () {
     return delInfo(_fileIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */
