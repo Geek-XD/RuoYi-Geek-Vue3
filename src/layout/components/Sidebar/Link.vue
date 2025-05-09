@@ -1,29 +1,16 @@
-<template>
-  <component :is="type" v-bind="linkProps()">
-    <slot />
-  </component>
-</template>
-
-<script setup>
+<script setup lang="ts">
 import { isExternal } from '@/utils/validate'
+import { computed } from 'vue'
 
 const props = defineProps({
   to: {
-    type: [String, Object],
+    type: String,
     required: true
   }
 })
 
-const isExt = computed(() => {
-  return isExternal(props.to)
-})
-
-const type = computed(() => {
-  if (isExt.value) {
-    return 'a'
-  }
-  return 'router-link'
-})
+const isExt = computed(() => isExternal(props.to))
+const type = computed(() => isExt.value ? 'a' : 'router-link')
 
 function linkProps() {
   if (isExt.value) {
@@ -33,8 +20,13 @@ function linkProps() {
       rel: 'noopener'
     }
   }
-  return {
-    to: props.to
-  }
+  return { to: props.to }
 }
 </script>
+
+
+<template>
+  <component :is="type" v-bind="linkProps()">
+    <slot />
+  </component>
+</template>

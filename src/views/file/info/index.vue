@@ -72,8 +72,8 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
-      @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改文件信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -147,7 +147,6 @@
 
 <script setup name="Info">
 import { listInfo, getInfo, delInfo, addInfo, updateInfo, uploadFileUnified, downloadFileUnified, getClientList } from '@/api/file/info';
-import { getToken } from '@/utils/auth';
 import ImagePreview from "@/components/ImagePreview";
 import ImageUpload from '@/components/ImageUpload';
 import FileUpload from '@/components/FileUpload';
@@ -366,24 +365,6 @@ onMounted(() => {
     }
   });
 });
-
-// 统一上传方法
-function handleUnifiedUpload({ file }) {
-  const [storageType, clientName] = uploadForm.clientKey.split(':');
-  uploadFileUnified({ storageType, clientName, file })
-    .then(res => {
-      if (res.code === 200) {
-        proxy.$modal.msgSuccess('上传成功');
-        openUploadDialog.value = false;
-        getList();
-      } else {
-        proxy.$modal.msgError(res.msg || '上传失败');
-      }
-    })
-    .catch(() => {
-      proxy.$modal.msgError('上传失败');
-    });
-}
 
 // 统一下载方法
 function handleDownload(row) {

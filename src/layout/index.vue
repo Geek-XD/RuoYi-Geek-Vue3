@@ -27,10 +27,10 @@ import useSettingsStore from '@/store/modules/settings'
 
 const settingsStore = useSettingsStore()
 const theme = computed(() => settingsStore.theme);
-const sidebarOption = computed(() => useAppStore().sidebar);
-const device = computed(() => useAppStore().device);
 const needTagsView = computed(() => settingsStore.tagsView);
 const fixedHeader = computed(() => settingsStore.fixedHeader);
+const sidebarOption = computed(() => useAppStore().sidebar);
+const device = computed(() => useAppStore().device);
 
 const classObj = computed(() => ({
   hideSidebar: !sidebarOption.value.opened,

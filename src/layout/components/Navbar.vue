@@ -1,8 +1,58 @@
+<script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+import Breadcrumb from '@/components/Breadcrumb/index.vue'
+import TopNav from '@/components/TopNav/index.vue'
+import Hamburger from '@/components/Hamburger/index.vue'
+import Screenfull from '@/components/Screenfull/index.vue'
+import SizeSelect from '@/components/SizeSelect/index.vue'
+import HeaderSearch from '@/components/HeaderSearch/index.vue'
+import RuoYiGitee from '@/components/RuoYi/Git/gitee.vue'
+import RuoYiGithub from '@/components/RuoYi/Git/github.vue'
+import RuoYiDoc from '@/components/RuoYi/Doc/index.vue'
+import useAppStore from '@/store/modules/app'
+import useUserStore from '@/store/modules/user'
+import useSettingsStore from '@/store/modules/settings'
+import router from '@/router'
+
+const appStore = useAppStore()
+const userStore = useUserStore()
+const settingsStore = useSettingsStore()
+
+function handleCommand(command: string) {
+  switch (command) {
+    case "setLayout":
+      setLayout();
+      break;
+    case "logout":
+      logout();
+      break;
+    default:
+      break;
+  }
+}
+
+function logout() {
+  ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    userStore.logOut().then(() => {
+      location.href = router.resolve('/index').href;
+    })
+  }).catch(() => { });
+}
+
+const emits = defineEmits(['setLayout'])
+function setLayout() {
+  emits('setLayout');
+}
+</script>
 <template>
   <div class="navbar">
     <!-- 侧边栏切换按钮 -->
     <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"
-      @toggleClick="toggleSideBar" />
+      @toggleClick="appStore.toggleSideBar(false)" />
 
     <!-- 顶部导航栏 -->
     <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav" />
@@ -59,60 +109,7 @@
   </div>
 </template>
 
-<script setup>
-import { ElMessageBox } from 'element-plus'
-import Breadcrumb from '@/components/Breadcrumb'
-import TopNav from '@/components/TopNav'
-import Hamburger from '@/components/Hamburger'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import HeaderSearch from '@/components/HeaderSearch'
-import RuoYiGitee from '@/components/RuoYi/Git/gitee.vue'
-import RuoYiGithub from '@/components/RuoYi/Git/github.vue'
-import RuoYiDoc from '@/components/RuoYi/Doc'
-import useAppStore from '@/store/modules/app'
-import useUserStore from '@/store/modules/user'
-import useSettingsStore from '@/store/modules/settings'
-import router from '@/router'
 
-const appStore = useAppStore()
-const userStore = useUserStore()
-const settingsStore = useSettingsStore()
-
-function toggleSideBar() {
-  appStore.toggleSideBar()
-}
-
-function handleCommand(command) {
-  switch (command) {
-    case "setLayout":
-      setLayout();
-      break;
-    case "logout":
-      logout();
-      break;
-    default:
-      break;
-  }
-}
-
-function logout() {
-  ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    userStore.logOut().then(() => {
-      location.href = router.resolve('/index').href;
-    })
-  }).catch(() => { });
-}
-
-const emits = defineEmits(['setLayout'])
-function setLayout() {
-  emits('setLayout');
-}
-</script>
 
 <style lang='scss' scoped>
 .navbar {
