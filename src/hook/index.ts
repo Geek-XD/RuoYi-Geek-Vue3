@@ -1,4 +1,4 @@
-import { Ref, reactive, ref, toRefs } from "vue"
+import { Ref, ref } from "vue"
 import { Page, RequestPageType } from "@/annotation/Api"
 import { ApiService } from '@/annotation/Api'
 export function usePageTable<T>(target: new (...args: any[]) => T) {

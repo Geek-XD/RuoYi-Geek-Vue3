@@ -1,30 +1,29 @@
-import { RouteItem } from "@/types/route";
+import { RouteLocationItem } from "@/types/route";
 import { defineStore } from "pinia";
-import { RouteLocationNormalizedLoaded, RouteRecordName } from "vue-router";
-
+import { RouteLocationNormalizedLoaded, RouteLocationNormalizedLoadedGeneric, RouteRecordName } from "vue-router";
+type MatchPattern = string | RegExp;
 const useTagsViewStore = defineStore("tags-view", {
   state: () => ({
-    visitedViews: Array<RouteItem>(),
-    cachedViews: Array<RouteRecordName | null | undefined>(),
-    iframeViews: Array<RouteItem & { title: string }>(),
+    visitedViews: Array<RouteLocationItem>(),
+    cachedViews: Array<MatchPattern>(),
+    iframeViews: Array<RouteLocationNormalizedLoadedGeneric & { title: string }>(),
   }),
   actions: {
-    addView(view: RouteItem) {
+    addView(view: RouteLocationItem) {
       if (typeof view.meta?.group === 'function') view.meta.group = view.meta.group(view)
       if (typeof view.meta?.title === 'function') view.meta.title = view.meta.title(view)
       this.addVisitedView(view);
       this.addCachedView(view);
     },
-    addIframeView(view: RouteItem) {
+    addIframeView(view: RouteLocationNormalizedLoadedGeneric) {
       if (this.iframeViews.some((v) => v.path === view.path)) return;
       this.iframeViews.push(
         Object.assign({}, view, {
-          title: typeof view.meta?.title === 'function' ?
-            view.meta?.title(view) : view.meta?.title || "no-name",
+          title: view.meta.title ? view.meta.title + '' : "no-name",
         })
       );
     },
-    addVisitedView(view: RouteItem) {
+    addVisitedView(view: RouteLocationItem) {
       if (this.visitedViews.some((v) => v.path === view.path)) return;
       const _view = view.meta?.group ? this.visitedViews.find((v) => v.meta?.group == view.meta?.group) : undefined
       if (_view) {
@@ -37,23 +36,28 @@ const useTagsViewStore = defineStore("tags-view", {
         );
       }
     },
-    addCachedView(view: RouteItem) {
-      if (this.cachedViews.includes(view.name)) return;
+    addCachedView(view: RouteLocationItem) {
+      if (this.cachedViews.includes(String(view.name))) return;
       if (!view.meta?.noCache) {
-        this.cachedViews.push(view.name);
+        this.cachedViews.push(String(view.name));
       }
     },
-    delView(view: RouteItem) {
-      return new Promise<any>((resolve) => {
+    delView(view: RouteLocationItem) {
+      return new Promise<{
+        visitedViews: RouteLocationItem[],
+        cachedViews: MatchPattern[],
+        lastPath: string | undefined
+      }>((resolve) => {
         this.delVisitedView(view);
         this.delCachedView(view);
         resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews],
+          lastPath: this.visitedViews[this.visitedViews.length - 1]?.path,
         });
       });
     },
-    delVisitedView(view: RouteItem) {
+    delVisitedView(view: RouteLocationNormalizedLoadedGeneric) {
       return new Promise((resolve) => {
         for (const [i, v] of this.visitedViews.entries()) {
           if (v.path === view.path) {
@@ -75,14 +79,14 @@ const useTagsViewStore = defineStore("tags-view", {
         resolve([...this.iframeViews]);
       });
     },
-    delCachedView(view: RouteItem) {
+    delCachedView(view: RouteLocationItem) {
       return new Promise((resolve) => {
-        const index = this.cachedViews.indexOf(view.name);
+        const index = this.cachedViews.indexOf(String(view.name));
         index > -1 && this.cachedViews.splice(index, 1);
         resolve([...this.cachedViews]);
       });
     },
-    delOthersViews(view: RouteItem) {
+    delOthersViews(view: RouteLocationItem) {
       return new Promise((resolve) => {
         this.delOthersVisitedViews(view);
         this.delOthersCachedViews(view);
@@ -92,7 +96,7 @@ const useTagsViewStore = defineStore("tags-view", {
         });
       });
     },
-    delOthersVisitedViews(view: RouteItem) {
+    delOthersVisitedViews(view: RouteLocationItem) {
       return new Promise((resolve) => {
         this.visitedViews = this.visitedViews.filter((v) => {
           return v.meta?.affix || v.path === view.path;
@@ -103,9 +107,9 @@ const useTagsViewStore = defineStore("tags-view", {
         resolve([...this.visitedViews]);
       });
     },
-    delOthersCachedViews(view: RouteItem) {
+    delOthersCachedViews(view: RouteLocationItem) {
       return new Promise((resolve) => {
-        const index = this.cachedViews.indexOf(view.name);
+        const index = this.cachedViews.indexOf(String(view.name));
         if (index > -1) {
           this.cachedViews = this.cachedViews.slice(index, index + 1);
         } else {
@@ -115,7 +119,10 @@ const useTagsViewStore = defineStore("tags-view", {
       });
     },
     delAllViews() {
-      return new Promise((resolve) => {
+      return new Promise<{
+        visitedViews: RouteLocationItem[],
+        cachedViews: MatchPattern[]
+      }>((resolve) => {
         this.delAllVisitedViews();
         this.delAllCachedViews();
         resolve({
@@ -147,7 +154,7 @@ const useTagsViewStore = defineStore("tags-view", {
       }
     },
     delRightTags(view: RouteLocationNormalizedLoaded) {
-      return new Promise((resolve) => {
+      return new Promise<RouteLocationItem[]>((resolve) => {
         const index = this.visitedViews.findIndex((v) => v.path === view.path);
         if (index === -1) {
           return;
@@ -156,7 +163,7 @@ const useTagsViewStore = defineStore("tags-view", {
           if (idx <= index || (item.meta && item.meta.affix)) {
             return true;
           }
-          const i = this.cachedViews.indexOf(item.name);
+          const i = this.cachedViews.indexOf(String(item.name));
           if (i > -1) {
             this.cachedViews.splice(i, 1);
           }
@@ -170,7 +177,7 @@ const useTagsViewStore = defineStore("tags-view", {
       });
     },
     delLeftTags(view: RouteLocationNormalizedLoaded) {
-      return new Promise((resolve) => {
+      return new Promise<RouteLocationItem[]>((resolve) => {
         const index = this.visitedViews.findIndex((v) => v.path === view.path);
         if (index === -1) {
           return;
@@ -179,7 +186,7 @@ const useTagsViewStore = defineStore("tags-view", {
           if (idx >= index || (item.meta && item.meta.affix)) {
             return true;
           }
-          const i = this.cachedViews.indexOf(item.name);
+          const i = this.cachedViews.indexOf(String(item.name));
           if (i > -1) {
             this.cachedViews.splice(i, 1);
           }

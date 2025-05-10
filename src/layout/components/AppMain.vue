@@ -1,7 +1,15 @@
+<script setup lang="ts">
+import iframeToggle from "./IframeToggle/index.vue"
+import useTagsViewStore from '@/store/modules/tagsView'
+
+const tagsViewStore = useTagsViewStore()
+</script>
+
 <template>
   <section class="app-main">
     <router-view v-slot="{ Component, route }">
-      <transition :name="(!!route.meta && !!route.meta.transition) ? route.meta.transition : 'fade-transform'" mode="out-in">
+      <transition :name="(!!route.meta && !!route.meta.transition) ? '' + route.meta.transition : 'fade-transform'"
+        mode="out-in">
         <keep-alive :include="tagsViewStore.cachedViews">
           <component v-if="!route.meta.link" :is="Component" :key="route.path" />
         </keep-alive>
@@ -10,13 +18,6 @@
     <iframe-toggle />
   </section>
 </template>
-
-<script setup>
-import iframeToggle from "./IframeToggle/index"
-import useTagsViewStore from '@/store/modules/tagsView'
-
-const tagsViewStore = useTagsViewStore()
-</script>
 
 <style lang="scss" scoped>
 .app-main {
@@ -27,7 +28,7 @@ const tagsViewStore = useTagsViewStore()
   overflow: hidden;
 }
 
-.fixed-header + .app-main {
+.fixed-header+.app-main {
   padding-top: 50px;
 }
 
@@ -37,7 +38,7 @@ const tagsViewStore = useTagsViewStore()
     min-height: calc(100vh - 84px);
   }
 
-  .fixed-header + .app-main {
+  .fixed-header+.app-main {
     padding-top: 84px;
   }
 }

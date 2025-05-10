@@ -1,54 +1,20 @@
-<template>
-  <div id="tags-view-container" class="tags-view-container">
-    <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="handleScroll">
-      <router-link v-for="tag in visitedViews" :key="tag.path" :style="activeStyle(tag)" class="tags-view-item"
-        :class="isActive(tag) ? 'active' : ''" :data-path="tag.path"
-        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
-        @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
-        {{ tag.title }}
-        <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
-          <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" />
-        </span>
-      </router-link>
-    </scroll-pane>
-    <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">
-        <refresh-right style="width: 1em; height: 1em;" /> 刷新页面
-      </li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
-        <close style="width: 1em; height: 1em;" /> 关闭当前
-      </li>
-      <li @click="closeOthersTags">
-        <circle-close style="width: 1em; height: 1em;" /> 关闭其他
-      </li>
-      <li v-if="!isFirstView()" @click="closeLeftTags">
-        <back style="width: 1em; height: 1em;" /> 关闭左侧
-      </li>
-      <li v-if="!isLastView()" @click="closeRightTags">
-        <right style="width: 1em; height: 1em;" /> 关闭右侧
-      </li>
-      <li @click="closeAllTags(selectedTag)">
-        <circle-close style="width: 1em; height: 1em;" /> 全部关闭
-      </li>
-    </ul>
-  </div>
-</template>
-
-<script setup>
-import ScrollPane from './ScrollPane'
+<script setup lang="ts">
+import ScrollPane from './ScrollPane.vue'
 import { getNormalPath } from '@/utils/ruoyi'
 import useTagsViewStore from '@/store/modules/tagsView'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
+import { tab } from '@/plugins'
+import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
+import { RouteLocationNormalizedGeneric, useRoute, useRouter } from 'vue-router'
+import { RouteItem } from '@/types/route'
 
 const visible = ref(false);
 const top = ref(0);
 const left = ref(0);
-const selectedTag = ref({});
-const affixTags = ref([]);
-const scrollPaneRef = ref(null);
-
-const { proxy } = getCurrentInstance();
+const selectedTag = ref({} as RouteLocationNormalizedGeneric);
+const affixTags = ref<RouteLocationNormalizedGeneric[]>([]);
+const scrollPaneRef = ref<any>(null);
 const route = useRoute();
 const router = useRouter();
 
@@ -72,17 +38,17 @@ onMounted(() => {
   addTags()
 })
 
-function isActive(r) {
+function isActive(r: RouteLocationNormalizedGeneric) {
   return r.path === route.path
 }
-function activeStyle(tag) {
+function activeStyle(tag: RouteLocationNormalizedGeneric) {
   if (!isActive(tag)) return {};
   return {
     "background-color": theme.value,
     "border-color": theme.value
   };
 }
-function isAffix(tag) {
+function isAffix(tag: RouteLocationNormalizedGeneric) {
   return tag.meta && tag.meta.affix
 }
 function isFirstView() {
@@ -99,8 +65,8 @@ function isLastView() {
     return false
   }
 }
-function filterAffixTags(routes, basePath = '') {
-  let tags = []
+function filterAffixTags(routes: RouteItem[], basePath = '') {
+  let tags: RouteLocationNormalizedGeneric[] = []
   routes.forEach(route => {
     if (route.meta && route.meta.affix) {
       const tagPath = getNormalPath(basePath + '/' + route.path)
@@ -109,7 +75,7 @@ function filterAffixTags(routes, basePath = '') {
         path: tagPath,
         name: route.name,
         meta: { ...route.meta }
-      })
+      } as RouteLocationNormalizedGeneric)
     }
     if (route.children) {
       const tempTags = filterAffixTags(route.children, route.path)
@@ -153,28 +119,28 @@ function moveToCurrentTag() {
     }
   })
 }
-function refreshSelectedTag(view) {
-  proxy.$tab.refreshPage(view);
+function refreshSelectedTag(view: RouteLocationNormalizedGeneric) {
+  tab.refreshPage(view);
   if (route.meta.link) {
     useTagsViewStore().delIframeView(route);
   }
 }
-function closeSelectedTag(view) {
-  proxy.$tab.closePage(view).then(({ visitedViews }) => {
+function closeSelectedTag(view: RouteLocationNormalizedGeneric) {
+  tab.closePage(view).then(({ visitedViews }) => {
     if (isActive(view)) {
       toLastView(visitedViews, view)
     }
   })
 }
 function closeRightTags() {
-  proxy.$tab.closeRightPage(selectedTag.value).then(visitedViews => {
+  tab.closeRightPage(selectedTag.value).then(visitedViews => {
     if (!visitedViews.find(i => i.fullPath === route.fullPath)) {
       toLastView(visitedViews)
     }
   })
 }
 function closeLeftTags() {
-  proxy.$tab.closeLeftPage(selectedTag.value).then(visitedViews => {
+  tab.closeLeftPage(selectedTag.value).then(visitedViews => {
     if (!visitedViews.find(i => i.fullPath === route.fullPath)) {
       toLastView(visitedViews)
     }
@@ -182,26 +148,26 @@ function closeLeftTags() {
 }
 function closeOthersTags() {
   router.push(selectedTag.value).catch(() => { });
-  proxy.$tab.closeOtherPage(selectedTag.value).then(() => {
+  tab.closeOtherPage(selectedTag.value).then(() => {
     moveToCurrentTag()
   })
 }
-function closeAllTags(view) {
-  proxy.$tab.closeAllPage().then(({ visitedViews }) => {
+function closeAllTags(view: RouteLocationNormalizedGeneric) {
+  tab.closeAllPage().then(({ visitedViews }) => {
     if (affixTags.value.some(tag => tag.path === route.path)) {
-      return
+      return;
     }
     toLastView(visitedViews, view)
   })
 }
-function toLastView(visitedViews, view) {
+function toLastView(visitedViews: RouteLocationNormalizedGeneric[], view?: RouteLocationNormalizedGeneric) {
   const latestView = visitedViews.slice(-1)[0]
   if (latestView) {
     router.push(latestView.fullPath)
   } else {
     // now the default is to redirect to the home page if there is no tags-view,
     // you can adjust it according to your needs.
-    if (view.name === 'Dashboard') {
+    if (view?.name === 'Dashboard') {
       // to reload home page
       router.replace({ path: '/redirect' + view.fullPath })
     } else {
@@ -209,7 +175,8 @@ function toLastView(visitedViews, view) {
     }
   }
 }
-function openMenu(tag, e) {
+const proxy = getCurrentInstance()!.proxy!;
+function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
   const menuMinWidth = 105
   const offsetLeft = proxy.$el.getBoundingClientRect().left // container margin left
   const offsetWidth = proxy.$el.offsetWidth // container width
@@ -233,6 +200,43 @@ function handleScroll() {
   closeMenu()
 }
 </script>
+
+<template>
+  <div id="tags-view-container" class="tags-view-container">
+    <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="handleScroll">
+      <router-link v-for="tag in visitedViews" :key="tag.path" :style="activeStyle(tag)" class="tags-view-item"
+        :class="isActive(tag) ? 'active' : ''" :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
+        @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
+        {{ tag.title }}
+        <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
+          <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" />
+        </span>
+      </router-link>
+    </scroll-pane>
+    <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
+      <li @click="refreshSelectedTag(selectedTag)">
+        <refresh-right style="width: 1em; height: 1em;" /> 刷新页面
+      </li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
+        <close style="width: 1em; height: 1em;" /> 关闭当前
+      </li>
+      <li @click="closeOthersTags">
+        <circle-close style="width: 1em; height: 1em;" /> 关闭其他
+      </li>
+      <li v-if="!isFirstView()" @click="closeLeftTags">
+        <back style="width: 1em; height: 1em;" /> 关闭左侧
+      </li>
+      <li v-if="!isLastView()" @click="closeRightTags">
+        <right style="width: 1em; height: 1em;" /> 关闭右侧
+      </li>
+      <li @click="closeAllTags(selectedTag)">
+        <circle-close style="width: 1em; height: 1em;" /> 全部关闭
+      </li>
+    </ul>
+  </div>
+</template>
+
+
 
 <style lang='scss' scoped>
 .tags-view-container {

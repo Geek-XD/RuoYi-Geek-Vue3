@@ -1,27 +1,7 @@
-<template>
-  <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
-    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="handleClickOutside" />
-    <!-- 侧边栏 -->
-    <sidebar v-if="!sidebarOption.hide" class="sidebar-container" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
-      <div :class="{ 'fixed-header': fixedHeader }">
-        <!-- 导航栏/面包屑 -->
-        <navbar @setLayout="setLayout" />
-        <!-- 标签页 -->
-        <tags-view v-if="needTagsView" />
-      </div>
-      <!-- 主界面区 -->
-      <app-main />
-      <!-- 布局设置 -->
-      <settings ref="settingRef" />
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { useWindowSize } from '@vueuse/core'
+<script setup lang="ts">
 import { AppMain, Settings, TagsView, Sidebar, Navbar } from './components'
-
+import { computed, ref, watchEffect } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 
@@ -44,26 +24,44 @@ const WIDTH = 992; // refer to Bootstrap's responsive design
 
 watchEffect(() => {
   if (device.value === 'mobile' && sidebarOption.value.opened) {
-    useAppStore().closeSideBar({ withoutAnimation: false })
+    useAppStore().closeSideBar(false)
   }
   if (width.value - 1 < WIDTH) {
     useAppStore().toggleDevice('mobile')
-    useAppStore().closeSideBar({ withoutAnimation: true })
+    useAppStore().closeSideBar(true)
   } else {
     useAppStore().toggleDevice('desktop')
   }
 })
 
 function handleClickOutside() {
-  useAppStore().closeSideBar({ withoutAnimation: false })
+  useAppStore().closeSideBar(false)
 }
 
-const settingRef = ref(null);
+const settingRef = ref<typeof Settings>();
 function setLayout() {
-  settingRef.value.openSetting();
+  settingRef.value!.openSetting();
 }
 </script>
-
+<template>
+  <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
+    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="handleClickOutside" />
+    <!-- 侧边栏 -->
+    <sidebar v-if="!sidebarOption.hide" class="sidebar-container" />
+    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
+      <div :class="{ 'fixed-header': fixedHeader }">
+        <!-- 导航栏/面包屑 -->
+        <navbar @setLayout="setLayout" />
+        <!-- 标签页 -->
+        <tags-view v-if="needTagsView" />
+      </div>
+      <!-- 主界面区 -->
+      <app-main />
+      <!-- 布局设置 -->
+      <settings ref="settingRef" />
+    </div>
+  </div>
+</template>
 <style lang="scss" scoped>
 @use "@/assets/styles/mixin.scss";
 @use "@/assets/styles/variables.module.scss";

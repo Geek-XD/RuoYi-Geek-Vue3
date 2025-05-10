@@ -68,7 +68,7 @@ function handleTheme(val: string) {
 }
 function saveSetting() {
   modal.loading("正在保存到本地，请稍候...");
-  let layoutSetting = {
+  const layoutSetting = {
     "topNav": storeSettings.value.topNav,
     "tagsView": storeSettings.value.tagsView,
     "fixedHeader": storeSettings.value.fixedHeader,
@@ -83,7 +83,7 @@ function saveSetting() {
 function resetSetting() {
   modal.loading("正在清除设置缓存并刷新，请稍候...");
   localStorage.removeItem("layout-setting")
-  setTimeout("window.location.reload()", 1000)
+  setTimeout(() => window.location.reload(), 1000)
 }
 function openSetting() {
   showSettings.value = true;
