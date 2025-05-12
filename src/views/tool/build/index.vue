@@ -1,18 +1,40 @@
 <script setup lang="ts">
+import { getTemplate, updateTemplate } from '@/api/form/template';
+import modal from '@/plugins/modal';
 import { onMounted, ref } from 'vue';
-const vfdRef = ref<any>(null);
+import { useRoute } from 'vue-router';
+const vfDesigner = ref<any>(null);
+const route = useRoute();
 onMounted(() => {
-    console.log(vfdRef.value);
-    const sectionDom: HTMLDivElement = vfdRef.value.$el;
+    console.log(vfDesigner.value);
+    const sectionDom: HTMLDivElement = vfDesigner.value.$el;
     const mainHeader = sectionDom.querySelector('.main-header');
+    if (route.query.id) {
+        getTemplate(route.query.id).then((res: any) => {
+            vfDesigner.value.setFormJson(JSON.parse(res.data.formSchema ?? {}));
+        })
+    }
     // if (mainHeader) {
     //     mainHeader.remove();
     // }
 })
+
+const saveFormJson = () => {
+    let formJson = vfDesigner.value.getFormJson()
+    updateTemplate({
+        formId: route.query.id,
+        formSchema: JSON.stringify(formJson)
+    }).then((res: any) => {
+        modal.msgSuccess('保存成功');
+    })
+    console.log(route.query.id, formJson);
+}
+
 </script>
 <template>
     <div class="vForm">
-        <v-form-designer ref="vfdRef"></v-form-designer>
+        <el-button style="width: 100%;" @click="saveFormJson">保存表单</el-button>
+        <v-form-designer ref="vfDesigner"></v-form-designer>
     </div>
 </template>
 <style lang="scss" scoped>
@@ -27,6 +49,7 @@ onMounted(() => {
         // .main-header {
         //     display: none;
         // }
+
     }
 }
 </style>
