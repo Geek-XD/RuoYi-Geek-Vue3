@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-const vfdRef = ref();
+const vfdRef = ref<any>(null);
+onMounted(() => {
+    console.log(vfdRef.value);
+    const sectionDom: HTMLDivElement = vfdRef.value.$el;
+    const mainHeader = sectionDom.querySelector('.main-header');
+    // if (mainHeader) {
+    //     mainHeader.remove();
+    // }
+})
 </script>
 <template>
     <div class="vForm">
@@ -16,9 +24,9 @@ const vfdRef = ref();
     }
 
     :deep {
-        .main-header {
-            display: none;
-        }
+        // .main-header {
+        //     display: none;
+        // }
     }
 }
 </style>

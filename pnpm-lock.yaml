@@ -59,9 +59,6 @@ importers:
       three:
         specifier: 0.176.0
         version: 0.176.0
-      vform3-builds:
-        specifier: ^3.0.10
-        version: 3.0.10
       vue:
         specifier: 3.5.13
         version: 3.5.13
@@ -2019,9 +2016,6 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  vform3-builds@3.0.10:
-    resolution: {integrity: sha512-sULNk72Z6NG94X9MMgpBwinaIOYjtl7Bn5jZbV9iZaglSYr2SHm/wpXPAjl8F8OW6SzOOJgIpRek+NvOvN7wsg==}
 
   vite-plugin-compression@0.5.1:
     resolution: {integrity: sha512-5QJKBDc+gNYVqL/skgFAP81Yuzo9R+EAf19d+EtsMF/i8kFUpNi3J/H01QD3Oo8zBQn+NzoCIFkpPLynoOzaJg==}
@@ -4136,8 +4130,6 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   vary@1.1.2: {}
-
-  vform3-builds@3.0.10: {}
 
   vite-plugin-compression@0.5.1(vite@6.3.5(@types/node@22.10.1)(sass@1.87.0)):
     dependencies:

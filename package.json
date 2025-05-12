@@ -37,7 +37,6 @@
     "quill": "^2.0.2",
     "quill-better-table": "^1.2.10",
     "three": "0.176.0",
-    "vform3-builds": "^3.0.10",
     "vue": "3.5.13",
     "vue-cropper": "1.1.1",
     "vue-router": "4.5.1"

@@ -88,8 +88,8 @@ app.use(ElementPlus, {
   size: localStorage.getItem('size') || 'default'
 })
 
-import VForm3 from 'vform3-builds'  //引入VForm 3库
-import 'vform3-builds/dist/designer.style.css'  //引入VForm3样式
+import VForm3 from '@/../lib/vform/designer.umd.js'  //引入VForm 3库
+import '@/../lib/vform/designer.style.css'  //引入VForm3样式
 app.use(VForm3)
 
 app.mount('#app')
