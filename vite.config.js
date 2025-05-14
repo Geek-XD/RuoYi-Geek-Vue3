@@ -64,7 +64,10 @@ export default defineConfig(({ mode, command }) => {
       }
     },
     optimizeDeps: {
-      include: ['@/../lib/vform/designer.umd.js']
+      include: [
+        '@/../lib/vform/designer.umd.js',
+        '@/../lib/vform/designer.style.css'
+      ]
     }
   }
 })

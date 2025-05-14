@@ -58,10 +58,10 @@
           <span v-else>注 册 中...</span>
         </el-button>
         <div style="display: flex; justify-content: space-between;width: 100%;">
-          <el-link class="link-type" :underline="false" @click="$router.push('/login')">使用已有账户登录</el-link>
-          <el-link class="link-type" :underline="false" @click="useEmile()" v-if="!emileEnabled">使用邮箱注册</el-link>
-          <el-link class="link-type" :underline="false" @click="usePhone()" v-if="!phoneEnabled">使用手机号注册</el-link>
-          <el-link class="link-type" :underline="false" @click="useUsername()" v-if="emileEnabled || phoneEnabled">使用账号注册</el-link>
+          <el-link class="link-type" underline="never" @click="$router.push('/login')">使用已有账户登录</el-link>
+          <el-link class="link-type" underline="never" @click="useEmile()" v-if="!emileEnabled">使用邮箱注册</el-link>
+          <el-link class="link-type" underline="never" @click="usePhone()" v-if="!phoneEnabled">使用手机号注册</el-link>
+          <el-link class="link-type" underline="never" @click="useUsername()" v-if="emileEnabled || phoneEnabled">使用账号注册</el-link>
         </div>
       </el-form-item>
     </el-form>

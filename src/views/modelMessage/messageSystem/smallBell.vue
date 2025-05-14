@@ -1,11 +1,11 @@
 <template>
   <el-popover v-model="showPopover" placement="bottom-start" width="200" trigger="hover">
     <template #reference>
-      <el-button type="text" @mouseover="fetchLatestMessages" @mouseout="hidePopover">
+      <el-link type="primary" underline="never" @mouseover="fetchLatestMessages" @mouseout="hidePopover">
         <el-icon size="20" color="#5a5e66" style="transform: scaleX(1.1) scaleY(1.1); margin-right: 5px;">
           <Bell />
         </el-icon>
-      </el-button>
+      </el-link>
     </template>
     <div v-if="filteredNotifications.length > 0">
       <h4 style="margin: 0px; padding: 0px;">信息中心</h4>

@@ -14,8 +14,8 @@
       </el-form-item>
       <el-form-item label="内容类型" prop="contentType">
         <el-radio-group v-model="form.contentType" @change="handleContentTypeChange">
-          <el-radio label="template">模版签名</el-radio>
-          <el-radio label="content">消息内容</el-radio>
+          <el-radio value="template">模版签名</el-radio>
+          <el-radio value="content">消息内容</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="模版签名" prop="messageContent" v-if="form.contentType === 'template'">
@@ -33,7 +33,7 @@
       </el-form-item>
       <el-form-item label="收件人类型" prop="recipientType" label-width="92px">
         <el-radio-group v-model="form.recipientType" @change="fetchRecipients">
-          <el-radio v-for="type in recipientTypes" :key="type.value" :label="type.value">{{ type.label }}</el-radio>
+          <el-radio v-for="type in recipientTypes" :key="type.value" :value="type.value">{{ type.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="hasSelectedOptions" :label="selectedLabel" prop="messageRecipient">

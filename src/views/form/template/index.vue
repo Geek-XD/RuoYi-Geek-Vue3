@@ -81,7 +81,7 @@
 
     <!-- 表单内容对话框 -->
     <el-dialog title="表单内容" v-model="showForm.formContentDialogVisible" width="600px">
-      <v-form-render :form-json="showForm.formContent" ref="vFormRef" :key="showForm.formId">
+      <v-form-render :form-json="showForm.formSchema" ref="vFormRef" :key="showForm.formId">
       </v-form-render>
       <template #footer>
         <el-button @click="submitFormData">提交</el-button>
@@ -93,6 +93,7 @@
 </template>
 
 <script setup name="Template">
+import { addData } from "@/api/form/data";
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/form/template";
 import modal from "@/plugins/modal";
 import tab from "@/plugins/tab";
@@ -112,7 +113,7 @@ const title = ref("");
 
 const showForm = reactive({
   formContentDialogVisible: false,
-  formContent: "",
+  formSchema: "",
   formId: null
 })
 
@@ -266,15 +267,24 @@ const vFormRef = ref();
 /** 显示表单内容 */
 function showFormContent(row) {
   getTemplate(row.formId).then(response => {
-    showForm.formContent = JSON.parse(response.data.formSchema || "{}");
+    showForm.formSchema = JSON.parse(response.data.formSchema || "{}");
     showForm.formId = row.formId;
     showForm.formContentDialogVisible = true;
   });
 }
 function submitFormData() {
-  vFormRef.value.getFormData().then(formData => {
-    modal.msgSuccess(JSON.stringify(formData));
-  });
+  nextTick(() => {
+    vFormRef.value.getFormData().then(formData => {
+      const data = JSON.stringify(formData)
+      addData({
+        formId: showForm.formId,
+        dataContent: data
+      }).then(() => {
+        showForm.formContentDialogVisible = false;
+        proxy.$modal.msgSuccess("提交成功");
+      });
+    });
+  })
 }
 
 getList();

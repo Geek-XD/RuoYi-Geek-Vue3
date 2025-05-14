@@ -32,7 +32,9 @@ function findPathNum(str, char = "/") {
   return num
 }
 function getMatched(pathList, routeList, matched) {
-  let data = routeList.find((item) => item.path == pathList[0])
+  if (!Array.isArray(routeList) || routeList.length === 0) return
+  const data = routeList.find((item) => item.path == pathList[0])
+  if (!data) return
   matched.push(data)
   if (data.children && pathList.length) {
     pathList.shift()

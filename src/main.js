@@ -92,4 +92,7 @@ import VForm3 from '@/../lib/vform/designer.umd.js'  //引入VForm 3库
 import '@/../lib/vform/designer.style.css'  //引入VForm3样式
 app.use(VForm3)
 
+import modelerStore from '@/components/Process/common/global'
+app.config.globalProperties.modelerStore = modelerStore
+
 app.mount('#app')

@@ -29,7 +29,7 @@ import Layout from '@/layout/index.vue'
  */
 
 // 公共路由
-export const constantRoutes:RouteItem[] = [
+export const constantRoutes: RouteItem[] = [
   {
     path: '/redirect',
     component: Layout,
@@ -112,10 +112,62 @@ export const constantRoutes:RouteItem[] = [
     component: () => import('@/views/websocket.vue'),
     hidden: true
   },
+
+
+
+  {
+    path: '/flowable',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'definition/model/',
+        component: () => import('@/views/flowable/definition/model.vue'),
+        name: 'Model',
+        hidden: true,
+        meta: { title: '流程设计', icon: '' }
+      },
+      {
+        path: 'task/finished/detail/index',
+        component: () => import('@/views/flowable/task/finished/detail/index.vue'),
+        name: 'FinishedRecord',
+        hidden: true,
+        meta: { title: '流程详情', icon: '' }
+      },
+      {
+        path: 'task/myProcess/detail/index',
+        component: () => import('@/views/flowable/task/myProcess/detail/index.vue'),
+        name: 'MyProcessRecord',
+        hidden: true,
+        meta: { title: '流程详情', icon: '' }
+      },
+      {
+        path: 'task/myProcess/send/index',
+        component: () => import('@/views/flowable/task/myProcess/send/index.vue'),
+        name: 'SendRecord',
+        hidden: true,
+        meta: { title: '流程发起', icon: '' }
+      },
+      {
+        path: 'task/todo/detail/index',
+        component: () => import('@/views/flowable/task/todo/detail/index.vue'),
+        name: 'TodoRecord',
+        hidden: true,
+        meta: { title: '流程处理', icon: '' }
+      },
+      {
+        path: 'task/flowForm/index',
+        component: () => import('@/views/flowable/task/flowForm/index.vue'),
+        name: 'FlowForm',
+        hidden: true,
+        meta: { title: '流程表单', icon: '' }
+      }
+    ]
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载
-export const dynamicRoutes = [
+export const dynamicRoutes: RouteItem[] = [
   {
     path: '/system/user-auth',
     component: Layout,
@@ -153,7 +205,7 @@ export const dynamicRoutes = [
       {
         path: 'index/:dictId(\\d+)',
         component: () => import('@/views/system/dict/data.vue'),
-        name: 'Data',
+        name: 'DictData',
         meta: { title: '字典数据', activeMenu: '/system/dict' }
       }
     ]

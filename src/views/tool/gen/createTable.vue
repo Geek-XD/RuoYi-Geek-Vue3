@@ -27,7 +27,7 @@
       <el-row :gutter="20">
         <el-col :span="16">
           <el-form-item label="字段配置">
-            <el-button type="text" @click="addField">添加字段</el-button>
+            <el-link type="primary" underline="never" @click="addField">添加字段</el-link>
             <el-table :data="fields" style="width: 100%" border>
               <el-table-column prop="name" label="字段名">
                 <template #default="{ row, $index }">
@@ -62,7 +62,7 @@
               </el-table-column>
               <el-table-column fixed="right" label="操作" width="100">
                 <template #default="{ row, $index }">
-                  <el-button type="text" @click="removeField($index)">移除</el-button>
+                  <el-link type="primary" underline="never" @click="removeField($index)">移除</el-link>
                 </template>
               </el-table-column>
             </el-table>

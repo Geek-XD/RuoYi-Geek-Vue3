@@ -92,7 +92,7 @@
          <el-table-column label="字典标签" align="center" prop="dictLabel">
             <template #default="scope">
                <span v-if="scope.row.listClass == '' || scope.row.listClass == 'default'">{{ scope.row.dictLabel }}</span>
-               <el-tag v-else :type="scope.row.listClass == 'primary' ? '' : scope.row.listClass">{{ scope.row.dictLabel }}</el-tag>
+               <el-tag v-else :type="scope.row.listClass">{{ scope.row.dictLabel }}</el-tag>
             </template>
          </el-table-column>
          <el-table-column label="字典键值" align="center" prop="dictValue" />
@@ -157,7 +157,7 @@
                   <el-radio
                      v-for="dict in sys_normal_disable"
                      :key="dict.value"
-                     :label="dict.value"
+                     :value="dict.value"
                   >{{ dict.label }}</el-radio>
                </el-radio-group>
             </el-form-item>

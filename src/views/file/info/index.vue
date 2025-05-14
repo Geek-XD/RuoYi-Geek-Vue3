@@ -41,7 +41,7 @@
             <ImagePreview :src="getFileUrl(scope.row)" width="60" height="60" />
           </template>
           <template v-else>
-            <el-link :underline="false" type="primary" @click="handleDownload(scope.row)">
+            <el-link underline="never" type="primary" @click="handleDownload(scope.row)">
               {{ scope.row.fileName }}
             </el-link>
           </template>
@@ -63,8 +63,8 @@
       <el-form :model="uploadForm" label-width="80px">
         <el-form-item label="上传类型">
           <el-radio-group v-model="uploadForm.uploadType">
-            <el-radio label="image">图片</el-radio>
-            <el-radio label="file">文件</el-radio>
+            <el-radio value="image">图片</el-radio>
+            <el-radio value="file">文件</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="存储Client">

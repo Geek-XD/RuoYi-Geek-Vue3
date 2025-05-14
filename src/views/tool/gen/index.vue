@@ -25,7 +25,7 @@
           v-hasPermi="['tool:gen:code']">生成</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="el-icon-plus" @click="openCreateTable"
+        <el-button type="primary" plain icon="plus" @click="openCreateTable"
           v-hasRole="['admin']">创建</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -88,7 +88,7 @@
         <el-tab-pane v-for="(value, key) in preview.data"
           :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
           :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))" :key="value">
-          <el-link :underline="false" icon="DocumentCopy" v-copyText="value" v-copyText:callback="copyTextSuccess"
+          <el-link underline="never" icon="DocumentCopy" v-copyText="value" v-copyText:callback="copyTextSuccess"
             style="float:right">&nbsp;复制</el-link>
           <pre>{{ value }}</pre>
         </el-tab-pane>

@@ -50,17 +50,17 @@ const usePermissionStore = defineStore(
     }),
     actions: {
       setRoutes(routes: RouteItem[]) {
-        this.addRoutes = routes
-        this.routes = [...constantRoutes, ...routes] as RouteItem[]
+        this.addRoutes = routes;
+        this.routes = [...constantRoutes, ...routes];
       },
       setDefaultRoutes(routes: RouteItem[]) {
-        this.defaultRoutes = [...constantRoutes, ...routes] as RouteItem[]
+        this.defaultRoutes = [...constantRoutes, ...routes];
       },
       setTopbarRoutes(routes: RouteItem[]) {
-        this.topbarRouters = routes
+        this.topbarRouters = routes;
       },
       setSidebarRouters(routes: RouteItem[]) {
-        this.sidebarRouters = routes
+        this.sidebarRouters = routes;
       },
       generateRoutes(): Promise<RouteItem[]> {
         return new Promise(resolve => {
@@ -72,12 +72,12 @@ const usePermissionStore = defineStore(
             const sidebarRoutes = filterAsyncRouter(sdata)
             const rewriteRoutes = filterAsyncRouter(rdata, false, true)
             const defaultRoutes = filterAsyncRouter(defaultData)
-            const asyncRoutes = filterDynamicRoutes(dynamicRoutes as unknown as RouteItem[])
-            asyncRoutes.forEach(route => { router.addRoute(route as unknown as RouteRecordRaw) })
+            const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+            asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
-            this.setSidebarRouters([...constantRoutes, ...sidebarRoutes] as RouteItem[])
+            this.setSidebarRouters([...constantRoutes, ...sidebarRoutes])
             this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes([...constantRoutes, ...defaultRoutes] as RouteItem[])
+            this.setTopbarRoutes([...constantRoutes, ...defaultRoutes])
             resolve(rewriteRoutes)
           })
         })
@@ -123,7 +123,7 @@ function filterAsyncRouter(asyncRouterMap: RouteItem[], lastRouter: RouteItem | 
 function filterChildren(childrenMap: RouteItem[], lastRouter: RouteItem | false = false): RouteItem[] {
   const children: RouteItem[] = []
   childrenMap.forEach((el) => {
-    const item = { ...el, hidden: false } as RouteItem // 确保hidden属性存在
+    const item = { ...el, hidden: false } // 确保hidden属性存在
     if (el.children && el.children.length) {
       if (el.component === 'ParentView' && !lastRouter) {
         el.children.forEach((c: RouteItem) => {

@@ -33,8 +33,11 @@ const saveFormJson = () => {
 </script>
 <template>
     <div class="vForm">
-        <el-button style="width: 100%;" @click="saveFormJson">保存表单</el-button>
-        <v-form-designer ref="vfDesigner"></v-form-designer>
+        <v-form-designer ref="vfDesigner">
+            <template #customSaveButton>
+                <el-link type="primary" underline="never" @click="saveFormJson" icon='promotion'>保存</el-link>
+            </template>
+        </v-form-designer>
     </div>
 </template>
 <style lang="scss" scoped>

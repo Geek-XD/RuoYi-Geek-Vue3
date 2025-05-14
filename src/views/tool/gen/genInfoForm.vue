@@ -70,7 +70,7 @@
 
       <el-col :span="12">
         <el-form-item prop="genType">
-          <span slot="label">
+          <span #label>
             生成代码方式
             <el-tooltip content="默认为zip压缩包下载，也可以自定义生成路径" placement="top">
               <i class="el-icon-question"></i>

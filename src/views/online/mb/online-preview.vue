@@ -130,8 +130,8 @@ function testClick() {
       <el-tab-pane v-for="code in generated.codes" :label="code.title" :name="code.title">
         <div>
           <div style="width: 100%;display: flex;justify-content: space-between;">
-            <el-link :underline="false" icon="DocumentCopy" @click="testClick">&nbsp;测试</el-link>
-            <el-link :underline="false" icon="DocumentCopy" v-copyText="code.generated()"
+            <el-link underline="never" icon="DocumentCopy" @click="testClick">&nbsp;测试</el-link>
+            <el-link underline="never" icon="DocumentCopy" v-copyText="code.generated()"
               v-copyText:callback="copyTextSuccess">&nbsp;复制</el-link>
           </div>
           <div style="display: flex;justify-content: center;align-content: center;">
