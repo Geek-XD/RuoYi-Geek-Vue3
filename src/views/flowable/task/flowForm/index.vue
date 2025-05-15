@@ -3,7 +3,7 @@
     <v-form-designer ref="vfDesigner" :designer-config="designerConfig">
       <!-- 保存按钮 -->
       <template #customSaveButton>
-        <el-link type="primary" underline="never" @click="saveFormJson" icon='promotion'>保存</el-link>
+        <el-button type="primary" link @click="saveFormJson" icon='promotion'>保存</el-button>
       </template>
     </v-form-designer>
 

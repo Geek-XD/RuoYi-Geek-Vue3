@@ -52,10 +52,10 @@
       <el-table-column label="执行内容" align="center" prop="value" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link underline="never" type="primary" icon="edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:listener:edit']">修改</el-link>
-          <el-link underline="never" type="primary" icon="delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['system:listener:remove']">删除</el-link>
+          <el-button link type="primary" icon="edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['system:listener:edit']">修改</el-button>
+          <el-button link type="primary" icon="delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['system:listener:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -89,8 +89,8 @@
         </el-form-item>
         <el-form-item label="值类型" prop="valueType">
           <el-radio-group v-model="form.valueType">
-            <el-radio v-for="dict in sys_listener_value_type" :key="dict.value"
-              :value="dict.value">{{ dict.label }}</el-radio>
+            <el-radio v-for="dict in sys_listener_value_type" :key="dict.value" :value="dict.value">{{ dict.label
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="执行内容" prop="value">

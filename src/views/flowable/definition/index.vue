@@ -47,16 +47,16 @@
       <el-table-column label="流程分类" align="center" prop="category" />
       <el-table-column label="流程名称" align="center" width="120" :show-overflow-tooltip="true">
         <template v-slot="scope">
-          <el-link type="primary" underline="never" @click="handleReadImage(scope.row.deploymentId)">
+          <el-button link type="primary" @click="handleReadImage(scope.row.deploymentId)">
             <span>{{ scope.row.name }}</span>
-          </el-link>
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column label="业务表单" align="center" :show-overflow-tooltip="true">
         <template v-slot="scope">
-          <el-link v-if="scope.row.formId" type="primary" @click="handleForm(scope.row.formId)" underline="never">
+          <el-button link v-if="scope.row.formId" type="primary" @click="handleForm(scope.row.formId)">
             <span>{{ scope.row.formName }}</span>
-          </el-link>
+          </el-button>
           <label v-else>暂无表单</label>
         </template>
       </el-table-column>
@@ -65,24 +65,24 @@
           <el-tag size="default">v{{ scope.row.version }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center">
+      <el-table-column label="状态" align="center" width="150">
         <template v-slot="scope">
           <el-tag type="success" v-if="scope.row.suspensionState === 1">激活</el-tag>
           <el-tag type="warning" v-if="scope.row.suspensionState === 2">挂起</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="部署时间" align="center" prop="deploymentTime" width="180" />
-      <el-table-column label="操作" width="250" fixed="right" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="350" fixed="right" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link @click="handleLoadXml(scope.row)" icon="edit" type="primary" underline="never">设计</el-link>
-          <el-link @click="handleAddForm(scope.row)" icon="promotion" type="primary" underline="never"
-            v-if="scope.row.formId == null">配置主表单</el-link>
-          <el-link @click="handleUpdateSuspensionState(scope.row)" icon="video-pause" type="primary" underline="never"
-            v-if="scope.row.suspensionState === 1">挂起</el-link>
-          <el-link @click="handleUpdateSuspensionState(scope.row)" icon="video-play" type="primary" underline="never"
-            v-if="scope.row.suspensionState === 2">激活</el-link>
-          <el-link @click="handleDelete(scope.row)" icon="delete" type="primary" underline="never"
-            v-hasPermi="['system:deployment:remove']">删除</el-link>
+          <el-button link @click="handleLoadXml(scope.row)" icon="edit" type="primary">设计</el-button>
+          <el-button link @click="handleAddForm(scope.row)" icon="promotion" type="primary"
+            v-if="scope.row.formId == null">配置主表单</el-button>
+          <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-pause" type="warning"
+            v-if="scope.row.suspensionState === 1">挂起</el-button>
+          <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-play" type="success"
+            v-if="scope.row.suspensionState === 2">激活</el-button>
+          <el-button link @click="handleDelete(scope.row)" icon="delete" type="danger"
+            v-hasPermi="['system:deployment:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -146,7 +146,7 @@
             <el-table-column label="表单名称" align="center" prop="formName" />
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
               <template v-slot="scope">
-                <el-link type="primary" underline="never" @click="submitFormDeploy(scope.row)">确定</el-link>
+                <el-button link type="primary" @click="submitFormDeploy(scope.row)">确定</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -474,8 +474,3 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
-.el-link+.el-link {
-  margin-left: 10px;
-}
-</style>

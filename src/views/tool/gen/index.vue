@@ -25,8 +25,7 @@
           v-hasPermi="['tool:gen:code']">生成</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="plus" @click="openCreateTable"
-          v-hasRole="['admin']">创建</el-button>
+        <el-button type="primary" plain icon="plus" @click="openCreateTable" v-hasRole="['admin']">创建</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="info" plain icon="Upload" @click="openImportTable"
@@ -80,16 +79,16 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
-      @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
     <!-- 预览界面 -->
     <el-dialog :title="preview.title" v-model="preview.open" width="80%" top="5vh" append-to-body class="scrollbar">
       <el-tabs v-model="preview.activeName">
         <el-tab-pane v-for="(value, key) in preview.data"
           :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
           :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))" :key="value">
-          <el-link underline="never" icon="DocumentCopy" v-copyText="value" v-copyText:callback="copyTextSuccess"
-            style="float:right">&nbsp;复制</el-link>
+          <el-button link icon="DocumentCopy" v-copyText="value" v-copyText:callback="copyTextSuccess"
+            style="float:right">&nbsp;复制</el-button>
           <pre>{{ value }}</pre>
         </el-tab-pane>
       </el-tabs>

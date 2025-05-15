@@ -11,7 +11,7 @@
           <!--初始化流程加载表单信息-->
           <el-col :span="16" :offset="4">
             <v-form-render :form-data="formRenderData" ref="vFormRef" />
-            <div style="margin-left:15%;margin-bottom: 20px;font-size: 14px;">
+            <div style="display: flex;justify-content: center;">
               <el-button type="primary" @click="submitForm">提 交</el-button>
               <el-button type="primary" @click="resetForm">重 置</el-button>
             </div>

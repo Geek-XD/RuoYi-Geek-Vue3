@@ -108,7 +108,7 @@ function jsonToTree(jsonString) {
 const returnTree = computed(() => {
   return jsonToTree(testData.value.returnData)
 })
-function testClick() { 
+function testClick() {
   const requestObject = {
     url: '/online/api' + porp.path,
     method: porp.method,
@@ -130,9 +130,9 @@ function testClick() {
       <el-tab-pane v-for="code in generated.codes" :label="code.title" :name="code.title">
         <div>
           <div style="width: 100%;display: flex;justify-content: space-between;">
-            <el-link underline="never" icon="DocumentCopy" @click="testClick">&nbsp;测试</el-link>
-            <el-link underline="never" icon="DocumentCopy" v-copyText="code.generated()"
-              v-copyText:callback="copyTextSuccess">&nbsp;复制</el-link>
+            <el-button link icon="DocumentCopy" @click="testClick">&nbsp;测试</el-button>
+            <el-button link icon="DocumentCopy" v-copyText="code.generated()"
+              v-copyText:callback="copyTextSuccess">&nbsp;复制</el-button>
           </div>
           <div style="display: flex;justify-content: center;align-content: center;">
             <div class="code-container">

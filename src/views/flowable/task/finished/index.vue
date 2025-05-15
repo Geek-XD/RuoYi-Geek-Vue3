@@ -31,8 +31,10 @@
       <el-table-column label="任务节点" align="center" prop="taskName" />
       <el-table-column label="流程发起人" align="center">
         <template v-slot="scope">
-          <label>{{ scope.row.startUserName }} <el-tag type="info"
-              size="small">{{ scope.row.startDeptName }}</el-tag></label>
+          <label>
+            {{ scope.row.startUserName }}
+            <el-tag type="info" size="small">{{ scope.row.startDeptName }}</el-tag>
+          </label>
         </template>
       </el-table-column>
       <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
@@ -40,9 +42,8 @@
       <el-table-column label="耗时" align="center" prop="duration" width="180" />
       <el-table-column label="操作" width="150" fixed="right" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link type="primary" underline="never" icon="tickets" @click="handleFlowRecord(scope.row)">流转记录</el-link>
-          <el-link type="primary" underline="never" icon="refresh-left" @click="handleRevoke(scope.row)">撤回
-          </el-link>
+          <el-button type="primary" link icon="tickets" @click="handleFlowRecord(scope.row)">流转记录</el-button>
+          <el-button type="primary" link icon="refresh-left" @click="handleRevoke(scope.row)">撤回</el-button>
         </template>
       </el-table-column>
     </el-table>

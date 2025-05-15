@@ -41,9 +41,9 @@
             <ImagePreview :src="getFileUrl(scope.row)" width="60" height="60" />
           </template>
           <template v-else>
-            <el-link underline="never" type="primary" @click="handleDownload(scope.row)">
+            <el-button link type="primary" @click="handleDownload(scope.row)">
               {{ scope.row.fileName }}
-            </el-link>
+            </el-button>
           </template>
         </template>
       </el-table-column>

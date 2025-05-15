@@ -47,10 +47,10 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link type="primary" icon="edit" underline="never" @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:expression:edit']">修改</el-link>
-          <el-link type="primary" icon="delete" underline="never" @click="handleDelete(scope.row)"
-            v-hasPermi="['system:expression:remove']">删除</el-link>
+          <el-button type="primary" icon="edit" link @click="handleUpdate(scope.row)"
+            v-hasPermi="['system:expression:edit']">修改</el-button>
+          <el-button type="primary" icon="delete" link @click="handleDelete(scope.row)"
+            v-hasPermi="['system:expression:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -74,8 +74,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in sys_common_status" :key="dict.value"
-              :value="parseInt(dict.value)">{{ dict.label }}</el-radio>
+            <el-radio v-for="dict in sys_common_status" :key="dict.value" :value="parseInt(dict.value)">{{ dict.label
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">

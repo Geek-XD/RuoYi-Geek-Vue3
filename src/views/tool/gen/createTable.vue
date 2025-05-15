@@ -27,7 +27,7 @@
       <el-row :gutter="20">
         <el-col :span="16">
           <el-form-item label="字段配置">
-            <el-link type="primary" underline="never" @click="addField">添加字段</el-link>
+            <el-button type="primary" link @click="addField">添加字段</el-button>
             <el-table :data="fields" style="width: 100%" border>
               <el-table-column prop="name" label="字段名">
                 <template #default="{ row, $index }">
@@ -62,7 +62,7 @@
               </el-table-column>
               <el-table-column fixed="right" label="操作" width="100">
                 <template #default="{ row, $index }">
-                  <el-link type="primary" underline="never" @click="removeField($index)">移除</el-link>
+                  <el-button type="primary" link @click="removeField($index)">移除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -178,7 +178,7 @@ const addField = () => {
 };
 
 // 移除字段
-const removeField = (index:number) => {
+const removeField = (index: number) => {
   fields.value.splice(index, 1);
 };
 
@@ -203,7 +203,7 @@ function createSQL() {
 const sql = computed(() => {
   try {
     return createSQL()
-  } catch (error:any) {
+  } catch (error: any) {
     return error.message
   }
 })
@@ -234,7 +234,7 @@ const handleCreateTable = () => {
 
   sql += `) ENGINE=${tableConfig.engine} AUTO_INCREMENT=${tableConfig.autoIncrementStep + 1
     } COMMENT='${tableConfig.comment}';`;
-     
+
   createTable({ sql }).then((res) => {
     modal.msgSuccess(res.msg);
     if (res.code === 200) {

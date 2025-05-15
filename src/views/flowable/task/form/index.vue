@@ -29,11 +29,11 @@
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link type="primary" underline="never" icon="view" @click="handleDetail(scope.row)">详情</el-link>
-          <el-link type="primary" underline="never" icon="edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['flowable:form:edit']">修改</el-link>
-          <el-link type="primary" underline="never" icon="delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['flowable:form:remove']">删除</el-link>
+          <el-button type="primary" link icon="view" @click="handleDetail(scope.row)">详情</el-button>
+          <el-button type="primary" link icon="edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['flowable:form:edit']">修改</el-button>
+          <el-button type="primary" link icon="delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['flowable:form:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -71,7 +71,7 @@
       <v-form-designer ref="vfDesigner" :designer-config="designerConfig">
         <!-- 自定义按钮插槽演示 -->
         <template #customSaveButton>
-          <el-link type="primary" icon="promotion" underline="never" @click="saveFormJson">保存</el-link>
+          <el-button type="primary" icon="promotion" link @click="saveFormJson">保存</el-button>
         </template>
       </v-form-designer>
     </el-dialog>

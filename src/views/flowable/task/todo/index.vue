@@ -44,8 +44,7 @@
       <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link type="primary" underline="never" icon="edit" @click="handleProcess(scope.row)">处理
-          </el-link>
+          <el-button type="primary" link icon="edit" @click="handleProcess(scope.row)">处理</el-button>
         </template>
       </el-table-column>
     </el-table>

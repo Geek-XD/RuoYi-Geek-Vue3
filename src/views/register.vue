@@ -58,10 +58,11 @@
           <span v-else>注 册 中...</span>
         </el-button>
         <div style="display: flex; justify-content: space-between;width: 100%;">
-          <el-link class="link-type" underline="never" @click="$router.push('/login')">使用已有账户登录</el-link>
-          <el-link class="link-type" underline="never" @click="useEmile()" v-if="!emileEnabled">使用邮箱注册</el-link>
-          <el-link class="link-type" underline="never" @click="usePhone()" v-if="!phoneEnabled">使用手机号注册</el-link>
-          <el-link class="link-type" underline="never" @click="useUsername()" v-if="emileEnabled || phoneEnabled">使用账号注册</el-link>
+          <el-button class="link-type" link @click="$router.push('/login')">使用已有账户登录</el-button>
+          <el-button class="link-type" link @click="useEmile()" v-if="!emileEnabled">使用邮箱注册</el-button>
+          <el-button class="link-type" link @click="usePhone()" v-if="!phoneEnabled">使用手机号注册</el-button>
+          <el-button class="link-type" link @click="useUsername()"
+            v-if="emileEnabled || phoneEnabled">使用账号注册</el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -74,7 +75,7 @@
 
 <script setup>
 import { ElMessageBox } from "element-plus";
-import { getCodeImg, register, sendEmailCode, verifyEmailCode,sendPhoneCode,verifyPhoneCode } from "@/api/login";
+import { getCodeImg, register, sendEmailCode, verifyEmailCode, sendPhoneCode, verifyPhoneCode } from "@/api/login";
 import { getConfigKey } from '@/api/system/config'
 import { ref } from "vue";
 
@@ -132,7 +133,7 @@ function useUsername() {
   emileEnabled.value = false
 }
 
-function usePhone(){
+function usePhone() {
   captchaEnabled.value = false
   phoneEnabled.value = true
   emileEnabled.value = false
@@ -147,7 +148,7 @@ function handleRegister() {
       if (emileEnabled.value) {
         registerForm.value.email = registerForm.value.username
         handleRegister = verifyEmailCode
-      }else if(phoneEnabled.value){
+      } else if (phoneEnabled.value) {
         registerForm.value.phone = registerForm.value.username
         handleRegister = verifyPhoneCode
       }
@@ -180,10 +181,10 @@ function getCode() {
 }
 
 function sendCode() {
-  if(emileEnabled.value){
+  if (emileEnabled.value) {
     registerForm.value.email = registerForm.value.username
     sendEmailCode(registerForm.value)
-  }else if(phoneEnabled.value){
+  } else if (phoneEnabled.value) {
     registerForm.value.phonenumber = registerForm.value.username
     sendPhoneCode(registerForm.value)
   }

@@ -12,7 +12,7 @@
         <el-tab-pane label="表单信息" name="1">
           <el-col :span="16" :offset="4">
             <v-form-render ref="vFormRef" />
-            <div style="margin-left:10%;margin-bottom: 20px;font-size: 14px;">
+            <div style="display: flex;justify-content: center;">
               <el-button type="primary" @click="handleComplete">审 批</el-button>
             </div>
           </el-col>
@@ -128,15 +128,7 @@ import { flowRecord } from "@/api/flowable/finished";
 import FlowUser from '@/components/flow/User'
 import FlowRole from '@/components/flow/Role'
 import { flowXmlAndNode } from "@/api/flowable/definition";
-import {
-  complete,
-  rejectTask,
-  returnList,
-  returnTask,
-  getNextFlowNode,
-  delegate,
-  flowTaskForm
-} from "@/api/flowable/todo";
+import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@/api/flowable/todo";
 import BpmnViewer from '@/components/Process/viewer';
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 

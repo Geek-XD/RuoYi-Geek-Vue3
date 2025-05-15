@@ -1,16 +1,17 @@
 <template>
   <el-popover v-model="showPopover" placement="bottom-start" width="200" trigger="hover">
     <template #reference>
-      <el-link type="primary" underline="never" @mouseover="fetchLatestMessages" @mouseout="hidePopover">
+      <el-button type="primary" link @mouseover="fetchLatestMessages" @mouseout="hidePopover">
         <el-icon size="20" color="#5a5e66" style="transform: scaleX(1.1) scaleY(1.1); margin-right: 5px;">
           <Bell />
         </el-icon>
-      </el-link>
+      </el-button>
     </template>
     <div v-if="filteredNotifications.length > 0">
       <h4 style="margin: 0px; padding: 0px;">信息中心</h4>
       <ul class="notification-list">
-        <li style="cursor: pointer;" v-for="(item, index) in filteredNotifications" :key="index" @click="viewDetails(item)">
+        <li style="cursor: pointer;" v-for="(item, index) in filteredNotifications" :key="index"
+          @click="viewDetails(item)">
           {{ item.messageTitle }}
         </li>
       </ul>

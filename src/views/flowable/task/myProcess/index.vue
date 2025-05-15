@@ -2,27 +2,26 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable size="small"
-          @keyup.enter.native="handleQuery" />
+        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="开始时间" prop="deployTime">
-        <el-date-picker clearable size="small" v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
+        <el-date-picker clearable v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
           placeholder="选择时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+        <el-button icon="refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="plus" size="small" @click="handleAdd"
+        <el-button type="primary" plain icon="plus" @click="handleAdd"
           v-hasPermi="['system:deployment:add']">新增流程</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="delete" size="small" :disabled="multiple" @click="handleDelete"
+        <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
           v-hasPermi="['system:deployment:remove']">删除</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -49,17 +48,21 @@
       <el-table-column label="当前节点" align="center" prop="taskName" />
       <el-table-column label="办理人" align="center">
         <template v-slot="scope">
-          <label v-if="scope.row.assigneeName">{{ scope.row.assigneeName }} <el-tag type="info" size="small">{{
-            scope.row.assigneeDeptName }}</el-tag></label>
-          <!--          <label v-if="scope.row.candidate">{{scope.row.candidate}}</label>-->
+          <label v-if="scope.row.assigneeName">
+            {{ scope.row.assigneeName }}
+            <el-tag type="info" size="small">
+              {{ scope.row.assigneeDeptName }}
+            </el-tag>
+          </label>
+          <!-- <label v-if="scope.row.candidate">{{ scope.row.candidate }}</label> -->
         </template>
       </el-table-column>
       <el-table-column label="操作" width="150" fixed="right" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-link @click="handleFlowRecord(scope.row)" type="primary" underline="never">详情</el-link>
-          <el-link @click="handleStop(scope.row)" type="primary" underline="never">取消申请</el-link>
-          <el-link @click="handleDelete(scope.row)" type="primary" underline="never"
-            v-hasPermi="['system:deployment:remove']">删除</el-link>
+          <el-button @click="handleFlowRecord(scope.row)" type="primary" link>详情</el-button>
+          <el-button @click="handleStop(scope.row)" type="primary" link>取消申请</el-button>
+          <el-button @click="handleDelete(scope.row)" type="primary" link
+            v-hasPermi="['system:deployment:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -89,7 +92,7 @@
         <el-table-column label="流程分类" align="center" prop="category" />
         <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width">
           <template v-slot="scope">
-            <el-link type="primary" underline="never" icon="edit" @click="handleStartProcess(scope.row)">发起流程</el-link>
+            <el-button type="primary" link icon="edit" @click="handleStartProcess(scope.row)">发起流程</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,7 +104,7 @@
 </template>
 
 <script>
-import { delDeployment, flowRecord } from "@/api/flowable/finished";
+import { delDeployment } from "@/api/flowable/finished";
 import { myProcessList, stopProcess } from "@/api/flowable/process";
 import { listDefinition } from "@/api/flowable/definition";
 export default {

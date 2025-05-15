@@ -87,7 +87,8 @@
                      <span>{{ parseTime(scope.row.createTime) }}</span>
                   </template>
                </el-table-column>
-               <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width" fixed="right">
+               <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width"
+                  fixed="right">
 
                   <template #default="scope">
                      <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== 1">
@@ -169,7 +170,7 @@
                   <el-form-item label="状态">
                      <el-radio-group v-model="form.status">
                         <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label
-                           }}</el-radio>
+                        }}</el-radio>
                      </el-radio-group>
                   </el-form-item>
                </el-col>
@@ -223,8 +224,8 @@
                      <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
                   </div>
                   <span>仅允许导入xls、xlsx格式文件。</span>
-                  <el-link type="primary" underline="never" style="font-size:12px;vertical-align: baseline;"
-                     @click="importTemplate">下载模板</el-link>
+                  <el-button type="primary" link style="font-size:12px;vertical-align: baseline;"
+                     @click="importTemplate">下载模板</el-button>
                </div>
             </template>
          </el-upload>

@@ -6,9 +6,9 @@
       <el-table-column label="属性值" prop="value" min-width="100px" show-overflow-tooltip />
       <el-table-column label="操作" width="90px">
         <template slot-scope="{ row, $index }">
-          <el-link  type="primary" underline="never" @click="openAttributesForm(row, $index)">编辑</el-link>
+          <el-button type="primary" link @click="openAttributesForm(row, $index)">编辑</el-button>
           <el-divider direction="vertical" />
-          <el-link  type="primary" underline="never" style="color: #ff4d4f" @click="removeAttributes(row, $index)">移除</el-link>
+          <el-button type="primary" link style="color: #ff4d4f" @click="removeAttributes(row, $index)">移除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import {StrUtil} from "@/utils/StrUtil";
+import { StrUtil } from "@/utils/StrUtil";
 
 export default {
   name: "PropertiesPanel",
