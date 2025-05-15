@@ -26,32 +26,6 @@ export function deployStart(deployId) {
   })
 }
 
-// 查询流程定义详细
-export function getDeployment(id) {
-  return request({
-    url: '/system/deployment/' + id,
-    method: 'get'
-  })
-}
-
-// 新增流程定义
-export function addDeployment(data) {
-  return request({
-    url: '/system/deployment',
-    method: 'post',
-    data: data
-  })
-}
-
-// 修改流程定义
-export function updateDeployment(data) {
-  return request({
-    url: '/system/deployment',
-    method: 'put',
-    data: data
-  })
-}
-
 // 删除流程定义
 export function delDeployment(id) {
   return request({
@@ -60,21 +34,25 @@ export function delDeployment(id) {
   })
 }
 
-// 导出流程定义
-export function exportDeployment(query) {
-  return request({
-    url: '/system/deployment/export',
-    method: 'get',
-    params: query
-  })
-}
-
-
 // 撤回流程
 export function revokeProcess(data) {
   return request({
-    url: '/system/deployment/revoke',
+    url: '/flowable/task/revokeProcess',
     method: 'post',
     data: data
   })
+}
+
+// 导入流程文件
+export function importDeployment(name, category, file) {
+  const formData = new FormData();
+  if (name) formData.append('name', name);
+  if (category) formData.append('category', category);
+  formData.append('file', file);
+  
+  return request({
+    url: '/flowable/definition/import',
+    method: 'post',
+    data: formData
+  });
 }

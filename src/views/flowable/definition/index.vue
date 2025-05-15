@@ -90,19 +90,6 @@
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
-    <!-- 添加或修改流程定义对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="看看" prop="name">
-          <el-input v-model="form.name" placeholder="请输入看看" />
-        </el-form-item>
-      </el-form>
-      <template #footer class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </template>
-    </el-dialog>
-
     <!-- bpmn20.xml导入对话框 -->
     <el-dialog :title="upload.title" v-model="upload.open" width="400px" append-to-body>
       <el-upload ref="upload" :limit="1" accept=".xml" :headers="upload.headers"
@@ -184,7 +171,7 @@
 </template>
 
 <script>
-import { listDefinition, updateState, delDeployment, addDeployment, updateDeployment, exportDeployment, definitionStart, flowXmlAndNode } from "@/api/flowable/definition";
+import { listDefinition, updateState, delDeployment, definitionStart, flowXmlAndNode } from "@/api/flowable/definition";
 import { getToken } from "@/utils/auth";
 import { getForm, addDeployForm, listForm } from "@/api/flowable/form";
 import BpmnViewer from '@/components/Process/viewer';
@@ -350,12 +337,6 @@ export default {
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加流程定义";
-    },
     /** 跳转到流程设计页面 */
     handleLoadXml(row) {
       // this.dialogVisible = true;
@@ -455,36 +436,6 @@ export default {
         this.getList();
       });
     },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.deploymentId || this.ids
-      getDeployment(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改流程定义";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const deploymentIds = row.deploymentId || this.ids;
@@ -497,19 +448,6 @@ export default {
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      })
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有流程定义数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return exportDeployment(queryParams);
-      }).then(response => {
-        this.download(response.msg);
       })
     },
     /** 导入bpmn.xml文件 */

@@ -37,8 +37,8 @@
       </el-table-column>
       <el-table-column label="流程发起人" align="center">
         <template v-slot="scope">
-          <label>{{ scope.row.startUserName }} <el-tag type="info"
-              size="small">{{ scope.row.startDeptName }}</el-tag></label>
+          <label>{{ scope.row.startUserName }} <el-tag type="info" size="small">{{ scope.row.startDeptName
+          }}</el-tag></label>
         </template>
       </el-table-column>
       <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
@@ -56,16 +56,7 @@
 </template>
 
 <script>
-import {
-  todoList,
-  complete,
-  returnList,
-  returnTask,
-  rejectTask,
-  getDeployment,
-  delDeployment,
-  exportDeployment
-} from "@/api/flowable/todo";
+import { todoList, complete, returnList, returnTask, rejectTask, delDeployment } from "@/api/flowable/todo";
 
 export default {
   name: "Deploy",

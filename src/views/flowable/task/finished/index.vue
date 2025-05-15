@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { finishedList, getDeployment, delDeployment, addDeployment, updateDeployment, exportDeployment, revokeProcess } from "@/api/flowable/finished";
+import { finishedList, delDeployment, revokeProcess } from "@/api/flowable/finished";
 
 export default {
   name: "Deploy",
@@ -194,36 +194,6 @@ export default {
         this.getList();
       });
     },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getDeployment(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改流程定义";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
@@ -238,19 +208,6 @@ export default {
         this.$modal.msgSuccess("删除成功");
       })
     },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有流程定义数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return exportDeployment(queryParams);
-      }).then(response => {
-        this.download(response.msg);
-      })
-    }
   }
 };
 </script>

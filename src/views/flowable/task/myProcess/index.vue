@@ -49,8 +49,8 @@
       <el-table-column label="当前节点" align="center" prop="taskName" />
       <el-table-column label="办理人" align="center">
         <template v-slot="scope">
-          <label v-if="scope.row.assigneeName">{{ scope.row.assigneeName }} <el-tag type="info"
-              size="small">{{ scope.row.assigneeDeptName }}</el-tag></label>
+          <label v-if="scope.row.assigneeName">{{ scope.row.assigneeName }} <el-tag type="info" size="small">{{
+            scope.row.assigneeDeptName }}</el-tag></label>
           <!--          <label v-if="scope.row.candidate">{{scope.row.candidate}}</label>-->
         </template>
       </el-table-column>
@@ -101,14 +101,7 @@
 </template>
 
 <script>
-import {
-  getDeployment,
-  delDeployment,
-  addDeployment,
-  updateDeployment,
-  exportDeployment,
-  flowRecord
-} from "@/api/flowable/finished";
+import { delDeployment, flowRecord } from "@/api/flowable/finished";
 import { myProcessList, stopProcess } from "@/api/flowable/process";
 import { listDefinition } from "@/api/flowable/definition";
 export default {
@@ -278,36 +271,6 @@ export default {
         }
       })
     },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getDeployment(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改流程定义";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addDeployment(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.procInsId || this.ids;// 暂不支持删除多个流程
@@ -322,19 +285,6 @@ export default {
         this.$modal.msgSuccess("删除成功");
       })
     },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有流程定义数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        return exportDeployment(queryParams);
-      }).then(response => {
-        this.download(response.msg);
-      })
-    }
   }
 };
 </script>
