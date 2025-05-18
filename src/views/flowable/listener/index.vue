@@ -90,7 +90,7 @@
         <el-form-item label="值类型" prop="valueType">
           <el-radio-group v-model="form.valueType">
             <el-radio v-for="dict in sys_listener_value_type" :key="dict.value" :value="dict.value">{{ dict.label
-              }}</el-radio>
+            }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="执行内容" prop="value">
@@ -112,11 +112,10 @@ export default {
   name: "Listener",
   setup() {
     const { proxy } = getCurrentInstance();
-    const { sys_listener_value_type, sys_listener_type, common_status, sys_listener_event_type } = proxy.useDict("sys_listener_value_type", "sys_listener_type", "common_status", "sys_listener_event_type");
+    const { sys_listener_value_type, sys_listener_type, sys_listener_event_type } = proxy.useDict("sys_listener_value_type", "sys_listener_type", "sys_listener_event_type");
     return {
       sys_listener_value_type,
       sys_listener_type,
-      common_status,
       sys_listener_event_type
     }
   },

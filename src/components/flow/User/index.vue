@@ -4,75 +4,60 @@
       <!--部门数据-->
       <el-col :span="6" :xs="24">
         <div class="head-container">
-          <el-input
-            v-model="deptName"
-            placeholder="请输入部门名称"
-            clearable
-            size="small"
-            prefix-icon="search"
-            style="margin-bottom: 20px"
-          />
+          <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="small" prefix-icon="search"
+            style="margin-bottom: 20px" />
         </div>
         <div class="head-container">
-          <el-tree
-            :data="deptOptions"
-            :props="defaultProps"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            ref="tree"
-            node-key="id"
-            default-expand-all
-            highlight-current
-            @node-click="handleNodeClick"
-          />
+          <el-tree :data="deptOptions" :props="defaultProps" :expand-on-click-node="false"
+            :filter-node-method="filterNode" ref="tree" node-key="id" default-expand-all highlight-current
+            @node-click="handleNodeClick" />
         </div>
       </el-col>
       <!--用户数据-->
       <el-col :span="18" :xs="24">
-        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
+          label-width="68px">
           <el-form-item label="用户名称" prop="userName">
-            <el-input
-              v-model="queryParams.userName"
-              placeholder="请输入用户名称"
-              clearable
-              style="width: 150px"
-              @keyup.enter.native="handleQuery"
-            />
+            <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 150px"
+              @keyup.enter.native="handleQuery" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
             <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
-        <el-table v-show="checkType === 'multiple'" ref="dataTable" v-loading="loading" :row-key="getRowKey" :data="userList" @selection-change="handleMultipleUserSelect">
+        <el-table v-show="checkType === 'multiple'" ref="dataTable" v-loading="loading" :row-key="getRowKey"
+          :data="userList" @selection-change="handleMultipleUserSelect">
           <el-table-column type="selection" :reserve-selection="true" width="50" align="center" />
           <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
-          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
+          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible"
+            width="120" />
         </el-table>
-        <el-table v-show="checkType === 'single'" v-loading="loading" :data="userList" @current-change="handleSingleUserSelect">
-          <el-table-column  width="55" align="center" >
+        <el-table v-show="checkType === 'single'" v-loading="loading" :data="userList"
+          @current-change="handleSingleUserSelect">
+          <el-table-column width="55" align="center">
             <template v-slot="scope">
-              <el-radio v-model="radioSelected" :label="scope.row.userId">{{''}}</el-radio>
+              <el-radio v-model="radioSelected" :label="scope.row.userId">{{ '' }}</el-radio>
             </template>
           </el-table-column>
           <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
-          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
+          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible"
+            :show-overflow-tooltip="true" />
+          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible"
+            width="120" />
         </el-table>
-        <pagination
-          v-show="total>0"
-          :total="total"
-          :page-sizes="[5,10]"
-          layout="prev, pager, next"
-          :page.sync="queryParams.pageNum"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-        />
+        <pagination v-show="total > 0" :total="total" :page-sizes="[5, 10]" layout="prev, pager, next"
+          :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
       </el-col>
     </el-row>
   </div>
@@ -82,7 +67,7 @@
 import { listUser, deptTreeSelect } from "@/api/system/user";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import {StrUtil} from '@/utils/StrUtil'
+import { StrUtil } from '@/utils/StrUtil'
 
 export default {
   name: "FlowUser",
@@ -175,16 +160,15 @@ export default {
     },
     userList: {
       handler(newVal) {
-        debugger
         if (StrUtil.isNotBlank(newVal) && this.selectUserList.length > 0) {
-            this.$nextTick(() => {
-              this.$refs.dataTable.clearSelection();
-              this.selectUserList?.split(',').forEach(key => {
-                this.$refs.dataTable.toggleRowSelection(newVal.find(
-                  item => key == item.userId
-                ), true)
-              });
+          this.$nextTick(() => {
+            this.$refs.dataTable.clearSelection();
+            this.selectUserList?.split(',').forEach(key => {
+              this.$refs.dataTable.toggleRowSelection(newVal.find(
+                item => key == item.userId
+              ), true)
             });
+          });
         }
       }
     }
@@ -198,10 +182,10 @@ export default {
     getList() {
       this.loading = true;
       listUser(this.queryParams).then(response => {
-          this.userList = response.rows;
-          this.total = response.total;
-          this.loading = false;
-        }
+        this.userList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      }
       );
     },
     /** 查询部门下拉树结构 */
@@ -211,7 +195,7 @@ export default {
       });
     },
     // 保存选中的数据id,row-key就是要指定一个key标识这一行的数据
-    getRowKey (row) {
+    getRowKey(row) {
       return row.id
     },
     // 筛选节点

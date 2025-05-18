@@ -3,14 +3,14 @@ import request from '@/utils/request'
 // 查询流程表单列表
 export function listForm(query) {
   return request({
-    url: '/flowable/form/list',
+    url: '/form/template/list',
     method: 'get',
     params: query
   })
 }
 export function listAllForm(query) {
   return request({
-    url: '/flowable/form/formList',
+    url: '/form/template/list',
     method: 'get',
     params: query
   })
@@ -19,7 +19,7 @@ export function listAllForm(query) {
 // 查询流程表单详细
 export function getForm(formId) {
   return request({
-    url: '/flowable/form/' + formId,
+    url: '/form/template/' + formId,
     method: 'get'
   })
 }
@@ -44,7 +44,7 @@ export function updateForm(data) {
 // 挂载表单
 export function addDeployForm(data) {
   return request({
-    url: '/flowable/form/addDeployForm',
+    url: '/flowable/definition/addDeployForm',
     method: 'post',
     data: data
   })
@@ -53,7 +53,7 @@ export function addDeployForm(data) {
 // 删除流程表单
 export function delForm(formId) {
   return request({
-    url: '/flowable/form/' + formId,
+    url: '/form/template/' + formId,
     method: 'delete'
   })
 }
@@ -61,7 +61,7 @@ export function delForm(formId) {
 // 导出流程表单
 export function exportForm(query) {
   return request({
-    url: '/flowable/form/export',
+    url: '/form/template/export',
     method: 'get',
     params: query
   })

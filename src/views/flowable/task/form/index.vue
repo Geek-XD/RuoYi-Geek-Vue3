@@ -48,7 +48,7 @@
           <el-input v-model="form.formName" placeholder="请输入表单名称" />
         </el-form-item>
         <el-form-item label="表单内容">
-          <editor v-model="form.formContent" :min-height="192" />
+          <editor v-model="form.formSchema" :min-height="192" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -134,13 +134,13 @@ export default {
         pageNum: 1,
         pageSize: 10,
         formName: null,
-        formContent: null,
+        formSchema: null,
       },
       // 表单参数
       form: {
         formId: null,
         formName: null,
-        formContent: null,
+        formSchema: null,
         remark: null
       },
       // 表单校验
@@ -172,7 +172,7 @@ export default {
       this.form = {
         formId: null,
         formName: null,
-        formContent: null,
+        formSchema: null,
         createTime: null,
         updateTime: null,
         createBy: null,
@@ -203,7 +203,7 @@ export default {
       this.formTitle = "表单详情";
       this.$nextTick(() => {
         // 回显数据
-        this.$refs.vFormRef.setFormJson(JSON.parse(row.formContent))
+        this.$refs.vFormRef.setFormJson(JSON.parse(row.formSchema))
         this.$nextTick(() => {
           // 表单禁用
           this.$refs.vFormRef.disableForm();
@@ -218,7 +218,7 @@ export default {
     // 保存表单数据
     saveFormJson() {
       let formJson = this.$refs.vfDesigner.getFormJson()
-      this.form.formContent = JSON.stringify(formJson);
+      this.form.formSchema = JSON.stringify(formJson);
       this.formOpen = true;
     },
     // 取消按钮
@@ -241,7 +241,7 @@ export default {
       // this.dialogVisible = true;
       // this.$nextTick(() => {
       //   // 加载表单json数据
-      //   this.$refs.vfDesigner.setFormJson(JSON.parse(row.formContent))
+      //   this.$refs.vfDesigner.setFormJson(JSON.parse(row.formSchema))
       // })
       this.$router.push({ path: '/flowable/task/flowForm/index', query: { formId: row.formId } })
 

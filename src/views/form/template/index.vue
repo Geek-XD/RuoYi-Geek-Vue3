@@ -95,7 +95,6 @@
 <script setup name="Template">
 import { addData } from "@/api/form/data";
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/form/template";
-import modal from "@/plugins/modal";
 import tab from "@/plugins/tab";
 import { reactive } from "vue";
 

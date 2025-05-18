@@ -75,8 +75,7 @@
       <el-table-column label="操作" align="center" width="350" fixed="right" class-name="small-padding fixed-width">
         <template v-slot="scope">
           <el-button link @click="handleLoadXml(scope.row)" icon="edit" type="primary">设计</el-button>
-          <el-button link @click="handleAddForm(scope.row)" icon="promotion" type="primary"
-            v-if="scope.row.formId == null">配置主表单</el-button>
+          <el-button link @click="handleAddForm(scope.row)" icon="promotion" type="primary">配置主表单</el-button>
           <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-pause" type="warning"
             v-if="scope.row.suspensionState === 1">挂起</el-button>
           <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-play" type="success"
@@ -359,7 +358,7 @@ export default {
         this.formConfOpen = true;
         this.$nextTick(() => {
           // 回显数据
-          this.$refs.vFormRef.setFormJson(JSON.parse(res.data.formContent))
+          this.$refs.vFormRef.setFormJson(JSON.parse(res.data.formSchema))
           this.$nextTick(() => {
             // 表单禁用
             this.$refs.vFormRef.disableForm();
@@ -387,19 +386,6 @@ export default {
         this.formDeployTitle = "挂载表单";
       })
     },
-    // /** 更改挂载表单弹框 */
-    // handleEditForm(row){
-    //   this.formDeployParam.deployId = row.deploymentId
-    //   const queryParams = {
-    //     pageNum: 1,
-    //     pageSize: 10
-    //   }
-    //   listForm(queryParams).then(res =>{
-    //     this.formList = res.rows;
-    //     this.formDeployOpen = true;
-    //     this.formDeployTitle = "挂载表单";
-    //   })
-    // },
     /** 挂载表单 */
     submitFormDeploy(row) {
       this.formDeployParam.formId = row.formId;
@@ -413,7 +399,7 @@ export default {
       if (data) {
         this.$nextTick(() => {
           // 回显数据
-          this.$refs.vFormCurrentRowRef.setFormJson(JSON.parse(data.formContent))
+          this.$refs.vFormCurrentRowRef.setFormJson(JSON.parse(data.formSchema))
           this.$nextTick(() => {
             // 表单禁用
             this.$refs.vFormCurrentRowRef.disableForm();

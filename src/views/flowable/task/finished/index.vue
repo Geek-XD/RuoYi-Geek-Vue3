@@ -136,22 +136,6 @@ export default {
       };
       this.resetForm("form");
     },
-    setIcon(val) {
-      if (val) {
-        return "el-icon-check";
-      } else {
-        return "el-icon-time";
-      }
-
-    },
-    setColor(val) {
-      if (val) {
-        return "#2bc418";
-      } else {
-        return "#b3bdbb";
-      }
-
-    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1;
@@ -167,12 +151,6 @@ export default {
       this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加流程定义";
     },
     /** 流程流转记录 */
     handleFlowRecord(row) {

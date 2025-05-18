@@ -45,7 +45,7 @@ export default {
       form: {
         formId: null,
         formName: null,
-        formContent: null,
+        formSchema: null,
         remark: null
       },
       designerConfig: {
@@ -63,7 +63,7 @@ export default {
       getForm(formId).then(res => {
         this.$nextTick(() => {
           // 加载表单json数据
-          this.$refs.vfDesigner.setFormJson(JSON.parse(res.data.formContent))
+          this.$refs.vfDesigner.setFormJson(JSON.parse(res.data.formSchema))
         })
         this.form = res.data;
       })
@@ -78,7 +78,7 @@ export default {
     // 保存表单数据
     saveFormJson() {
       let formJson = this.$refs.vfDesigner.getFormJson()
-      this.form.formContent = JSON.stringify(formJson);
+      this.form.formSchema = JSON.stringify(formJson);
       this.formOpen = true;
     },
     /** 提交按钮 */
