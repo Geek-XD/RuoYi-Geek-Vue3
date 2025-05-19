@@ -4,9 +4,6 @@
       <el-form-item label="表单名称" prop="formName">
         <el-input v-model="queryParams.formName" placeholder="请输入表单名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="表单版本" prop="formVersion">
-        <el-input v-model="queryParams.formVersion" placeholder="请输入表单版本" clearable @keyup.enter="handleQuery" />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -97,7 +94,8 @@ import { addData } from "@/api/form/data";
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/form/template";
 import tab from "@/plugins/tab";
 import { reactive } from "vue";
-
+import { useRouter } from "vue-router";
+const router = useRouter();
 const { proxy } = getCurrentInstance();
 
 const templateList = ref([]);
@@ -121,17 +119,11 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    formName: null,
-    formSchema: null,
-    formVersion: null,
-    formStatus: null,
+    formName: null
   },
   rules: {
     formName: [
       { required: true, message: "表单名称不能为空", trigger: "blur" }
-    ],
-    formSchema: [
-      { required: true, message: "表单JSON Schema不能为空", trigger: "blur" }
     ],
     formVersion: [
       { required: true, message: "表单版本不能为空", trigger: "blur" }
@@ -199,9 +191,7 @@ function handleSelectionChange(selection) {
 
 /** 新增按钮操作 */
 function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加单模板";
+  router.push("/tool/build");
 }
 
 function handleEdit(row) {

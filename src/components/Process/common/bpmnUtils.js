@@ -7,6 +7,7 @@ export function createListenerObject(moddle, options, isTask, prefix) {
   isTask && (listenerObj.id = options.id); // 任务监听器特有的 id 字段
   switch (options.listenerType) {
     case "scriptListener":
+      listenerObj.type = "script"
       listenerObj.script = createScriptObject(moddle, options, prefix);
       break;
     case "expressionListener":
@@ -45,6 +46,7 @@ export function createSystemListenerObject(moddle, options, isTask, prefix) {
   listenerObj.listenerType = options.valueType;
   switch (options.valueType) {
     case "scriptListener":
+      listenerObj.type = "script"
       listenerObj.script = createScriptObject(moddle, options, prefix);
       break;
     case "expressionListener":
@@ -66,7 +68,8 @@ export function changeListenerObject(options) {
   listenerObj.listenerType = options.valueType;
   switch (options.valueType) {
     case "scriptListener":
-      // listenerObj.script = createScriptObject(moddle, options, prefix);
+      listenerObj.type = "script"
+      listenerObj.script = createScriptObject(moddle, options, prefix);
       break;
     case "expressionListener":
       listenerObj.expression = options.expression;
@@ -91,6 +94,7 @@ export function createFieldObject(moddle, option, prefix) {
 export function createScriptObject(moddle, options, prefix) {
   const { scriptType, scriptFormat, value, resource } = options;
   const scriptConfig = scriptType === "inlineScript" ? { scriptFormat, value } : { scriptFormat, resource };
+  // scriptConfig.language = scriptFormat;
   return moddle.create(`${prefix}:Script`, scriptConfig);
 }
 
@@ -115,6 +119,6 @@ export function uuid(length = 8, chars) {
 }
 
 // 转换流程节点名称
-export function translateNodeName(node){
+export function translateNodeName(node) {
   return NodeName[node];
 }

@@ -3,7 +3,8 @@
     <el-table :data="elementListenersList" size="small" border>
       <el-table-column label="序号" width="50px" type="index" />
       <el-table-column label="类型" width="60px" prop="event" />
-      <el-table-column label="监听类型" width="80px" show-overflow-tooltip :formatter="row => listenerTypeObject[row.listenerType]" />
+      <el-table-column label="监听类型" width="80px" show-overflow-tooltip
+        :formatter="row => listenerTypeObject[row.listenerType]" />
       <el-table-column label="操作">
         <template v-slot="scope">
           <el-button size="small" type="primary" @click="openListenerForm(scope.row, scope.$index)">编辑</el-button>
@@ -14,103 +15,98 @@
     </el-table>
     <div class="element-drawer__button_save">
       <el-button type="primary" icon="plus" size="small" @click="listenerSystemVisible = true">内置监听器</el-button>
-      <el-button type="primary" icon="plus" size="small" @click="openListenerForm(null)" >自定义监听器</el-button>
+      <el-button type="primary" icon="plus" size="small" @click="openListenerForm(null)">自定义监听器</el-button>
     </div>
 
     <!-- 监听器 编辑/创建 部分 -->
     <el-drawer v-model="listenerFormModelVisible" title="执行监听器" size="480px" append-to-body destroy-on-close>
       <el-form :model="listenerForm" size="small" label-width="96px" ref="listenerFormRef" @submit.native.prevent>
-        <el-form-item label="事件类型" prop="event" :rules="{ required: true, trigger: ['blur', 'change'] }">
+        <el-form-item prop="event" :rules="{ required: true, trigger: ['blur', 'change'] }">
+          <template #label>
+            <span>
+              事件类型
+              <el-tooltip placement="top">
+                <template #content>
+                  <div>
+                    start：当进入一个流程元素（例如开始事件、服务任务等）时触发。
+                    <br />end：当离开一个流程元素时触发。
+                    <br />take：当顺序流（sequence flow）被采取时触发。
+                  </div>
+                </template>
+                <el-icon>
+                  <QuestionFilled />
+                </el-icon>
+              </el-tooltip>
+            </span>
+          </template>
           <el-select v-model="listenerForm.event">
             <el-option label="start" value="start" />
             <el-option label="end" value="end" />
+            <el-option label="take" value="take" />
           </el-select>
         </el-form-item>
         <el-form-item label="监听器类型" prop="listenerType" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-select v-model="listenerForm.listenerType">
-            <el-option v-for="i in Object.keys(listenerTypeObject)" :key="i" :label="listenerTypeObject[i]" :value="i" />
+            <el-option v-for="i in Object.keys(listenerTypeObject)" :key="i" :label="listenerTypeObject[i]"
+              :value="i" />
           </el-select>
         </el-form-item>
-        <el-form-item
-            v-if="listenerForm.listenerType === 'classListener'"
-            label="Java类"
-            prop="class"
-            key="listener-class"
-            :rules="{ required: true, trigger: ['blur', 'change'] }"
-        >
+        <el-form-item v-if="listenerForm.listenerType === 'classListener'" label="Java类" prop="class"
+          key="listener-class" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerForm.class" clearable />
         </el-form-item>
-        <el-form-item
-            v-if="listenerForm.listenerType === 'expressionListener'"
-            label="表达式"
-            prop="expression"
-            key="listener-expression"
-            :rules="{ required: true, trigger: ['blur', 'change'] }"
-        >
+        <el-form-item v-if="listenerForm.listenerType === 'expressionListener'" label="表达式" prop="expression"
+          key="listener-expression" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerForm.expression" clearable />
         </el-form-item>
-        <el-form-item
-            v-if="listenerForm.listenerType === 'delegateExpressionListener'"
-            label="代理表达式"
-            prop="delegateExpression"
-            key="listener-delegate"
-            :rules="{ required: true, trigger: ['blur', 'change'] }"
-        >
+        <el-form-item v-if="listenerForm.listenerType === 'delegateExpressionListener'" label="代理表达式"
+          prop="delegateExpression" key="listener-delegate" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerForm.delegateExpression" clearable />
         </el-form-item>
         <template v-if="listenerForm.listenerType === 'scriptListener'">
-          <el-form-item
-              label="脚本格式"
-              prop="scriptFormat"
-              key="listener-script-format"
-              :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写脚本格式' }"
-          >
-            <el-input v-model="listenerForm.scriptFormat" clearable />
+          <el-form-item label="脚本格式" prop="scriptFormat" key="listener-script-format"
+            :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写脚本格式' }">
+            <el-select v-model="listenerForm.scriptFormat">
+              <el-option label="javascript" value="javascript" />
+              <el-option label="groovy" value="groovy" />
+              <el-option label="juel" value="juel" />
+            </el-select>
           </el-form-item>
-          <el-form-item
-              label="脚本类型"
-              prop="scriptType"
-              key="listener-script-type"
-              :rules="{ required: true, trigger: ['blur', 'change'], message: '请选择脚本类型' }"
-          >
+          <el-form-item label="脚本类型" prop="scriptType" key="listener-script-type"
+            :rules="{ required: true, trigger: ['blur', 'change'], message: '请选择脚本类型' }">
             <el-select v-model="listenerForm.scriptType">
               <el-option label="内联脚本" value="inlineScript" />
               <el-option label="外部脚本" value="externalScript" />
             </el-select>
           </el-form-item>
-          <el-form-item
-              v-if="listenerForm.scriptType === 'inlineScript'"
-              label="脚本内容"
-              prop="value"
-              key="listener-script"
-              :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写脚本内容' }"
-          >
-            <el-input v-model="this.listenerForm" clearable />
+          <el-form-item v-if="listenerForm.scriptType === 'inlineScript'" label="脚本内容" prop="value"
+            key="listener-script" :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写脚本内容' }">
+            <el-input v-model="listenerForm.value" type="textarea" clearable />
           </el-form-item>
-          <el-form-item
-              v-if="listenerForm.scriptType === 'externalScript'"
-              label="资源地址"
-              prop="resource"
-              key="listener-resource"
-              :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写资源地址' }"
-          >
+          <el-form-item v-if="listenerForm.scriptType === 'externalScript'" label="资源地址" prop="resource"
+            key="listener-resource" :rules="{ required: true, trigger: ['blur', 'change'], message: '请填写资源地址' }">
             <el-input v-model="listenerForm.resource" clearable />
           </el-form-item>
         </template>
       </el-form>
       <el-divider />
       <p class="listener-filed__title">
-        <span><el-icon><BellFilled /></el-icon>注入字段：</span>
+        <span><el-icon>
+            <BellFilled />
+          </el-icon>注入字段：</span>
         <el-button type="primary" size="small" @click="openListenerFieldForm(null)">添加字段</el-button>
       </p>
       <el-table :data="fieldsListOfListener" size="small" max-height="240" border fit style="flex: none">
         <el-table-column label="序号" width="50px" type="index" />
         <el-table-column label="字段名称" width="80px" prop="name" />
-        <el-table-column label="字段类型" width="80px" show-overflow-tooltip :formatter="row => fieldTypeObject[row.fieldType]" />
-        <el-table-column label="值内容" width="80px" show-overflow-tooltip :formatter="row => row.string || row.expression" />
+        <el-table-column label="字段类型" width="80px" show-overflow-tooltip
+          :formatter="row => fieldTypeObject[row.fieldType]" />
+        <el-table-column label="值内容" width="80px" show-overflow-tooltip
+          :formatter="row => row.string || row.expression" />
         <el-table-column label="操作">
           <template v-slot="scope">
-            <el-button size="small" type="primary" @click="openListenerFieldForm(scope.row, scope.$index)">编辑</el-button>
+            <el-button size="small" type="primary"
+              @click="openListenerFieldForm(scope.row, scope.$index)">编辑</el-button>
             <el-divider direction="vertical" />
             <el-button size="small" type="danger" @click="removeListenerField(scope.row, scope.$index)">移除</el-button>
           </template>
@@ -125,7 +121,8 @@
 
     <!-- 注入西段 编辑/创建 部分 -->
     <el-dialog title="字段配置" v-model="listenerFieldFormModelVisible" width="600px" append-to-body destroy-on-close>
-      <el-form :model="listenerFieldForm" label-width="96px" ref="listenerFieldFormRef" style="height: 136px" @submit.native.prevent>
+      <el-form :model="listenerFieldForm" label-width="96px" ref="listenerFieldFormRef" style="height: 136px"
+        @submit.native.prevent>
         <el-form-item label="字段名称：" prop="name" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerFieldForm.name" clearable />
         </el-form-item>
@@ -134,28 +131,18 @@
             <el-option v-for="i in Object.keys(fieldTypeObject)" :key="i" :label="fieldTypeObject[i]" :value="i" />
           </el-select>
         </el-form-item>
-        <el-form-item
-            v-if="listenerFieldForm.fieldType === 'string'"
-            label="字段值："
-            prop="string"
-            key="field-string"
-            :rules="{ required: true, trigger: ['blur', 'change'] }"
-        >
+        <el-form-item v-if="listenerFieldForm.fieldType === 'string'" label="字段值：" prop="string" key="field-string"
+          :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerFieldForm.string" clearable />
         </el-form-item>
-        <el-form-item
-            v-if="listenerFieldForm.fieldType === 'expression'"
-            label="表达式："
-            prop="expression"
-            key="field-expression"
-            :rules="{ required: true, trigger: ['blur', 'change'] }"
-        >
+        <el-form-item v-if="listenerFieldForm.fieldType === 'expression'" label="表达式：" prop="expression"
+          key="field-expression" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <el-input v-model="listenerFieldForm.expression" clearable />
         </el-form-item>
       </el-form>
-      <template  #footer class="dialog-footer">
-          <el-button size="small" @click="listenerFieldFormModelVisible= false">取 消</el-button>
-          <el-button size="small" type="primary" @click="saveListenerFiled">确 定</el-button>
+      <template #footer class="dialog-footer">
+        <el-button size="small" @click="listenerFieldFormModelVisible = false">取 消</el-button>
+        <el-button size="small" type="primary" @click="saveListenerFiled">确 定</el-button>
       </template>
     </el-dialog>
 
@@ -165,27 +152,22 @@
       <el-table v-loading="loading" :data="listenerList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="名称" align="center" prop="name" />
-        <el-table-column label="类型" align="center" prop="eventType"/>
+        <el-table-column label="类型" align="center" prop="eventType" />
         <el-table-column label="监听类型" align="center" prop="valueType">
           <template v-slot="scope">
-            <dict-tag :options="sys_listener_value_type" :value="scope.row.valueType"/>
+            <dict-tag :options="sys_listener_value_type" :value="scope.row.valueType" />
           </template>
         </el-table-column>
-        <el-table-column label="执行内容" align="center" prop="value" :show-overflow-tooltip="true"/>
+        <el-table-column label="执行内容" align="center" prop="value" :show-overflow-tooltip="true" />
       </el-table>
 
-      <pagination
-          v-show="total>0"
-          :total="total"
-          layout="prev, pager, next"
-          :page.sync="queryParams.pageNum"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-      />
+      <pagination v-show="total > 0" :total="total" layout="prev, pager, next" :page.sync="queryParams.pageNum"
+        :limit.sync="queryParams.pageSize" @pagination="getList" />
 
       <div class="element-drawer__button">
         <el-button size="small" @click="listenerSystemVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" :disabled="listenerSystemChecked" @click="saveSystemListener">保 存</el-button>
+        <el-button size="small" type="primary" :disabled="listenerSystemChecked" @click="saveSystemListener">保
+          存</el-button>
       </div>
     </el-drawer>
   </div>
@@ -200,7 +182,7 @@ import {
   updateElementExtensions
 } from "../common/bpmnUtils";
 
-import {StrUtil} from "@/utils/StrUtil";
+import { StrUtil } from "@/utils/StrUtil";
 
 export default {
   name: "ExecutionListener",
@@ -215,7 +197,7 @@ export default {
     };
   },
   /** 组件传值  */
-  props : {
+  props: {
     id: {
       type: String,
       required: true
@@ -471,9 +453,11 @@ export default {
 
 <style lang="scss">
 @import '../style/process-panel';
-.flow-containers  .el-badge__content.is-fixed {
+
+.flow-containers .el-badge__content.is-fixed {
   top: 18px;
 }
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
