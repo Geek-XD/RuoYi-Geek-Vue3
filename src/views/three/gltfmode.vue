@@ -1,15 +1,13 @@
 <script setup name="Index" lang="ts">
-import * as THREE from 'three'
-import { TreeNode } from './three-plus/ThreeHelper'
-import { onMounted, ref, shallowRef, watch } from 'vue';
 import ModelPanel from './ModelPanel.vue'
 import ThreePanel from './ThreePanel.vue'
 import Panel from './Panel.vue';
-import director, { modelthree, refreshThree, selectNode, selectObject, initDirector } from './director'
 import SelectedPanel from './SelectedPanel.vue';
 import OperatePanel from './OperatePanel.vue';
-
-
+import * as THREE from 'three'
+import { TreeNode } from './three-plus/ThreeHelper'
+import { onMounted, ref, shallowRef, watch } from 'vue';
+import director, { modelthree, refreshThree, selectNode, selectObject, initDirector } from './director'
 const handleNodeClick = (node: TreeNode) => {
     if (!director?.scene) return
     const obj = director.getObjectByUUID(node.id)
@@ -23,8 +21,6 @@ watch(selected, () => {
     director.controls.dragControls.enabled = true
     director.controls.dragControls.objects = director.controls.selectControls.outlinePass.selectedObjects
 })
-
-
 
 const ThreeContainerRef = ref<HTMLElement | null>(null)
 onMounted(() => {

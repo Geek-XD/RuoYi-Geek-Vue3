@@ -76,7 +76,7 @@ export const constantRoutes: RouteItem[] = [
   },
   {
     path: '/laboratory',
-    // component: Layout,
+    component: Layout,
     meta: { title: '实验室', icon: 'dashboard' },
     children: [
       {

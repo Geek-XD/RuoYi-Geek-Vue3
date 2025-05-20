@@ -42,9 +42,6 @@ export function initDirector(dom: HTMLElement) {
 export default director
 
 
-
-
-
 const transform = shallowReactive<{
     mode: "translate" | "rotate" | "scale",
     object: THREE.Object3D | null,
@@ -87,10 +84,6 @@ watch(() => transform.explode, value => {
     explodeModel(transform.object, value)
 })
 export { transform }
-
-
-
-
 
 export const modelthree = ref(new Array<TreeNode>())
 export function refreshThree() {
