@@ -4,18 +4,9 @@
     <el-dialog :title="title" v-model="open" width="800px" append-to-body @opened="modalOpened" @close="closeDialog">
       <el-row>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
-          <vue-cropper
-            ref="cropper"
-            :img="options.img"
-            :info="true"
-            :autoCrop="options.autoCrop"
-            :autoCropWidth="options.autoCropWidth"
-            :autoCropHeight="options.autoCropHeight"
-            :fixedBox="options.fixedBox"
-            :outputType="options.outputType"
-            @realTime="realTime"
-            v-if="visible"
-          />
+          <vue-cropper ref="cropper" :img="options.img" :info="true" :autoCrop="options.autoCrop"
+            :autoCropWidth="options.autoCropWidth" :autoCropHeight="options.autoCropHeight" :fixedBox="options.fixedBox"
+            :outputType="options.outputType" @realTime="realTime" v-if="visible" />
         </el-col>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
           <div class="avatar-upload-preview">
@@ -26,15 +17,12 @@
       <br />
       <el-row>
         <el-col :lg="2" :md="2">
-          <el-upload
-            action="#"
-            :http-request="requestUpload"
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-          >
+          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button>
               选择
-              <el-icon class="el-icon--right"><Upload /></el-icon>
+              <el-icon class="el-icon--right">
+                <Upload />
+              </el-icon>
             </el-button>
           </el-upload>
         </el-col>
@@ -92,7 +80,7 @@ function modalOpened() {
   visible.value = true;
 }
 /** 覆盖默认上传行为 */
-function requestUpload() {}
+function requestUpload() { }
 /** 向左旋转 */
 function rotateLeft() {
   proxy.$refs.cropper.rotateLeft();
@@ -126,7 +114,7 @@ function uploadImg() {
     formData.append("avatarfile", data, this.options.filename);
     uploadAvatar(formData).then(response => {
       open.value = false;
-      options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl;
+      options.img = response.imgUrl.startsWith('http') ? response.imgUrl : import.meta.env.VITE_APP_BASE_API + response.imgUrl;
       userStore.avatar = options.img;
       proxy.$modal.msgSuccess("修改成功");
       visible.value = false;

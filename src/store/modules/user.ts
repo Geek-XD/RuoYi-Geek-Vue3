@@ -39,7 +39,7 @@ const useUserStore = defineStore(
         return new Promise<{ user: UserInfo, roles: RoleInfo[], permissions: string[] }>((resolve, reject) => {
           getInfo().then((res: any) => {
             const user = res.user
-            const avatar = (user.avatar == "" || user.avatar == null) ? defAva : import.meta.env.VITE_APP_BASE_API + user.avatar;
+            const avatar: string = (user.avatar == "" || user.avatar == null) ? defAva : user.avatar;
             if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
               this.roles = res.roles
               this.permissions = res.permissions
@@ -50,7 +50,7 @@ const useUserStore = defineStore(
             this.roleName = user.roles[0] ? user.roles[0].roleName : '普通角色'
             this.deptName = user.dept ? user.dept.deptName : '暂无部门'
             this.loginDate = user.loginDate
-            this.avatar = avatar;
+            this.avatar = avatar.startsWith('http') ? avatar : import.meta.env.VITE_BASE_API + avatar;
             resolve(res)
           }).catch(error => {
             reject(error)

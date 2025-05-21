@@ -70,11 +70,11 @@
 </template>
 
 <script setup name="Profile">
-import userAvatar from "./userAvatar";
-import userInfo from "./userInfo";
-import resetPwd from "./resetPwd";
-import resetEmail from "./resetEmail"
-import resetPhone from "./resetPhone"
+import userAvatar from "./userAvatar.vue";
+import userInfo from "./userInfo.vue";
+import resetPwd from "./resetPwd.vue";
+import resetEmail from "./resetEmail.vue";
+import resetPhone from "./resetPhone.vue";
 import { getUserProfile } from "@/api/system/user";
 
 const activeTab = ref("userinfo");
