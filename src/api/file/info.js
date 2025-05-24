@@ -74,3 +74,57 @@ export function getClientList() {
     method: 'get'
   });
 }
+
+/**
+ * 初始化分片上传
+ */
+export function initMultipartUpload(params) {
+  return request({
+    url: '/file/initUpload',
+    method: 'post',
+    params: {
+      fileName: params.fileName,
+      fileSize: params.fileSize,
+      fileType: params.fileType,
+      bucketName: params.clientName
+    }
+  });
+}
+
+/**
+ * 上传文件分片
+ */
+export function uploadFileChunk(uploadId, filePath, chunkIndex, chunk) {
+  const formData = new FormData();
+  formData.append('chunk', chunk);
+  return request({
+    url: '/file/uploadChunk',
+    method: 'post',
+    params: {
+      uploadId,
+      filePath,
+      chunkIndex
+    },
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      repeatSubmit: false
+    }
+  });
+}
+
+/**
+ * 完成分片上传
+ */
+export function completeMultipartUpload(params) {
+  const { uploadId, filePath, partETags } = params;
+  return request({
+    url: '/file/completeUpload',
+    method: 'post',
+    params: {
+      uploadId,
+      filePath
+    },
+    data: partETags
+  });
+}

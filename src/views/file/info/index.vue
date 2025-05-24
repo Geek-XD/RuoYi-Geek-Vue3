@@ -22,6 +22,9 @@
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button type="success" plain icon="Upload" @click="openChunkUploadDialog = true">分片上传</el-button>
+      </el-col>
       <!-- 移除原 el-upload 默认上传按钮，统一用弹窗上传 -->
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -84,6 +87,9 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
+    <!-- 使用分片上传子组件 -->
+    <ChunkUpload v-model="openChunkUploadDialog" @upload-success="handleChunkUploadSuccess" />
   </div>
 </template>
 
@@ -92,7 +98,8 @@ import { listInfo, delInfo, uploadFileUnified, downloadFileUnified, getClientLis
 import ImagePreview from "@/components/ImagePreview/index.vue";
 import ImageUpload from '@/components/ImageUpload/index.vue';
 import FileUpload from '@/components/FileUpload/index.vue';
-import { onMounted } from 'vue';
+import ChunkUpload from './components/ChunkUpload.vue'; // 引入分片上传组件
+import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
 
@@ -103,6 +110,7 @@ const ids = ref([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
+const openChunkUploadDialog = ref(false); // 控制分片上传弹窗显示
 
 const data = reactive({
   queryParams: {
@@ -148,7 +156,6 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
-
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _fileIds = row.fileId || ids.value;
@@ -180,9 +187,6 @@ function getFileUrl(row) {
 
 // 从 row 获取 clientName（如有扩展可自定义）
 function getClientNameFromRow(row) {
-  // 你可以根据实际表结构扩展此方法
-  // 例如 row 里有 clientName 字段就直接返回
-  // 这里只做演示，假设 local 只用 MASTER，minio 只用 MASTER
   if (row.storageType === 'minio') return 'MASTER';
   if (row.storageType === 'local') return 'MASTER';
   return 'MASTER';
@@ -216,7 +220,13 @@ function onUploadSuccess() {
   openUploadDialog.value = false;
   getList();
 }
+
+// 分片上传成功回调
+function handleChunkUploadSuccess(result) {
+  getList(); // 刷新文件列表
+}
 onMounted(() => {
+  getList();
   getClientList().then(res => {
     if (res.code === 200 && res.data) {
       clientOptions.value = res.data;
@@ -246,5 +256,5 @@ function handleDownload(row) {
     window.URL.revokeObjectURL(link.href);
   });
 }
-getList();
+
 </script>
