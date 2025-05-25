@@ -3,11 +3,11 @@
     <el-form :model="uploadForm" label-width="120px" class="upload-form">
       <el-form-item label="存储桶" prop="clientName">
         <el-select v-model="uploadForm.clientName" placeholder="请选择存储桶" clearable :loading="loadingClients"
-                   class="el-select-custom">
+          class="el-select-custom">
           <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      
+
       <el-form-item label="选择文件">
         <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
           <div class="upload-content">
@@ -17,13 +17,13 @@
           </div>
         </el-upload>
       </el-form-item>
-      
+
       <el-form-item label="分片大小">
-        <el-input-number v-model="chunkSize" :min="1" :max="100" :step="1" 
-          size="small" controls-position="right" @change="updateChunkInfo" class="el-input-number-custom"/>
+        <el-input-number v-model="chunkSize" :min="1" :max="100" :step="1" size="small" controls-position="right"
+          @change="updateChunkInfo" class="el-input-number-custom" />
         <span class="unit">MB</span>
       </el-form-item>
-      
+
       <el-form-item label="文件信息">
         <el-card class="custom-file-info-card">
           <template #header>
@@ -50,11 +50,11 @@
           </div>
         </el-card>
       </el-form-item>
-      
+
       <!-- 上传进度 -->
       <el-form-item label="上传进度">
-        <el-progress :percentage="uploadProgress" :status="uploadStatus" 
-          :stroke-width="18" :show-text="false" class="custom-progress" />
+        <el-progress :percentage="uploadProgress" :status="uploadStatus" :stroke-width="18" :show-text="false"
+          class="custom-progress" />
         <div class="progress-info">
           <el-row :gutter="20">
             <el-col :span="12">
@@ -72,14 +72,14 @@
         </div>
       </el-form-item>
     </el-form>
-    
+
     <!-- 底部按钮 -->
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose" size="medium" class="btn-cancel">
           <i class="el-icon-close"></i> 取消
         </el-button>
-        <el-button type="primary" :disabled="!selectedFile || isUploading || !uploadForm.clientName" 
+        <el-button type="primary" :disabled="!selectedFile || isUploading || !uploadForm.clientName"
           @click="startUpload" size="medium" class="btn-upload">
           <i class="el-icon-upload2" v-if="!isUploading"></i>
           <i class="el-icon-loading" v-else></i>
@@ -139,9 +139,9 @@ async function fetchClientList() {
   loadingClients.value = true;
   try {
     const response = await getClientList();
-    if (response.code === 200 && response.data) {     
+    if (response.code === 200 && response.data) {
       clientList.value = Object.entries(response.data).flatMap(([type, arr]) =>
-        arr.map(client => ({ value: type,  label: `${type} - ${client}`, clientName: client  }))
+        arr.map(client => ({ value: type, label: `${type} - ${client}`, clientName: client }))
       );
       if (clientList.value.length > 0) {
         uploadForm.clientName = clientList.value[0].value; // 如果有可用存储桶，选择第一个
@@ -186,7 +186,7 @@ async function startUpload() {
     uploadStatus.value = '';
     uploadProgressInfo.message = '开始初始化上传...';
     partETags.value = [];
-    
+
     const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
     const chunks = [];
     let start = 0;
@@ -194,10 +194,10 @@ async function startUpload() {
       chunks.push(selectedFile.value.slice(start, start + chunkSizeInBytes));
       start += chunkSizeInBytes;
     }
-    
+
     const totalChunks = chunks.length;
     let uploadedChunks = 0;
-      // 1. 初始化上传
+    // 1. 初始化上传
     const { data } = await initMultipartUpload({
       fileName: selectedFile.value.name,
       fileSize: selectedFile.value.size,
@@ -205,29 +205,30 @@ async function startUpload() {
       clientName: uploadForm.clientName,
       bucketName: uploadForm.clientName // 新增：bucketName和clientName使用相同的值
     });
-    
+
     if (!data || !data.uploadId || !data.filePath) {
       throw new Error('初始化上传失败');
     }
-    
+
     uploadId.value = data.uploadId;
     filePath.value = data.filePath;
     uploadProgressInfo.message = '初始化成功，开始上传分片...';
-    
+
     // 2. 上传所有分片
     for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];      const formData = new FormData();
+      const chunk = chunks[i];
+      const formData = new FormData();
       formData.append('chunk', new File([chunk], `${selectedFile.value.name}_${i}`, {
         type: selectedFile.value.type
       }));
-        try {
+      try {
         const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, i, chunk);
         if (!chunkResponse || !chunkResponse.etag) {
           throw new Error('服务器返回的分片信息无效');
         }
         partETags.value.push({
           partNumber: i + 1,
-          etag: chunkResponse.etag
+          eTag: chunkResponse.etag
         });
         uploadedChunks++;
         uploadProgress.value = Math.round((uploadedChunks / totalChunks) * 100);
@@ -239,7 +240,7 @@ async function startUpload() {
         throw new Error(`分片 ${i + 1} 上传失败: ${error.message}`);
       }
     }
-    
+
     // 3. 完成上传
     uploadProgressInfo.message = '正在合并分片...';
     partETags.value.sort((a, b) => a.partNumber - b.partNumber);
@@ -249,7 +250,7 @@ async function startUpload() {
       partETags: partETags.value,
       clientName: uploadForm.clientName // 只传递clientName
     });
-    
+
     uploadStatus.value = 'success';
     uploadProgressInfo.message = '上传完成';
     ElMessage.success('文件上传成功');
@@ -489,4 +490,4 @@ onMounted(() => {
 .el-input-number-custom {
   width: 120px;
 }
-</style>    
+</style>
