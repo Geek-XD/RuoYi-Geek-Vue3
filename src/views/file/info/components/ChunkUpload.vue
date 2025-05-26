@@ -216,8 +216,7 @@ async function startUpload() {
 
     // 2. 上传所有分片
     for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const formData = new FormData();
+      const chunk = chunks[i]; const formData = new FormData();
       formData.append('chunk', new File([chunk], `${selectedFile.value.name}_${i}`, {
         type: selectedFile.value.type
       }));
@@ -228,7 +227,7 @@ async function startUpload() {
         }
         partETags.value.push({
           partNumber: i + 1,
-          eTag: chunkResponse.etag
+          etag: chunkResponse.etag
         });
         uploadedChunks++;
         uploadProgress.value = Math.round((uploadedChunks / totalChunks) * 100);
@@ -244,13 +243,13 @@ async function startUpload() {
     // 3. 完成上传
     uploadProgressInfo.message = '正在合并分片...';
     partETags.value.sort((a, b) => a.partNumber - b.partNumber);
+    const formattedPartETags = partETags.value.map(item => ({ partNumber: item.partNumber, ETag: item.etag }));
     const { data: completeResult } = await completeMultipartUpload({
       uploadId: uploadId.value,
       filePath: filePath.value,
-      partETags: partETags.value,
-      clientName: uploadForm.clientName // 只传递clientName
+      partETags: formattedPartETags,
+      clientName: uploadForm.clientName
     });
-
     uploadStatus.value = 'success';
     uploadProgressInfo.message = '上传完成';
     ElMessage.success('文件上传成功');
