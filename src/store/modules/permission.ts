@@ -5,7 +5,6 @@ import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
 import InnerLink from '@/layout/components/InnerLink/index.vue'
 import { defineStore } from 'pinia'
-import type { RouteRecordRaw } from 'vue-router'
 import type { Component } from 'vue'
 import { RouteItem } from '@/types/route'
 
