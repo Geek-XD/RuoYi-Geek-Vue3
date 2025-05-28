@@ -1,12 +1,165 @@
+<script setup>
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
+import { initMultipartUpload, uploadFileChunk, completeMultipartUpload, getClientList } from '@/api/file/info';
+import { ElMessage } from 'element-plus';
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  }
+});
+const emits = defineEmits(['update:modelValue', 'upload-success']);
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emits('update:modelValue', value)
+});
+
+const selectedFile = ref(null);
+const fileInfo = reactive({
+  fileName: '',
+  fileSize: 0,
+  totalChunks: 0
+});
+const chunkSize = ref(10); // 默认10MB
+const uploadProgress = ref(0);
+const uploadStatus = ref('');
+const uploadProgressInfo = reactive({
+  currentChunk: 0,
+  message: ''
+});
+const isUploading = ref(false);
+const uploadId = ref('');
+const filePath = ref('');
+const partETags = ref([]);
+
+// 处理文件选择
+function handleBeforeUpload(file) {
+  selectedFile.value = file;
+  fileInfo.fileName = file.name;
+  fileInfo.fileSize = (file.size / (1024 * 1024)).toFixed(2);
+  updateChunkInfo();
+  return false; // 阻止默认上传
+}
+
+// 计算总分片数
+function updateChunkInfo() {
+  if (!selectedFile.value) return;
+  const fileSizeInBytes = selectedFile.value.size;
+  const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
+  fileInfo.totalChunks = Math.ceil(fileSizeInBytes / chunkSizeInBytes);
+}
+
+// 开始上传
+async function startUpload() {
+  if (!selectedFile.value) {
+    ElMessage.warning('请先选择文件');
+    return;
+  }
+  try {
+    isUploading.value = true;
+    uploadStatus.value = '';
+    uploadProgressInfo.message = '开始初始化上传...';
+    partETags.value = [];
+
+    const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
+    const chunks = [];
+    for (let start = 0; start < selectedFile.value.size; start += chunkSizeInBytes) {
+      chunks.push(selectedFile.value.slice(start, start + chunkSizeInBytes));
+    }
+    const totalChunks = chunks.length;
+
+    // 1. 初始化上传
+    const { data } = await initMultipartUpload({
+      fileName: selectedFile.value.name,
+      fileSize: selectedFile.value.size,
+    });
+
+    if (!data || !data.uploadId || !data.filePath) {
+      throw new Error('初始化上传失败');
+    }
+
+    uploadId.value = data.uploadId;
+    filePath.value = data.filePath;
+    uploadProgressInfo.message = '初始化成功，开始上传分片...';
+
+    // 2. 上传所有分片
+    let uploadedChunks = 0;
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i]; const formData = new FormData();
+      formData.append('chunk', new File([chunk], `${selectedFile.value.name}_${i}`, {
+        type: selectedFile.value.type
+      }));
+      try {
+        const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, i, chunk);
+        if (!chunkResponse || !chunkResponse.etag) {
+          throw new Error('服务器返回的分片信息无效');
+        }
+        partETags.value.push({
+          partNumber: i + 1,
+          etag: chunkResponse.etag
+        });
+        uploadedChunks++;
+        uploadProgress.value = Math.round((uploadedChunks / totalChunks) * 100);
+        uploadProgressInfo.currentChunk = i;
+        uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${i + 1}/${totalChunks})`;
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.error('分片上传失败:', error);
+        throw new Error(`分片 ${i + 1} 上传失败: ${error.message}`);
+      }
+    }
+
+    // 3. 完成上传
+    uploadProgressInfo.message = '正在合并分片...';
+    partETags.value.sort((a, b) => a.partNumber - b.partNumber);
+    const formattedPartETags = partETags.value.map(item => ({ partNumber: item.partNumber, ETag: item.etag }));
+    const { data: completeResult } = await completeMultipartUpload({
+      uploadId: uploadId.value,
+      filePath: filePath.value,
+      fileSize: selectedFile.value.size,
+      fileName: selectedFile.value.name,
+      partETags: formattedPartETags,
+    });
+    uploadStatus.value = 'success';
+    uploadProgressInfo.message = '上传完成';
+    ElMessage.success('文件上传成功');
+    emits('upload-success', completeResult);
+    handleClose();
+  } catch (error) {
+    uploadStatus.value = 'exception';
+    uploadProgressInfo.message = `上传失败: ${error.message}`;
+    ElMessage.error(`文件上传失败: ${error.message}`);
+    console.error('分片上传失败', error);
+  } finally {
+    isUploading.value = false;
+  }
+}
+
+// 重置上传状态
+function resetUpload() {
+  selectedFile.value = null;
+  fileInfo.fileName = '';
+  fileInfo.fileSize = 0;
+  fileInfo.totalChunks = 0;
+  uploadProgress.value = 0;
+  uploadStatus.value = '';
+  uploadProgressInfo.currentChunk = 0;
+  uploadProgressInfo.message = '';
+  uploadId.value = '';
+  filePath.value = '';
+  partETags.value = [];
+}
+
+// 关闭弹窗
+function handleClose() {
+  resetUpload();
+  visible.value = false;
+}
+</script>
 <template>
   <el-dialog v-model="visible" title="分片上传" width="600px" append-to-body class="custom-upload-dialog">
-    <el-form :model="uploadForm" label-width="120px" class="upload-form">
-      <el-form-item label="存储桶" prop="clientName">
-        <el-select v-model="uploadForm.clientName" placeholder="请选择存储桶" clearable :loading="loadingClients"
-          class="el-select-custom">
-          <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
+    <el-form label-width="120px" class="upload-form">
 
       <el-form-item label="选择文件">
         <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
@@ -79,8 +232,8 @@
         <el-button @click="handleClose" size="medium" class="btn-cancel">
           <i class="el-icon-close"></i> 取消
         </el-button>
-        <el-button type="primary" :disabled="!selectedFile || isUploading || !uploadForm.clientName"
-          @click="startUpload" size="medium" class="btn-upload">
+        <el-button type="primary" :disabled="!selectedFile || isUploading" @click="startUpload" size="medium"
+          class="btn-upload">
           <i class="el-icon-upload2" v-if="!isUploading"></i>
           <i class="el-icon-loading" v-else></i>
           {{ isUploading ? '上传中...' : '开始上传' }}
@@ -90,216 +243,7 @@
   </el-dialog>
 </template>
 
-<script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
-import { initMultipartUpload, uploadFileChunk, completeMultipartUpload, getClientList } from '@/api/file/info';
-import { ElMessage } from 'element-plus';
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  }
-});
-const emits = defineEmits(['update:modelValue', 'upload-success']);
-const visible = computed({
-  get() {
-    return props.modelValue;
-  },
-  set(value) {
-    emits('update:modelValue', value);
-  }
-});
-
-const selectedFile = ref(null);
-const uploadForm = reactive({
-  clientName: '' // 存储桶名称
-});
-const fileInfo = reactive({
-  fileName: '',
-  fileSize: 0,
-  totalChunks: 0
-});
-const chunkSize = ref(10); // 默认10MB
-const uploadProgress = ref(0);
-const uploadStatus = ref('');
-const uploadProgressInfo = reactive({
-  currentChunk: 0,
-  message: ''
-});
-const isUploading = ref(false);
-const uploadId = ref('');
-const filePath = ref('');
-const partETags = ref([]);
-const clientList = ref([]);
-const loadingClients = ref(false);
-
-// 获取存储桶列表
-async function fetchClientList() {
-  loadingClients.value = true;
-  try {
-    const response = await getClientList();
-    if (response.code === 200 && response.data) {
-      clientList.value = Object.entries(response.data).flatMap(([type, arr]) =>
-        arr.map(client => ({ value: type, label: `${type} - ${client}`, clientName: client }))
-      );
-      if (clientList.value.length > 0) {
-        uploadForm.clientName = clientList.value[0].value; // 如果有可用存储桶，选择第一个
-      }
-    }
-  } catch (error) {
-    console.error('获取存储桶列表失败', error);
-  } finally {
-    loadingClients.value = false;
-  }
-}
-
-// 处理文件选择
-function handleBeforeUpload(file) {
-  selectedFile.value = file;
-  fileInfo.fileName = file.name;
-  fileInfo.fileSize = (file.size / (1024 * 1024)).toFixed(2);
-  updateChunkInfo();
-  return false; // 阻止默认上传
-}
-
-// 计算总分片数
-function updateChunkInfo() {
-  if (!selectedFile.value) return;
-  const fileSizeInBytes = selectedFile.value.size;
-  const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
-  fileInfo.totalChunks = Math.ceil(fileSizeInBytes / chunkSizeInBytes);
-}
-
-// 开始上传
-async function startUpload() {
-  if (!selectedFile.value) {
-    ElMessage.warning('请先选择文件');
-    return;
-  }
-  if (!uploadForm.clientName) {
-    ElMessage.warning('请选择存储桶');
-    return;
-  }
-  try {
-    isUploading.value = true;
-    uploadStatus.value = '';
-    uploadProgressInfo.message = '开始初始化上传...';
-    partETags.value = [];
-
-    const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
-    const chunks = [];
-    let start = 0;
-    while (start < selectedFile.value.size) {
-      chunks.push(selectedFile.value.slice(start, start + chunkSizeInBytes));
-      start += chunkSizeInBytes;
-    }
-
-    const totalChunks = chunks.length;
-    let uploadedChunks = 0;
-    // 1. 初始化上传
-    const { data } = await initMultipartUpload({
-      fileName: selectedFile.value.name,
-      fileSize: selectedFile.value.size,
-    });
-
-    if (!data || !data.uploadId || !data.filePath) {
-      throw new Error('初始化上传失败');
-    }
-
-    uploadId.value = data.uploadId;
-    filePath.value = data.filePath;
-    uploadProgressInfo.message = '初始化成功，开始上传分片...';
-
-    // 2. 上传所有分片
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i]; const formData = new FormData();
-      formData.append('chunk', new File([chunk], `${selectedFile.value.name}_${i}`, {
-        type: selectedFile.value.type
-      }));
-      try {
-        const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, i, chunk);
-        if (!chunkResponse || !chunkResponse.etag) {
-          throw new Error('服务器返回的分片信息无效');
-        }
-        partETags.value.push({
-          partNumber: i + 1,
-          etag: chunkResponse.etag
-        });
-        uploadedChunks++;
-        uploadProgress.value = Math.round((uploadedChunks / totalChunks) * 100);
-        uploadProgressInfo.currentChunk = i;
-        uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${i + 1}/${totalChunks})`;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (error) {
-        console.error('分片上传失败:', error);
-        throw new Error(`分片 ${i + 1} 上传失败: ${error.message}`);
-      }
-    }
-
-    // 3. 完成上传
-    uploadProgressInfo.message = '正在合并分片...';
-    partETags.value.sort((a, b) => a.partNumber - b.partNumber);
-    const formattedPartETags = partETags.value.map(item => ({ partNumber: item.partNumber, ETag: item.etag }));
-    const { data: completeResult } = await completeMultipartUpload({
-      uploadId: uploadId.value,
-      filePath: filePath.value,
-      fileSize: selectedFile.value.size,
-      fileName: selectedFile.value.name,
-      partETags: formattedPartETags,
-      clientName: uploadForm.clientName
-    });
-    uploadStatus.value = 'success';
-    uploadProgressInfo.message = '上传完成';
-    ElMessage.success('文件上传成功');
-    emits('upload-success', completeResult);
-    handleClose();
-  } catch (error) {
-    uploadStatus.value = 'exception';
-    uploadProgressInfo.message = `上传失败: ${error.message}`;
-    ElMessage.error(`文件上传失败: ${error.message}`);
-    console.error('分片上传失败', error);
-  } finally {
-    isUploading.value = false;
-  }
-}
-
-// 重置上传状态
-function resetUpload() {
-  selectedFile.value = null;
-  fileInfo.fileName = '';
-  fileInfo.fileSize = 0;
-  fileInfo.totalChunks = 0;
-  uploadProgress.value = 0;
-  uploadStatus.value = '';
-  uploadProgressInfo.currentChunk = 0;
-  uploadProgressInfo.message = '';
-  uploadId.value = '';
-  filePath.value = '';
-  partETags.value = [];
-}
-
-// 关闭弹窗
-function handleClose() {
-  resetUpload();
-  visible.value = false;
-}
-
-// 监听弹窗显示状态
-watch(visible, (newVal) => {
-  if (newVal) {
-    if (clientList.value.length === 0) {
-      fetchClientList();
-    }
-  } else {
-    resetUpload();
-  }
-});
-
-onMounted(() => {
-  fetchClientList();
-});
-</script>
 
 <style scoped>
 /* 自定义弹窗样式 */
