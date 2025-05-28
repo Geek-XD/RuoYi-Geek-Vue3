@@ -1,19 +1,9 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
-import { initMultipartUpload, uploadFileChunk, completeMultipartUpload, getClientList } from '@/api/file/info';
+import { ref, reactive, computed } from 'vue';
+import { initMultipartUpload, uploadFileChunk, completeMultipartUpload } from '@/api/file/info';
 import { ElMessage } from 'element-plus';
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  }
-});
-const emits = defineEmits(['update:modelValue', 'upload-success']);
-const visible = computed({
-  get: () => props.modelValue,
-  set: (value) => emits('update:modelValue', value)
-});
+const emits = defineEmits(['update:modelValue']);
 
 const selectedFile = ref(null);
 const fileInfo = reactive({
@@ -124,7 +114,7 @@ async function startUpload() {
     uploadStatus.value = 'success';
     uploadProgressInfo.message = '上传完成';
     ElMessage.success('文件上传成功');
-    emits('upload-success', completeResult);
+    emits('update:modelValue', completeResult);
     handleClose();
   } catch (error) {
     uploadStatus.value = 'exception';
@@ -151,14 +141,9 @@ function resetUpload() {
   partETags.value = [];
 }
 
-// 关闭弹窗
-function handleClose() {
-  resetUpload();
-  visible.value = false;
-}
 </script>
 <template>
-  <el-dialog v-model="visible" title="分片上传" width="600px" append-to-body class="custom-upload-dialog">
+  <div>
     <el-form label-width="120px" class="upload-form">
 
       <el-form-item label="选择文件">
@@ -225,42 +210,24 @@ function handleClose() {
         </div>
       </el-form-item>
     </el-form>
-
-    <!-- 底部按钮 -->
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="handleClose" size="medium" class="btn-cancel">
-          <i class="el-icon-close"></i> 取消
-        </el-button>
-        <el-button type="primary" :disabled="!selectedFile || isUploading" @click="startUpload" size="medium"
-          class="btn-upload">
-          <i class="el-icon-upload2" v-if="!isUploading"></i>
-          <i class="el-icon-loading" v-else></i>
-          {{ isUploading ? '上传中...' : '开始上传' }}
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
+    <div class="dialog-footer">
+      <el-button @click="resetUpload" size="medium" class="btn-cancel">
+        <i class="el-icon-close"></i> 重置
+      </el-button>
+      <el-button type="primary" :disabled="!selectedFile || isUploading" @click="startUpload" size="medium"
+        class="btn-upload">
+        <i class="el-icon-upload2" v-if="!isUploading"></i>
+        <i class="el-icon-loading" v-else></i>
+        {{ isUploading ? '上传中...' : '开始上传' }}
+      </el-button>
+    </div>
+  </div>
 </template>
-
-
-
-<style scoped>
-/* 自定义弹窗样式 */
-.custom-upload-dialog {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
+<style scoped lang="scss">
 .upload-form {
   padding: 20px 30px;
 }
 
-/* 自定义选择器样式 */
-.el-select-custom {
-  width: 100%;
-}
 
 /* 自定义上传区域样式 */
 .custom-upload-area {

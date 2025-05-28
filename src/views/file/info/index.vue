@@ -22,9 +22,6 @@
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Upload" @click="openChunkUploadDialog = true">分片上传</el-button>
-      </el-col>
       <!-- 移除原 el-upload 默认上传按钮，统一用弹窗上传 -->
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -68,33 +65,36 @@
           <el-radio-group v-model="uploadForm.uploadType">
             <el-radio value="image">图片</el-radio>
             <el-radio value="file">文件</el-radio>
+            <el-radio value="chunk">分片上传</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="存储Client">
-          <el-select v-model="uploadForm.clientKey" placeholder="请选择Client" style="width: 200px">
-            <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="uploadForm.uploadType === 'image'" label="图片上传">
-          <ImageUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadImgUrl="uploadUrl"
-            @update:modelValue="onUploadSuccess" style="width:100%"
-            :fileType="['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
-        </el-form-item>
-        <el-form-item v-else label="文件上传">
-          <FileUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadFileUrl="uploadUrl"
-            @update:modelValue="onUploadSuccess" style="width:100%"
-            :fileType="['doc', 'xls', 'ppt', 'txt', 'pdf', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
-        </el-form-item>
+        <div v-if="uploadForm.uploadType !== 'chunk'">
+          <el-form-item label="存储Client">
+            <el-select v-model="uploadForm.clientKey" placeholder="请选择Client" style="width: 200px">
+              <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="uploadForm.uploadType === 'image'" label="图片上传">
+            <ImageUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadImgUrl="uploadUrl"
+              @update:modelValue="onUploadSuccess" style="width:100%"
+              :fileType="['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
+          </el-form-item>
+          <el-form-item v-else label="文件上传">
+            <FileUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadFileUrl="uploadUrl"
+              @update:modelValue="onUploadSuccess" style="width:100%"
+              :fileType="['doc', 'xls', 'ppt', 'txt', 'pdf', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
+          </el-form-item>
+        </div>
+        <div v-else>
+          <ChunkUpload @update:modelValue="handleChunkUploadSuccess" />
+        </div>
       </el-form>
     </el-dialog>
-
-    <!-- 使用分片上传子组件 -->
-    <ChunkUpload v-model="openChunkUploadDialog" @upload-success="handleChunkUploadSuccess" />
   </div>
 </template>
 
 <script setup name="Info">
-import { listInfo, delInfo, uploadFileUnified, downloadFileUnified, getClientList } from '@/api/file/info';
+import { listInfo, delInfo, downloadFileUnified, getClientList } from '@/api/file/info';
 import ImagePreview from "@/components/ImagePreview/index.vue";
 import ImageUpload from '@/components/ImageUpload/index.vue';
 import FileUpload from '@/components/FileUpload/index.vue';
@@ -110,7 +110,6 @@ const ids = ref([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const openChunkUploadDialog = ref(false); // 控制分片上传弹窗显示
 
 const data = reactive({
   queryParams: {
