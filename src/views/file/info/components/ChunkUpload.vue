@@ -201,9 +201,6 @@ async function startUpload() {
     const { data } = await initMultipartUpload({
       fileName: selectedFile.value.name,
       fileSize: selectedFile.value.size,
-      fileType: selectedFile.value.name.split('.').pop(),
-      clientName: uploadForm.clientName,
-      bucketName: uploadForm.clientName // 新增：bucketName和clientName使用相同的值
     });
 
     if (!data || !data.uploadId || !data.filePath) {
@@ -247,6 +244,8 @@ async function startUpload() {
     const { data: completeResult } = await completeMultipartUpload({
       uploadId: uploadId.value,
       filePath: filePath.value,
+      fileSize: selectedFile.value.size,
+      fileName: selectedFile.value.name,
       partETags: formattedPartETags,
       clientName: uploadForm.clientName
     });

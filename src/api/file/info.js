@@ -85,8 +85,6 @@ export function initMultipartUpload(params) {
     params: {
       fileName: params.fileName,
       fileSize: params.fileSize,
-      fileType: params.fileType,
-      bucketName: params.clientName
     }
   });
 }
@@ -117,13 +115,15 @@ export function uploadFileChunk(uploadId, filePath, chunkIndex, chunk) {
  * 完成分片上传
  */
 export function completeMultipartUpload(params) {
-  const { uploadId, filePath, partETags } = params;
+  const { uploadId, filePath, fileSize, fileName, partETags } = params;
   return request({
     url: '/file/completeUpload',
     method: 'post',
     params: {
       uploadId,
-      filePath
+      filePath,
+      fileSize,
+      fileName
     },
     data: partETags
   });
