@@ -145,17 +145,6 @@ function resetUpload() {
 <template>
   <div>
     <el-form label-width="120px" class="upload-form">
-
-      <el-form-item label="选择文件">
-        <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
-          <div class="upload-content">
-            <i class="el-icon-upload el-icon--primary upload-icon"></i>
-            <div class="upload-text">将文件拖到此处，或<em class="upload-link">点击上传</em></div>
-            <div class="upload-tip">支持拖拽上传，最大文件500MB</div>
-          </div>
-        </el-upload>
-      </el-form-item>
-
       <el-form-item label="分片大小">
         <el-input-number v-model="chunkSize" :min="1" :max="100" :step="1" size="small" controls-position="right"
           @change="updateChunkInfo" class="el-input-number-custom" />
@@ -165,10 +154,15 @@ function resetUpload() {
       <el-form-item label="文件信息">
         <el-card class="custom-file-info-card">
           <template #header>
-            <div class="card-header">
-              <i class="el-icon-document file-icon"></i>
-              <span class="file-name">{{ fileInfo.fileName || '未选择文件' }}</span>
-            </div>
+            <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
+              <div class="upload-content">
+                <i class="el-icon-upload el-icon--primary upload-icon"></i>
+                <div class="upload-text">将文件拖到此处，或<em class="upload-link">点击上传</em></div>
+                <div class="upload-tip">支持拖拽上传，最大文件500MB</div>
+                <i class="el-icon-document file-icon"></i>
+                <span class="file-name">{{ fileInfo.fileName || '未选择文件' }}</span>
+              </div>
+            </el-upload>
           </template>
           <div class="file-details">
             <el-row :gutter="20">
@@ -224,13 +218,18 @@ function resetUpload() {
   </div>
 </template>
 <style scoped lang="scss">
-.upload-form {
-  padding: 20px 30px;
+/* 自定义文件信息卡片 */
+.custom-file-info-card {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
-
 
 /* 自定义上传区域样式 */
 .custom-upload-area {
+  width: 100%;
   min-height: 160px;
   display: flex;
   flex-direction: column;
@@ -241,104 +240,88 @@ function resetUpload() {
   background-color: #fafbfc;
   transition: all 0.3s ease;
   cursor: pointer;
-}
 
-.custom-upload-area:hover {
-  border-color: #409eff;
-  background-color: #f5f7fa;
-}
+  :deep(.el-upload) {
+    width: 100%;
+  }
 
-.upload-content {
-  text-align: center;
-}
+  &:hover {
+    border-color: #409eff;
+    background-color: #f5f7fa;
+  }
 
-.upload-icon {
-  font-size: 48px;
-  color: #409eff;
-  margin-bottom: 12px;
-  transition: transform 0.3s ease;
-}
+  .upload-content {
+    text-align: center;
 
-.custom-upload-area:hover .upload-icon {
-  transform: scale(1.1);
-}
+    .upload-icon {
+      font-size: 48px;
+      color: #409eff;
+      margin-bottom: 12px;
+      transition: transform 0.3s ease;
+    }
 
-.upload-text {
-  margin: 8px 0;
-  font-size: 14px;
-  color: #606266;
-}
+    .upload-link {
+      color: #409eff;
+      font-style: normal;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.3s ease;
 
-.upload-link {
-  color: #409eff;
-  font-style: normal;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.3s ease;
-}
+      &:hover {
+        color: #3a8ee6;
+      }
+    }
 
-.upload-link:hover {
-  color: #3a8ee6;
-}
+    .upload-tip {
+      font-size: 12px;
+      color: #909399;
+      margin-top: 4px;
+    }
 
-.upload-tip {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 4px;
-}
+    .file-icon {
+      font-size: 20px;
+      margin-right: 8px;
+      color: #409eff;
+    }
 
-/* 自定义文件信息卡片 */
-.custom-file-info-card {
-  border-radius: 8px;
-  border: 1px solid #ebeef5;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
+    .file-name {
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  color: #303133;
-  padding: 12px 16px;
-  background-color: #fafafa;
-  border-bottom: 1px solid #ebeef5;
-}
+  }
 
-.file-icon {
-  font-size: 20px;
-  margin-right: 8px;
-  color: #409eff;
-}
-
-.file-name {
-  max-width: 400px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .file-details {
   padding: 16px;
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+
+
+    .detail-label {
+      flex-shrink: 0;
+      width: 80px;
+      color: #606266;
+      font-size: 14px;
+    }
+
+
+    .detail-value {
+      color: #303133;
+      font-size: 14px;
+    }
+  }
+
 }
 
-.detail-item {
-  display: flex;
-  align-items: center;
-  padding: 6px 0;
-}
 
-.detail-label {
-  flex-shrink: 0;
-  width: 80px;
-  color: #606266;
-  font-size: 14px;
-}
 
-.detail-value {
-  color: #303133;
-  font-size: 14px;
-}
 
 /* 自定义进度条 */
 .custom-progress {
@@ -383,20 +366,13 @@ function resetUpload() {
   display: flex;
   justify-content: flex-end;
   padding: 16px 30px;
-  background-color: #fafbfc;
-  border-top: 1px solid #ebeef5;
-}
 
-.btn-cancel {
-  margin-right: 12px;
-}
+  .btn-cancel {
+    margin-right: 12px;
+  }
 
-.btn-upload {
-  min-width: 120px;
-}
-
-/* 自定义数字输入框 */
-.el-input-number-custom {
-  width: 120px;
+  .btn-upload {
+    min-width: 120px;
+  }
 }
 </style>

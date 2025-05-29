@@ -59,7 +59,7 @@
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog v-model="openUploadDialog" title="上传文件" width="500px" append-to-body>
+    <el-dialog v-model="openUploadDialog" title="上传文件" width="600px" append-to-body>
       <el-form :model="uploadForm" label-width="80px">
         <el-form-item label="上传类型">
           <el-radio-group v-model="uploadForm.uploadType">
