@@ -8,15 +8,15 @@
     </el-upload>
     <!-- 上传提示 -->
     <div class="el-upload__tip" v-if="showTip">
-      请上传
-      <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b> </template>
-      <template v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b> </template>
-      的文件
+      <span>请上传</span>
+      <span v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b> </span>
+      <span v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b> </span>
+      <span>的文件</span>
     </div>
     <!-- 文件列表 -->
     <transition-group class="upload-file-list el-upload-list el-upload-list--text" name="el-fade-in-linear" tag="ul">
       <li :key="file.uid" class="el-upload-list__item ele-upload-list__item-content" v-for="(file, index) in fileList">
-        <el-button link :href="`${baseUrl}${file.url}`" target="_blank">
+        <el-button link :href="baseUrl && file.url ? `${baseUrl}${file.url}` : '#'" target="_blank">
           <span class="el-icon-document"> {{ getFileName(file.name) }} </span>
         </el-button>
         <div class="ele-upload-list__item-content-action">
@@ -29,6 +29,7 @@
 
 <script setup>
 import { getToken } from "@/utils/auth";
+import { ref, computed, watch, getCurrentInstance } from "vue";
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -63,7 +64,7 @@ const { proxy } = getCurrentInstance();
 const emit = defineEmits();
 const number = ref(0);
 const uploadList = ref([]);
-const baseUrl = import.meta.env.VITE_APP_BASE_API;
+const baseUrl = import.meta.env.VITE_APP_BASE_API ?? '/';
 const uploadFileUrl = computed(() => {
   // 优先使用外部传入的 uploadFileUrl 属性
   if (props.uploadFileUrl) {
@@ -129,6 +130,7 @@ function handleExceed() {
 // 上传失败
 function handleUploadError(err) {
   proxy.$modal.msgError("上传文件失败");
+  proxy.$modal.closeLoading()
 }
 
 // 上传成功回调
@@ -167,7 +169,7 @@ function getFileName(name) {
   if (name.lastIndexOf("/") > -1) {
     return name.slice(name.lastIndexOf("/") + 1);
   } else {
-    return "";
+    return name;
   }
 }
 

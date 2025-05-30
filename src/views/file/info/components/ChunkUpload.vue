@@ -1,9 +1,20 @@
 <script setup>
+
 import { ref, reactive, computed } from 'vue';
 import { initMultipartUpload, uploadFileChunk, completeMultipartUpload } from '@/api/file/info';
 import { ElMessage } from 'element-plus';
 
 const emits = defineEmits(['update:modelValue']);
+const props = defineProps({
+  chunkSize: {
+    type: Number,
+    default: 10
+  },
+  maxConcurrency: {
+    type: Number,
+    default: 1
+  }
+});
 
 const selectedFile = ref(null);
 const fileInfo = reactive({
@@ -11,7 +22,6 @@ const fileInfo = reactive({
   fileSize: 0,
   totalChunks: 0
 });
-const chunkSize = ref(10); // 默认10MB
 const uploadProgress = ref(0);
 const uploadStatus = ref('');
 const uploadProgressInfo = reactive({
@@ -28,17 +38,12 @@ function handleBeforeUpload(file) {
   selectedFile.value = file;
   fileInfo.fileName = file.name;
   fileInfo.fileSize = (file.size / (1024 * 1024)).toFixed(2);
-  updateChunkInfo();
+  fileInfo.totalChunks = chunkTotal.value;
   return false; // 阻止默认上传
 }
-
-// 计算总分片数
-function updateChunkInfo() {
-  if (!selectedFile.value) return;
-  const fileSizeInBytes = selectedFile.value.size;
-  const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
-  fileInfo.totalChunks = Math.ceil(fileSizeInBytes / chunkSizeInBytes);
-}
+const chunkBytes = computed(() => props.chunkSize * 1024 * 1024); // 分片大小（字节）
+const fileBytes = computed(() => selectedFile.value ? selectedFile.value.size : 0);
+const chunkTotal = computed(() => Math.ceil(fileBytes.value / chunkBytes.value));
 
 // 开始上传
 async function startUpload() {
@@ -52,13 +57,10 @@ async function startUpload() {
     uploadProgressInfo.message = '开始初始化上传...';
     partETags.value = [];
 
-    const chunkSizeInBytes = chunkSize.value * 1024 * 1024;
     const chunks = [];
-    for (let start = 0; start < selectedFile.value.size; start += chunkSizeInBytes) {
-      chunks.push(selectedFile.value.slice(start, start + chunkSizeInBytes));
+    for (let start = 0; start < selectedFile.value.size; start += chunkBytes.value) {
+      chunks.push(selectedFile.value.slice(start, start + chunkBytes.value));
     }
-    const totalChunks = chunks.length;
-
     // 1. 初始化上传
     const { data } = await initMultipartUpload({
       fileName: selectedFile.value.name,
@@ -73,13 +75,16 @@ async function startUpload() {
     filePath.value = data.filePath;
     uploadProgressInfo.message = '初始化成功，开始上传分片...';
 
-    // 2. 上传所有分片
-    let uploadedChunks = 0;
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i]; const formData = new FormData();
-      formData.append('chunk', new File([chunk], `${selectedFile.value.name}_${i}`, {
-        type: selectedFile.value.type
-      }));
+    // 2. 并发上传所有分片
+    const concurrency = props.maxConcurrency;
+    let current = 0;
+    let completed = 0;
+    let errorOccurred = false;
+    const total = chunks.length;
+
+    async function uploadChunk(i) {
+      if (errorOccurred) return;
+      const chunk = chunks[i];
       try {
         const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, i, chunk);
         if (!chunkResponse || !chunkResponse.etag) {
@@ -89,16 +94,29 @@ async function startUpload() {
           partNumber: i + 1,
           etag: chunkResponse.etag
         });
-        uploadedChunks++;
-        uploadProgress.value = Math.round((uploadedChunks / totalChunks) * 100);
-        uploadProgressInfo.currentChunk = i;
-        uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${i + 1}/${totalChunks})`;
+        completed++;
+        uploadProgress.value = Math.round((completed / chunkTotal.value) * 100);
+        uploadProgressInfo.currentChunk = completed;
+        uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${completed}/${chunkTotal.value})`;
         await new Promise(resolve => setTimeout(resolve, 100));
+        // 启动下一个
+        if (current < total) {
+          await uploadChunk(current++);
+        }
       } catch (error) {
+        errorOccurred = true;
         console.error('分片上传失败:', error);
         throw new Error(`分片 ${i + 1} 上传失败: ${error.message}`);
       }
     }
+
+    // 启动并发上传
+    const tasks = [];
+    while (current < concurrency && current < total) {
+      tasks.push(uploadChunk(current++));
+    }
+    await Promise.all(tasks);
+    if (errorOccurred) throw new Error('有分片上传失败');
 
     // 3. 完成上传
     uploadProgressInfo.message = '正在合并分片...';
@@ -115,7 +133,6 @@ async function startUpload() {
     uploadProgressInfo.message = '上传完成';
     ElMessage.success('文件上传成功');
     emits('update:modelValue', completeResult);
-    handleClose();
   } catch (error) {
     uploadStatus.value = 'exception';
     uploadProgressInfo.message = `上传失败: ${error.message}`;
@@ -144,77 +161,54 @@ function resetUpload() {
 </script>
 <template>
   <div>
-    <el-form label-width="120px" class="upload-form">
-      <el-form-item label="分片大小">
-        <el-input-number v-model="chunkSize" :min="1" :max="100" :step="1" size="small" controls-position="right"
-          @change="updateChunkInfo" class="el-input-number-custom" />
-        <span class="unit">MB</span>
-      </el-form-item>
-
-      <el-form-item label="文件信息">
-        <el-card class="custom-file-info-card">
-          <template #header>
-            <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
-              <div class="upload-content">
-                <i class="el-icon-upload el-icon--primary upload-icon"></i>
-                <div class="upload-text">将文件拖到此处，或<em class="upload-link">点击上传</em></div>
-                <div class="upload-tip">支持拖拽上传，最大文件500MB</div>
-                <i class="el-icon-document file-icon"></i>
-                <span class="file-name">{{ fileInfo.fileName || '未选择文件' }}</span>
-              </div>
-            </el-upload>
-          </template>
-          <div class="file-details">
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <div class="detail-item">
-                  <span class="detail-label">文件大小:</span>
-                  <span class="detail-value">{{ fileInfo.fileSize || '0' }} MB</span>
-                </div>
-              </el-col>
-              <el-col :span="12">
-                <div class="detail-item">
-                  <span class="detail-label">总分片数:</span>
-                  <span class="detail-value">{{ fileInfo.totalChunks || '0' }}</span>
-                </div>
-              </el-col>
-            </el-row>
+    <el-card class="custom-file-info-card">
+      <template #header>
+        <div class="file-details">
+          <div class="detail-item">
+            <span class="detail-label">文件大小:</span>
+            <span class="detail-value">{{ fileInfo.fileSize ?? '0' }} MB</span>
           </div>
-        </el-card>
-      </el-form-item>
-
-      <!-- 上传进度 -->
-      <el-form-item label="上传进度">
-        <el-progress :percentage="uploadProgress" :status="uploadStatus" :stroke-width="18" :show-text="false"
-          class="custom-progress" />
-        <div class="progress-info">
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <div class="progress-text">
-                <i class="el-icon-loading progress-icon" v-if="isUploading"></i>
-                <span class="progress-message">{{ uploadProgressInfo.message || '等待上传...' }}</span>
-              </div>
-            </el-col>
-            <el-col :span="12" class="text-right">
-              <div class="progress-text">
-                <span>分片: {{ uploadProgressInfo.currentChunk + 1 }} / {{ fileInfo.totalChunks || '0' }}</span>
-              </div>
-            </el-col>
-          </el-row>
+          <div class="detail-item">
+            <span class="detail-label">总分片数:</span>
+            <span class="detail-value">{{ fileInfo.totalChunks ?? '0' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">分片大小:</span>
+            <span class="detail-value">{{ chunkSize ?? 0 }} MB</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">并发数量:</span>
+            <span class="detail-value">{{ maxConcurrency ?? 0 }}</span>
+          </div>
         </div>
-      </el-form-item>
-    </el-form>
-    <div class="dialog-footer">
-      <el-button @click="resetUpload" size="medium" class="btn-cancel">
-        <i class="el-icon-close"></i> 重置
-      </el-button>
-      <el-button type="primary" :disabled="!selectedFile || isUploading" @click="startUpload" size="medium"
-        class="btn-upload">
-        <i class="el-icon-upload2" v-if="!isUploading"></i>
-        <i class="el-icon-loading" v-else></i>
-        {{ isUploading ? '上传中...' : '开始上传' }}
-      </el-button>
-    </div>
+      </template>
+      <el-upload class="custom-upload-area" drag :show-file-list="false" :before-upload="handleBeforeUpload">
+        <div class="upload-content">
+          <i class="el-icon-upload el-icon--primary upload-icon"></i>
+          <div class="upload-text">将文件拖到此处，或<em class="upload-link">点击上传</em></div>
+          <div class="upload-tip">支持拖拽上传，最大文件500MB</div>
+          <i class="el-icon-document file-icon"></i>
+          <span class="file-name">{{ fileInfo.fileName || '未选择文件' }}</span>
+        </div>
+      </el-upload>
+      <template #footer>
+        <div>
+          <el-progress :percentage="uploadProgress" :status="uploadStatus">
+            <span style="margin-right: 10px;">{{ uploadProgressInfo.message || '等待上传...' }}</span>
+            <span>分片: {{ uploadProgressInfo.currentChunk }} / {{ fileInfo.totalChunks || '0' }}</span>
+          </el-progress>
+          <div class="dialog-footer">
+            <el-button @click="resetUpload" class="btn-cancel" icon="Refresh">重置</el-button>
+            <el-button type="primary" :disabled="!selectedFile || isUploading" @click="startUpload" class="btn-upload"
+              icon="Upload">
+              <i class="el-icon-upload2" v-if="!isUploading"></i>
+              <i class="el-icon-loading" v-else></i>
+              {{ isUploading ? '上传中...' : '开始上传' }}
+            </el-button>
+          </div>
+        </div>
+      </template>
+    </el-card>
   </div>
 </template>
 <style scoped lang="scss">
@@ -230,7 +224,7 @@ function resetUpload() {
 /* 自定义上传区域样式 */
 .custom-upload-area {
   width: 100%;
-  min-height: 160px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -243,6 +237,10 @@ function resetUpload() {
 
   :deep(.el-upload) {
     width: 100%;
+
+    .el-upload-dragger {
+      border: none;
+    }
   }
 
   &:hover {
@@ -297,12 +295,11 @@ function resetUpload() {
 
 .file-details {
   padding: 16px;
+  display: flex;
+  justify-content: space-between;
 
   .detail-item {
-    display: flex;
-    align-items: center;
     padding: 6px 0;
-
 
     .detail-label {
       flex-shrink: 0;
@@ -310,7 +307,6 @@ function resetUpload() {
       color: #606266;
       font-size: 14px;
     }
-
 
     .detail-value {
       color: #303133;
@@ -320,51 +316,10 @@ function resetUpload() {
 
 }
 
-
-
-
-/* 自定义进度条 */
-.custom-progress {
-  margin-bottom: 12px;
-}
-
-.progress-info {
-  font-size: 14px;
-  color: #606266;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.text-right {
-  text-align: right;
-}
-
-.progress-text {
-  display: flex;
-  align-items: center;
-}
-
-.progress-icon {
-  margin-right: 5px;
-}
-
-.progress-message {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.unit {
-  margin-left: 5px;
-  color: #606266;
-}
-
 /* 自定义按钮 */
 .dialog-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-around;
   padding: 16px 30px;
 
   .btn-cancel {

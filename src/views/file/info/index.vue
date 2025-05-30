@@ -75,18 +75,18 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="uploadForm.uploadType === 'image'" label="图片上传">
-            <ImageUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadImgUrl="uploadUrl"
-              @update:modelValue="onUploadSuccess" style="width:100%"
+            <ImageUpload :limit="5" :fileSize="10" isShowTip :uploadImgUrl="uploadUrl"
+              @update:modelValue="onUploadSuccess" style="width:100%" v-model="fileList"
               :fileType="['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
           </el-form-item>
           <el-form-item v-else label="文件上传">
-            <FileUpload :limit="5" :fileSize="10" :isShowTip="true" :uploadFileUrl="uploadUrl"
-              @update:modelValue="onUploadSuccess" style="width:100%"
-              :fileType="['doc', 'xls', 'ppt', 'txt', 'pdf', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']" />
+            <FileUpload :limit="5" :fileSize="10" isShowTip :uploadFileUrl="uploadUrl"
+              @update:modelValue="onUploadSuccess" style="width:100%" v-model="fileList"
+              :fileType="['doc', 'xls', 'ppt', 'txt', 'pdf', 'zip', 'rar', '7z', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'docx']" />
           </el-form-item>
         </div>
         <div v-else>
-          <ChunkUpload @update:modelValue="handleChunkUploadSuccess" />
+          <ChunkUpload :chunk-size="10" :maxConcurrency="4" @update:modelValue="onUploadSuccess" />
         </div>
       </el-form>
     </el-dialog>
@@ -102,7 +102,7 @@ import ChunkUpload from './components/ChunkUpload.vue'; // 引入分片上传组
 import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
-
+const fileList = ref([]);
 const infoList = ref([]);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -216,13 +216,8 @@ const uploadUrl = computed(() => {
 });
 // FileUpload上传成功回调
 function onUploadSuccess() {
-  openUploadDialog.value = false;
+  // openUploadDialog.value = false;
   getList();
-}
-
-// 分片上传成功回调
-function handleChunkUploadSuccess(result) {
-  getList(); // 刷新文件列表
 }
 onMounted(() => {
   getList();
