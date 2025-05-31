@@ -3,7 +3,21 @@ export interface LoginForm {
     password: string
     code: string
     uuid: string
+    email: string
+    phonenumber: string
+    rememberMe?: boolean
+    autoRegister?: boolean
 }
+
+export interface RegisterForm {
+    username: string
+    password: string
+    code: string
+    uuid: string
+    email: string
+    phonenumber: string
+}
+
 
 export interface DeptInfo {
     deptId: number;

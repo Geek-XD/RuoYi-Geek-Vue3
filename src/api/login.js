@@ -1,13 +1,7 @@
 import request from '@/utils/request'
 
 // 登录方法
-export function login(username, password, code, uuid) {
-  const data = {
-    username,
-    password,
-    code,
-    uuid
-  }
+export function login(data) {
   return request({
     url: '/login',
     headers: {
@@ -58,50 +52,62 @@ export function getCodeImg() {
   })
 }
 
-export function sendEmailCode(data){
+export function sendEmailCode(data, type = 'register') {
   return request({
-    url: '/auth/mail/send/register',
+    url: `/auth/mail/send/${type}`,
     headers: {
       isToken: false
     },
     method: 'post',
     timeout: 20000,
-    data
+    data,
+    params: {
+      autoRegister: data.autoRegister
+    },
   })
 }
 
-export function verifyEmailCode(data){
+export function verifyEmailCode(data, type = 'register') {
   return request({
-    url: '/auth/mail/verify/register',
+    url: `/auth/mail/verify/${type}`,
     headers: {
       isToken: false
     },
     method: 'post',
     timeout: 20000,
-    data
+    data,
+    params: {
+      autoRegister: data.autoRegister
+    },
   })
 }
 
-export function sendPhoneCode(data){
+export function sendPhoneCode(data, type = 'register') {
   return request({
-    url: '/auth/dySms/send/register',
+    url: `/auth/dySms/send/${type}`,
     headers: {
       isToken: false
     },
     method: 'post',
     timeout: 20000,
-    data
+    data,
+    params: {
+      autoRegister: data.autoRegister
+    },
   })
 }
 
-export function verifyPhoneCode(data){
+export function verifyPhoneCode(data, type = 'register') {
   return request({
-    url: '/auth/dySms/verify/register',
+    url: `/auth/dySms/verify/${type}`,
     headers: {
       isToken: false
     },
     method: 'post',
     timeout: 20000,
-    data
+    data,
+    params: {
+      autoRegister: data.autoRegister
+    },
   })
 }

@@ -28,7 +28,10 @@ const user = reactive({
     password: undefined,
 });
 const rules = ref({
-    email: [{ required: true, message: "邮箱不能为空", trigger: "blur" }],
+    email: [
+        { required: true, message: "邮箱地址不能为空", trigger: "blur" },
+        { type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"] }
+    ],
     password: [{ required: true, message: "密码不能为空", trigger: "blur" }],
 });
 

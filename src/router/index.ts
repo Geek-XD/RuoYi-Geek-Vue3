@@ -42,14 +42,23 @@ export const constantRoutes: RouteItem[] = [
     ]
   },
   {
-    path: '/login',
-    component: () => import('@/views/login.vue'),
-    hidden: true
-  },
-  {
-    path: '/register',
-    component: () => import('@/views/register.vue'),
-    hidden: true
+    path: '/auth',
+    component: () => import('@/views/auth/index.vue'),
+    hidden: true,
+    children: [
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import('@/views/auth/login.vue'),
+        hidden: true
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import('@/views/auth/register.vue'),
+        hidden: true
+      }
+    ]
   },
   {
     path: "/:pathMatch(.*)*",

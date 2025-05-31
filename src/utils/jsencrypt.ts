@@ -15,14 +15,14 @@ const privateKey = 'MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAqhHyZfSsYour
   'UP8iWi1Qw0Y='
 
 // 加密
-export function encrypt(txt: string) {
+export function encrypt(txt: string): string {
   const encryptor = new JSEncrypt()
   encryptor.setPublicKey(publicKey) // 设置公钥
   return encryptor.encrypt(txt) // 对数据进行加密
 }
 
 // 解密
-export function decrypt(txt: string) {
+export function decrypt(txt: string): string {
   const encryptor = new JSEncrypt()
   encryptor.setPrivateKey(privateKey) // 设置私钥
   return encryptor.decrypt(txt) // 对数据进行解密

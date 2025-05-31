@@ -12,7 +12,7 @@ import { isPathMatch } from '@/utils/validate'
 
 NProgress.configure({ showSpinner: false });
 
-const whiteList = ['/login', '/register']
+const whiteList = ['/auth/login', '/auth/register']
 const isWhiteList = (path: string) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
@@ -23,7 +23,7 @@ router.beforeEach((to, from, next) => {
     let title: string = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
     title && useSettingsStore().setTitle(title)
     /* has token*/
-    if (to.path === '/login') {
+    if (to.path === '/auth/login') {
       next({ path: '/' })
       NProgress.done()
     } else if (isWhiteList(to.path)) {
@@ -60,7 +60,7 @@ router.beforeEach((to, from, next) => {
       // 在免登录白名单，直接进入
       next()
     } else {
-      next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
+      next(`/auth/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
       NProgress.done()
     }
   }
