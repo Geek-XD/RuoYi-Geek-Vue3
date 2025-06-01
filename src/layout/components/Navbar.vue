@@ -112,8 +112,10 @@ function setLayout() {
 
 
 <style lang='scss' scoped>
+@use "@/assets/styles/variables.module.scss";
+
 .navbar {
-  height: 50px;
+  height: variables.$navbar-height;
   overflow: hidden;
   position: relative;
   background: #fff;

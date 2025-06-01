@@ -41,13 +41,6 @@ onMounted(() => {
 function isActive(r: RouteLocationNormalizedGeneric) {
   return r.path === route.path
 }
-function activeStyle(tag: RouteLocationNormalizedGeneric) {
-  if (!isActive(tag)) return {};
-  return {
-    "background-color": theme.value,
-    "border-color": theme.value
-  };
-}
 function isAffix(tag: RouteLocationNormalizedGeneric) {
   return tag.meta && tag.meta.affix
 }
@@ -204,7 +197,7 @@ function handleScroll() {
 <template>
   <div id="tags-view-container" class="tags-view-container">
     <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="handleScroll">
-      <router-link v-for="tag in visitedViews" :key="tag.path" :style="activeStyle(tag)" class="tags-view-item"
+      <router-link v-for="tag in visitedViews" :key="tag.path" class="tags-view-item"
         :class="isActive(tag) ? 'active' : ''" :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
         @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
         {{ tag.title }}
@@ -235,12 +228,11 @@ function handleScroll() {
     </ul>
   </div>
 </template>
-
-
-
 <style lang='scss' scoped>
+@use "@/assets/styles/variables.module.scss";
+
 .tags-view-container {
-  height: 34px;
+  height: variables.$tags-view-height;
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #d8dce5;
@@ -270,9 +262,9 @@ function handleScroll() {
       }
 
       &.active {
-        background-color: #42b983;
+        background-color: var(--el-color-primary);
         color: #fff;
-        border-color: #42b983;
+        border-color: var(--el-color-primary);
 
         &::before {
           content: "";
@@ -283,6 +275,29 @@ function handleScroll() {
           border-radius: 50%;
           position: relative;
           margin-right: 2px;
+        }
+      }
+
+      :deep(.el-icon-close) {
+        width: 16px;
+        height: 16px;
+        vertical-align: 2px;
+        border-radius: 50%;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        transform-origin: 100% 50%;
+
+        &:before {
+          transform: scale(0.6);
+          display: inline-block;
+          vertical-align: -3px;
+        }
+
+        &:hover {
+          background-color: #b4bccc;
+          color: #fff;
+          width: 12px !important;
+          height: 12px !important;
         }
       }
     }
@@ -308,36 +323,6 @@ function handleScroll() {
 
       &:hover {
         background: #eee;
-      }
-    }
-  }
-}
-</style>
-
-<style lang="scss">
-//reset element css of el-icon-close
-.tags-view-wrapper {
-  .tags-view-item {
-    .el-icon-close {
-      width: 16px;
-      height: 16px;
-      vertical-align: 2px;
-      border-radius: 50%;
-      text-align: center;
-      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transform-origin: 100% 50%;
-
-      &:before {
-        transform: scale(0.6);
-        display: inline-block;
-        vertical-align: -3px;
-      }
-
-      &:hover {
-        background-color: #b4bccc;
-        color: #fff;
-        width: 12px !important;
-        height: 12px !important;
       }
     }
   }
