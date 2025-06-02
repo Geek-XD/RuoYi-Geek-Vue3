@@ -48,33 +48,29 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="支付方式" align="center" prop="payType" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['pay:order:edit']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
             v-hasPermi="['pay:order:remove']">删除</el-button>
+          <el-button link type="warning" icon="RefreshLeft" @click="handleRefund(scope.row)"
+            v-hasPermi="['pay:order:refund']">退款</el-button>
+          <el-button link type="info" icon="Refresh" @click="handleUpdateStatus(scope.row)"
+            v-hasPermi="['pay:order:updateStatus']">更新状态</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
-      @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改订单对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="orderRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="订单号" prop="orderNumber">
-          <el-input v-model="form.orderNumber" placeholder="请输入订单号" />
-        </el-form-item>
-        <el-form-item label="第三方订单号" prop="thirdNumber">
-          <el-input v-model="form.thirdNumber" placeholder="请输入第三方订单号" />
-        </el-form-item>
-        <el-form-item label="订单总金额" prop="totalAmount">
-          <el-input v-model="form.totalAmount" placeholder="请输入订单总金额" />
-        </el-form-item>
-        <el-form-item label="实际金额" prop="actualAmount">
-          <el-input v-model="form.actualAmount" placeholder="请输入实际金额" />
+        <el-form-item label="订单总金额(分)" prop="totalAmount">
+          <el-input v-model="form.totalAmount" placeholder="请输入订单总金额(单位:分)" />
         </el-form-item>
         <el-form-item label="订单内容" prop="orderContent">
           <el-input v-model="form.orderContent" type="textarea" placeholder="请输入内容" />
@@ -97,7 +93,7 @@
 </template>
 
 <script setup name="Order">
-import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/pay/order";
+import { listOrder, getOrder, delOrder, addOrder, updateOrder, refundOrder, updateOrderStatus } from "@/api/pay/order";
 
 const { proxy } = getCurrentInstance();
 
@@ -234,7 +230,27 @@ function handleDelete(row) {
   }).catch(() => { });
 }
 
+// 新增：退款操作
+function handleRefund(row) {
+  const orderNumber = row.orderNumber;
+  proxy.$modal.confirm('是否确认对订单号为"' + orderNumber + '"的订单进行退款？').then(function () {
+    return refundOrder(orderNumber);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("退款成功");
+  }).catch(() => { });
+}
 
+// 新增：更新订单状态操作
+function handleUpdateStatus(row) {
+  const orderNumber = row.orderNumber;
+  proxy.$modal.confirm('是否确认更新订单号为"' + orderNumber + '"的订单状态？').then(function () {
+    return updateOrderStatus(orderNumber);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("订单状态更新成功");
+  }).catch(() => { });
+}
 
 /** 导出按钮操作 */
 function handleExport() {

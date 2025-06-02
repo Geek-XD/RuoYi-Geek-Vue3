@@ -42,3 +42,21 @@ export function delOrder(orderId) {
     method: 'delete'
   })
 }
+
+// 退款订单
+export function refundOrder(orderNumber, data) {
+  return request({
+    url: `/pay/refund/${orderNumber}`,
+    method: 'post',
+    data: data
+  })
+}
+
+// 更新订单状态
+export function updateOrderStatus(orderNumber, data) {
+  return request({
+    url: `/pay/query/${orderNumber}`,
+    method: 'post',
+    data: data
+  })
+}
