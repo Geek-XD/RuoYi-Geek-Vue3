@@ -55,6 +55,11 @@ const dynamicTitle = computed({
   }
 })
 
+const footerVisible = computed({
+  get: () => settingsStore.footerVisible,
+  set: (val) => settingsStore.changeSetting({ key: 'footerVisible', value: val })
+})
+
 /** 修改主题颜色 */
 function themeChange(val: string) {
   settingsStore.changeSetting({ key: 'theme', value: val })
@@ -95,13 +100,18 @@ function openSetting() {
   showSettings.value = true;
 }
 
+function closeSetting() {
+  showSettings.value = false;
+}
+
 defineExpose({
   openSetting,
 })
 </script>
 
 <template>
-  <el-drawer v-model="showSettings" :withHeader="false" direction="rtl" size="300px">
+  <el-drawer v-model="showSettings" :withHeader="false" direction="rtl" size="300px" :before-close="closeSetting"
+    :lock-scroll="false">
     <div class="setting-drawer-title">
       <h3 class="drawer-title">主题风格设置</h3>
     </div>
@@ -136,6 +146,10 @@ defineExpose({
       <span class="comp-style">
         <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
       </span>
+    </div>
+    <div class="drawer-item">
+      <span>底部版权</span>
+      <el-switch v-model="footerVisible" class="drawer-switch" />
     </div>
     <el-divider />
 

@@ -2,7 +2,7 @@ import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
 import { defineStore } from 'pinia'
 import { handleThemeStyle } from '@/utils/theme'
-const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, initDbSetting } = defaultSettings
+const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
 
 const storageSetting: typeof defaultSettings = JSON.parse(
   localStorage.getItem('layout-setting') || '{}'
@@ -19,6 +19,8 @@ const useSettingsStore = defineStore('settings', {
     fixedHeader: true,
     sidebarLogo: true,
     dynamicTitle: true,
+    footerVisible: footerVisible,
+    footerContent: footerContent,
     inited: false
   }),
   actions: {

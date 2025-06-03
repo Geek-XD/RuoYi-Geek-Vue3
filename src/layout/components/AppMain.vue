@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import iframeToggle from "./IframeToggle/index.vue"
+import copyright from "./Copyright/index.vue"
 import useTagsViewStore from '@/store/modules/tagsView'
+
 
 const tagsViewStore = useTagsViewStore()
 </script>
@@ -16,11 +18,16 @@ const tagsViewStore = useTagsViewStore()
       </transition>
     </router-view>
     <iframe-toggle />
+    <copyright />
   </section>
 </template>
 
 <style lang="scss" scoped>
 @use "@/assets/styles/variables.module.scss";
+
+.app-main:has(.copyright) {
+  padding-bottom: 36px;
+}
 
 .app-main {
   min-height: calc(100vh - variables.$navbar-height);

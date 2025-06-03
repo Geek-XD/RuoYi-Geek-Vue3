@@ -9,6 +9,8 @@ interface Setting {
   fixedHeader: boolean;
   sidebarLogo: boolean;
   dynamicTitle: boolean;
+  footerVisible: boolean;
+  footerContent: string;
   errorLog: string | string[];
   initDbSetting: () => Promise<Setting>;
 }
@@ -56,6 +58,16 @@ const setting = {
   dynamicTitle: false,
 
   /**
+   * 是否显示底部版权
+   */
+  footerVisible: true,
+
+  /**
+   * 底部版权文本内容
+   */
+  footerContent: 'Copyright © 2018-2025 RuoYi. All Rights Reserved.',
+
+  /**
    * @type {string | array} 'production' | ['production', 'development']
    * @description Need show err logs component.
    * The default is only used in the production env
@@ -67,17 +79,17 @@ const setting = {
    * 获取后端配置的设置
    * @returns Promise<Object>
    */
-  async initDbSetting():Promise<Setting> {
-    const config =(key:string,type:any) => getConfigKey(key).then(res => {
-      if(type===String){
+  async initDbSetting(): Promise<Setting> {
+    const config = (key: string, type: any) => getConfigKey(key).then(res => {
+      if (type === String) {
         return res.msg
-      }else if(type===Number){
+      } else if (type === Number) {
         return +res.msg
-      }else if(type===Boolean){
-        return res.msg==='true'
-      }else if(type===Array){
+      } else if (type === Boolean) {
+        return res.msg === 'true'
+      } else if (type === Array) {
         return res.msg.split(',')
-      }else{
+      } else {
         return new type(res.msg)
       }
     })

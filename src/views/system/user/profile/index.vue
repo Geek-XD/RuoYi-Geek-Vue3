@@ -49,7 +49,7 @@
                      <span>基本资料</span>
                   </div>
                </template>
-               <el-tabs v-model="activeTab">
+               <el-tabs v-model="selectedTab">
                   <el-tab-pane label="基本资料" name="userinfo">
                      <userInfo :user="state.user" />
                   </el-tab-pane>
@@ -76,8 +76,9 @@ import resetPwd from "./resetPwd.vue";
 import resetEmail from "./resetEmail.vue";
 import resetPhone from "./resetPhone.vue";
 import { getUserProfile } from "@/api/system/user";
+import { onMounted } from "vue";
 
-const activeTab = ref("userinfo");
+const selectedTab = ref("userinfo");
 const state = reactive({
    user: {},
    roleGroup: {},
@@ -92,5 +93,13 @@ function getUser() {
    });
 };
 
-getUser();
+const route = useRoute();
+
+onMounted(() => {
+   const activeTab = route.params && route.params.activeTab
+   if (activeTab) {
+      selectedTab.value = activeTab
+   }
+   getUser();
+})
 </script>

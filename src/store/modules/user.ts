@@ -3,6 +3,11 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
 import { LoginForm, RegisterForm, RoleInfo, UserInfo } from '@/types/user'
+import { ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { set } from 'nprogress'
+import { nextTick } from 'vue'
+import router from '@/router'
 
 const useUserStore = defineStore(
   'user',
@@ -15,7 +20,9 @@ const useUserStore = defineStore(
       deptName: '',
       loginDate: '',
       roles: [] as string[],
-      permissions: [] as string[]
+      permissions: [] as string[],
+      isDefaultModifyPwd: null as boolean | null,
+      isPasswordExpired: null as boolean | null
     }),
     actions: {
       // 登录
@@ -63,6 +70,19 @@ const useUserStore = defineStore(
               this.avatar = defAva
             } else {
               this.avatar = user.avatar.startsWith('http') ? user.avatar : import.meta.env.VITE_APP_BASE_API + user.avatar;
+            }
+            /* 初始密码提示 */
+            if (res.isDefaultModifyPwd && this.isPasswordExpired === null) {
+              this.isPasswordExpired = res.isPasswordExpired
+              ElMessageBox.confirm('您的密码还是初始密码，请修改密码！', '安全提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+                router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
+              }).catch(() => { })
+            }
+            if (!res.isDefaultModifyPwd && res.isPasswordExpired && this.isPasswordExpired === null) {
+              this.isDefaultModifyPwd = res.isDefaultModifyPwd
+              ElMessageBox.confirm('您的密码已过期，请尽快修改密码！', '安全提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+                router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
+              }).catch(() => { })
             }
             resolve(res)
           }).catch(error => {
