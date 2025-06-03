@@ -1,5 +1,5 @@
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue';
 import QRCode from 'qrcode';
 
 const props = defineProps({
@@ -31,19 +31,16 @@ const generateQRCode = async () => {
     qrDataUrl.value = await QRCode.toDataURL(props.data, props.options);
 };
 
-const qrcodeBoxStyle = computed(() => {
-    return {
-        width: props.options.width + 'px',
-        height: props.options.height + 'px'
-    };
+const qrcodeBoxStyle = computed(() => ({
+    width: props.options.width + 'px',
+    height: props.options.height + 'px'
+}));
+const qrcodeLogoStyle = computed(() => ({
+    width: props.logoSize + '%'
+}));
+onMounted(() => {
+    generateQRCode();
 });
-const qrcodeLogoStyle = computed(() => {
-    return {
-        width: props.logoSize + '%'
-    };
-});
-// 在组件加载时生成二维码
-generateQRCode();
 </script>
 <template>
     <div class="qrcode-component">
@@ -53,7 +50,7 @@ generateQRCode();
         </div>
     </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
 .qrcode-component {
     .qrcode-box {
         position: relative;

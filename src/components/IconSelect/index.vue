@@ -1,25 +1,5 @@
-<template>
-  <div class="icon-body">
-    <el-input
-      v-model="iconName"
-      style="position: relative;"
-      clearable
-      placeholder="请输入图标名称"
-      @clear="filterIcons"
-      @input="filterIcons"
-    >
-      <template #suffix><i class="el-icon-search el-input__icon" /></template>
-    </el-input>
-    <div class="icon-list">
-      <div v-for="(item, index) in iconList" :key="index" @click="selectedIcon(item)">
-        <svg-icon :icon-class="item" style="height: 30px;width: 16px;" />
-        <span>{{ item }}</span>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
+<script setup lang="ts">
+import { ref } from 'vue';
 import icons from './requireIcons'
 
 const iconName = ref('');
@@ -33,7 +13,7 @@ function filterIcons() {
   }
 }
 
-function selectedIcon(name) {
+function selectedIcon(name: string) {
   emit('selected', name)
   document.body.click()
 }
@@ -47,14 +27,29 @@ defineExpose({
   reset
 })
 </script>
-
+<template>
+  <div class="icon-body">
+    <el-input v-model="iconName" style="position: relative;" clearable placeholder="请输入图标名称" @clear="filterIcons"
+      @input="filterIcons">
+      <template #suffix><i class="el-icon-search el-input__icon" /></template>
+    </el-input>
+    <div class="icon-list">
+      <div v-for="(item, index) in iconList" :key="index" @click="selectedIcon(item)">
+        <svg-icon :icon-class="item" style="height: 30px;width: 16px;" />
+        <span>{{ item }}</span>
+      </div>
+    </div>
+  </div>
+</template>
 <style lang='scss' scoped>
 .icon-body {
   width: 100%;
   padding: 10px;
+
   .icon-list {
     height: 200px;
     overflow-y: scroll;
+
     div {
       height: 30px;
       line-height: 30px;
@@ -63,6 +58,7 @@ defineExpose({
       width: 33%;
       float: left;
     }
+
     span {
       display: inline-block;
       vertical-align: -0.15em;

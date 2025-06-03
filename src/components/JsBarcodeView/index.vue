@@ -1,6 +1,6 @@
 <script setup>
 import JsBarcode from 'jsbarcode'
-import { nextTick, onMounted } from 'vue';
+import { onMounted } from 'vue';
 
 const props = defineProps({
     data: {

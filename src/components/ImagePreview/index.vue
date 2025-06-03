@@ -1,21 +1,6 @@
-<template>
-  <el-image
-    :src="`${realSrc}`"
-    fit="cover"
-    :style="`width:${realWidth};height:${realHeight};`"
-    :preview-src-list="realSrcList"
-    preview-teleported
-  >
-    <template #error>
-      <div class="image-slot">
-        <el-icon><picture-filled /></el-icon>
-      </div>
-    </template>
-  </el-image>
-</template>
-
-<script setup>
+<script setup lang="ts">
 import { isExternal } from "@/utils/validate";
+import { computed } from "vue";
 
 const props = defineProps({
   src: {
@@ -52,7 +37,7 @@ const realSrcList = computed(() => {
     return;
   }
   let real_src_list = props.src.split(",");
-  let srcList = [];
+  let srcList: string[] = [];
   real_src_list.forEach(item => {
     if (/^(https?:)?\//.test(item)) {
       return srcList.push(item);
@@ -73,19 +58,31 @@ const realHeight = computed(() =>
   typeof props.height == "string" ? props.height : `${props.height}px`
 );
 </script>
-
+<template>
+  <el-image :src="`${realSrc}`" fit="cover" :style="`width:${realWidth};height:${realHeight};`"
+    :preview-src-list="realSrcList" preview-teleported>
+    <template #error>
+      <div class="image-slot">
+        <el-icon><picture-filled /></el-icon>
+      </div>
+    </template>
+  </el-image>
+</template>
 <style lang="scss" scoped>
 .el-image {
   border-radius: 5px;
   background-color: #ebeef5;
   box-shadow: 0 0 5px 1px #ccc;
+
   :deep(.el-image__inner) {
     transition: all 0.3s;
     cursor: pointer;
+
     &:hover {
       transform: scale(1.2);
     }
   }
+
   :deep(.image-slot) {
     display: flex;
     justify-content: center;
