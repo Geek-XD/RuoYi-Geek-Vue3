@@ -26,27 +26,25 @@ const topNav = computed({
     }
   }
 })
+
 /** 是否需要tagview */
 const tagsView = computed({
   get: () => storeSettings.value.tagsView,
-  set: (val) => {
-    settingsStore.changeSetting({ key: 'tagsView', value: val })
-  }
+  set: (val) => settingsStore.changeSetting({ key: 'tagsView', value: val })
 })
+
 /**是否需要固定头部 */
 const fixedHeader = computed({
   get: () => storeSettings.value.fixedHeader,
-  set: (val) => {
-    settingsStore.changeSetting({ key: 'fixedHeader', value: val })
-  }
+  set: (val) => settingsStore.changeSetting({ key: 'fixedHeader', value: val })
 })
+
 /**是否需要侧边栏的logo */
 const sidebarLogo = computed({
   get: () => storeSettings.value.sidebarLogo,
-  set: (val) => {
-    settingsStore.changeSetting({ key: 'sidebarLogo', value: val })
-  }
+  set: (val) => settingsStore.changeSetting({ key: 'sidebarLogo', value: val })
 })
+
 /**是否需要侧边栏的动态网页的title */
 const dynamicTitle = computed({
   get: () => storeSettings.value.dynamicTitle,
@@ -57,15 +55,20 @@ const dynamicTitle = computed({
   }
 })
 
+/** 修改主题颜色 */
 function themeChange(val: string) {
   settingsStore.changeSetting({ key: 'theme', value: val })
   theme.value = val;
   handleThemeStyle(val);
 }
-function handleTheme(val: string) {
+
+/** 修改侧边栏主题 */
+function handleTheme(val: 'theme-dark' | 'theme-light') {
   settingsStore.changeSetting({ key: 'sideTheme', value: val })
   sideTheme.value = val;
 }
+
+/** 保存设置 */
 function saveSetting() {
   modal.loading("正在保存到本地，请稍候...");
   const layoutSetting = {
@@ -80,11 +83,14 @@ function saveSetting() {
   localStorage.setItem("layout-setting", JSON.stringify(layoutSetting));
   setTimeout(() => modal.closeLoading(), 1000)
 }
+
+/** 重置设置 */
 function resetSetting() {
   modal.loading("正在清除设置缓存并刷新，请稍候...");
   localStorage.removeItem("layout-setting")
   setTimeout(() => window.location.reload(), 1000)
 }
+
 function openSetting() {
   showSettings.value = true;
 }

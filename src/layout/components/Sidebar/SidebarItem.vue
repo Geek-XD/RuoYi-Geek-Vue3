@@ -14,23 +14,17 @@ const props = defineProps<{
 const onlyOneChild = ref<RouteItem & { noShowingChildren: boolean } | null>(null);
 
 function hasOneShowingChild(children: RouteItem[] = [], parent: RouteItem) {
-  if (!children) {
-    children = [];
-  }
+  if (!children) children = [];
   const showingChildren = children.filter(item => {
-    if (item.hidden) {
-      return false
-    } else {
-      // Temp set(will be used if only has one showing child)
-      onlyOneChild.value = { ...item, noShowingChildren: false };
-      return true;
-    }
+    if (item.hidden) return false
+
+    // Temp set(will be used if only has one showing child)
+    onlyOneChild.value = { ...item, noShowingChildren: false };
+    return true;
   })
 
   // When there is only one child router, the child router is displayed by default
-  if (showingChildren.length === 1) {
-    return true
-  }
+  if (showingChildren.length === 1) return true
 
   // Show parent if there are no child router to display
   if (showingChildren.length === 0) {
@@ -38,19 +32,18 @@ function hasOneShowingChild(children: RouteItem[] = [], parent: RouteItem) {
     return true
   }
 
-  return false
+  return false;
 };
 
 function resolvePath(routePath: string, routeQuery?: any) {
-  if (isExternal(routePath)) {
-    return routePath
-  }
-  if (isExternal(props.basePath!)) {
-    return props.basePath
-  }
+  if (isExternal(routePath)) return routePath
+  if (isExternal(props.basePath!)) return props.basePath
+
   if (routeQuery) {
-    let query = JSON.parse(routeQuery);
-    return { path: getNormalPath(props.basePath + '/' + routePath), query: query }
+    return {
+      path: getNormalPath(props.basePath + '/' + routePath),
+      query: JSON.parse(routeQuery)
+    };
   }
   return getNormalPath(props.basePath + '/' + routePath)
 }
@@ -64,12 +57,8 @@ function hasTitle(title?: string) {
 }
 
 function getTitle(route: RouteItem) {
-  if (!route.meta?.title) {
-    return "";
-  }
-  if (typeof route.meta.title === "function") {
-    return route.meta.title(route);
-  }
+  if (!route.meta?.title) return "";
+  if (typeof route.meta.title === "function") return route.meta.title(route);
   return route.meta.title;
 }
 

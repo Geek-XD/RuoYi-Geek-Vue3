@@ -14,6 +14,7 @@ defineProps({
 const title = ref('若依Geek管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
+const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }));
 </script>
 <template>
   <div class="sidebar-logo-container" :class="{ 'collapse': collapse }"
@@ -21,15 +22,11 @@ const sideTheme = computed(() => settingsStore.sideTheme);
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 v-else class="sidebar-title"
-          :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{
-            title }}</h1>
+        <h1 v-else class="sidebar-title" :style="sidebarTitleStyle">{{ title }}</h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 class="sidebar-title"
-          :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{
-            title }}</h1>
+        <h1 class="sidebar-title" :style="sidebarTitleStyle">{{ title }}</h1>
       </router-link>
     </transition>
   </div>

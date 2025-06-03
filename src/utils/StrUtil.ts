@@ -11,7 +11,7 @@ export const StrUtil = {
    * @param str 被检测的字符串
    * @return boolean 是否为空
    */
-  isBlank: function (str) {
+  isBlank: function (str: string) {
     return str === undefined || str == null || this.trim(str) === "";
 
   },
@@ -24,7 +24,7 @@ export const StrUtil = {
    * @param str 被检测的字符串
    * @return boolean 是否为非空
    */
-  isNotBlank: function (str) {
+  isNotBlank: function (str: string) {
     // == 代表相同,=== 代表严格相同
     return false === StrUtil.isBlank(str);
   },
@@ -36,7 +36,7 @@ export const StrUtil = {
    * @param str 被检测的字符串
    * @return boolean 是否为空
    */
-  isEmpty: function (str) {
+  isEmpty: function (str: string) {
     return str == null || str === "";
 
   },
@@ -48,7 +48,7 @@ export const StrUtil = {
    * @param str 被检测的字符串
    * @return boolean 是否为非空
    */
-  isNotEmpty: function (str) {
+  isNotEmpty: function (str: string) {
     return !StrUtil.isEmpty(str);
   },
   /**
@@ -57,7 +57,7 @@ export const StrUtil = {
    * @param str 被检查的字符串
    * @return string 原字符串或者空串
    */
-  nullToStr: function (str) {
+  nullToStr: function (str: string) {
     if (StrUtil.isEmpty(str)) {
       return "";
     }
@@ -69,7 +69,7 @@ export const StrUtil = {
    * @param str 截取的字符串
    * @return string
    */
-  trim: function (str) {
+  trim: function (str: string) {
     if (str == null) {
       return "";
     }
@@ -82,7 +82,7 @@ export const StrUtil = {
    * @param that 比较的字符串
    * @return boolean
    */
-  equals: function (str, that) {
+  equals: function (str: string, that: string) {
     return str === that;
   },
   /**
@@ -92,7 +92,7 @@ export const StrUtil = {
    * @param that 比较的字符串
    * @return boolean
    */
-  equalsIgnoreCase: function (str, that) {
+  equalsIgnoreCase: function (str: string, that: string) {
     return String(str).toUpperCase() === String(that).toUpperCase();
   },
   /**
@@ -103,7 +103,7 @@ export const StrUtil = {
    * @param maxLen 最大长度
    * @return string[] 分割后的数组
    */
-  split: function (str, sep, maxLen) {
+  split: function (str: string, sep: string, maxLen?: number) {
     if (StrUtil.isEmpty(str)) {
       return null;
     }
@@ -116,7 +116,7 @@ export const StrUtil = {
    * @param str 字符串
    * @return 格式化后的字符串
    */
-  sprintf: function (str) {
+  sprintf: function (str: string) {
     let args = arguments, flag = true, i = 1;
     str = str.replace(/%s/g, function () {
       const arg = args[i++];
@@ -135,7 +135,7 @@ export const StrUtil = {
    * @param start 开始的字符串
    * @return boolean
    */
-  startWith: function (str, start) {
+  startWith: function (str: string, start: string) {
     const reg = new RegExp("^" + start);
     return reg.test(str);
   },
@@ -146,32 +146,50 @@ export const StrUtil = {
    * @param end 结尾的字符串
    * @return boolean
    */
-  endWith: function (str, end) {
+  endWith: function (str: string, end: string) {
     const reg = new RegExp(end + "$");
     return reg.test(str);
   },
-  containsWhitespace: function (input) {
+  /**
+   * 判断字符串是否包含指定的字符
+   *
+   * @param input 字符串
+   * @param searchStr 搜索的字符串
+   * @return boolean
+   */
+  contains: function (input: string, searchStr: string) {
+    if (this.isEmpty(input) || this.isEmpty(searchStr)) {
+      return false;
+    }
+    return input.indexOf(searchStr) !== -1;
+  },
+  /**
+   * 检查字符串中是否包含空格
+   * @param input 输入字符串
+   * @returns boolean
+   */
+  containsWhitespace: function (input: string) {
     return this.contains(input, ' ');
   },
   //生成指定个数的字符
-  repeat: function (ch, repeatTimes) {
+  repeat: function (ch: string, repeatTimes: number) {
     let result = "";
     for (let i = 0; i < repeatTimes; i++) {
       result += ch;
     }
     return result;
   },
-  deleteWhitespace: function (input) {
+  deleteWhitespace: function (input: string) {
     return input.replace(/\s+/g, '');
   },
-  rightPad: function (input, size, padStr) {
+  rightPad: function (input: string, size: number, padStr: string) {
     return input + this.repeat(padStr, size);
   },
-  leftPad: function (input, size, padStr) {
+  leftPad: function (input: string, size: number, padStr: string) {
     return this.repeat(padStr, size) + input;
   },
   //首小写字母转大写
-  capitalize: function (input) {
+  capitalize: function (input: string) {
     let strLen = 0;
     if (input == null || (strLen = input.length) === 0) {
       return input;
@@ -181,7 +199,7 @@ export const StrUtil = {
     });
   },
   //首大写字母转小写
-  uncapitalize: function (input) {
+  uncapitalize: function (input: string) {
     let strLen = 0;
     if (input == null || (strLen = input.length) === 0) {
       return input;
@@ -191,17 +209,18 @@ export const StrUtil = {
     });
   },
   //大写转小写，小写转大写
-  swapCase: function (input) {
+  swapCase: function (input: string) {
     return input.replace(/[a-z]/ig, function (matchStr) {
       if (matchStr >= 'A' && matchStr <= 'Z') {
         return matchStr.toLocaleLowerCase();
       } else if (matchStr >= 'a' && matchStr <= 'z') {
         return matchStr.toLocaleUpperCase();
       }
+      return matchStr;
     });
   },
   //统计含有的子字符串的个数
-  countMatches: function (input, sub) {
+  countMatches: function (input: string, sub: string) {
     if (this.isEmpty(input) || this.isEmpty(sub)) {
       return 0;
     }
@@ -214,84 +233,84 @@ export const StrUtil = {
     return count;
   },
   //只包含字母
-  isAlpha: function (input) {
+  isAlpha: function (input: string) {
     return /^[a-z]+$/i.test(input);
   },
   //只包含字母、空格
-  isAlphaSpace: function (input) {
+  isAlphaSpace: function (input: string) {
     return /^[a-z\s]*$/i.test(input);
   },
   //只包含字母、数字
-  isAlphanumeric: function (input) {
+  isAlphanumeric: function (input: string) {
     return /^[a-z0-9]+$/i.test(input);
   },
   //只包含字母、数字和空格
-  isAlphanumericSpace: function (input) {
+  isAlphanumericSpace: function (input: string) {
     return /^[a-z0-9\s]*$/i.test(input);
   },
   //数字
-  isNumeric: function (input) {
+  isNumeric: function (input: string) {
     return /^(?:[1-9]\d*|0)(?:\.\d+)?$/.test(input);
   },
   //小数
-  isDecimal: function (input) {
+  isDecimal: function (input: string) {
     return /^[-+]?(?:0|[1-9]\d*)\.\d+$/.test(input);
   },
   //负小数
-  isNegativeDecimal: function (input) {
+  isNegativeDecimal: function (input: string) {
     return /^\-?(?:0|[1-9]\d*)\.\d+$/.test(input);
   },
   //正小数
-  isPositiveDecimal: function (input) {
+  isPositiveDecimal: function (input: string) {
     return /^\+?(?:0|[1-9]\d*)\.\d+$/.test(input);
   },
   //整数
-  isInteger: function (input) {
+  isInteger: function (input: string) {
     return /^[-+]?(?:0|[1-9]\d*)$/.test(input);
   },
   //正整数
-  isPositiveInteger: function (input) {
+  isPositiveInteger: function (input: string) {
     return /^\+?(?:0|[1-9]\d*)$/.test(input);
   },
   //负整数
-  isNegativeInteger: function (input) {
+  isNegativeInteger: function (input: string) {
     return /^\-?(?:0|[1-9]\d*)$/.test(input);
   },
   //只包含数字和空格
-  isNumericSpace: function (input) {
+  isNumericSpace: function (input: string) {
     return /^[\d\s]*$/.test(input);
   },
-  isWhitespace: function (input) {
+  isWhitespace: function (input: string) {
     return /^\s*$/.test(input);
   },
-  isAllLowerCase: function (input) {
+  isAllLowerCase: function (input: string) {
     return /^[a-z]+$/.test(input);
   },
-  isAllUpperCase: function (input) {
+  isAllUpperCase: function (input: string) {
     return /^[A-Z]+$/.test(input);
   },
-  defaultString: function (input, defaultStr) {
+  defaultString: function (input: string, defaultStr: string) {
     return input == null ? defaultStr : input;
   },
-  defaultIfBlank: function (input, defaultStr) {
+  defaultIfBlank: function (input: string, defaultStr: string) {
     return this.isBlank(input) ? defaultStr : input;
   },
-  defaultIfEmpty: function (input, defaultStr) {
+  defaultIfEmpty: function (input: string, defaultStr: string) {
     return this.isEmpty(input) ? defaultStr : input;
   },
   //字符串反转
-  reverse: function (input) {
+  reverse: function (input: string) {
     if (this.isBlank(input)) {
       input;
     }
     return input.split("").reverse().join("");
   },
   //删掉特殊字符(英文状态下)
-  removeSpecialCharacter: function (input) {
+  removeSpecialCharacter: function (input: string) {
     return input.replace(/[!-/:-@\[-`{-~]/g, "");
   },
   //只包含特殊字符、数字和字母（不包括空格，若想包括空格，改为[ -~]）
-  isSpecialCharacterAlphanumeric: function (input) {
+  isSpecialCharacterAlphanumeric: function (input: string) {
     return /^[!-~]+$/.test(input);
   },
   /**
@@ -309,7 +328,7 @@ export const StrUtil = {
    * @param {Boolean} ignoreCase 是否忽略大小写
    * conditions={matcherFlag:"0",excludeStrArr:[],length:"",ignoreCase:true}
    */
-  isPatternMustExcludeSomeStr: function (input, conditions) {
+  isPatternMustExcludeSomeStr: function (input: string, conditions: any) {
     //参数
     const matcherFlag = conditions.matcherFlag;
     const excludeStrArr = conditions.excludeStrArr;
@@ -320,7 +339,7 @@ export const StrUtil = {
     let regex = (size === 0) ? "^" : "^(?!.*(?:{0}))";
     let subPattern = "";
     for (let i = 0; i < size; i++) {
-      excludeStrArr[i] = Bee.StringUtils.escapeMetacharacterOfStr(excludeStrArr[i]);
+      excludeStrArr[i] = this.escapeMetacharacterOfStr(excludeStrArr[i]);
       subPattern += excludeStrArr[i];
       if (i !== size - 1) {
         subPattern += "|";
@@ -407,7 +426,7 @@ export const StrUtil = {
    * @param {Array} arr
    * 消息格式化
    */
-  format: function (message, arr) {
+  format: function (message: string, arr: Array<string>) {
     return message.replace(/{(\d+)}/g, function (matchStr, group1) {
       return arr[group1];
     });
@@ -417,7 +436,7 @@ export const StrUtil = {
    * @param {String} input
    * @param {Boolean} ignoreCase : true or false
    */
-  compressRepeatedStr: function (input, ignoreCase) {
+  compressRepeatedStr: function (input: string, ignoreCase: boolean) {
     const pattern = new RegExp("([a-z])\\1+", ignoreCase ? "ig" : "g");
     return input.replace(pattern, function (matchStr, group1) {
       return matchStr.length + group1;
@@ -440,7 +459,12 @@ export const StrUtil = {
    * conditions={matcherFlag:"0",containStrArr:[],length:"",ignoreCase:true}
    *
    */
-  isPatternMustContainSomeStr: function (input, conditions) {
+  isPatternMustContainSomeStr: function (input: string, conditions: {
+    matcherFlag: string,
+    containStrArr: Array<string>,
+    length: string,
+    ignoreCase: boolean
+  }) {
     //参数
     const matcherFlag = conditions.matcherFlag;
     const containStrArr = conditions.containStrArr;
@@ -451,7 +475,7 @@ export const StrUtil = {
     let regex = "^";
     let subPattern = "";
     for (let i = 0; i < size; i++) {
-      containStrArr[i] = Bee.StringUtils.escapeMetacharacterOfStr(containStrArr[i]);
+      containStrArr[i] = this.escapeMetacharacterOfStr(containStrArr[i]);
       subPattern += "(?=.*" + containStrArr[i] + ")";
     }
     regex += subPattern;
@@ -531,15 +555,15 @@ export const StrUtil = {
     return pattern.test(input);
   },
   //中文校验
-  isChinese: function (input) {
+  isChinese: function (input: string) {
     return /^[\u4E00-\u9FA5]+$/.test(input);
   },
   //去掉中文字符
-  removeChinese: function (input) {
+  removeChinese: function (input: string) {
     return input.replace(/[\u4E00-\u9FA5]+/gm, "");
   },
   //转义元字符
-  escapeMetacharacter: function (input) {
+  escapeMetacharacter: function (input: string) {
     const metacharacter = "^$()*+.[]|\\-?{}|";
     if (metacharacter.indexOf(input) >= 0) {
       input = "\\" + input;
@@ -547,7 +571,7 @@ export const StrUtil = {
     return input;
   },
   //转义字符串中的元字符
-  escapeMetacharacterOfStr: function (input) {
+  escapeMetacharacterOfStr: function (input: string) {
     return input.replace(/[\^\$\*\+\.\|\\\-\?\{\}\|]/gm, "\\$&");
   }
 };

@@ -260,18 +260,6 @@ getVariable();
 getList();
 </script>
 <style scoped>
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f7fa;
-}
-
-.app-container {
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
 .el-form {
   margin-bottom: 20px;
 }
@@ -279,8 +267,6 @@ body {
 .el-form-item {
   margin-bottom: 18px;
 }
-
-
 
 .dialog-container {
   background-color: #fff;
@@ -298,8 +284,6 @@ body {
   text-align: right;
   margin-top: 20px;
 }
-
-
 
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {

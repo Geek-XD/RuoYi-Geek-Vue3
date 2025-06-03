@@ -1,52 +1,21 @@
 /**
- * TopNav组件
- * 
- * 功能说明：
- * 1. 顶部导航栏组件，支持显示一级菜单和更多菜单折叠
- * 2. 支持两种菜单来源：
- *    - 仅显示后端动态路由（关闭TopNav导入本地路由时）
- *    - 混合显示本地路由和后端动态路由（开启TopNav导入本地路由时）
- * 3. 特殊处理：
- *    - 空路径("")或根路径("/")：显示其第一个子路由为顶级菜单
- *    - isTopMenu: 将该路由的第一个子路由显示为顶级菜单
- * 
- * 配置说明：
- * 1. 在系统设置中可配置：
- *    - 开启/关闭TopNav
- *    - 开启/关闭TopNav导入本地路由
- * 2. 路由配置中可使用meta.isTopMenu控制菜单行为
- */
-
-<template>
-  <el-menu
-    :default-active="activeMenu"
-    mode="horizontal"
-    @select="handleSelect"
-    :ellipsis="false"
-  >
-    <template v-for="(item, index) in topMenus">
-      <el-menu-item :style="{'--theme': theme}" :index="item.path" :key="index" v-if="index < visibleNumber"
-        ><svg-icon :icon-class="item.meta.icon" />
-        {{ item.meta.title }}</el-menu-item
-      >
-    </template>
-
-    <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu :style="{'--theme': theme}" index="more" v-if="topMenus.length > visibleNumber">
-      <template #title>更多菜单</template>
-      <template v-for="(item, index) in topMenus">
-        <el-menu-item
-          :index="item.path"
-          :key="index"
-          v-if="index >= visibleNumber"
-          ><svg-icon :icon-class="item.meta.icon" />
-          {{ item.meta.title }}</el-menu-item
-        >
-      </template>
-    </el-sub-menu>
-  </el-menu>
-</template>
-
+* TopNav组件
+*
+* 功能说明：
+* 1. 顶部导航栏组件，支持显示一级菜单和更多菜单折叠
+* 2. 支持两种菜单来源：
+* - 仅显示后端动态路由（关闭TopNav导入本地路由时）
+* - 混合显示本地路由和后端动态路由（开启TopNav导入本地路由时）
+* 3. 特殊处理：
+* - 空路径("")或根路径("/")：显示其第一个子路由为顶级菜单
+* - isTopMenu: 将该路由的第一个子路由显示为顶级菜单
+*
+* 配置说明：
+* 1. 在系统设置中可配置：
+* - 开启/关闭TopNav
+* - 开启/关闭TopNav导入本地路由
+* 2. 路由配置中可使用meta.isTopMenu控制菜单行为
+*/
 <script setup>
 import { constantRoutes } from "@/router"
 import { isHttp } from '@/utils/validate'
@@ -79,14 +48,14 @@ const topMenus = computed(() => {
     if (menu.hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
       if (menu.path === "" || menu.path === "/") {
-        if(menu.children && menu.children[0]) {
+        if (menu.children && menu.children[0]) {
           const child = menu.children[0];
           // 确保子路由有正确的path
           child.path = child.path.replace('//', '/');
-          if(!child.meta) {
+          if (!child.meta) {
             child.meta = {};
           }
-          if(!child.meta.icon) {
+          if (!child.meta.icon) {
             child.meta.icon = 'dashboard';
           }
           topMenus.push(child);
@@ -98,11 +67,11 @@ const topMenus = computed(() => {
         topMenus.push(firstChild);
       } else {
         // 确保menu有meta对象
-        if(!menu.meta) {
+        if (!menu.meta) {
           menu.meta = {};
         }
         // 确保menu有icon属性
-        if(!menu.meta.icon) {
+        if (!menu.meta.icon) {
           menu.meta.icon = 'dashboard';
         }
         topMenus.push(menu);
@@ -119,10 +88,10 @@ const childrenMenus = computed(() => {
   routers.value.map((router) => {
     for (let item in router.children) {
       if (router.children[item].parentPath === undefined) {
-        if(router.path === "/") {
+        if (router.path === "/") {
           router.children[item].path = "/" + router.children[item].path;
         } else {
-          if(!isHttp(router.children[item].path)) {
+          if (!isHttp(router.children[item].path)) {
             router.children[item].path = router.path + "/" + router.children[item].path;
           }
         }
@@ -142,9 +111,9 @@ const activeMenu = computed(() => {
     const tmpPath = path.substring(1, path.length);
     activePath = "/" + tmpPath.substring(0, tmpPath.indexOf("/"));
     if (!route.meta.link) {
-        appStore.toggleSideBarHide(false);
+      appStore.toggleSideBarHide(false);
     }
-  } else if(!route.children) {
+  } else if (!route.children) {
     activePath = path;
     appStore.toggleSideBarHide(true);
   }
@@ -183,7 +152,7 @@ function activeRoutes(key) {
       }
     });
   }
-  if(routes.length > 0) {
+  if (routes.length > 0) {
     permissionStore.setSidebarRouters(routes);
   } else {
     appStore.toggleSideBarHide(true);
@@ -202,9 +171,30 @@ onMounted(() => {
   setVisibleNumber()
 })
 </script>
+<template>
+  <el-menu :default-active="activeMenu" mode="horizontal" @select="handleSelect" :ellipsis="false">
+    <template v-for="(item, index) in topMenus">
+      <el-menu-item :style="{ '--theme': theme }" :index="item.path" :key="index" v-if="index < visibleNumber">
+        <svg-icon :icon-class="item.meta.icon" />
+        <span>{{ item.meta.title }}</span>
+      </el-menu-item>
+    </template>
+
+    <!-- 顶部菜单超出数量折叠 -->
+    <el-sub-menu :style="{ '--theme': theme }" index="more" v-if="topMenus.length > visibleNumber">
+      <template #title>更多菜单</template>
+      <template v-for="(item, index) in topMenus">
+        <el-menu-item :index="item.path" :key="index" v-if="index >= visibleNumber">
+          <svg-icon :icon-class="item.meta.icon" />
+          <span>{{ item.meta.title }}</span>
+        </el-menu-item>
+      </template>
+    </el-sub-menu>
+  </el-menu>
+</template>
 
 <style lang="scss">
-.topmenu-container.el-menu--horizontal > .el-menu-item {
+.topmenu-container.el-menu--horizontal>.el-menu-item {
   float: left;
   height: 50px !important;
   line-height: 50px !important;
@@ -213,13 +203,14 @@ onMounted(() => {
   margin: 0 10px !important;
 }
 
-.topmenu-container.el-menu--horizontal > .el-menu-item.is-active, .el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
+.topmenu-container.el-menu--horizontal>.el-menu-item.is-active,
+.el-menu--horizontal>.el-sub-menu.is-active .el-submenu__title {
   border-bottom: 2px solid #{'var(--theme)'} !important;
   color: #303133;
 }
 
 /* sub-menu item */
-.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
+.topmenu-container.el-menu--horizontal>.el-sub-menu .el-sub-menu__title {
   float: left;
   height: 50px !important;
   line-height: 50px !important;
