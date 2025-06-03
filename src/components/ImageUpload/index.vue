@@ -29,6 +29,7 @@
 <script setup>
 import { getToken } from "@/utils/auth";
 import { isExternal } from "@/utils/validate";
+import modal from "@/plugins/modal";
 
 const props = defineProps({
   modelValue: [String, Object, Array],

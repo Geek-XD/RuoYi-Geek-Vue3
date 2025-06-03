@@ -54,6 +54,8 @@ const methods = computed(() => {
     { label: `邮箱${text}`, value: "email" }
   ]
 });
+
+const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台管理系统');
 </script>
 <template>
   <div class="auth">
@@ -80,7 +82,7 @@ const methods = computed(() => {
         </div>
       </div>
       <div class="container-right" v-if="pageLoaded">
-        <h3 class="title">若依Geek后台管理系统</h3>
+        <h3 class="title">{{ title }}</h3>
         <el-segmented v-model="method" :options="methods" block />
         <div class="container-form">
           <router-view v-slot="{ Component }">

@@ -122,6 +122,25 @@
                      </el-input>
                   </el-form-item>
                </el-col>
+               <el-col :span="12">
+                  <el-form-item label="菜单名称" prop="menuName">
+                     <el-input v-model="form.menuName" placeholder="请输入菜单名称" />
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item prop="routeName">
+                     <el-input v-model="form.routeName" placeholder="请输入路由名称" />
+                     <template #label>
+                        <span>
+                           <el-tooltip content="默认不填则和路由地址相同：如地址为：`user`，则名称为`User`（注意：为避免名字的冲突，特殊情况下请自定义，保证唯一性）"
+                              placement="top">
+                              <el-icon><question-filled /></el-icon>
+                           </el-tooltip>
+                           路由名称
+                        </span>
+                     </template>
+                  </el-form-item>
+               </el-col>
                <el-col :span="12" v-if="form.menuType != 'F'">
                   <el-form-item label="菜单图标" prop="icon">
                      <el-popover placement="bottom-start" :width="540" v-model:visible="showChooseIcon" trigger="click"
@@ -143,15 +162,12 @@
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="菜单名称" prop="menuName">
-                     <el-input v-model="form.menuName" placeholder="请输入菜单名称" />
-                  </el-form-item>
-               </el-col>
-               <el-col :span="12">
                   <el-form-item label="显示排序" prop="orderNum">
                      <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
                   </el-form-item>
                </el-col>
+
+
                <el-col :span="12" v-if="form.menuType != 'F'">
                   <el-form-item>
                      <template #label>
@@ -222,8 +238,9 @@
                         </span>
                      </template>
                      <el-radio-group v-model="form.visible">
-                        <el-radio v-for="dict in sys_show_hide" :key="dict.value" :value="dict.value">{{ dict.label
-                           }}</el-radio>
+                        <el-radio v-for="dict in sys_show_hide" :key="dict.value" :value="dict.value">
+                           {{ dict.label }}
+                        </el-radio>
                      </el-radio-group>
                   </el-form-item>
                </el-col>
@@ -238,8 +255,9 @@
                         </span>
                      </template>
                      <el-radio-group v-model="form.status">
-                        <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label
-                           }}</el-radio>
+                        <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">
+                           {{ dict.label }}
+                        </el-radio>
                      </el-radio-group>
                   </el-form-item>
                </el-col>
@@ -318,6 +336,7 @@ function reset() {
       menuId: undefined,
       parentId: 0,
       menuName: undefined,
+      routeName: undefined,
       icon: undefined,
       menuType: "M",
       orderNum: undefined,
