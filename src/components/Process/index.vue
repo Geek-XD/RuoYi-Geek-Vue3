@@ -27,12 +27,12 @@
             <el-tooltip effect="dark" content="前进" placement="bottom">
               <el-button size="small" icon="Right" @click="modeler.get('commandStack').redo()" />
             </el-tooltip>
-<!--            <el-button size="small" icon="share" @click="processSimulation">-->
-<!--              {{ this.simulationStatus ? '退出模拟' : '开启模拟' }}-->
-<!--            </el-button>-->
-<!--            <el-button size="small" icon="first-aid-kit" @click="handlerIntegrityCheck">-->
-<!--              {{ this.bpmnlintStatus ? '关闭检查' : '开启检查' }}-->
-<!--            </el-button>-->
+            <!--            <el-button size="small" icon="share" @click="processSimulation">-->
+            <!--              {{ this.simulationStatus ? '退出模拟' : '开启模拟' }}-->
+            <!--            </el-button>-->
+            <!--            <el-button size="small" icon="first-aid-kit" @click="handlerIntegrityCheck">-->
+            <!--              {{ this.bpmnlintStatus ? '关闭检查' : '开启检查' }}-->
+            <!--            </el-button>-->
           </el-button-group>
           <el-button-group>
             <el-button size="small" icon="view" @click="showXML">查看xml</el-button>
@@ -44,15 +44,13 @@
         </div>
       </el-header>
       <!-- 流程设计页面 -->
-      <el-container style="align-items: stretch">
+      <el-container style="align-items: stretch; position: relative;">
         <el-main>
           <div ref="canvas" class="canvas" />
         </el-main>
 
         <!--右侧属性栏-->
-        <el-card shadow="never" class="normalPanel">
-          <designer v-if="loadCanvas"></designer>
-        </el-card>
+        <designer v-if="loadCanvas" class="normalPanel"></designer>
       </el-container>
     </el-container>
   </div>
@@ -64,15 +62,15 @@ import customTranslate from './customPanel/customTranslate'
 import Modeler from 'bpmn-js/lib/Modeler'
 import Designer from './designer'
 import getInitStr from './flowable/init'
-import {StrUtil} from '@/utils/StrUtil'
+import { StrUtil } from '@/utils/StrUtil'
 // 引入flowable的节点文件
 import FlowableModule from './flowable/flowable.json'
 import customControlsModule from './customPanel'
 export default {
   name: "BpmnModel",
-  components: {Designer},
+  components: { Designer },
   /** 组件传值  */
-  props : {
+  props: {
     xml: {
       type: String,
       default: ''
@@ -153,8 +151,8 @@ export default {
       // data = data.replace(/<!\[CDATA\[(.+?)]]>/g, '&lt;![CDATA[$1]]&gt;')
       if (StrUtil.isNotBlank(this.modelerStore.modeler)) {
         data = data.replace(/<!\[CDATA\[(.+?)]]>/g, function (match, str) {
-            return str.replace(/</g, '&lt;')
-          }
+          return str.replace(/</g, '&lt;')
+        }
         )
         try {
           await this.modelerStore.modeler.importXML(data)
@@ -212,7 +210,7 @@ export default {
     // 保存xml
     async saveXML(download = false) {
       try {
-        const {xml} = await this.modelerStore.modeler.saveXML({format: true})
+        const { xml } = await this.modelerStore.modeler.saveXML({ format: true })
         if (download) {
           this.downloadFile(`${this.getProcessElement().name}.bpmn20.xml`, xml, 'application/xml')
         }
@@ -235,7 +233,7 @@ export default {
     // 保存流程图为svg
     async saveImg(type = 'svg', download = false) {
       try {
-        const {svg} = await this.modelerStore.modeler.saveSVG({format: true})
+        const { svg } = await this.modelerStore.modeler.saveSVG({ format: true })
         if (download) {
           this.downloadFile(this.getProcessElement().name, svg, 'image/svg+xml')
         }
@@ -250,7 +248,7 @@ export default {
       const process = this.getProcess()
       const xml = await this.saveXML()
       const svg = await this.saveImg()
-      const result = {process, xml, svg}
+      const result = { process, xml, svg }
       this.$emit('save', result)
       window.parent.postMessage(result, '*')
       this.goBack();
@@ -269,7 +267,7 @@ export default {
     // 下载流程文件
     downloadFile(filename, data, type) {
       const a = document.createElement('a');
-      const url = window.URL.createObjectURL(new Blob([data], {type: type}));
+      const url = window.URL.createObjectURL(new Blob([data], { type: type }));
       a.href = url
       a.download = filename
       a.click()
@@ -278,28 +276,43 @@ export default {
 
     /** 关闭当前标签页并返回上个页面 */
     goBack() {
-      const obj = {path: "/flowable/definition", query: {t: Date.now()}};
+      const obj = { path: "/flowable/definition", query: { t: Date.now() } };
       this.$tab.closeOpenPage(obj);
       this.toggleSideBar();
     },
   }
 }
 </script>
-
+<style scoped lang="scss">
+.normalPanel {
+  position: absolute;
+  width: 460px;
+  right: 20px;
+  max-height: 100%;
+}
+</style>
 <style lang="scss">
 /*左边工具栏以及编辑节点的样式*/
 @import "bpmn-js/dist/assets/diagram-js.css";
 @import "bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
 @import "bpmn-js/dist/assets/bpmn-font/css/bpmn-codes.css";
 @import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
-//@import "~bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css";
+
+@import "bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css";
+
 .view-mode {
-  .el-header, .el-aside, .djs-palette, .bjs-powered-by {
+
+  .el-header,
+  .el-aside,
+  .djs-palette,
+  .bjs-powered-by {
     display: none;
   }
+
   .el-loading-mask {
     background-color: initial;
   }
+
   .el-loading-spinner {
     display: none;
   }
@@ -308,25 +321,23 @@ export default {
 .flow-containers {
   width: 100%;
   height: 100%;
+
   .canvas {
     min-height: 850px;
     width: 100%;
     height: 100%;
     background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMTBoNDBNMTAgMHY0ME0wIDIwaDQwTTIwIDB2NDBNMCAzMGg0ME0zMCAwdjQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlMGUwZTAiIG9wYWNpdHk9Ii4yIi8+PHBhdGggZD0iTTQwIDBIMHY0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTBlMGUwIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+")
   }
+
   .panel {
     position: absolute;
     right: 0;
     top: 50px;
     width: 300px;
   }
+
   .load {
     margin-right: 10px;
-  }
-  .normalPanel {
-    width: 460px;
-    height: 100%;
-    padding: 20px 20px;
   }
 
   .el-main {
