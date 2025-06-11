@@ -70,12 +70,12 @@
 
       <el-col :span="12">
         <el-form-item prop="genType">
-          <span #label>
+          <template #label>
             生成代码方式
             <el-tooltip content="默认为zip压缩包下载，也可以自定义生成路径" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
-          </span>
+          </template>
           <el-radio v-model="info.genType" value="0">zip压缩包</el-radio>
           <el-radio v-model="info.genType" value="1">自定义路径</el-radio>
         </el-form-item>
@@ -180,8 +180,8 @@
               </el-tooltip>
             </template>
             <el-select v-model="info.subTableName" placeholder="请选择" @change="subSelectChange">
-              <el-option v-for="(table, index) in tables" :key="index" :label="table.tableName + '：' + table.tableComment"
-                :value="table.tableName"></el-option>
+              <el-option v-for="(table, index) in tables" :key="index"
+                :label="table.tableName + '：' + table.tableComment" :value="table.tableName"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
