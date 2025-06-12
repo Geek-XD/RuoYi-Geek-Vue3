@@ -207,6 +207,7 @@
 
 <script setup>
 import { listMenu } from "@/api/system/menu";
+import { onMounted } from "vue";
 
 const subColumns = ref([]);
 const menuOptions = ref([]);
@@ -266,5 +267,7 @@ watch(() => props.info.tplWebType, val => {
   }
 });
 
-getMenuTreeselect();
+onMounted(() => {
+  getMenuTreeselect();
+});
 </script>

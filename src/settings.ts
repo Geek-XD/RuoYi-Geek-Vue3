@@ -65,7 +65,7 @@ const setting = {
   /**
    * 底部版权文本内容
    */
-  footerContent: 'Copyright © 2018-2025 RuoYi. All Rights Reserved.',
+  footerContent: 'Copyright © 2018-2025 RuoYi-Geek. All Rights Reserved.',
 
   /**
    * @type {string | array} 'production' | ['production', 'development']

@@ -2,7 +2,8 @@
   <el-card>
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" :tables="tables" v-model:joins="joinTablesMate" v-model="tableDict" />
+        <basic-info-form ref="basicInfo" :info="info" :tables="tables" v-model:joins="joinTablesMate"
+          v-model="tableDict" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
         <el-switch v-model="info.haveSubColumn" active-value="1" inactive-value="0" active-text="开启字段关联"
@@ -12,7 +13,7 @@
           <el-table-column fixed label="字段列名" prop="columnName" min-width="10%" :show-overflow-tooltip="true" />
           <el-table-column label="字段描述" min-width="10%">
             <template #default="scope">
-              <el-input v-model="scope.row.columnComment"></el-input>
+              <el-input v-model="scope.row.columnComment" />
             </template>
           </el-table-column>
           <el-table-column label="物理类型" prop="columnType" min-width="10%" :show-overflow-tooltip="true" />
@@ -32,28 +33,27 @@
           </el-table-column>
           <el-table-column label="java属性" min-width="10%">
             <template #default="scope">
-              <el-input v-model="scope.row.javaField"></el-input>
+              <el-input v-model="scope.row.javaField" />
             </template>
           </el-table-column>
-
           <el-table-column label="插入" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isInsert"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isInsert" />
             </template>
           </el-table-column>
           <el-table-column label="编辑" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isEdit"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isEdit" />
             </template>
           </el-table-column>
           <el-table-column label="列表" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isList"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isList" />
             </template>
           </el-table-column>
           <el-table-column label="查询" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isQuery"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isQuery" />
             </template>
           </el-table-column>
           <el-table-column label="查询方式" min-width="10%">
@@ -160,6 +160,10 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <el-tab-pane label="关联表" name="joinTable">
+        <join-table-form ref="joinTable" :info="info" :tables="tables" v-model:joins="joinTablesMate"
+          v-model="tableDict" />
+      </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
         <gen-info-form ref="genInfo" :info="info" :tables="tables" />
       </el-tab-pane>
@@ -178,6 +182,8 @@ import { getGenTable, updateGenTable } from "@/api/tool/gen";
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
 import basicInfoForm from "./basicInfoForm.vue";
 import genInfoForm from "./genInfoForm.vue";
+import joinTableForm from "./joinTableForm.vue";
+import { onMounted } from "vue";
 const route = useRoute();
 const { proxy } = getCurrentInstance();
 
@@ -200,6 +206,17 @@ function setSubTableColumns(value) {
   }
 }
 
+function getFormPromise(form) {
+  return new Promise((resolve, reject) => {
+    form.validate((res, error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+}
 /** 提交按钮 */
 function submitForm() {
   const basicForm = proxy.$refs.basicInfo.$refs.basicInfoForm;
@@ -232,30 +249,20 @@ function submitForm() {
       proxy.$modal.msgError("表单校验未通过，请重新检查提交内容");
     }
   }).catch(error => {
-    for(const errKey in error) {
-      for(const err in error[errKey]) {
+    for (const errKey in error) {
+      for (const err in error[errKey]) {
         proxy.$modal.msgError(error[errKey][err].message);
       }
     }
   });
 }
-function getFormPromise(form) {
-  return new Promise((resolve,reject) => {
-    form.validate((res, error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-}
+
 function close() {
   const obj = { path: "/tool/gen", query: { t: Date.now(), pageNum: route.query.pageNum } };
   proxy.$tab.closeOpenPage(obj);
 }
 
-(() => {
+onMounted(() => {
   const tableId = route.params && route.params.tableId;
   if (tableId) {
     // 获取表详细信息
@@ -270,5 +277,5 @@ function close() {
       dictOptions.value = response.data;
     });
   }
-})();
+})
 </script>
