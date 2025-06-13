@@ -23,12 +23,12 @@ const isWhiteList = (path: string) => {
  */
 export function setupBeforeEachGuard(router: Router): void {
   router.beforeEach((to, from, next) => {
+    let title: string = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title ?? ''
+    useSettingsStore().setTitle(title)
     NProgress.start()
     if (isWhiteList(to.path)) {
       next()
     } else if (getToken()) {
-      let title: string = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
-      title && useSettingsStore().setTitle(title)
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
