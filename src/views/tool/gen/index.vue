@@ -101,8 +101,8 @@
 <script setup name="Gen">
 import { listTable, previewTable, delTable, genCode, synchDb } from "@/api/tool/gen";
 import router from "@/router";
-import importTable from "./importTable";
-import createTable from "./createTable";
+import importTable from "./components/importTable.vue";
+import createTable from "./components/createTable.vue";
 
 const route = useRoute();
 const { proxy } = getCurrentInstance();

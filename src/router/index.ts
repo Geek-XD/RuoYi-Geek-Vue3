@@ -121,9 +121,6 @@ export const constantRoutes: RouteItem[] = [
     component: () => import('@/views/websocket.vue'),
     hidden: true
   },
-
-
-
   {
     path: '/flowable',
     component: Layout,
@@ -241,7 +238,7 @@ export const dynamicRoutes: RouteItem[] = [
     children: [
       {
         path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/editTable.vue'),
+        component: () => import('@/views/tool/gen/edit/index.vue'),
         name: 'GenEdit',
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
