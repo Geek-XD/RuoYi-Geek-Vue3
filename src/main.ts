@@ -7,7 +7,7 @@ import '@/assets/styles/index.scss' // global css
 
 import App from './App.vue'
 import store from './store'
-import { initRouter as router } from './router'
+import router from './router'
 import directive from './directive' // directive
 
 

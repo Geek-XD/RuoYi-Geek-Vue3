@@ -4,10 +4,7 @@ import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
 import { LoginForm, RegisterForm, RoleInfo, UserInfo } from '@/types/user'
 import { ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
-import { set } from 'nprogress'
-import { nextTick } from 'vue'
-import router from '@/router'
+import { router } from '@/router'
 
 const useUserStore = defineStore(
   'user',

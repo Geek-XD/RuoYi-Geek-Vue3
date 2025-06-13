@@ -1,5 +1,5 @@
 import auth from '@/plugins/auth'
-import router from '@/router'
+import { router } from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView/index.vue'

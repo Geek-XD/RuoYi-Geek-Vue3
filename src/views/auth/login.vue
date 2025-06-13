@@ -4,6 +4,7 @@ import useUserStore from '@/store/modules/user'
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { getCodeImg, sendEmailCode, sendPhoneCode } from "@/api/login";
+import { RoutesAlias } from "@/router/routesAlias";
 
 const props = defineProps<{
   register: boolean,
@@ -162,7 +163,7 @@ onMounted(() => {
       </el-button>
       <div class="register-link" v-if="register">
         <span class="question-text">没有账号？</span>
-        <router-link class="link-type" :to="'/auth/register'">立即注册</router-link>
+        <router-link class="link-type" :to="RoutesAlias.Register">立即注册</router-link>
       </div>
     </el-form-item>
   </el-form>

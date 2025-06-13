@@ -10,8 +10,9 @@ import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { isPathMatch } from '@/utils/validate'
+import { RoutesAlias } from '../routesAlias'
 
-const whiteList = ['/auth/login', '/auth/register']
+const whiteList: string[] = [RoutesAlias.Login, RoutesAlias.Register]
 const isWhiteList = (path: string) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
@@ -27,8 +28,8 @@ export function setupBeforeEachGuard(router: Router): void {
       let title: string = typeof to.meta.title === 'function' ? to.meta.title(to) : to.meta.title
       title && useSettingsStore().setTitle(title)
       /* has token*/
-      if (to.path === '/auth/login') {
-        next({ path: '/' })
+      if (to.path === RoutesAlias.Login) {
+        next({ path: RoutesAlias.Home })
         NProgress.done()
       } else if (isWhiteList(to.path)) {
         // 在免登录白名单，直接进入
@@ -51,7 +52,7 @@ export function setupBeforeEachGuard(router: Router): void {
           }).catch(err => {
             useUserStore().logOut().then(() => {
               ElMessage.error(err.message)
-              next({ path: '/' })
+              next({ path: RoutesAlias.Home })
             })
           })
         } else {
@@ -64,7 +65,7 @@ export function setupBeforeEachGuard(router: Router): void {
         // 在免登录白名单，直接进入
         next()
       } else {
-        next(`/auth/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
+        next(`${RoutesAlias.Login}?redirect=${to.fullPath}`) // 否则全部重定向到登录页
         NProgress.done()
       }
     }

@@ -6,7 +6,7 @@ import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import useUserStore from '@/store/modules/user'
-import router from '@/router'
+import { router } from '@/router'
 
 let downloadLoadingInstance: any;
 // 是否显示重新登录

@@ -4,6 +4,7 @@ import { getCodeImg, sendEmailCode, sendPhoneCode } from "@/api/login";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/store/modules/user";
+import { RoutesAlias } from "@/router/routesAlias";
 
 const router = useRouter();
 const userStore = useUserStore()
@@ -63,7 +64,7 @@ function handleRegister() {
           dangerouslyUseHTMLString: true,
           type: "success",
         }).then(() => {
-          router.push("/login");
+          router.push(RoutesAlias.Login);
         }).catch(() => { });
       }).catch(() => {
         getCode();
@@ -165,7 +166,7 @@ onMounted(() => {
       </el-button>
       <div class="login-link">
         <span class="question-text">已有账号？</span>
-        <router-link class="link-type" :to="'/auth/login'">立即登录</router-link>
+        <router-link class="link-type" :to="RoutesAlias.Login">立即登录</router-link>
       </div>
     </el-form-item>
   </el-form>
