@@ -489,7 +489,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../style/process-panel';
+@use '../style/process-panel' as *;
 
 .flow-containers .el-badge__content.is-fixed {
   top: 18px;

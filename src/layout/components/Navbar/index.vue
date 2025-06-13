@@ -12,11 +12,12 @@ import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
-import router from '@/router'
+import { useRouter } from 'vue-router'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
+const router = useRouter()
 
 function handleCommand(command: string) {
   switch (command) {

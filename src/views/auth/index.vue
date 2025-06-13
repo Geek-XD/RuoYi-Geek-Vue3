@@ -99,6 +99,9 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台
   </div>
 </template>
 <style lang='scss' scoped>
+@use 'sass:list';
+@use 'sass:map';
+
 .auth {
   display: flex;
   justify-content: center;
@@ -154,8 +157,8 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台
       (bottom: 10%, right: 40%, w: 45px, h: 45px, delay: 18s, duration: 27s)
     );
 
-  @for $i from 1 through length($shapes) {
-    $shape: nth($shapes, $i);
+  @for $i from 1 through list.length($shapes) {
+    $shape: list.nth($shapes, $i);
 
     &:nth-child(#{$i}) {
       @each $key, $value in $shape {
@@ -164,10 +167,10 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台
         }
       }
 
-      width: map-get($shape, w);
-      height: map-get($shape, h);
-      animation-delay: map-get($shape, delay);
-      animation-duration: map-get($shape, duration);
+      width: map.get($shape, w);
+      height: map.get($shape, h);
+      animation-delay: map.get($shape, delay);
+      animation-duration: map.get($shape, duration);
     }
   }
 }

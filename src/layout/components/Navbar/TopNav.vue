@@ -17,7 +17,7 @@
 * 2. 路由配置中可使用meta.isTopMenu控制菜单行为
 */
 <script setup>
-import { constantRoutes } from "@/router"
+import { constantRoutes } from "@/router/routes/staticRoutes"
 import { isHttp } from '@/utils/validate'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'

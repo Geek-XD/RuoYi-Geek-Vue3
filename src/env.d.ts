@@ -12,7 +12,7 @@ declare module "js-cookie";
 
 declare module "*.vue" {
   import { DefineComponent } from "vue";
-  const component: DefineComponent<{}, {}, any>;
+  const component: DefineComponent<object, object, any>;
   export default component;
 }
 
@@ -23,3 +23,8 @@ declare module '*.glsl' {
 
 declare module 'particles.vue3';
 declare module 'jsencrypt/bin/jsencrypt.min';
+
+declare module '*.mjs' {
+  const value: any;
+  export default value;
+}

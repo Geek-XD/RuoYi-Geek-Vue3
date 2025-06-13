@@ -1,5 +1,5 @@
 import auth from '@/plugins/auth'
-import router, { constantRoutes, dynamicRoutes } from '@/router/index'
+import router from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
@@ -7,6 +7,8 @@ import InnerLink from '@/layout/components/InnerLink/index.vue'
 import { defineStore } from 'pinia'
 import type { Component } from 'vue'
 import { RouteItem } from '@/types/route'
+import { constantRoutes } from '@/router/routes/staticRoutes'
+import { dynamicRoutes } from '@/router/routes/asyncRoutes'
 
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')

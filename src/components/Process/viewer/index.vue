@@ -47,9 +47,9 @@ export default {
   },
   data() {
     return {
-       bpmnViewer: null,
-       flowDetail: {},
-       loading: true,
+      bpmnViewer: null,
+      flowDetail: {},
+      loading: true,
     }
   },
   /** 传值监听 */
@@ -166,11 +166,11 @@ export default {
         }
       })
     }
-    }
+  }
 }
 
 </script>
 
 <style lang="scss">
-@import "../style/flow-viewer.scss";
+@use "../style/flow-viewer.scss" as *;
 </style>

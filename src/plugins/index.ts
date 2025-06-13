@@ -15,7 +15,7 @@ export const socket = Socket
 export const download = Download
 export const cache = Cache
 
-export default function installPlugins(app: App) {
+export default function installPlugins(app: App<Element>) {
   // 页签操作
   app.config.globalProperties.$tab = tab
   // 认证对象

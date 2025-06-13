@@ -5,7 +5,7 @@ import focus from './common/focus'
 import full from './common/full'
 import { App } from 'vue'
 
-export default function directive(app: App) {
+export default function directive(app: App<Element>) {
   app.directive('hasRole', hasRole)
   app.directive('hasPermi', hasPermi)
   app.directive('copyText', copyText)
