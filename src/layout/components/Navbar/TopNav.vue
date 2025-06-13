@@ -22,13 +22,14 @@ import { isHttp } from '@/utils/validate'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
+import { RoutesAlias } from '@/router/routesAlias'
 
 // 顶部栏初始数
 const visibleNumber = ref(null);
 // 当前激活菜单的 index
 const currentIndex = ref(null);
 // 隐藏侧边栏路由
-const hideList = ['/index', '/user/profile'];
+const hideList = [RoutesAlias.Home, '/user/profile'];
 
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()

@@ -13,6 +13,7 @@ import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
 import { useRouter } from 'vue-router'
+import { RoutesAlias } from '@/router/routesAlias'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -39,7 +40,7 @@ function logout() {
     type: 'warning'
   }).then(() => {
     userStore.logOut().then(() => {
-      location.href = router.resolve('/index').href;
+      location.href = router.resolve(RoutesAlias.Home).href;
     })
   }).catch(() => { });
 }

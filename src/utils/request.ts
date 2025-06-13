@@ -14,6 +14,7 @@ export let isRelogin = { show: false };
 //@ts-ignore
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 import { GeekRequestConfig, GeekResponse } from '@/types/request'
+import { RoutesAlias } from '@/router/routesAlias'
 // 创建axios实例
 const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
@@ -67,14 +68,6 @@ service.interceptors.request.use((config) => {
   Promise.reject(error)
 })
 
-type ResponseType = {
-  code: string | number,
-  msg: string,
-  data?: any,
-  rows?: Array<any>,
-  total?: any,
-}
-
 // 响应拦截器
 // (value: V) => V | Promise<V>) | null) | null, options?: AxiosInterceptorOptions
 service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) => {
@@ -92,7 +85,7 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
       ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
         isRelogin.show = false;
         useUserStore().logOut().then(() => {
-          location.href = router.resolve('/index').href;
+          location.href = router.resolve(RoutesAlias.Home).href;
         })
       }).catch(() => {
         isRelogin.show = false;
@@ -143,7 +136,7 @@ export async function download(url: string, params: any, filename: string, confi
       saveAs(blob, filename)
     } else {
       const resText = await data.text()
-      const rspObj: ResponseType = JSON.parse(resText)
+      const rspObj: GeekResponse = JSON.parse(resText)
       const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default']
       ElMessage.error(errMsg)
     }

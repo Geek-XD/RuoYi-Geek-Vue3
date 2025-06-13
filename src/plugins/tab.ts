@@ -1,6 +1,7 @@
 import useTagsViewStore from '@/store/modules/tagsView'
 import { router } from '@/router'
 import { RouteLocationNormalizedLoaded, RouteLocationRaw } from 'vue-router';
+import { RoutesAlias } from '@/router/routesAlias';
 
 export default {
   /**
@@ -46,7 +47,7 @@ export default {
   async closePage(obj: RouteLocationNormalizedLoaded | undefined) {
     if (obj === undefined) {
       const res = await useTagsViewStore().delView(router.currentRoute.value);
-      await router.push(res.lastPath || '/index');
+      await router.push(res.lastPath || RoutesAlias.Home);
       return res;
     }
     return useTagsViewStore().delView(obj);

@@ -8,6 +8,7 @@ import { tab } from '@/plugins'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
 import { RouteLocationNormalizedGeneric, useRoute, useRouter } from 'vue-router'
 import { RouteItem } from '@/types/route'
+import { RoutesAlias } from '@/router/routesAlias'
 
 const visible = ref(false);
 const top = ref(0);
@@ -46,7 +47,7 @@ function isAffix(tag: RouteLocationNormalizedGeneric) {
 }
 function isFirstView() {
   try {
-    return selectedTag.value.fullPath === visitedViews.value[1].fullPath || selectedTag.value.fullPath === '/index'
+    return selectedTag.value.fullPath === visitedViews.value[1].fullPath || selectedTag.value.fullPath === RoutesAlias.Home
   } catch (err) {
     return false
   }

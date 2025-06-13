@@ -13,6 +13,8 @@
 
 <script setup>
 import usePermissionStore from '@/store/modules/permission'
+import { RoutesAlias } from '@/router/routesAlias'
+
 const route = useRoute()
 const router = useRouter();
 const levelList = ref([])
@@ -57,7 +59,7 @@ function getBreadcrumb() {
   }
   // 判断是否为首页
   if (!isDashboard(matched[0])) {
-    matched = [{ path: '/index', meta: { title: '首页' } }].concat(matched)
+    matched = [{ path: RoutesAlias.Home, meta: { title: '首页' } }].concat(matched)
   }
   levelList.value = matched.filter((item) => item.meta && item.meta.title && item.meta.breadcrumb !== false)
 }

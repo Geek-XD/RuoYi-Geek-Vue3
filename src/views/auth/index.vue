@@ -2,8 +2,10 @@
 import { computed, onMounted, ref } from 'vue';
 import { Document, ChatDotRound, User } from '@element-plus/icons-vue';
 import { getConfigKey } from '@/api/system/config';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Oauth from "./oauth.vue";
+import { getToken } from '@/utils/auth';
+import { RoutesAlias } from '@/router/routesAlias';
 // 页面加载状态
 const pageLoaded = ref(false);
 const successCount = ref(0);
@@ -32,6 +34,11 @@ console.log(route);
 
 
 onMounted(async () => {
+  if (getToken()) {
+    useRouter().push(RoutesAlias.Home)
+    return;
+  }
+
   captchaEnabled.value = await getConfigKey("sys.account.captchaEnabled").then(res => res.msg === 'true')
   register.value = await getConfigKey("sys.account.registerUser").then(res => res.msg === 'true')
   // 设置页面加载状态为true，触发动画
@@ -56,6 +63,7 @@ const methods = computed(() => {
 });
 
 const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台管理系统');
+
 </script>
 <template>
   <div class="auth">
