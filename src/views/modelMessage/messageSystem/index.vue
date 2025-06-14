@@ -1,55 +1,65 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="form-container">
-      <el-form-item label="标题" prop="messageTitle">
-        <el-input v-model="queryParams.messageTitle" placeholder="请输入标题" clearable @keyup.enter="handleQuery"/>
-      </el-form-item>
-      <el-form-item label="消息状态" prop="messageStatus">
-        <el-select v-model="queryParams.messageStatus" placeholder="请选择状态" clearable style="width: 190px">
-          <el-option v-for="dict in message_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button> 
-      </el-form-item>
-    </el-form>
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['modelMessage:messageSystem:add']">发送信息</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">批量删除</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-   
-    <el-table v-loading="loading" :data="filteredMessageSystemList" @selection-change="handleSelectionChange" class="table-container">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="标题" align="center" prop="messageTitle" >
-        <template #default="scope">
-        <span @click="openDrawer(scope.row.messageId)" class="message-title" style="cursor: pointer; color: darkcyan;">
-          {{ scope.row.messageTitle }}
-        </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="发件人" align="center" prop="createBy" />
-      <el-table-column label="发件时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="消息状态" align="center" prop="messageStatus">
-        <template #default="scope">
-          <dict-tag :options="message_status" :value="scope.row.messageStatus" />
-        </template>
-      </el-table-column>
-    </el-table>
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px"
+        class="form-container">
+        <el-form-item label="标题" prop="messageTitle">
+          <el-input v-model="queryParams.messageTitle" placeholder="请输入标题" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="消息状态" prop="messageStatus">
+          <el-select v-model="queryParams.messageStatus" placeholder="请选择状态" clearable style="width: 190px">
+            <el-option v-for="dict in message_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd"
+            v-hasPermi="['modelMessage:messageSystem:add']">发送信息</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">批量删除</el-button>
+        </el-col>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <AddMessage ref="sendMessageRef" @success="handleSendSuccess"/>
+      <el-table v-loading="loading" :data="filteredMessageSystemList" @selection-change="handleSelectionChange"
+        class="table-container">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="标题" align="center" prop="messageTitle">
+          <template #default="scope">
+            <span @click="openDrawer(scope.row.messageId)" class="message-title"
+              style="cursor: pointer; color: darkcyan;">
+              {{ scope.row.messageTitle }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="发件人" align="center" prop="createBy" />
+        <el-table-column label="发件时间" align="center" prop="createTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="消息状态" align="center" prop="messageStatus">
+          <template #default="scope">
+            <dict-tag :options="message_status" :value="scope.row.messageStatus" />
+          </template>
+        </el-table-column>
+      </el-table>
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
-    <el-dialog :title="title" v-model="drawerVisible" width="40%" append-to-body :show-overlay="false" class="custom-dialog">
+    <AddMessage ref="sendMessageRef" @success="handleSendSuccess" />
+
+    <el-dialog :title="title" v-model="drawerVisible" width="40%" append-to-body :show-overlay="false"
+      class="custom-dialog">
       <div>
         <el-descriptions :column="1" border class="descriptions">
           <el-descriptions-item label="标题">{{ detailForm.messageTitle }}</el-descriptions-item>
@@ -57,7 +67,8 @@
           <el-descriptions-item label="发送方式">
             <dict-tag :options="send_mode" :value="detailForm.sendMode" />
           </el-descriptions-item>
-          <el-descriptions-item label="发送时间">{{ parseTime(detailForm.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</el-descriptions-item>
+          <el-descriptions-item label="发送时间">{{ parseTime(detailForm.createTime, '{y}-{m}-{d} {h}:{i}:{s}')
+          }}</el-descriptions-item>
           <el-descriptions-item label="消息内容">{{ detailForm.messageContent }}</el-descriptions-item>
           <el-descriptions-item label="收件人">{{ detailForm.messageRecipient }}</el-descriptions-item>
           <el-descriptions-item label="消息类型">
@@ -156,9 +167,9 @@ function handleSendSuccess() {
 function openDrawer(messageId) {
   getMessageSystem(messageId).then(response => {
     detailForm.value = response.data;
-    title.value ='信息详情';
+    title.value = '信息详情';
     drawerVisible.value = true;
-    getUpdate(messageId).then(response => {});
+    getUpdate(messageId).then(response => { });
   });
 }
 
@@ -174,13 +185,6 @@ getList();
 </script>
 
 <style scoped>
-.app-container {
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
 .el-button {
   transition: all 0.3s ease-in-out;
 }
@@ -205,29 +209,6 @@ getList();
 .el-textarea__inner:focus {
   border-color: #409eff;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(64, 158, 255, 0.5);
-}
-
-.el-table {
-  border: 1px solid #ebeef5;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.el-table .el-table__header-wrapper {
-  background-color: #409eff;
-  color: #ffffff;
-}
-
-.el-table .cell {
-  padding: 10px;
-  border-bottom: 1px solid #ebeef5;
-  transition: background-color 0.3s ease;
-}
-
-.el-table .cell:hover {
-  background-color: #f0f4ff;
 }
 
 .el-dialog {

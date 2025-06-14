@@ -1,67 +1,71 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
-      </el-form-item>
-      <el-form-item label="监听类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择监听类型" clearable>
-          <el-option v-for="dict in sys_listener_type" :key="dict.value" :label="dict.label" :value="dict.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
+        </el-form-item>
+        <el-form-item label="监听类型" prop="type">
+          <el-select v-model="queryParams.type" placeholder="请选择监听类型" clearable>
+            <el-option v-for="dict in sys_listener_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+          <el-button icon="refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="plus" size="small" @click="handleAdd"
-          v-hasPermi="['system:listener:add']">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="edit" size="small" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['system:listener:edit']">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="delete" size="small" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['system:listener:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="download" size="small" @click="handleExport"
-          v-hasPermi="['system:listener:export']">导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="listenerList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="名称" align="center" prop="name" />
-      <el-table-column label="监听类型" align="center" prop="type">
-        <template v-slot="scope">
-          <dict-tag :options="sys_listener_type" :value="scope.row.type" />
-        </template>
-      </el-table-column>
-      <el-table-column label="事件类型" align="center" prop="eventType" />
-      <el-table-column label="值类型" align="center" prop="valueType">
-        <template v-slot="scope">
-          <dict-tag :options="sys_listener_value_type" :value="scope.row.valueType" />
-        </template>
-      </el-table-column>
-      <el-table-column label="执行内容" align="center" prop="value" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template v-slot="scope">
-          <el-button link type="primary" icon="edit" @click="handleUpdate(scope.row)"
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="plus" @click="handleAdd"
+            v-hasPermi="['system:listener:add']">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="edit" :disabled="single" @click="handleUpdate"
             v-hasPermi="['system:listener:edit']">修改</el-button>
-          <el-button link type="primary" icon="delete" @click="handleDelete(scope.row)"
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['system:listener:remove']">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="download" @click="handleExport"
+            v-hasPermi="['system:listener:export']">导出</el-button>
+        </el-col>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-      @pagination="getList" />
+      <el-table v-loading="loading" :data="listenerList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="名称" align="center" prop="name" />
+        <el-table-column label="监听类型" align="center" prop="type">
+          <template v-slot="scope">
+            <dict-tag :options="sys_listener_type" :value="scope.row.type" />
+          </template>
+        </el-table-column>
+        <el-table-column label="事件类型" align="center" prop="eventType" />
+        <el-table-column label="值类型" align="center" prop="valueType">
+          <template v-slot="scope">
+            <dict-tag :options="sys_listener_value_type" :value="scope.row.valueType" />
+          </template>
+        </el-table-column>
+        <el-table-column label="执行内容" align="center" prop="value" />
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template v-slot="scope">
+            <el-button link type="primary" icon="edit" @click="handleUpdate(scope.row)"
+              v-hasPermi="['system:listener:edit']">修改</el-button>
+            <el-button link type="primary" icon="delete" @click="handleDelete(scope.row)"
+              v-hasPermi="['system:listener:remove']">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+        @pagination="getList" />
+    </el-card>
 
     <!-- 添加或修改流程监听对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>

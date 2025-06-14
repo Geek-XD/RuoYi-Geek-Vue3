@@ -1,61 +1,66 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable size="small"
-          @keyup.enter.native="handleQuery" />
-      </el-form-item>
-      <el-form-item label="开始时间" prop="deployTime">
-        <el-date-picker clearable size="small" v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
-          placeholder="选择时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
+        </el-form-item>
+        <el-form-item label="开始时间" prop="deployTime">
+          <el-date-picker clearable v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
+            placeholder="选择时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+          <el-button icon="refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="delete" size="small" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['system:deployment:remove']">删除
-        </el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
+            v-hasPermi="['system:deployment:remove']">删除
+          </el-button>
+        </el-col>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <el-table v-loading="loading" :data="todoList" border @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="任务编号" align="center" prop="taskId" :show-overflow-tooltip="true" />
-      <el-table-column label="流程名称" align="center" prop="procDefName" />
-      <el-table-column label="当前节点" align="center" prop="taskName" />
-      <el-table-column label="流程版本" align="center">
-        <template v-slot="scope">
-          <el-tag size="default">v{{ scope.row.procDefVersion }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="流程发起人" align="center">
-        <template v-slot="scope">
-          <label>{{ scope.row.startUserName }} <el-tag type="info" size="small">{{ scope.row.startDeptName
-          }}</el-tag></label>
-        </template>
-      </el-table-column>
-      <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template v-slot="scope">
-          <el-button type="primary" link icon="edit" @click="handleProcess(scope.row)">处理</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+      <el-table v-loading="loading" :data="todoList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="任务编号" align="center" prop="taskId" :show-overflow-tooltip="true" />
+        <el-table-column label="流程名称" align="center" prop="procDefName" />
+        <el-table-column label="当前节点" align="center" prop="taskName" />
+        <el-table-column label="流程版本" align="center">
+          <template v-slot="scope">
+            <el-tag size="default">v{{ scope.row.procDefVersion }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="流程发起人" align="center">
+          <template v-slot="scope">
+            <label>
+              <span>{{ scope.row.startUserName }}</span>
+              <el-tag type="info">{{ scope.row.startDeptName }}</el-tag>
+            </label>
+          </template>
+        </el-table-column>
+        <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template v-slot="scope">
+            <el-button type="primary" link icon="edit" @click="handleProcess(scope.row)">处理</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-      @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+        @pagination="getList" />
+    </el-card>
   </div>
 </template>
 
 <script>
-import { todoList, complete, returnList, returnTask, rejectTask, delDeployment } from "@/api/flowable/todo";
+import { todoList, delDeployment } from "@/api/flowable/todo";
 
 export default {
   name: "Deploy",

@@ -1,93 +1,96 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入名称" clearable size="small"
-          @keyup.enter.native="handleQuery" />
-      </el-form-item>
-      <el-form-item label="开始时间" prop="deployTime">
-        <el-date-picker clearable size="small" v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
-          placeholder="选择时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
+        </el-form-item>
+        <el-form-item label="开始时间" prop="deployTime">
+          <el-date-picker clearable v-model="queryParams.deployTime" type="date" value-format="yyyy-MM-dd"
+            placeholder="选择时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+          <el-button icon="refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <!-- <el-col :span="1.5">
-        <el-button type="primary" plain icon="upload" size="small" @click="handleImport">导入</el-button>
-      </el-col> -->
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="plus" size="small" @click="handleLoadXml">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="delete" size="small" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['system:deployment:remove']">删除</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-    <el-alert title="流程设计说明" type="success">
-      <template #title>
-        <p>流程设计说明:</p>
-        <div>1、XML文件中的流程定义id属性用作流程定义的key参数。</div>
-        <div>2、XML文件中的流程定义name属性用作流程定义的name参数。如果未给定name属性，会使用id作为name。</div>
-        <div>3、当每个唯一key的流程第一次部署时，指定版本为1。对其后所有使用相同key的流程定义，部署时版本会在该key当前已部署的最高版本号基础上加1。key参数用于区分流程定义。</div>
-        <div>
-          4、id参数设置为{processDefinitionKey}:{processDefinitionVersion}:{generated-id}，其中generated-id是一个唯一数字，用以保证在集群环境下，流程定义缓存中，流程id的唯一性。
-        </div>
-      </template>
-    </el-alert>
-    <el-table v-loading="loading" fit :data="definitionList" border @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="流程编号" align="center" prop="deploymentId" :show-overflow-tooltip="true" />
-      <el-table-column label="流程标识" align="center" prop="flowKey" :show-overflow-tooltip="true" />
-      <el-table-column label="流程分类" align="center" prop="category" />
-      <el-table-column label="流程名称" align="center" width="120" :show-overflow-tooltip="true">
-        <template v-slot="scope">
-          <el-button link type="primary" @click="handleReadImage(scope.row.deploymentId)">
-            <span>{{ scope.row.name }}</span>
-          </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column label="业务表单" align="center" :show-overflow-tooltip="true">
-        <template v-slot="scope">
-          <el-button link v-if="scope.row.formId" type="primary" @click="handleForm(scope.row.formId)">
-            <span>{{ scope.row.formName }}</span>
-          </el-button>
-          <label v-else>暂无表单</label>
-        </template>
-      </el-table-column>
-      <el-table-column label="流程版本" align="center">
-        <template v-slot="scope">
-          <el-tag size="default">v{{ scope.row.version }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" align="center" width="150">
-        <template v-slot="scope">
-          <el-tag type="success" v-if="scope.row.suspensionState === 1">激活</el-tag>
-          <el-tag type="warning" v-if="scope.row.suspensionState === 2">挂起</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="部署时间" align="center" prop="deploymentTime" width="180" />
-      <el-table-column label="操作" align="center" width="350" fixed="right" class-name="small-padding fixed-width">
-        <template v-slot="scope">
-          <el-button link @click="handleLoadXml(scope.row)" icon="edit" type="primary">设计</el-button>
-          <el-button link @click="handleAddForm(scope.row)" icon="promotion" type="primary">配置主表单</el-button>
-          <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-pause" type="warning"
-            v-if="scope.row.suspensionState === 1">挂起</el-button>
-          <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-play" type="success"
-            v-if="scope.row.suspensionState === 2">激活</el-button>
-          <el-button link @click="handleDelete(scope.row)" icon="delete" type="danger"
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="upload" @click="handleImport">导入</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="plus" @click="handleLoadXml">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['system:deployment:remove']">删除</el-button>
+        </el-col>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
+      <el-alert title="流程设计说明" type="success">
+        <template #title>
+          <p>流程设计说明:</p>
+          <div>1、XML文件中的流程定义id属性用作流程定义的key参数。</div>
+          <div>2、XML文件中的流程定义name属性用作流程定义的name参数。如果未给定name属性，会使用id作为name。</div>
+          <div>3、当每个唯一key的流程第一次部署时，指定版本为1。对其后所有使用相同key的流程定义，部署时版本会在该key当前已部署的最高版本号基础上加1。key参数用于区分流程定义。</div>
+          <div>
+            4、id参数设置为{processDefinitionKey}:{processDefinitionVersion}:{generated-id}，其中generated-id是一个唯一数字，用以保证在集群环境下，流程定义缓存中，流程id的唯一性。
+          </div>
         </template>
-      </el-table-column>
-    </el-table>
+      </el-alert>
+      <el-table v-loading="loading" fit :data="definitionList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="流程编号" align="center" prop="deploymentId" :show-overflow-tooltip="true" />
+        <el-table-column label="流程标识" align="center" prop="flowKey" :show-overflow-tooltip="true" />
+        <el-table-column label="流程分类" align="center" prop="category" />
+        <el-table-column label="流程名称" align="center" width="120" :show-overflow-tooltip="true">
+          <template v-slot="scope">
+            <el-button link type="primary" @click="handleReadImage(scope.row.deploymentId)">
+              <span>{{ scope.row.name }}</span>
+            </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="业务表单" align="center" :show-overflow-tooltip="true">
+          <template v-slot="scope">
+            <el-button link v-if="scope.row.formId" type="primary" @click="handleForm(scope.row.formId)">
+              <span>{{ scope.row.formName }}</span>
+            </el-button>
+            <label v-else>暂无表单</label>
+          </template>
+        </el-table-column>
+        <el-table-column label="流程版本" align="center">
+          <template v-slot="scope">
+            <el-tag size="default">v{{ scope.row.version }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" align="center" width="150">
+          <template v-slot="scope">
+            <el-tag type="success" v-if="scope.row.suspensionState === 1">激活</el-tag>
+            <el-tag type="warning" v-if="scope.row.suspensionState === 2">挂起</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="部署时间" align="center" prop="deploymentTime" width="180" />
+        <el-table-column label="操作" align="center" width="350" fixed="right" class-name="small-padding fixed-width">
+          <template v-slot="scope">
+            <el-button link @click="handleLoadXml(scope.row)" icon="edit" type="primary">设计</el-button>
+            <el-button link @click="handleAddForm(scope.row)" icon="promotion" type="primary">配置主表单</el-button>
+            <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-pause" type="warning"
+              v-if="scope.row.suspensionState === 1">挂起</el-button>
+            <el-button link @click="handleUpdateSuspensionState(scope.row)" icon="video-play" type="success"
+              v-if="scope.row.suspensionState === 2">激活</el-button>
+            <el-button link @click="handleDelete(scope.row)" icon="delete" type="danger"
+              v-hasPermi="['system:deployment:remove']">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-      @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+        @pagination="getList" />
+    </el-card>
 
     <!-- bpmn20.xml导入对话框 -->
     <el-dialog :title="upload.title" v-model="upload.open" width="400px" append-to-body>

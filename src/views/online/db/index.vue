@@ -21,7 +21,7 @@ function collapseChange(name) {
         columns[name] = res.rows
     })
 }
-function expandChange(row, expandedRows){
+function expandChange(row, expandedRows) {
     collapseChange(row.TABLE_NAME)
 }
 getList()
@@ -29,23 +29,25 @@ getList()
 
 <template>
     <div class="app-container">
-        <el-table :data="tables" border style="width: 100%" @expand-change="expandChange">
-            <el-table-column type="expand">
-                <template #default="props">
-                    <el-table :data="columns[props.row.TABLE_NAME]" border height="300">
-                        <el-table-column label="COLUMN_NAME" prop="COLUMN_NAME" />
-                        <el-table-column label="COLUMN_TYPE" prop="COLUMN_TYPE" />
-                        <el-table-column label="COLUMN_COMMENT" prop="COLUMN_COMMENT" />
-                    </el-table>
-                </template>
-            </el-table-column>
-            <el-table-column label="TABLE_NAME" prop="TABLE_NAME" />
-            <el-table-column label="TABLE_COLLATION" prop="TABLE_COLLATION" />
-            <el-table-column label="TABLE_COMMENT" prop="TABLE_COMMENT" />
-            <el-table-column label="CREATE_TIME" prop="CREATE_TIME" />
-            <el-table-column label="UPDATE_TIME" prop="UPDATE_TIME" />
-        </el-table>
-        <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-            v-model:limit="queryParams.pageSize" @pagination="getList" />
+        <el-card shadow="never">
+            <el-table :data="tables" border style="width: 100%" @expand-change="expandChange">
+                <el-table-column type="expand">
+                    <template #default="props">
+                        <el-table :data="columns[props.row.TABLE_NAME]" border height="300">
+                            <el-table-column label="COLUMN_NAME" prop="COLUMN_NAME" />
+                            <el-table-column label="COLUMN_TYPE" prop="COLUMN_TYPE" />
+                            <el-table-column label="COLUMN_COMMENT" prop="COLUMN_COMMENT" />
+                        </el-table>
+                    </template>
+                </el-table-column>
+                <el-table-column label="TABLE_NAME" prop="TABLE_NAME" />
+                <el-table-column label="TABLE_COLLATION" prop="TABLE_COLLATION" />
+                <el-table-column label="TABLE_COMMENT" prop="TABLE_COMMENT" />
+                <el-table-column label="CREATE_TIME" prop="CREATE_TIME" />
+                <el-table-column label="UPDATE_TIME" prop="UPDATE_TIME" />
+            </el-table>
+            <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+                v-model:limit="queryParams.pageSize" @pagination="getList" />
+        </el-card>
     </div>
 </template>

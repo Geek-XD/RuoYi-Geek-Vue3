@@ -1,140 +1,88 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
-      <el-form-item label="订单号" prop="orderNumber">
-        <el-input
-          v-model="queryParams.orderNumber"
-          placeholder="请输入订单号"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发票抬头" prop="invoiceHeader">
-        <el-input
-          v-model="queryParams.invoiceHeader"
-          placeholder="请输入发票抬头"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="纳税人识别号" prop="invoiceNumber">
-        <el-input
-          v-model="queryParams.invoiceNumber"
-          placeholder="请输入纳税人识别号"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="收票人手机号" prop="invoicePhone">
-        <el-input
-          v-model="queryParams.invoicePhone"
-          placeholder="请输入收票人手机号"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="收票人邮箱" prop="invoiceEmail">
-        <el-input
-          v-model="queryParams.invoiceEmail"
-          placeholder="请输入收票人邮箱"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发票备注" prop="invoiceRemark">
-        <el-input
-          v-model="queryParams.invoiceRemark"
-          placeholder="请输入发票备注"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+        <el-form-item label="订单号" prop="orderNumber">
+          <el-input v-model="queryParams.orderNumber" placeholder="请输入订单号" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="发票抬头" prop="invoiceHeader">
+          <el-input v-model="queryParams.invoiceHeader" placeholder="请输入发票抬头" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="纳税人识别号" prop="invoiceNumber">
+          <el-input v-model="queryParams.invoiceNumber" placeholder="请输入纳税人识别号" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="收票人手机号" prop="invoicePhone">
+          <el-input v-model="queryParams.invoicePhone" placeholder="请输入收票人手机号" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="收票人邮箱" prop="invoiceEmail">
+          <el-input v-model="queryParams.invoiceEmail" placeholder="请输入收票人邮箱" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item label="发票备注" prop="invoiceRemark">
+          <el-input v-model="queryParams.invoiceRemark" placeholder="请输入发票备注" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['pay:invoice:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['pay:invoice:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['pay:invoice:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['pay:invoice:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['pay:invoice:add']">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+            v-hasPermi="['pay:invoice:edit']">修改</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+            v-hasPermi="['pay:invoice:remove']">删除</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="Download" @click="handleExport"
+            v-hasPermi="['pay:invoice:export']">导出</el-button>
+        </el-col>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <el-table v-loading="loading" :data="invoiceList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="发票id" align="center" prop="invoiceId" />
-      <el-table-column label="订单号" align="center" prop="orderNumber" />
-      <el-table-column label="发票类型" align="center" prop="invoiceType" />
-      <el-table-column label="发票抬头" align="center" prop="invoiceHeader" />
-      <el-table-column label="纳税人识别号" align="center" prop="invoiceNumber" />
-      <el-table-column label="收票人手机号" align="center" prop="invoicePhone" />
-      <el-table-column label="收票人邮箱" align="center" prop="invoiceEmail" />
-      <el-table-column label="发票备注" align="center" prop="invoiceRemark" />
-      <el-table-column label="创建者" align="center" prop="createBy" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新者" align="center" prop="updateBy" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['pay:invoice:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['pay:invoice:remove']">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+      <el-table v-loading="loading" :data="invoiceList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="发票id" align="center" prop="invoiceId" />
+        <el-table-column label="订单号" align="center" prop="orderNumber" />
+        <el-table-column label="发票类型" align="center" prop="invoiceType" />
+        <el-table-column label="发票抬头" align="center" prop="invoiceHeader" />
+        <el-table-column label="纳税人识别号" align="center" prop="invoiceNumber" />
+        <el-table-column label="收票人手机号" align="center" prop="invoicePhone" />
+        <el-table-column label="收票人邮箱" align="center" prop="invoiceEmail" />
+        <el-table-column label="发票备注" align="center" prop="invoiceRemark" />
+        <el-table-column label="创建者" align="center" prop="createBy" />
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新者" align="center" prop="updateBy" />
+        <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" align="center" prop="remark" />
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template #default="scope">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+              v-hasPermi="['pay:invoice:edit']">修改</el-button>
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+              v-hasPermi="['pay:invoice:remove']">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
     <!-- 添加或修改发票对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -144,13 +92,8 @@
         </el-form-item>
         <el-form-item label="发票类型" prop="invoiceType">
           <el-select v-model="form.invoiceType" multiple filterable remote reserve-keyword remote-show-suffix
-            placeholder="请选择发票类型"
-            :remote-method="remoteMethodInvoiceType"
-            :loading="loadingInvoiceType"
-          >
-            <el-option v-for="item in optionsInvoiceType" :key="item.value"
-              :label="item.label" :value="item.value"
-            />
+            placeholder="请选择发票类型" :remote-method="remoteMethodInvoiceType" :loading="loadingInvoiceType">
+            <el-option v-for="item in optionsInvoiceType" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="发票抬头" prop="invoiceHeader">
@@ -313,12 +256,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _invoiceIds = row.invoiceId || ids.value;
-  proxy.$modal.confirm('是否确认删除发票编号为"' + _invoiceIds + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除发票编号为"' + _invoiceIds + '"的数据项？').then(function () {
     return delInvoice(_invoiceIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 

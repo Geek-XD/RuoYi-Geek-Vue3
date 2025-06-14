@@ -1,70 +1,74 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="订单号" prop="orderNumber">
-        <el-input v-model="queryParams.orderNumber" placeholder="请输入订单号" clearable @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="订单号" prop="orderNumber">
+          <el-input v-model="queryParams.orderNumber" placeholder="请输入订单号" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['pay:order:add']">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['pay:order:edit']">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['pay:order:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['pay:order:export']">导出</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
-      <el-table-column label="订单ID" align="center" prop="orderId" />
-      <el-table-column label="订单号" align="center" prop="orderNumber" />
-      <el-table-column label="第三方订单号" align="center" prop="thirdNumber" />
-      <el-table-column label="订单状态" align="center" prop="orderStatus" />
-      <el-table-column label="订单总金额" align="center" prop="totalAmount" />
-      <el-table-column label="实际金额" align="center" prop="actualAmount" />
-      <el-table-column label="创建者" align="center" prop="createBy" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="支付方式" align="center" prop="payType" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['pay:order:add']">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
             v-hasPermi="['pay:order:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['pay:order:remove']">删除</el-button>
-          <el-button link type="warning" icon="RefreshLeft" @click="handleRefund(scope.row)"
-            v-hasPermi="['pay:order:refund']">退款</el-button>
-          <el-button link type="info" icon="Refresh" @click="handleUpdateStatus(scope.row)"
-            v-hasPermi="['pay:order:updateStatus']">更新状态</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="Download" @click="handleExport"
+            v-hasPermi="['pay:order:export']">导出</el-button>
+        </el-col>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
+        <el-table-column label="订单ID" align="center" prop="orderId" />
+        <el-table-column label="订单号" align="center" prop="orderNumber" />
+        <el-table-column label="第三方订单号" align="center" prop="thirdNumber" />
+        <el-table-column label="订单状态" align="center" prop="orderStatus" />
+        <el-table-column label="订单总金额" align="center" prop="totalAmount" />
+        <el-table-column label="实际金额" align="center" prop="actualAmount" />
+        <el-table-column label="创建者" align="center" prop="createBy" />
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" align="center" prop="remark" />
+        <el-table-column label="支付方式" align="center" prop="payType" />
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template #default="scope">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+              v-hasPermi="['pay:order:edit']">修改</el-button>
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+              v-hasPermi="['pay:order:remove']">删除</el-button>
+            <el-button link type="warning" icon="RefreshLeft" @click="handleRefund(scope.row)"
+              v-hasPermi="['pay:order:refund']">退款</el-button>
+            <el-button link type="info" icon="Refresh" @click="handleUpdateStatus(scope.row)"
+              v-hasPermi="['pay:order:updateStatus']">更新状态</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
     <!-- 添加或修改订单对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>

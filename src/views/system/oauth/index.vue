@@ -1,85 +1,58 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
-      <el-form-item label="第三方用户来源" prop="source">
-        <el-input
-          v-model="queryParams.source"
-          placeholder="请输入第三方用户来源"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+        <el-form-item label="第三方用户来源" prop="source">
+          <el-input v-model="queryParams.source" placeholder="请输入第三方用户来源" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd"
+            v-hasPermi="['system:oauth:add']">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+            v-hasPermi="['system:oauth:edit']">修改</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+            v-hasPermi="['system:oauth:remove']">删除</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="Download" @click="handleExport"
+            v-hasPermi="['system:oauth:export']">导出</el-button>
+        </el-col>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['system:oauth:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:oauth:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:oauth:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['system:oauth:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+      <el-table v-loading="loading" :data="oauthList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="主键" align="center" prop="id" />
+        <el-table-column label="第三方系统的唯一ID" align="center" prop="uuid" />
+        <el-table-column label="用户ID" align="center" prop="userId" />
+        <el-table-column label="第三方用户来源" align="center" prop="source" />
+        <el-table-column label="用户的授权令牌" align="center" prop="accessToken" />
+        <el-table-column label="第三方用户的授权令牌的有效期" align="center" prop="expireIn" />
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template #default="scope">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+              v-hasPermi="['system:oauth:edit']">修改</el-button>
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+              v-hasPermi="['system:oauth:remove']">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <el-table v-loading="loading" :data="oauthList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="第三方系统的唯一ID" align="center" prop="uuid" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="第三方用户来源" align="center" prop="source" />
-      <el-table-column label="用户的授权令牌" align="center" prop="accessToken" />
-      <el-table-column label="第三方用户的授权令牌的有效期" align="center" prop="expireIn" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:oauth:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:oauth:remove']">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
     <!-- 添加或修改第三方认证对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -119,13 +92,8 @@
         </el-form-item>
         <el-form-item label="个别平台的授权信息，部分平台可能没有" prop="tokenType">
           <el-select v-model="form.tokenType" multiple filterable remote reserve-keyword remote-show-suffix
-            placeholder="请选择个别平台的授权信息，部分平台可能没有"
-            :remote-method="remoteMethodTokenType"
-            :loading="loadingTokenType"
-          >
-            <el-option v-for="item in optionsTokenType" :key="item.value"
-              :label="item.label" :value="item.value"
-            />
+            placeholder="请选择个别平台的授权信息，部分平台可能没有" :remote-method="remoteMethodTokenType" :loading="loadingTokenType">
+            <el-option v-for="item in optionsTokenType" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="id token，部分平台可能没有" prop="idToken">
@@ -317,12 +285,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除第三方认证编号为"' + _ids + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除第三方认证编号为"' + _ids + '"的数据项？').then(function () {
     return delOauth(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 

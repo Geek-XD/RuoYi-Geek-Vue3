@@ -1,63 +1,67 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
-      <el-form-item label="原始文件名" prop="fileName">
-        <el-input v-model="queryParams.fileName" placeholder="请输入原始文件名" clearable @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+        <el-form-item label="原始文件名" prop="fileName">
+          <el-input v-model="queryParams.fileName" placeholder="请输入原始文件名" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['file:info:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['file:info:export']">导出</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
-      </el-col>
-      <!-- 移除原 el-upload 默认上传按钮，统一用弹窗上传 -->
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="infoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件主键" align="center" prop="fileId" />
-      <el-table-column label="原始文件名" align="center" prop="fileName" />
-      <el-table-column label="统一逻辑路径" align="center" prop="filePath" />
-      <el-table-column label="存储类型" align="center" prop="storageType" />
-      <el-table-column label="文件类型/后缀" align="center" prop="fileType" />
-      <el-table-column label="文件大小" align="center" prop="fileSize" />
-      <el-table-column label="文件MD5" align="center" prop="md5" />
-      <el-table-column label="预览" align="center">
-        <template #default="scope">
-          <template v-if="isImage(scope.row.fileType)">
-            <ImagePreview :src="getFileUrl(scope.row)" width="60" height="60" />
-          </template>
-          <template v-else>
-            <el-button link type="primary" @click="handleDownload(scope.row)">
-              {{ scope.row.fileName }}
-            </el-button>
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10">
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['file:info:remove']">删除</el-button>
-          <el-button link type="primary" icon="Download" @click="handleDownload(scope.row)">下载</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="Download" @click="handleExport"
+            v-hasPermi="['file:info:export']">导出</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
+        </el-col>
+        <!-- 移除原 el-upload 默认上传按钮，统一用弹窗上传 -->
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <el-table v-loading="loading" :data="infoList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="文件主键" align="center" prop="fileId" />
+        <el-table-column label="原始文件名" align="center" prop="fileName" />
+        <el-table-column label="统一逻辑路径" align="center" prop="filePath" />
+        <el-table-column label="存储类型" align="center" prop="storageType" />
+        <el-table-column label="文件类型/后缀" align="center" prop="fileType" />
+        <el-table-column label="文件大小" align="center" prop="fileSize" />
+        <el-table-column label="文件MD5" align="center" prop="md5" />
+        <el-table-column label="预览" align="center">
+          <template #default="scope">
+            <template v-if="isImage(scope.row.fileType)">
+              <ImagePreview :src="getFileUrl(scope.row)" width="60" height="60" />
+            </template>
+            <template v-else>
+              <el-button link type="primary" @click="handleDownload(scope.row)">
+                {{ scope.row.fileName }}
+              </el-button>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template #default="scope">
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+              v-hasPermi="['file:info:remove']">删除</el-button>
+            <el-button link type="primary" icon="Download" @click="handleDownload(scope.row)">下载</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
     <el-dialog v-model="openUploadDialog" title="上传文件" width="600px" append-to-body>
       <el-form :model="uploadForm" label-width="80px">
