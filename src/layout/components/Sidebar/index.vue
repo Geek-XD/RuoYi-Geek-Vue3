@@ -30,7 +30,7 @@ const activeMenu = computed(() => {
 
 </script>
 <template>
-  <div :class="{ 'has-logo': showLogo }" :style="{
+  <div :class="{ 'has-logo': showLogo }" class="sidebar-container" :style="{
     backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground
   }">
     <logo v-if="showLogo" :collapse="isCollapse" />

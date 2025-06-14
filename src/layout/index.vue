@@ -47,7 +47,7 @@ function setLayout() {
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
     <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="handleClickOutside" />
     <!-- 侧边栏 -->
-    <sidebar v-if="!sidebarOption.hide" class="sidebar-container" />
+    <sidebar v-if="!sidebarOption.hide" />
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <!-- 导航栏/面包屑 -->
@@ -99,7 +99,7 @@ function setLayout() {
 }
 
 .hideSidebar .fixed-header {
-  width: calc(100% - 54px);
+  width: calc(100% - variables.$hide-sidebar-width);
 }
 
 .sidebarHide .fixed-header {

@@ -1,64 +1,3 @@
-import { tansParams } from "./ruoyi";
-
-/**
- * 通配符比较
- * @param {*} str 待比较的字符串
- * @param {*} pattern 含有*或者?通配符的字符串
- * @returns
- */
-export function wildcardCompare(str: string, pattern: string): boolean {
-  const regex = pattern.replace(/[*?]/g, (match) => {
-    if (match === "*") {
-      return ".*";
-    } else if (match === "?") {
-      return ".";
-    } else {
-      return match;
-    }
-  });
-  const regexPattern = new RegExp("^" + regex + "$");
-  return regexPattern.test(str);
-}
-
-/**
- * 深度复制
- * @param obj 待复制的对象
- * @returns 复制的对象
- */
-export function deepClone(obj: any) {
-  if (obj == null || typeof obj !== "object") {
-    return obj;
-  }
-  let result;
-  if (Array.isArray(obj)) {
-    result = [];
-  } else {
-    result = new Map();
-  }
-  for (let [key, value] of Object.entries(obj)) {
-    // @ts-ignore
-    result[key] = deepClone(value);
-  }
-  return result;
-}
-
-/**
- * 深度复制
- * @param obj 待复制的对象
- * @param result 要复制到的对象
- * @returns 复制的对象
- */
-export function deepCloneTo<T>(obj: T, result: T) {
-  if (obj == null || typeof obj !== "object") {
-    return obj;
-  }
-  for (let [key, value] of Object.entries(obj)) {
-    // @ts-ignore
-    result[key] = deepClone(value);
-  }
-  return result;
-}
-
 /**
  * 获取uuid
  * @returns 生成的uuid字符串
@@ -78,55 +17,6 @@ export function generateUUID(): string {
 }
 
 /**
- * 获取code
- * @returns 生成的code字符串
- */
-export async function getCode() {
-  // #ifdef H5
-  let appid = "wx98501e665b0f0596";
-  let url = "http://localhost:3002/index.html";
-  let code = "";
-
-  // 截取url中的code方法
-  function getUrlCode() {
-    let url = location.search;
-    let theRequest: any = new Object();
-    if (url.indexOf("?") != -1) {
-      let str = url.substr(1);
-      let strs = str.split("&");
-      for (let i = 0; i < strs.length; i++) {
-        theRequest[strs[i].split("=")[0]] = strs[i].split("=")[1];
-      }
-    }
-    return theRequest as { code: string };
-  }
-
-  code = getUrlCode().code; // 截取code
-  if (code == undefined || code == "" || code == null) {
-    // 如果没有code，则去请求
-    window.location.href =
-      "https://open.weixin.qq.com/connect/oauth2/authorize?" +
-      tansParams({
-        appid: appid,
-        redirect_uri: url,
-        response_type: "code",
-        scope: "snsapi_userinfo",
-        state: "STATE",
-      }) +
-      "#wechat_redirect";
-  } else {
-    return code;
-  }
-  // #endif
-
-  // #ifdef MP-WEIXIN
-  // @ts-ignore
-  const res = await wx.login();
-  return res.code;
-  // #endif
-}
-
-/**
  * 拖拽函数
  * @param onDraging 拖拽时触发的函数
  * @param beforeStop 拖拽结束前触发的函数
@@ -136,32 +26,32 @@ export function drag(onDraging: (arg: { x: number, y: number, dx: number, dy: nu
   let initialX: null | number = null;
   let initialY: null | number = null;
   function doDrag(event: MouseEvent) {
-      if (initialX === null || initialY === null) {
-          initialX = event.clientX;
-          initialY = event.clientY;
-      }
-      fun.event = event;
-      onDraging({
-          x: event.clientX,
-          y: event.clientY,
-          dx: event.clientX - initialX,
-          dy: event.clientY - initialY,
-      })
+    if (initialX === null || initialY === null) {
       initialX = event.clientX;
       initialY = event.clientY;
+    }
+    fun.event = event;
+    onDraging({
+      x: event.clientX,
+      y: event.clientY,
+      dx: event.clientX - initialX,
+      dy: event.clientY - initialY,
+    })
+    initialX = event.clientX;
+    initialY = event.clientY;
   }
   function stopDrag() {
-      if (beforeStop) {
-          beforeStop()
-      }
-      initialX = null;
-      initialY = null;
-      window.removeEventListener("mousemove", doDrag);
-      window.removeEventListener("mouseup", stopDrag)
+    if (beforeStop) {
+      beforeStop()
+    }
+    initialX = null;
+    initialY = null;
+    window.removeEventListener("mousemove", doDrag);
+    window.removeEventListener("mouseup", stopDrag)
   }
   const fun = () => {
-      window.addEventListener("mousemove", doDrag);
-      window.addEventListener("mouseup", stopDrag);
+    window.addEventListener("mousemove", doDrag);
+    window.addEventListener("mouseup", stopDrag);
   }
   fun.stopDrag = stopDrag
   fun.onDraging = onDraging

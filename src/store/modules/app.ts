@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie'
 import { defineStore } from 'pinia';
 
 const useAppStore = defineStore(
@@ -11,7 +10,7 @@ const useAppStore = defineStore(
         hide: false
       },
       device: 'desktop',
-      size: (localStorage.getItem('size') || 'default') as 'large'|'default'|'small'
+      size: (localStorage.getItem('size') || 'default') as 'large' | 'default' | 'small'
     }),
     actions: {
       toggleSideBar(withoutAnimation: boolean) {
@@ -26,19 +25,19 @@ const useAppStore = defineStore(
           localStorage.setItem('sidebarStatus', '0')
         }
       },
-      closeSideBar(withoutAnimation:boolean) {
+      closeSideBar(withoutAnimation: boolean) {
         localStorage.setItem('sidebarStatus', '0')
         this.sidebar.opened = false
         this.sidebar.withoutAnimation = withoutAnimation
       },
-      toggleDevice(device:string) {
+      toggleDevice(device: string) {
         this.device = device
       },
-      setSize(size:'large'|'default'|'small') {
+      setSize(size: 'large' | 'default' | 'small') {
         this.size = size;
         localStorage.setItem('size', size)
       },
-      toggleSideBarHide(status:boolean) {
+      toggleSideBarHide(status: boolean) {
         this.sidebar.hide = status
       }
     }

@@ -13,9 +13,7 @@ import { isPathMatch } from '@/utils/validate'
 import { RoutesAlias } from '../routesAlias'
 
 const whiteList: string[] = [RoutesAlias.Login, RoutesAlias.Register]
-const isWhiteList = (path: string) => {
-  return whiteList.some(pattern => isPathMatch(pattern, path))
-}
+const isWhiteList = (path: string) => whiteList.some(pattern => isPathMatch(pattern, path))
 
 /**
  * 路由全局前置守卫
@@ -56,6 +54,5 @@ export function setupBeforeEachGuard(router: Router): void {
       if (to.fullPath) next(`${RoutesAlias.Login}?redirect=${to.fullPath}`)
       else next(RoutesAlias.Login)
     }
-    NProgress.done()
   })
 }

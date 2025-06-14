@@ -3,7 +3,7 @@ import { constantRoutes } from './routes/staticRoutes'
 import { configureNProgress } from './utils/utils'
 import { setupBeforeEachGuard } from './guards/beforeEach'
 import { setupAfterEachGuard } from './guards/afterEach'
-import { App } from 'vue'
+import type { App } from 'vue'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_ROUTER),

@@ -384,31 +384,3 @@ export const beautifierConf = {
     indent_empty_lines: true
   }
 }
-
-/**
- * 标题命名法
- * @param {String} str 
- * @returns 
- */
-export function titleCase(str) {
-  return str.replace(/( |^)[a-z]/g, L => L.toUpperCase())
-}
-
-/**
- * 下划转驼峰法
- * @param {String} str 
- * @returns 
- */
-export function camelCase(str) {
-  return str.replace(/_[a-z]/g, str1 => str1.substr(-1).toUpperCase())
-}
-
-/**
- * 判断是否是数字
- * @param {String} str 
- * @returns {boolean}
- */
-export function isNumberStr(str) {
-  return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
-}
-

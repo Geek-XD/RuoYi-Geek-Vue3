@@ -1,5 +1,23 @@
 @use "variables.module";
 
+.nest-menu {
+  --el-menu-item-height: 40px;
+  --el-menu-sub-item-height: var(--el-menu-item-height);
+  width: calc(variables.$base-sidebar-width - 20px) !important;
+
+  & .el-sub-menu .el-menu-item,
+  & .el-sub-menu .el-sub-menu__title,
+  .el-menu-item {
+    border-radius: 5px;
+    margin: 2px auto;
+    width: calc(variables.$base-sidebar-width - 40px) !important;
+
+    .svg-icon {
+      margin-right: 16px;
+    }
+  }
+}
+
 #app {
   .main-container {
     min-height: 100%;
@@ -12,10 +30,14 @@
     margin-left: 0 !important;
   }
 
+  .el-menu--collapse .el-menu .el-sub-menu {
+    min-width: variables.$base-sidebar-width !important;
+  }
+
   /** 侧边栏容器 */
   .sidebar-container {
     height: 100%;
-    width: variables.$base-sidebar-width !important;
+    width: variables.$base-sidebar-width;
     background-color: variables.$base-menu-background;
     position: fixed;
     font-size: 0px;
@@ -24,14 +46,15 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
-    box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
-    -webkit-transition: width 0.28s;
-    transition: width 0.28s;
+    border-right: 1px solid #e6e6e6;
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
 
     // reset element-ui css
     .horizontal-collapse-transition {
-      transition: 0s width ease-in-out, 0s padding-left ease-in-out,
+      transition:
+        0s width ease-in-out,
+        0s padding-left ease-in-out,
         0s padding-right ease-in-out;
     }
 
@@ -64,58 +87,57 @@
     }
 
     .el-menu {
+      --el-menu-item-height: 46px;
+      --el-menu-sub-item-height: var(--el-menu-item-height);
       border: none;
       height: 100%;
       width: 100%;
-
-      %base-menu {
-        .svg-icon {
-          margin-right: 16px;
-        }
-      }
-
-      .el-sub-menu {
-        @extend %base-menu;
-      }
-
+      .el-sub-menu,
       .el-menu-item {
-        @extend %base-menu;
-
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
+        .svg-icon {
+          margin-right: 16px;
+        }
 
-        & .el-menu-tooltip__trigger {
-          display: inline-block !important;
+        .menu-title {
+          max-width: calc(100% - 40px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
         }
       }
 
-      .sub-menu-title-noDropdown,
-      .el-sub-menu__title {
+      & .submenu-title-noDropdown.el-menu-item,
+      & .el-sub-menu .el-menu-item,
+      & .el-sub-menu .el-sub-menu__title {
+        border-radius: 5px;
+        margin: 2px auto;
+        max-width: calc(variables.$base-sidebar-width - 20px) !important;
+
         &:hover {
-          background-color: rgba(0, 0, 0, 0.06) !important;
+          background-color: rgba(0, 0, 0, 0.06);
         }
       }
 
-      & .nest-menu .el-sub-menu > .el-sub-menu__title,
-      & .el-sub-menu .el-menu-item {
-        min-width: variables.$base-sidebar-width !important;
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.06) !important;
-        }
+      & .el-menu-item.is-active {
+        background-color: var(--el-color-primary-light-9);
       }
     }
 
     // menu hover
-
     & .theme-dark {
       & .is-active > .el-sub-menu__title {
         color: variables.$base-menu-color-active !important;
       }
 
       & .nest-menu .el-sub-menu > .el-sub-menu__title,
-      & .el-sub-menu .el-menu-item {
+      & .nest-menu .el-sub-menu .el-menu-item {
         background-color: variables.$base-sub-menu-background !important;
 
         &:hover {
@@ -127,36 +149,25 @@
 
   .hideSidebar {
     .sidebar-container {
-      width: 54px !important;
+      width: variables.$hide-sidebar-width !important;
+      .el-menu {
+        .el-sub-menu,
+        .el-menu-item {
+          .svg-icon {
+            margin-right: 0px;
+          }
+        }
+
+        & .submenu-title-noDropdown.el-menu-item,
+        & .el-sub-menu .el-menu-item,
+        & .el-sub-menu .el-sub-menu__title {
+          max-width: calc(variables.$hide-sidebar-width - 10px) !important;
+        }
+      }
     }
 
     .main-container {
-      margin-left: 54px;
-    }
-
-    .sub-menu-title-noDropdown {
-      padding: 0 !important;
-      position: relative;
-
-      .el-tooltip {
-        padding: 0 !important;
-
-        .svg-icon {
-          margin-left: 20px;
-        }
-      }
-    }
-
-    .el-sub-menu {
-      overflow: hidden;
-
-      & > .el-sub-menu__title {
-        padding: 0 !important;
-
-        .svg-icon {
-          margin-left: 20px;
-        }
-      }
+      margin-left: variables.$hide-sidebar-width;
     }
 
     .el-menu--collapse {
@@ -181,11 +192,7 @@
     }
   }
 
-  .el-menu--collapse .el-menu .el-sub-menu {
-    min-width: variables.$base-sidebar-width !important;
-  }
-
-  // mobile responsive
+  // 针对移动端的响应式布局
   .mobile {
     .main-container {
       margin-left: 0px;
@@ -224,12 +231,11 @@
   .nest-menu .el-sub-menu > .el-sub-menu__title,
   .el-menu-item {
     &:hover {
-      // you can use $sub-menuHover
       background-color: rgba(0, 0, 0, 0.06) !important;
     }
   }
 
-  // the scroll bar appears when the sub-menu is too long
+  // 子菜单太长时会出现滚动条
   > .el-menu--popup {
     max-height: 100vh;
     overflow-y: auto;

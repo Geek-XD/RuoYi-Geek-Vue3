@@ -219,6 +219,14 @@ export const StrUtil = {
       return matchStr;
     });
   },
+  // 下划线转驼峰法
+  camelCase: function (input: string) {
+    return input.replace(/_[a-z]/g, str1 => str1.substr(-1).toUpperCase());
+  },
+  // 标题命名法
+  titleCase: function (input: string) {
+    return input.replace(/( |^)[a-z]/g, L => L.toUpperCase());
+  },
   //统计含有的子字符串的个数
   countMatches: function (input: string, sub: string) {
     if (this.isEmpty(input) || this.isEmpty(sub)) {
@@ -280,21 +288,27 @@ export const StrUtil = {
   isNumericSpace: function (input: string) {
     return /^[\d\s]*$/.test(input);
   },
+  // 只包含空白
   isWhitespace: function (input: string) {
     return /^\s*$/.test(input);
   },
+  // 是否全是小写字母
   isAllLowerCase: function (input: string) {
     return /^[a-z]+$/.test(input);
   },
+  // 是否全是大写字母
   isAllUpperCase: function (input: string) {
     return /^[A-Z]+$/.test(input);
   },
+  // 默认字符串
   defaultString: function (input: string, defaultStr: string) {
     return input == null ? defaultStr : input;
   },
+  // 如果为空白，默认字符串
   defaultIfBlank: function (input: string, defaultStr: string) {
     return this.isBlank(input) ? defaultStr : input;
   },
+  // 如果为空，默认字符串
   defaultIfEmpty: function (input: string, defaultStr: string) {
     return this.isEmpty(input) ? defaultStr : input;
   },

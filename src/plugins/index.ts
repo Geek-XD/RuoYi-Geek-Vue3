@@ -5,7 +5,7 @@ import Modal from './modal'
 import Download from './download'
 import Bus from './bus';
 import Socket from './socketclient'
-import { App } from 'vue'
+import type { App } from 'vue'
 
 export const tab = Tab;
 export const auth = Auth;
@@ -21,7 +21,7 @@ export default function installPlugins(app: App<Element>) {
   // 认证对象
   app.config.globalProperties.$auth = auth
   // 缓存对象
-  app.config.globalProperties.$cache = Cache
+  app.config.globalProperties.$cache = cache
   // 模态框对象
   app.config.globalProperties.$modal = modal
   // 全局事件总线
