@@ -1,19 +1,21 @@
 @use "variables.module";
 
-.nest-menu {
-  --el-menu-item-height: 40px;
-  --el-menu-sub-item-height: var(--el-menu-item-height);
-  width: calc(variables.$base-sidebar-width - 20px) !important;
+.el-popper {
+  .nest-menu {
+    --el-menu-item-height: 40px;
+    --el-menu-sub-item-height: var(--el-menu-item-height);
+    width: calc(variables.$base-sidebar-width - 20px) !important;
 
-  & .el-sub-menu .el-menu-item,
-  & .el-sub-menu .el-sub-menu__title,
-  .el-menu-item {
-    border-radius: 5px;
-    margin: 2px auto;
-    width: calc(variables.$base-sidebar-width - 40px) !important;
+    & .el-sub-menu .el-menu-item,
+    & .el-sub-menu .el-sub-menu__title,
+    .el-menu-item {
+      border-radius: 5px;
+      margin: 2px auto;
+      width: calc(variables.$base-sidebar-width - 40px) !important;
 
-    .svg-icon {
-      margin-right: 16px;
+      .svg-icon {
+        margin-right: 16px;
+      }
     }
   }
 }
