@@ -1,16 +1,3 @@
-<template>
-  <el-breadcrumb class="app-breadcrumb" separator="/">
-    <transition-group name="breadcrumb">
-      <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
-        <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">
-          {{ getTitle(item) }}
-        </span>
-        <a v-else @click.prevent="handleLink(item)">{{ getTitle(item) }}</a>
-      </el-breadcrumb-item>
-    </transition-group>
-  </el-breadcrumb>
-</template>
-
 <script setup>
 import usePermissionStore from '@/store/modules/permission'
 import { RoutesAlias } from '@/router/routesAlias'
@@ -88,7 +75,18 @@ watchEffect(() => {
 })
 getBreadcrumb();
 </script>
-
+<template>
+  <el-breadcrumb class="app-breadcrumb" separator="/">
+    <transition-group name="breadcrumb">
+      <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
+        <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">
+          {{ getTitle(item) }}
+        </span>
+        <a v-else @click.prevent="handleLink(item)">{{ getTitle(item) }}</a>
+      </el-breadcrumb-item>
+    </transition-group>
+  </el-breadcrumb>
+</template>
 <style lang='scss' scoped>
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;

@@ -42,10 +42,19 @@ $color-warning: #e6a23c;
 $color-danger: #f56c6c;
 $color-info: #909399;
 
+$page-background-color: #fafbfc;
+
+// 侧边栏相关配置
 $base-sidebar-width: 240px;
 $hide-sidebar-width: 64px;
+
+// 顶部导航栏相关配置
 $navbar-height: 50px;
-$tags-view-height: 34px;
+$navbar-color: $page-background-color; // (颜色与page不相同时会自动显示阴影)
+
+// 标签视图相关配置
+$tags-view-height: 44px;
+$tags-view-color: $page-background-color; // (颜色与page不相同时会自动显示阴影)
 
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass

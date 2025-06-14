@@ -132,19 +132,18 @@
       }
     }
 
-    // menu hover
     & .theme-dark {
+      & .submenu-title-noDropdown.el-menu-item,
+      & .el-sub-menu .el-menu-item,
+      & .el-sub-menu .el-sub-menu__title {
+        &.is-active {
+          &:hover {
+            background-color: var(--el-color-primary-light-9) !important;
+          }
+        }
+      }
       & .is-active > .el-sub-menu__title {
         color: variables.$base-menu-color-active !important;
-      }
-
-      & .nest-menu .el-sub-menu > .el-sub-menu__title,
-      & .nest-menu .el-sub-menu .el-menu-item {
-        background-color: variables.$base-sub-menu-background !important;
-
-        &:hover {
-          background-color: variables.$base-sub-menu-hover !important;
-        }
       }
     }
   }
