@@ -133,13 +133,6 @@ export const constantRoutes: RouteItem[] = [
         name: 'TodoRecord',
         hidden: true,
         meta: { title: '流程处理', icon: '' }
-      },
-      {
-        path: 'task/flowForm/index',
-        component: () => import('@/views/flowable/task/flowForm/index.vue'),
-        name: 'FlowForm',
-        hidden: true,
-        meta: { title: '流程表单', icon: '' }
       }
     ]
   },
