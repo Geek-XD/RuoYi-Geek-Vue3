@@ -68,23 +68,23 @@
                <template #default="scope">
                   <el-tooltip content="修改" placement="top">
                      <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                        v-hasPermi="['monitor:job:edit']"></el-button>
+                        v-hasPermi="['monitor:job:edit']"/>
                   </el-tooltip>
                   <el-tooltip content="删除" placement="top">
                      <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                        v-hasPermi="['monitor:job:remove']"></el-button>
+                        v-hasPermi="['monitor:job:remove']"/>
                   </el-tooltip>
                   <el-tooltip content="执行一次" placement="top">
                      <el-button link type="primary" icon="CaretRight" @click="handleRun(scope.row)"
-                        v-hasPermi="['monitor:job:changeStatus']"></el-button>
+                        v-hasPermi="['monitor:job:changeStatus']"/>
                   </el-tooltip>
                   <el-tooltip content="任务详细" placement="top">
                      <el-button link type="primary" icon="View" @click="handleView(scope.row)"
-                        v-hasPermi="['monitor:job:query']"></el-button>
+                        v-hasPermi="['monitor:job:query']"/>
                   </el-tooltip>
                   <el-tooltip content="调度日志" placement="top">
                      <el-button link type="primary" icon="Operation" @click="handleJobLog(scope.row)"
-                        v-hasPermi="['monitor:job:query']"></el-button>
+                        v-hasPermi="['monitor:job:query']"/>
                   </el-tooltip>
                </template>
             </el-table-column>

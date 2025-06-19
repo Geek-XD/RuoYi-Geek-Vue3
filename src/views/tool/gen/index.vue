@@ -61,23 +61,23 @@
           <template #default="scope">
             <el-tooltip content="预览" placement="top">
               <el-button link type="primary" icon="View" @click="handlePreview(scope.row)"
-                v-hasPermi="['tool:gen:preview']"></el-button>
+                v-hasPermi="['tool:gen:preview']"/>
             </el-tooltip>
             <el-tooltip content="编辑" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleEditTable(scope.row)"
-                v-hasPermi="['tool:gen:edit']"></el-button>
+                v-hasPermi="['tool:gen:edit']"/>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                v-hasPermi="['tool:gen:remove']"></el-button>
+                v-hasPermi="['tool:gen:remove']"/>
             </el-tooltip>
             <el-tooltip content="同步" placement="top">
               <el-button link type="primary" icon="Refresh" @click="handleSynchDb(scope.row)"
-                v-hasPermi="['tool:gen:edit']"></el-button>
+                v-hasPermi="['tool:gen:edit']"/>
             </el-tooltip>
             <el-tooltip content="生成代码" placement="top">
               <el-button link type="primary" icon="Download" @click="handleGenTable(scope.row)"
-                v-hasPermi="['tool:gen:code']"></el-button>
+                v-hasPermi="['tool:gen:code']"/>
             </el-tooltip>
           </template>
         </el-table-column>

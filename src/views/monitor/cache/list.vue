@@ -11,7 +11,7 @@
               type="primary"
               icon="Refresh"
               @click="refreshCacheNames()"
-            ></el-button>
+            />
           </template>
           <el-table
             v-loading="loading"
@@ -53,7 +53,7 @@
                   type="primary"
                   icon="Delete"
                   @click="handleClearCacheName(scope.row)"
-                ></el-button>
+                />
               </template>
             </el-table-column>
           </el-table>
@@ -70,7 +70,7 @@
               type="primary"
               icon="Refresh"
               @click="refreshCacheKeys()"
-            ></el-button>
+            />
           </template>
           <el-table
             v-loading="subLoading"
@@ -104,7 +104,7 @@
                   type="primary"
                   icon="Delete"
                   @click="handleClearCacheKey(scope.row)"
-                ></el-button>
+                />
               </template>
             </el-table-column>
           </el-table>
