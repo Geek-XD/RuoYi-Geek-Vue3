@@ -1,6 +1,9 @@
 
 import request from '@/utils/request'
-export type RequestPageType<T> = T & {
+type Nullish<T> = {
+    [P in keyof T]: T[P] | null;
+};
+export type RequestPageType<T> = Nullish<T> & {
     pageNum: number,
     pageSize: number,
     params: { [key: string]: string }
@@ -13,7 +16,7 @@ export type ResponseResultType<T> = {
 export type ResponseTableType<T> = {
     code: number
     msg: string
-    rows: T[]
+    rows: Array<T>
     total: number
 }
 export type ApiServiceType<T> = {
@@ -23,9 +26,11 @@ export type ApiServiceType<T> = {
     update: (data: T) => Promise<ResponseResultType<T>>
     del: (id: number | string) => Promise<ResponseResultType<undefined>>
 }
-
 export function Page<T>(target: new (...args: any[]) => T): RequestPageType<T> {
-    let o = new target();
+    const o: Nullish<T> = new target();
+    for (const key in o) {
+        o[key] = null
+    }
     return {
         pageNum: 1,
         pageSize: 10,
@@ -48,6 +53,5 @@ export default function Api(url: string) {
             update: (data: T) => request({ url, method: 'put', data }),
             del: (id: number | string) => request({ url: url + '/' + id, method: 'delete' }),
         }
-
     }
 }

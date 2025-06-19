@@ -19,7 +19,7 @@ export function usePageTable<T>(target: new (...args: any[]) => T) {
 
     /**
      * 查询句柄：根据queryParams查询参数调用列表查询服务
-     * @returns 
+     * @returns 列表查询服务的响应
      */
     async function handleQuery() {
         loading.value = true
@@ -32,7 +32,7 @@ export function usePageTable<T>(target: new (...args: any[]) => T) {
 
     /**
      * 重置queryParams查询参数，重置后自动调用查询句柄
-     * @returns 
+     * @returns 查询句柄的响应
      */
     function resetQuery() {
         queryParams.value = Page(target)
@@ -63,7 +63,7 @@ export function usePage<T>(target: new (...args: any[]) => T) {
     } = usePageTable(target)
 
     /** form表单：用于新增和修改 */
-    const form = ref(target) as Ref<T>
+    const form = ref(new target()) as Ref<T>
 
     /**
      * 重置form表单：重新调用构造函数赋值
