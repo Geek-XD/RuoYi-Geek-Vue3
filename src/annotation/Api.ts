@@ -24,7 +24,7 @@ export type ApiServiceType<T> = {
     get: (id: number | string) => Promise<ResponseResultType<T>>
     add: (data: T) => Promise<ResponseResultType<T>>
     update: (data: T) => Promise<ResponseResultType<T>>
-    del: (id: number | string) => Promise<ResponseResultType<undefined>>
+    del: (id: number | string | Array<number | string>) => Promise<ResponseResultType<undefined>>
 }
 export function Page<T>(target: new (...args: any[]) => T): RequestPageType<T> {
     const o: Nullish<T> = new target();
@@ -45,7 +45,6 @@ export function ApiService<T>(target: new (...args: any[]) => T): ApiServiceType
 
 export default function Api(url: string) {
     return function <T>(target: any) {
-        target.prototype.api = {}
         target.prototype.api = {
             list: (query: RequestPageType<T>) => request({ url: url + '/list', method: 'get', params: query }),
             get: (id: number | string) => request({ url: url + '/' + id, method: 'get' }),

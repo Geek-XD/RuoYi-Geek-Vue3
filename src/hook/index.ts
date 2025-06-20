@@ -73,6 +73,14 @@ export function usePage<T>(target: new (...args: any[]) => T) {
     }
 
     /**
+     * 更新form表单：查询并填充form表单
+     */
+    async function updateForm(id: string | number) {
+        const response = await service.get(id);
+        form.value = response.data;
+    }
+
+    /**
      * 更新句柄：根据form调用更新服务，更新后自动调用查询句柄
      * @returns 更新服务的响应
      */
@@ -99,7 +107,7 @@ export function usePage<T>(target: new (...args: any[]) => T) {
      * @param id 
      * @returns 删除接口的相应
      */
-    async function handleDelete(id: string | number) {
+    async function handleDelete(id: string | number | Array<string | number>) {
         const res = await service.del(id)
         handleQuery()
         return res
@@ -111,6 +119,7 @@ export function usePage<T>(target: new (...args: any[]) => T) {
         handleUpdate,
         handleAdd,
         resetForm,
+        updateForm,
         resetQuery,
         handleDelete,
         list,

@@ -1,8 +1,8 @@
 import { Component } from "vue";
 
 export default function Schema(name: string): (target: any, attr: any) => void;
-export default function Schema(options: SchemaTyle): (target: any, attr: any) => void;
-export default function Schema(value: SchemaTyle | string) {
+export default function Schema(options: SchemaType<any>): (target: any, attr: any) => void;
+export default function Schema(value: SchemaType<any> | string) {
     return function (target: any, attr: any) {
         if (target.schema == undefined) target.schema = {}
         if (typeof value === 'string') target.schema[attr] = { name: value, components: {}, attr };
@@ -11,16 +11,16 @@ export default function Schema(value: SchemaTyle | string) {
         }
     }
 }
-export interface SchemaTyle {
+export interface SchemaType<T> {
     name: string,
-    attr:string,
+    attr: keyof T & string,
     components: { [key: string]: (...args: any[]) => Component }
 }
-export function getSchema(target: any, prop: string): SchemaTyle {
+export function getSchema<T extends Object, P extends keyof T & string>(target: T | (new (...args: any[]) => T), prop: P): SchemaType<T> {
     const constructor = typeof target === 'function' ? target : target.constructor
     const schemaObj = constructor.prototype.schema
     if (!!schemaObj) {
-        const schema: SchemaTyle = schemaObj[prop]
+        const schema: SchemaType<T> = schemaObj[prop]
         if (!!schema) return schema
         else throw new Error(`${constructor.name}'s ${prop} have not @schema`)
     } else {
@@ -28,11 +28,15 @@ export function getSchema(target: any, prop: string): SchemaTyle {
     }
 }
 
-export function getSchemas(target: any): SchemaTyle[] {
+export function getSchemas<T extends Object, P extends keyof T & string>(target: T | (new (...args: any[]) => T), ...props: P[]): SchemaType<T>[] {
     const constructor = typeof target === 'function' ? target : target.constructor
-    const schemaObj: { [key: string]: SchemaTyle } = constructor.prototype.schema
+    const schemaObj: { [key: string]: SchemaType<T> } = constructor.prototype.schema
     if (!!schemaObj) {
-        return Object.values(schemaObj)
+        if (props.length > 0) {
+            return props.map((prop) => schemaObj[prop]).filter(schema => !!schema)
+        } else {
+            return Object.values(schemaObj)
+        }
     } else {
         throw new Error(`${constructor.name} have not @schema`)
     }
@@ -42,5 +46,3 @@ export function getSchemaName(target: any, prop: string): string {
     const schema = getSchema(target, prop)
     return schema.name
 }
-
-

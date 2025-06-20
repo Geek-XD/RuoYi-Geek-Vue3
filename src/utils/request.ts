@@ -120,7 +120,7 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
 )
 
 // 通用下载方法
-export async function download(url: string, params: any, filename: string, config: any) {
+export async function download(url: string, params: any, filename: string, config?: any) {
   downloadLoadingInstance = ElLoading.service({ text: "正在下载数据，请稍候", background: "rgba(0, 0, 0, 0.7)", })
   try {
     const res = await service.post(url, params, {
