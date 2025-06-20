@@ -1,3 +1,108 @@
+<script setup name="Order" lang="ts">
+import { refundOrder, updateOrderStatus } from "@/api/pay/order";
+import { ref } from "vue";
+import { PayOrder } from "@/entity/pay/PayOrder";
+import { usePage } from "@/hook";
+import { modal } from "@/plugins";
+import { parseTime } from "@/utils/ruoyi";
+import { getSchemaName, getSchemas } from "@/annotation/Schema";
+const {
+  queryParams,
+  handleQuery,
+  handleUpdate,
+  handleAdd,
+  resetForm,
+  updateForm,
+  resetQuery,
+  handleDelete,
+  handleExport,
+  list,
+  total,
+  loading,
+  form,
+  service
+} = usePage(PayOrder)
+const open = ref(false);
+const showSearch = ref(true);
+const ids = ref<Array<string | number>>([]);
+const single = ref(true);
+const multiple = ref(true);
+const title = ref("");
+
+// 取消按钮
+function cancel() {
+  open.value = false;
+  resetForm();
+}
+
+// 多选框选中数据
+function handleSelectionChange(selection: PayOrder[]) {
+  ids.value = selection.map(item => item.orderId);
+  single.value = selection.length != 1;
+  multiple.value = !selection.length;
+}
+
+/** 新增按钮操作 */
+function handleAddClick() {
+  resetForm();
+  open.value = true;
+  title.value = "添加订单";
+}
+
+/** 修改按钮操作 */
+function handleUpdateClick(row: PayOrder) {
+  updateForm(row.orderId || ids.value[0]).then(() => {
+    open.value = true;
+    title.value = "修改订单";
+  });
+}
+
+/** 提交按钮 */
+function submitForm() {
+  if (form.value.orderId != null) {
+    handleUpdate().then(response => {
+      modal.msgSuccess("修改成功");
+      open.value = false;
+    });
+  } else {
+    handleAdd().then(response => {
+      modal.msgSuccess("新增成功");
+      open.value = false;
+    });
+  }
+}
+
+/** 删除按钮操作 */
+function handleDeleteClick(row: PayOrder) {
+  const _orderIds = row.orderId || ids.value;
+  modal.confirm(`是否确认删除订单编号为"${_orderIds}"的数据项？`).then(function () {
+    return handleDelete(_orderIds);
+  }).then(() => {
+    modal.msgSuccess("删除成功");
+  }).catch(() => { });
+}
+
+// 新增：退款操作
+function handleRefund(row: PayOrder) {
+  const orderNumber = row.orderNumber;
+  modal.confirm(`是否确认对订单号为"${orderNumber}"的订单进行退款？`).then(function () {
+    return refundOrder(orderNumber);
+  }).then(() => {
+    handleQuery();
+    modal.msgSuccess("退款成功");
+  }).catch(() => { });
+}
+
+// 新增：更新订单状态操作
+async function handleUpdateStatus(row: PayOrder) {
+  const orderNumber = row.orderNumber;
+  await updateOrderStatus(orderNumber);
+  handleQuery();
+  modal.msgSuccess("订单状态更新成功");
+}
+
+handleQuery();
+</script>
 <template>
   <div class="app-container">
     <el-card shadow="never">
@@ -81,119 +186,3 @@
     </el-dialog>
   </div>
 </template>
-
-<script setup name="Order" lang="ts">
-import { refundOrder, updateOrderStatus } from "@/api/pay/order";
-import { ref } from "vue";
-import { PayOrder } from "@/entity/pay/PayOrder";
-import { usePage } from "@/hook";
-import { modal } from "@/plugins";
-import { parseTime } from "@/utils/ruoyi";
-import { download } from "@/utils/request";
-import { PayInvoice } from "@/entity/pay/PayInvoice";
-import { getSchemaName, getSchemas } from "@/annotation/Schema";
-const {
-  queryParams,
-  handleQuery,
-  handleUpdate,
-  handleAdd,
-  resetForm,
-  updateForm,
-  resetQuery,
-  handleDelete,
-  list,
-  total,
-  loading,
-  form
-} = usePage(PayOrder)
-usePage(PayInvoice)
-const open = ref(false);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
-const title = ref("");
-
-// 取消按钮
-function cancel() {
-  open.value = false;
-  resetForm();
-}
-
-// 多选框选中数据
-function handleSelectionChange(selection: PayOrder[]) {
-  ids.value = selection.map(item => item.orderId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-}
-
-/** 新增按钮操作 */
-function handleAddClick() {
-  resetForm();
-  open.value = true;
-  title.value = "添加订单";
-}
-
-/** 修改按钮操作 */
-function handleUpdateClick(row: PayOrder) {
-  resetForm();
-  const _orderId = row.orderId || ids.value[0]
-  updateForm(_orderId).then(() => {
-    open.value = true;
-    title.value = "修改订单";
-  });
-}
-
-/** 提交按钮 */
-function submitForm() {
-  if (form.value.orderId != null) {
-    handleUpdate().then(response => {
-      modal.msgSuccess("修改成功");
-      open.value = false;
-    });
-  } else {
-    handleAdd().then(response => {
-      modal.msgSuccess("新增成功");
-      open.value = false;
-    });
-  }
-}
-
-/** 删除按钮操作 */
-function handleDeleteClick(row: PayOrder) {
-  const _orderIds = row.orderId || ids.value;
-  modal.confirm('是否确认删除订单编号为"' + _orderIds + '"的数据项？').then(function () {
-    return handleDelete(_orderIds);
-  }).then(() => {
-    modal.msgSuccess("删除成功");
-  }).catch(() => { });
-}
-
-// 新增：退款操作
-function handleRefund(row: PayOrder) {
-  const orderNumber = row.orderNumber;
-  modal.confirm('是否确认对订单号为"' + orderNumber + '"的订单进行退款？').then(function () {
-    return refundOrder(orderNumber);
-  }).then(() => {
-    handleQuery();
-    modal.msgSuccess("退款成功");
-  }).catch(() => { });
-}
-
-// 新增：更新订单状态操作
-async function handleUpdateStatus(row: PayOrder) {
-  const orderNumber = row.orderNumber;
-  await updateOrderStatus(orderNumber);
-  handleQuery();
-  modal.msgSuccess("订单状态更新成功");
-}
-
-/** 导出按钮操作 */
-function handleExport() {
-  download('pay/order/export', {
-    ...queryParams.value
-  }, `order_${new Date().getTime()}.xlsx`)
-}
-
-handleQuery();
-</script>

@@ -19,6 +19,7 @@ export class PayInvoice {
 
   /** 订单号 */
   @SchemaComponent("table", h('span'))
+  @SchemaComponent("", h(ElInput, { placeholder: "请输入订单号" }))
   @SchemaComponent("form", h(ElInput, { placeholder: "请输入订单号" }))
   @Schema("订单号")
   orderNumber!: string;

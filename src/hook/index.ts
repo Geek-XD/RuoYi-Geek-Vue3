@@ -113,6 +113,13 @@ export function usePage<T>(target: new (...args: any[]) => T) {
         return res
     }
 
+    /**
+     * 导出按钮操作
+     */
+    async function handleExport() {
+        await service.export(queryParams.value)
+    }
+
     return {
         queryParams,
         handleQuery,
@@ -122,6 +129,7 @@ export function usePage<T>(target: new (...args: any[]) => T) {
         updateForm,
         resetQuery,
         handleDelete,
+        handleExport,
         list,
         total,
         loading,
