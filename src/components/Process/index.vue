@@ -6,40 +6,34 @@
           <el-button-group>
             <el-upload action="" :before-upload="openBpmn" style="margin-right: 10px; display:inline-block;">
               <el-tooltip effect="dark" content="加载xml" placement="bottom">
-                <el-button size="small" icon="FolderOpened" />
+                <el-button icon="FolderOpened" />
               </el-tooltip>
             </el-upload>
             <el-tooltip effect="dark" content="新建" placement="bottom">
-              <el-button size="small" icon="CirclePlus" @click="newDiagram" />
+              <el-button icon="CirclePlus" @click="newDiagram" />
             </el-tooltip>
             <el-tooltip effect="dark" content="自适应屏幕" placement="bottom">
-              <el-button size="small" icon="Rank" @click="fitViewport" />
+              <el-button icon="Rank" @click="fitViewport" />
             </el-tooltip>
             <el-tooltip effect="dark" content="放大" placement="bottom">
-              <el-button size="small" icon="ZoomIn" @click="zoomViewport(true)" />
+              <el-button icon="ZoomIn" @click="zoomViewport(true)" />
             </el-tooltip>
             <el-tooltip effect="dark" content="缩小" placement="bottom">
-              <el-button size="small" icon="ZoomOut" @click="zoomViewport(false)" />
+              <el-button icon="ZoomOut" @click="zoomViewport(false)" />
             </el-tooltip>
             <el-tooltip effect="dark" content="后退" placement="bottom">
-              <el-button size="small" icon="Back" @click="modeler.get('commandStack').undo()" />
+              <el-button icon="Back" @click="modeler.get('commandStack').undo()" />
             </el-tooltip>
             <el-tooltip effect="dark" content="前进" placement="bottom">
-              <el-button size="small" icon="Right" @click="modeler.get('commandStack').redo()" />
+              <el-button icon="Right" @click="modeler.get('commandStack').redo()" />
             </el-tooltip>
-            <!--            <el-button size="small" icon="share" @click="processSimulation">-->
-            <!--              {{ this.simulationStatus ? '退出模拟' : '开启模拟' }}-->
-            <!--            </el-button>-->
-            <!--            <el-button size="small" icon="first-aid-kit" @click="handlerIntegrityCheck">-->
-            <!--              {{ this.bpmnlintStatus ? '关闭检查' : '开启检查' }}-->
-            <!--            </el-button>-->
           </el-button-group>
           <el-button-group>
-            <el-button size="small" icon="view" @click="showXML">查看xml</el-button>
-            <el-button size="small" icon="download" @click="saveXML(true)">下载xml</el-button>
-            <el-button size="small" icon="picture" @click="saveImg('svg', true)">下载svg</el-button>
-            <el-button size="small" type="primary" @click="save">保存模型</el-button>
-            <el-button size="small" type="danger" @click="goBack">关闭</el-button>
+            <el-button icon="view" @click="showXML">查看xml</el-button>
+            <el-button icon="download" @click="saveXML(true)">下载xml</el-button>
+            <el-button icon="picture" @click="saveImg('svg', true)">下载svg</el-button>
+            <el-button type="primary" @click="save">保存模型</el-button>
+            <el-button type="danger" @click="goBack">关闭</el-button>
           </el-button-group>
         </div>
       </el-header>
@@ -85,9 +79,6 @@ export default {
       modeler: null,
       zoom: 1,
       loadCanvas: false,  // 当前组件渲染然后再加载canvas
-      simulationStatus: false,
-      bpmnlintStatus: false,
-      simulation: true,
       designer: true,
     }
   },

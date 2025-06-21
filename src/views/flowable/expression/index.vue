@@ -38,6 +38,10 @@
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <el-alert title="流程设计说明" type="warning">
+        <div>1、用于指定流程任务配置中候选角色的表达式，可以使用SpEL表达式和流程中的变量。</div>
+        <div>2、更改表达式<strong style="color: red;">不会影响</strong>已部署的流程实例。</div>
+      </el-alert>
       <el-table v-loading="loading" :data="expressionList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="主键" align="center" prop="id" />

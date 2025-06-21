@@ -35,9 +35,20 @@
           <el-button type="warning" plain icon="download" @click="handleExport"
             v-hasPermi="['system:listener:export']">导出</el-button>
         </el-col>
-        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+        <right-toolbar :showSearch.sync="shoSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <el-alert title="流程监听使用说明" type="success">
+        <div>流程监听：</div>
+        <div>1.任务监听与用户任务关联，主要用于监听用户任务生命周期中的各种事件，包括任务的创建（create）、完成（complete）、分配（assignment）、删除（delete）。</div>
+        <div>2.执行监听关注整个流程实例的执行过程，包括进入（start）、离开（end）、取回（take）。</div>
+        <div>值类型：</div>
+        <div>1.表达式可以使用常量或通过${}使用流程中的变量和SpEL表达式。</div>
+        <div>2.代理表达式内容填写实现了表达式接口（org.flowable.engine.delegate.JavaDelegate）的Bean的名称，并且用${}包裹起来。</div>
+        <div>
+          3.JAVA类写实现了执行监听器接口（org.flowable.engine.delegate.ExecutionListener）或任务监听器接口（org.flowable.engine.delegate.TaskListener）的类全路径。
+        </div>
+      </el-alert>
       <el-table v-loading="loading" :data="listenerList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="名称" align="center" prop="name" />
