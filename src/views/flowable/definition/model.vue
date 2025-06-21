@@ -15,7 +15,7 @@ import { readXml, roleList, saveXml, userList, expList } from "@/api/flowable/de
 import BpmnModel from '@/components/Process'
 import vkBeautify from 'vkbeautify'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/atelier-savanna-dark.css'
+import 'highlight.js/styles/atom-one-dark.css'
 export default {
   name: "Model",
   components: {

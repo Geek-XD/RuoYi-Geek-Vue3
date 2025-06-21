@@ -122,7 +122,6 @@ export default {
       moddleExtensions: {
         flowable: FlowableModule
       },
-      keyboard: { bindTo: document },
     })
     this.modeler = modeler;
     // 注册 modeler 相关信息
@@ -152,8 +151,7 @@ export default {
       if (StrUtil.isNotBlank(this.modelerStore.modeler)) {
         data = data.replace(/<!\[CDATA\[(.+?)]]>/g, function (match, str) {
           return str.replace(/</g, '&lt;')
-        }
-        )
+        })
         try {
           await this.modelerStore.modeler.importXML(data)
           this.fitViewport()

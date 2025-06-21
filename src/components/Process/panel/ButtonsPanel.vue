@@ -7,9 +7,9 @@
       <el-table-column label="属性值" prop="value" min-width="100px" show-overflow-tooltip />
       <el-table-column label="操作" width="90px">
         <template slot-scope="{ row, $index }">
-          <el-link   @click="openAttributesForm(row, $index)" type="primary">编辑</el-link>
+          <el-link @click="openAttributesForm(row, $index)" type="primary">编辑</el-link>
           <el-divider direction="vertical" />
-          <el-link  style="color: #ff4d4f" @click="removeAttributes(row, $index)"  type="primary">移除</el-link>
+          <el-link style="color: #ff4d4f" @click="removeAttributes(row, $index)" type="primary">移除</el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import {StrUtil} from "@/utils/StrUtil";
+import { StrUtil } from "@/utils/StrUtil";
 
 export default {
   name: "ButtonsPanel",
@@ -108,7 +108,6 @@ export default {
     },
     saveAttribute() {
       const { name, value } = this.buttonForm;
-      console.log(this.bpmnElementButtonList);
       if (this.editingPropertyIndex !== -1) {
         this.modelerStore.modeling.updateModdleProperties(this.bpmnElement, this.bpmnElementButtonList[this.editingPropertyIndex], {
           name,

@@ -53,7 +53,7 @@ export function createSystemListenerObject(moddle, options, isTask, prefix) {
       listenerObj.expression = options.expression;
       break;
     case "delegateExpressionListener":
-      listenerObj.delegateExpression = options.delegateExpression;
+      listenerObj.delegateExpression = options.delegateExpression ?? options.value;
       break;
     default:
       listenerObj.class = options.value;
@@ -75,7 +75,7 @@ export function changeListenerObject(options) {
       listenerObj.expression = options.expression;
       break;
     case "delegateExpressionListener":
-      listenerObj.delegateExpression = options.delegateExpression;
+      listenerObj.delegateExpression = options.delegateExpression ?? options.value;
       break;
     default:
       listenerObj.class = options.value;

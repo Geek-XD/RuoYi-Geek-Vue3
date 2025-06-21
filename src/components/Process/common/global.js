@@ -12,7 +12,6 @@ const modelerStore = {
   'element': null,
 
 }
-export default
-{
+export default {
   modelerStore,
 }

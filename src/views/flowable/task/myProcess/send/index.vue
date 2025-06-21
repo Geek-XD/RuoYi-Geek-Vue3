@@ -83,12 +83,11 @@ export default {
     this.deployId = this.$route.query && this.$route.query.deployId;
     // 初始化表单
     this.procDefId = this.$route.query && this.$route.query.procDefId;
-    // this.getNextFlowNodeByStart(this.deployId);
     this.getFlowFormData(this.deployId);
   },
   methods: {
     handleClick(tab, event) {
-      if (tab.index === '2') {
+      if (tab.index === '1') {
         flowXmlAndNode({ deployId: this.deployId }).then(res => {
           this.flowData = res.data;
         })

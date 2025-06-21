@@ -143,7 +143,7 @@
       <el-row :gutter="24">
         <el-col :span="10" :xs="24">
           <el-table ref="singleTable" :data="formList" border highlight-current-row
-            @current-change="handleCurrentChange" style="width: 100%">
+            @current-change="handleCurrentChange" style="width: 100%" height="400px">
             <el-table-column label="表单编号" align="center" prop="formId" />
             <el-table-column label="表单名称" align="center" prop="formName" />
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -157,9 +157,11 @@
             :page.sync="formQueryParams.pageNum" :limit.sync="formQueryParams.pageSize" @pagination="ListFormDeploy" />
         </el-col>
         <el-col :span="14" :xs="24">
-          <div class="test-form">
-            <v-form-render :form-data="formData" ref="vFormCurrentRowRef" />
-          </div>
+          <el-card header="表单预览">
+            <div class="test-form">
+              <v-form-render :form-data="formData" ref="vFormCurrentRowRef" />
+            </div>
+          </el-card>
         </el-col>
       </el-row>
     </el-dialog>
