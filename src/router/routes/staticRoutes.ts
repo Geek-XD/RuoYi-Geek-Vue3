@@ -66,12 +66,6 @@ export const constantRoutes: RouteItem[] = [
         component: () => import('@/views/three/gltfmode.vue'),
         name: 'threeTest',
         meta: { title: 'three实验室', icon: 'dashboard' }
-      },
-      {
-        path: 'payTest',
-        component: () => import('@/views/pay/paytest/index.vue'),
-        name: 'payTest',
-        meta: { title: '支付实验室', icon: 'dashboard' }
       }
     ]
   },

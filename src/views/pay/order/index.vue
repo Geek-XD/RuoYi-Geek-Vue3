@@ -6,6 +6,7 @@ import { usePage } from "@/hook";
 import { modal } from "@/plugins";
 import { parseTime } from "@/utils/ruoyi";
 import { getSchemaName, getSchemas } from "@/annotation/Schema";
+import PayTest from "@/views/pay/paytest/index.vue";
 const {
   queryParams,
   handleQuery,
@@ -101,6 +102,13 @@ async function handleUpdateStatus(row: PayOrder) {
   modal.msgSuccess("订单状态更新成功");
 }
 
+const payOrderNumber = ref()
+const payOpen = ref(false);
+async function handlePayTest(row: PayOrder) {
+  payOrderNumber.value = row.orderNumber;
+  payOpen.value = true;
+}
+
 handleQuery();
 </script>
 <template>
@@ -151,7 +159,7 @@ handleQuery();
             <span>{{ parseTime(scope.row[item.attr], '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" fixed="right" width="350">
+        <el-table-column label="操作" align="center" fixed="right" width="400">
           <template #default="scope">
             <el-button link type="primary" icon="Edit" @click="handleUpdateClick(scope.row)"
               v-hasPermi="['pay:order:edit']">修改</el-button>
@@ -161,6 +169,8 @@ handleQuery();
               v-hasPermi="['pay:order:refund']">退款</el-button>
             <el-button link type="info" icon="Refresh" @click="handleUpdateStatus(scope.row)"
               v-hasPermi="['pay:order:updateStatus']">更新状态</el-button>
+            <el-button link type="info" icon="Position" @click="handlePayTest(scope.row)"
+              v-hasPermi="['pay:order:updateStatus']">测试支付</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -183,6 +193,11 @@ handleQuery();
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
+    </el-dialog>
+
+    <!-- 添加或修改订单对话框 -->
+    <el-dialog v-model="payOpen" width="500px" append-to-body>
+      <PayTest :orderNumber="payOrderNumber" />
     </el-dialog>
   </div>
 </template>

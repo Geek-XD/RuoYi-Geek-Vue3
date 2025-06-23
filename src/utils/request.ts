@@ -148,17 +148,17 @@ export async function download(url: string, params: any, filename: string, confi
   }
 }
 const request = <T>(config: GeekRequestConfig) => service<GeekRequestConfig, AxiosResponse<GeekResponse<T>>>(config).then(res => res.data)
-export function postAction(url: string, data?: any, isToken: boolean = true) {
-  return request({ data, url, method: 'POST', headers: { isToken }, })
+export function postAction<T>(url: string, data?: any, isToken: boolean = true) {
+  return request<T>({ data, url, method: 'POST', headers: { isToken }, })
 }
-export function getAction(url: string, params?: any, isToken: boolean = true) {
-  return request({ params, url, method: 'GET', headers: { isToken }, })
+export function getAction<T>(url: string, params?: any, isToken: boolean = true) {
+  return request<T>({ params, url, method: 'GET', headers: { isToken }, })
 }
-export function putAction(url: string, data?: any, isToken: boolean = true) {
-  return request({ data, url, method: 'PUT', headers: { isToken }, })
+export function putAction<T>(url: string, data?: any, isToken: boolean = true) {
+  return request<T>({ data, url, method: 'PUT', headers: { isToken }, })
 }
-export function deleteAction(url: string, data?: any, isToken: boolean = true) {
-  return request({ data, url, method: 'DELETE', headers: { isToken }, })
+export function deleteAction<T>(url: string, data?: any, isToken: boolean = true) {
+  return request<T>({ data, url, method: 'DELETE', headers: { isToken }, })
 }
 
 export default request
