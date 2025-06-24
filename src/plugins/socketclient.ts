@@ -5,7 +5,11 @@ let _callback: { [key: string]: (data: any) => void } = {}
 const enableJSON = true // 开启JSON解析消息，需要开启JSON解析消息才能开启uuid和event
 const enableUUID = true // 需要接收信息中包含uuid字段，uuid优先级高于event
 const enableEvent = true // 需要接收信息中包含event字段
-type ConnectSocketOption = { url: string | URL, headers: any }
+type ConnectSocketOption = {
+    url: string | URL, headers?: {
+        isToken?: boolean
+    }
+}
 
 
 export default {
@@ -15,7 +19,10 @@ export default {
      * 当连接成功后触发回调函数
      */
     connect(options: ConnectSocketOption) {
-        return new Promise((resolve, reject) => {
+        return new Promise((
+            resolve: (client: WebSocket, en: Event) => void,
+            reject: (client: WebSocket, en: Event) => void
+        ) => {
             const isToken = (options.headers || {}).isToken === false
             let authorization = ""
             if (getToken() && !isToken) {
@@ -24,9 +31,9 @@ export default {
             if (_socket !== undefined) {
                 _socket.close()
             }
-            _socket = new WebSocket(options.url, authorization);
-            _socket.onerror = reject
-            _socket.onopen = resolve
+            _socket = new WebSocket(options.url + `?token=${encodeURIComponent(authorization)}`);
+            _socket.onerror = (event: Event) => reject(_socket, event);
+            _socket.onopen = (event: Event) => resolve(_socket, event);
             _socket.onmessage = res => {
                 if (enableJSON) {
                     let data = JSON.parse((res || {}).data)

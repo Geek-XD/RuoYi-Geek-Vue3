@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-input v-model="url" type="text" style="width: 20%" /> &nbsp; &nbsp;
+    <el-input v-model="url" type="text" style="width: 20%" />
     <el-button @click="join" type="primary">连接</el-button>
     <el-button @click="exit" type="danger">断开</el-button>
     <br />
@@ -14,36 +14,33 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
-const url = ref("ws://127.0.0.1:8080/websocket/message");
+import socketclient from "@/plugins/socketclient";
 const message = ref("");
 const text_content = ref("");
-const ws = ref(null);
+const url = ref("ws://127.0.0.1:8080/websocket/message");
 function join() {
-  const wsuri = url.value;
-  ws.value = new WebSocket(wsuri);
-  ws.value.onopen = function () {
-    text_content.value += "已经打开连接!" + "\n";
-  };
-  ws.value.onmessage = function (event) {
-    text_content.value = event.data + "\n";
-  };
-  ws.value.onclose = function () {
+  socketclient.connect({ url: url.value }).then((client) => {
+    text_content.value += "连接成功!" + "\n";
+  }).catch((error) => {
+    text_content.value += "连接失败: " + error.message + "\n";
+  });
+  socketclient.onClose(() => {
     text_content.value += "已经关闭连接!" + "\n";
-  };
+  })
+  socketclient.onMessage((event) => {
+    text_content.value = event.data + "\n";
+  })
 }
 function exit() {
-  if (ws.value) {
-    ws.value.close();
-    ws.value = null;
-  }
+  socketclient.close().then(() => {
+    text_content.value += "已断开连接!" + "\n";
+  }).catch((error) => {
+    text_content.value += "断开连接失败: " + error.message + "\n";
+  });
 }
 function send() {
-  if (ws.value) {
-    ws.value.send(message.value);
-  } else {
-    alert("未连接到服务器");
-  }
+  socketclient.send(message.value);
 }
 </script>

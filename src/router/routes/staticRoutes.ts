@@ -66,7 +66,12 @@ export const constantRoutes: RouteItem[] = [
         component: () => import('@/views/three/gltfmode.vue'),
         name: 'threeTest',
         meta: { title: 'three实验室', icon: 'dashboard' }
-      }
+      },
+      {
+        path: "websocket",
+        component: () => import('@/views/websocket.vue'),
+        meta: { title: 'websocket实验室', icon: 'dashboard' }
+      },
     ]
   },
   {
@@ -82,11 +87,6 @@ export const constantRoutes: RouteItem[] = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  },
-  {
-    path: "/websocket",
-    component: () => import('@/views/websocket.vue'),
-    hidden: true
   },
   {
     path: '/flowable',
