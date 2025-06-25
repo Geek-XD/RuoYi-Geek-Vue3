@@ -70,6 +70,7 @@ export const constantRoutes: RouteItem[] = [
       {
         path: "websocket",
         component: () => import('@/views/websocket.vue'),
+        name: 'websocket',
         meta: { title: 'websocket实验室', icon: 'dashboard' }
       },
     ]

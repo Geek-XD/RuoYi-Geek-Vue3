@@ -3,8 +3,8 @@ import { generateUUID } from '@/utils/geek';
 let _socket: WebSocket;
 let _callback: { [key: string]: (data: any) => void } = {}
 const enableJSON = true // 开启JSON解析消息，需要开启JSON解析消息才能开启uuid和event
-const enableUUID = true // 需要接收信息中包含uuid字段，uuid优先级高于event
-const enableEvent = true // 需要接收信息中包含event字段
+const enableUUID = true // 需要接收信息中包含uuid字段，uuid优先级高于event，适用于需要单独处理每条消息的场景
+const enableEvent = true // 需要接收信息中包含event字段，适用于以事件为驱动的场景
 type ConnectSocketOption = {
     url: string | URL, headers?: {
         isToken?: boolean
@@ -21,7 +21,6 @@ export default {
     connect(options: ConnectSocketOption) {
         return new Promise((
             resolve: (client: WebSocket, en: Event) => void,
-            reject: (client: WebSocket, en: Event) => void
         ) => {
             const isToken = (options.headers || {}).isToken === false
             let authorization = ""
@@ -31,19 +30,9 @@ export default {
             if (_socket !== undefined) {
                 _socket.close()
             }
-            _socket = new WebSocket(options.url + `?token=${encodeURIComponent(authorization)}`);
-            _socket.onerror = (event: Event) => reject(_socket, event);
+            _socket = new WebSocket(options.url + `?Authorization=${encodeURIComponent(authorization)}`);
             _socket.onopen = (event: Event) => resolve(_socket, event);
-            _socket.onmessage = res => {
-                if (enableJSON) {
-                    let data = JSON.parse((res || {}).data)
-                    if (enableUUID && (data || {}).uuid !== undefined) {
-                        _callback[data.uuid](data)
-                    } else if (enableEvent && (data || {}).event !== undefined) {
-                        _callback[data.event](data)
-                    }
-                }
-            }
+            this.onMessage(() => { });
         })
     },
     /**
@@ -70,7 +59,7 @@ export default {
      * @returns 关闭连接的Promise，回调函数只会运行一次
      */
     close() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let onclose = _socket.onclose
             _socket.onclose = res => {
                 resolve(res)
@@ -103,17 +92,33 @@ export default {
     onMessage(callback: (data: any) => void) {
         _socket.onmessage = res => {
             if (enableJSON) {
-                let data = JSON.parse((res || {}).data)
-                if (enableUUID && (data || {}).uuid !== undefined) {
-                    _callback[data.uuid](res)
-                    delete _callback[data.uuid]
-                } else if (enableEvent && (data || {}).event !== undefined) {
-                    _callback[data.event](res)
-                } else {
-                    callback(data)
+                let uuid: string | undefined;
+                try {
+                    let data: {
+                        uuid?: string,
+                        event?: string,
+                        data: any
+                    } = JSON.parse((res || {}).data)
+                    if (enableUUID && data.uuid !== undefined) {
+                        uuid = data.uuid
+                        if (!_callback[uuid]) return
+                        _callback[uuid](data)
+                    } else if (enableEvent && data.event !== undefined) {
+                        if (!_callback[data.event]) return
+                        _callback[data.event](data)
+                    } else {
+                        callback(data);
+                    }
+                } catch (error) {
+                    console.error("WebSocket JSON parse error:", error);
+                    console.error("Received data:", res.data);
+                } finally {
+                    if (uuid && _callback[uuid]) {
+                        delete _callback[uuid]
+                    }
                 }
             } else {
-                callback(res.data)
+                callback(res.data);
             }
         }
     },
@@ -121,14 +126,14 @@ export default {
      * 定义异常事件
      * @param callback 默认异常事件的处理函数
      */
-    onError(callback: (data: any) => void) {
-        _socket.onerror = callback
+    onError(callback: ((client: WebSocket, en: Event) => void)) {
+        _socket.onerror = (event) => callback(_socket, event);
     },
     /**
      * 定义关闭事件
      * @param callback 默认关闭事件的处理函数
      */
-    onClose(callback: (data: any) => void) {
-        _socket.onerror = callback
+    onClose(callback: (client: WebSocket, en: Event) => void) {
+        _socket.onclose = (event) => callback(_socket, event);
     }
 };
