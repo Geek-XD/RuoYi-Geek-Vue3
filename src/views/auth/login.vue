@@ -85,7 +85,7 @@ function getCookie() {
   const email = localStorage.getItem("email");
   loginForm.value = {
     username: username ?? '',
-    password: password ?? '',
+    password: password ? decrypt(password) : '',
     email: email ?? '',
     phonenumber: phonenumber ?? '',
     code: "",

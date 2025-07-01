@@ -1,6 +1,20 @@
 <script setup lang="ts">
+import { getAction } from '@/utils/request';
+
 function oauthLogin(provider: string) {
   console.log(`开始 ${provider} 登录流程`);
+  // 打开链接 /system/auth
+  getAction<string>(`/system/auth/login/${provider}`)
+    .then((response) => {
+      if (response && response.msg) {
+        window.open(response.msg, '_blank');
+      } else {
+        console.error('登录链接获取失败', response);
+      }
+    })
+    .catch((error) => {
+      console.error(`登录 ${provider} 失败`, error);
+    });
 }
 </script>
 <template>
