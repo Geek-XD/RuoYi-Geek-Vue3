@@ -1,73 +1,47 @@
 <template>
   <div class="recipient-selector">
-    <div class="section-title">
-      <el-icon><User /></el-icon> 收件人信息
-    </div>
+    <el-form-item label="收件人" prop="recipientType">
+      <el-radio-group v-model="recipientType" @change="handleTypeChange">
+        <el-radio v-for="type in recipientTypes" :key="type.value" :label="type.value">
+          {{ type.label }}
+        </el-radio>
+      </el-radio-group>
+    </el-form-item>
     
-    <!-- 收件人类型选择 -->
-    <el-row>
-      <el-col :span="24">
-        <div class="recipient-type-selector">
-          <div class="type-label">收件人类型:</div>
-          <el-radio-group v-model="recipientType" @change="handleTypeChange">
-            <el-radio v-for="type in recipientTypes" :key="type.value" :label="type.value">
-              <el-icon v-if="type.value === 'user'"><User /></el-icon>
-              <el-icon v-else-if="type.value === 'role'"><Avatar /></el-icon>
-              <el-icon v-else-if="type.value === 'dept'"><OfficeBuilding /></el-icon>
-              {{ type.label }}
-            </el-radio>
-          </el-radio-group>
-        </div>
-      </el-col>
-    </el-row>
+    <el-form-item v-if="recipientType && options.length > 0" :label="selectedLabel" prop="messageRecipient">
+      <!-- 部门树形选择 -->
+      <el-tree-select 
+        v-if="recipientType === 'dept'"
+        v-model="selectedRecipients" 
+        :data="options" 
+        placeholder="请选择部门" 
+        clearable 
+        :props="{ value: 'deptId', label: 'deptName', children: 'children' }" 
+        @change="handleSelectionChange" 
+        multiple 
+        style="width: 100%" 
+      />
+      <!-- 用户/角色选择 -->
+      <el-select 
+        v-else
+        v-model="selectedRecipients" 
+        placeholder="请选择收件人" 
+        @change="handleSelectionChange" 
+        multiple 
+        style="width: 100%"
+      >
+        <el-option 
+          v-for="item in options" 
+          :key="item.id" 
+          :label="item.name" 
+          :value="item.id" 
+        />
+      </el-select>
+    </el-form-item>
     
-    <!-- 收件人选择 -->
-    <el-row v-if="recipientType && options.length > 0" class="recipient-row">
-      <el-col :span="24">
-        <el-form-item :label="selectedLabel" prop="messageRecipient">
-          <!-- 部门树形选择 -->
-          <div v-if="recipientType === 'dept'">
-            <el-tree-select 
-              v-model="selectedRecipients" 
-              :data="options" 
-              placeholder="请选择部门" 
-              clearable 
-              :props="{ value: 'deptId', label: 'deptName', children: 'children' }" 
-              @change="handleSelectionChange" 
-              multiple 
-              :collapse-tags="false" 
-              style="width: 500px" 
-            />
-          </div>
-          <!-- 用户/角色选择 -->
-          <div v-else>
-            <el-select 
-              v-model="selectedRecipients" 
-              placeholder="请选择收件人" 
-              @change="handleSelectionChange" 
-              multiple 
-              style="width: 500px"
-            >
-              <el-option 
-                v-for="item in options" 
-                :key="item.id" 
-                :label="item.name" 
-                :value="item.id" 
-              />
-            </el-select>
-          </div>
-        </el-form-item>
-      </el-col>
-    </el-row>
-    
-    <!-- 联系方式显示 -->
-    <el-row v-if="contactInfo">
-      <el-col :span="24">
-        <el-form-item label="接收号码">
-          <el-input v-model="contactInfo" placeholder="接收人联系方式" disabled />
-        </el-form-item>
-      </el-col>
-    </el-row>
+    <el-form-item v-if="contactInfo" label="接收号码">
+      <el-input v-model="contactInfo" placeholder="接收人联系方式" readonly />
+    </el-form-item>
   </div>
 </template>
 
@@ -75,7 +49,6 @@
 import { ref, computed, watch } from 'vue';
 import { getSystemResource } from '@/api/modelMessage/messageSystem';
 import { ElMessage } from 'element-plus';
-import { User, Avatar, OfficeBuilding } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
@@ -297,58 +270,3 @@ defineExpose({
   }
 });
 </script>
-
-<style scoped>
-.recipient-selector {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #f0f2f5;
-  padding-bottom: 6px;
-  margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.section-title .el-icon {
-  margin-right: 8px;
-  color: #409EFF;
-  font-size: 16px;
-}
-
-.recipient-type-selector {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.type-label {
-  margin-right: 10px;
-  font-weight: 500;
-  color: #606266;
-  min-width: 70px;
-}
-
-.recipient-type-selector .el-radio {
-  margin-right: 14px;
-  margin-bottom: 0;
-}
-
-.recipient-type-selector .el-icon {
-  margin-right: 4px;
-  font-size: 15px;
-}
-
-.recipient-row {
-  margin-top: 10px;
-  margin-bottom: 0;
-}
-</style>

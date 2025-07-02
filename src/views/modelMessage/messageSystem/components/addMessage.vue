@@ -1,62 +1,84 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="700px" destroy-on-close :close-on-click-modal="false" @closed="handleClosed" class="message-dialog">
-  <div class="form-container">
-    <el-form ref="messageSystemFormRef" :model="form" :rules="rules" label-width="80px" class="message-form" v-loading="loading" element-loading-text="消息发送中...">
-      <!-- 基本信息区域 -->
-      <div class="form-section"><div class="section-title"><el-icon><Document /></el-icon> 基本信息</div>
-
-      <el-row :gutter="16"><el-col :span="24"><el-form-item label="标题" prop="messageTitle"><el-input v-model="form.messageTitle" placeholder="请输入消息标题" clearable /></el-form-item></el-col></el-row>
-
-      <el-row :gutter="16">
+  <!-- 添加或修改消息管理对话框 -->
+  <el-dialog v-model="dialogVisible" :title="title" width="600px" append-to-body>
+    <el-form ref="messageSystemFormRef" :model="form" :rules="rules" label-width="80px" v-loading="loading">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="消息标题" prop="messageTitle">
+            <el-input v-model="form.messageTitle" placeholder="请输入消息标题" maxlength="50" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
         <el-col :span="12">
           <el-form-item label="发送方式" prop="sendMode">
-            <el-select v-model="form.sendMode" placeholder="选择发送方式" clearable style="width: 100%" @change="handleSendModeChange">
-              <el-option v-for="dict in send_mode" :key="dict.value" :label="dict.label" :value="dict.value">
-                <div class="option-with-icon">
-                  <el-icon v-if="dict.value === '0'"><MessageBox /></el-icon>
-                  <el-icon v-else-if="dict.value === '1'"><PhoneFilled /></el-icon>
-                  <el-icon v-else-if="dict.value === '2'"><Message /></el-icon>
-                  {{ dict.label }}
-                </div>
-              </el-option>
+            <el-select v-model="form.sendMode" placeholder="请选择发送方式" @change="handleSendModeChange" style="width: 100%">
+              <el-option v-for="dict in send_mode" :key="dict.value" :label="dict.label" :value="dict.value" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="消息类型" prop="messageType">
-            <el-select v-model="form.messageType" placeholder="选择消息类型" clearable style="width: 100%">
+            <el-select v-model="form.messageType" placeholder="请选择消息类型" style="width: 100%">
               <el-option v-for="dict in message_type" :key="dict.value" :label="dict.label" :value="dict.value" />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
-      </div>
 
       <!-- 消息内容组件 -->
-      <MessageContent :send-mode="form.sendMode" @update:contentType="form.contentType = $event" @update:messageContent="form.messageContent = $event" ref="messageContentRef" />
+      <div class="message-content">
+        <el-form-item label="内容类型" prop="contentType">
+          <el-radio-group v-model="contentType" @change="handleContentTypeChange">
+            <el-radio label="template">模板签名</el-radio>
+            <el-radio label="content">消息内容</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <!-- 模板选择 -->
+        <el-form-item v-if="contentType === 'template'" label="模板选择" prop="messageContent">
+          <el-select v-model="form.messageContent" placeholder="请选择模板签名" style="width: 100%"
+            @change="handleTemplateChange" :loading="templateLoading">
+            <el-option v-for="temp in templates" :key="temp.templateId" :label="temp.templateCode"
+              :value="temp.templateCode" />
+          </el-select>
+        </el-form-item>
+
+        <!-- 内容输入 -->
+        <el-form-item v-else label="消息内容" prop="messageContent">
+          <el-input v-model="form.messageContent" type="textarea" :rows="3" placeholder="短信格式须为: 模板名?模板参数=值" maxlength="100" show-word-limit @input="handleContentInput"/>
+        </el-form-item>
+      </div>
 
       <!-- 收件人选择组件 -->
       <RecipientSelector :send-mode="form.sendMode" @update:recipients="form.messageRecipient = $event" @update:contactInfo="form.code = $event" ref="recipientSelectorRef" />
 
       <!-- 备注区域 -->
-      <div class="form-section"><el-row><el-col :span="24"><el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="2" placeholder="可选：添加备注信息" /></el-form-item></el-col></el-row></div>
+      <div class="form-section">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注">
+              <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="可选：添加备注信息" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
     </el-form>
-
-    <div class="dialog-footer">
-      <el-button @click="toggleDialog">取 消</el-button>
-      <el-button type="primary" @click="submitForm" :loading="loading" class="send-button"><el-icon><Promotion /></el-icon> 发送消息</el-button>
-    </div>
-  </div>
-</el-dialog>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="submitForm" :loading="loading">确 定</el-button>
+        <el-button @click="toggleDialog">取 消</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, defineProps, defineEmits, defineExpose } from 'vue';
+import { ref, getCurrentInstance, watch } from 'vue';
 import { batchAddMessage } from '@/api/modelMessage/messageSystem';
+import { selecTemplates } from '@/api/modelMessage/template';
 import { ElMessage } from 'element-plus';
-import { Message, Document, MessageBox, PhoneFilled, Promotion } from '@element-plus/icons-vue';
-import MessageContent from './MessageContent.vue';
-import RecipientSelector from './RecipientSelector.vue';
+import RecipientSelector from './recipientSelector.vue';
 
 const props = defineProps({ title: { type: String, default: "发送消息" } });
 const { proxy } = getCurrentInstance();
@@ -64,7 +86,6 @@ const { send_mode, message_type } = proxy.useDict("send_mode", "message_type");
 const emit = defineEmits(['success', 'close']);
 // Refs
 const messageSystemFormRef = ref(null);
-const messageContentRef = ref(null);
 const recipientSelectorRef = ref(null);
 const dialogVisible = ref(false);
 const loading = ref(false);
@@ -81,6 +102,11 @@ const form = ref({
   messageType: null
 });
 
+// 内容类型和模板相关数据
+const contentType = ref('template');
+const templates = ref([]);
+const templateLoading = ref(false);
+
 // 表单验证规则
 const rules = ref({
   messageTitle: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -89,11 +115,63 @@ const rules = ref({
   messageType: [{ required: true, message: '请选择消息类型', trigger: 'change' }],
   messageContent: [{ required: true, message: '模版签名或消息内容不能为空', trigger: 'blur' }]
 });
+
 // 处理发送方式改变
 function handleSendModeChange() {
   // 清空联系方式，子组件会自动处理数据更新
   form.value.code = '';
 }
+
+// 获取模板列表
+async function getTemplates() {
+  try {
+    templateLoading.value = true;
+    const response = await selecTemplates();
+    templates.value = response.data || [];
+  } catch (error) {
+    console.error('获取模板信息失败:', error);
+    ElMessage.error('获取模板信息失败');
+  } finally {
+    templateLoading.value = false;
+  }
+}
+
+// 处理内容类型变化
+function handleContentTypeChange() {
+  form.value.messageContent = '';
+}
+
+// 处理模板选择变化
+function handleTemplateChange(value) {
+  form.value.messageContent = value;
+}
+
+// 处理内容输入变化
+function handleContentInput(value) {
+  form.value.messageContent = value;
+}
+
+// 验证消息内容格式
+function validateMessageContent(value) {
+  if (form.value.sendMode === '1' && contentType.value === 'content') {
+    const pattern = /^[^?]+?\?[^=]+?=.*$/;
+    if (!pattern.test(value)) {
+      return '短信输入内容格式必须为：模板名?模板参数=值';
+    }
+  }
+  return true;
+}
+
+// 监听发送方式变化
+watch(() => form.value.sendMode, () => {
+  // 发送方式变化时可能需要重新验证内容格式
+  if (form.value.messageContent) {
+    const validation = validateMessageContent(form.value.messageContent);
+    if (validation !== true) {
+      ElMessage.warning(validation);
+    }
+  }
+});
 
 // 发送消息表单提交
 async function submitForm() {
@@ -101,12 +179,20 @@ async function submitForm() {
   try {
     // 表单验证
     await messageSystemFormRef.value.validate();
+    
+    // 验证消息内容格式
+    const contentValidation = validateMessageContent(form.value.messageContent);
+    if (contentValidation !== true) {
+      throw new Error(contentValidation);
+    }
+    
     // 从子组件获取收件人信息
     const recipients = await recipientSelectorRef.value.getRecipients();
     if (!recipients || recipients.length === 0) {
       ElMessage.warning('请选择收件人');
       return;
     }
+    
     // 构建消息数据
     const messages = recipients.map(recipient => ({
       ...form.value,
@@ -142,11 +228,10 @@ function reset() {
     contentType: "template",
     messageType: null
   };
+  
+  contentType.value = 'template';
 
   // 重置子组件
-  if (messageContentRef.value) {
-    messageContentRef.value.reset();
-  }
   if (recipientSelectorRef.value) {
     recipientSelectorRef.value.reset();
   }
@@ -162,82 +247,11 @@ function toggleDialog() {
   }
 }
 
-// 对话框关闭处理
-function handleClosed() {
-  reset();
-  emit('close');
-  loading.value = false;
-}
-
 // 暴露方法给父组件
 defineExpose({
   open: () => {
     dialogVisible.value = true;
   }
 });
-</script>
-
-<style scoped>
-.message-dialog {
-  border-radius: 12px;
-}
-
-.form-container {
-  padding: 10px;
-}
-
-.form-section {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #f0f2f5;
-  padding-bottom: 6px;
-  margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.section-title .el-icon {
-  margin-right: 8px;
-  color: #409EFF;
-  font-size: 16px;
-}
-
-.option-with-icon {
-  display: flex;
-  align-items: center;
-}
-
-.option-with-icon .el-icon {
-  margin-right: 6px;
-  font-size: 14px;
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f2f5;
-}
-
-.send-button {
-  background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  font-weight: 500;
-}
-
-.send-button:hover {
-  background: linear-gradient(135deg, #337ecc 0%, #5daf34 100%);
-}
-</style>
+getTemplates();
+</script>    

@@ -1,76 +1,68 @@
 <template>
-  <div class="template-container">
-    <!-- 搜索区域 -->
-    <el-card class="search-card" shadow="hover">
-      <div class="card-header">
-        <el-icon><Search /></el-icon>
-        <span>搜索条件</span>
-      </div>
-      <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="80px">
-        <el-form-item label="模版名称" prop="templateName">
-          <el-input v-model="queryParams.templateName" placeholder="请输入模版名称" clearable @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="模版类型" prop="templateType">
-          <el-select v-model="queryParams.templateType" placeholder="请选择模版类型" clearable style="width:180px">
-            <el-option v-for="dict in template_type" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+  <div class="app-container">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="模版名称" prop="templateName">
+        <el-input v-model="queryParams.templateName" placeholder="请输入模版名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
+      </el-form-item>
+      <el-form-item label="模版类型" prop="templateType">
+        <el-select v-model="queryParams.templateType" placeholder="请选择模版类型" clearable style="width: 240px">
+          <el-option v-for="dict in template_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      </el-form-item>
+    </el-form>
 
-    <!-- 工具栏 -->
-    <el-card class="action-card" shadow="hover">
-      <div class="card-header">
-        <el-icon><Operation /></el-icon>
-        <span>操作面板</span>
-      </div>
-      <div class="action-bar">
-        <div>
-          <el-button type="primary" plain icon="Plus" @click="handleAdd">新增模版</el-button>
-          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">批量删除</el-button>
-          <el-button type="success" plain icon="Download" @click="handleExport">导出数据</el-button>
-        </div>
-      </div>
-    </el-card>
+    <el-row :gutter="10" class="mb8">
+      <el-col :span="1.5">
+        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+      </el-col>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+    </el-row>
 
-    <!-- 数据表格 -->
-    <el-card class="table-card" shadow="hover">
-      <div class="card-header">
-        <el-icon><List /></el-icon>
-        <span>模版列表</span>
-      </div>
-      <el-table v-loading="loading" :data="templateList" @selection-change="handleSelectionChange"
-        highlight-current-row stripe border>
-        <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="模版名称" align="center" prop="templateName" min-width="120" show-overflow-tooltip />
-        <el-table-column label="模版CODE" align="center" prop="templateCode" min-width="120" show-overflow-tooltip />
-        <el-table-column label="模版类型" align="center" prop="templateType" width="120">
-          <template #default="scope">
-            <dict-tag :options="template_type" :value="scope.row.templateType" />
-          </template>
-        </el-table-column>
-        <el-table-column label="模版内容" align="center" prop="templateContent" min-width="180" show-overflow-tooltip />
-        <el-table-column label="变量" align="center" prop="templateVariable" min-width="120" show-overflow-tooltip />
-        <el-table-column label="场景说明" align="center" prop="remark" min-width="120" show-overflow-tooltip />
-        <el-table-column label="操作" align="center" width="215">
-          <template #default="scope">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">编辑</el-button>
-            <el-button link type="success" icon="View" @click="handlePreview(scope.row)">预览</el-button>
-            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <el-table v-loading="loading" :data="templateList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50" align="center" />
+      <el-table-column label="模版编号" align="center" prop="templateId" />
+      <el-table-column label="模版名称" align="center" prop="templateName" :show-overflow-tooltip="true" />
+      <el-table-column label="模版CODE" align="center" prop="templateCode" :show-overflow-tooltip="true" />
+      <el-table-column label="模版类型" align="center" prop="templateType" width="120">
+        <template #default="scope">
+          <dict-tag :options="template_type" :value="scope.row.templateType" />
+        </template>
+      </el-table-column>
+      <el-table-column label="模版内容" align="center" prop="templateContent" :show-overflow-tooltip="true" />
+      <el-table-column label="变量" align="center" prop="templateVariable" :show-overflow-tooltip="true" />
+      <el-table-column label="场景说明" align="center" prop="remark" :show-overflow-tooltip="true" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width">
+        <template #default="scope">
+          <el-tooltip content="修改" placement="top">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除" placement="top">
+            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
-          v-model:limit="queryParams.pageSize" @pagination="getList" />
-      </div>
-    </el-card>
+    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改模版管理对话框 -->
     <TemplateFormDialog
@@ -83,40 +75,28 @@
       @cancel="cancel"
       ref="templateFormDialogRef"
     />
-
-    <!-- 模板预览对话框 -->
-    <TemplatePreviewDialog
-      :visible="previewOpen"
-      :previewData="previewData"
-      :previewVariables="previewVariables"
-      @update:visible="previewOpen = $event"
-    />
   </div>
 </template>
 
 <script setup name="Template">
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/modelMessage/template";
 import { selectVariable } from "@/api/modelMessage/variable";
-import { Search, Operation, List } from '@element-plus/icons-vue';
-import TemplateFormDialog from './components/TemplateFormDialog.vue';
-import TemplatePreviewDialog from './components/TemplatePreviewDialog.vue';
+import TemplateFormDialog from './components/templateFormDialog.vue';
 
 const { proxy } = getCurrentInstance();
 const { template_type } = proxy.useDict("template_type");
+const { parseTime } = proxy;
+
 const templateList = ref([]);
 const open = ref(false);
 const loading = ref(true);
+const showSearch = ref(true);
 const ids = ref([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const variable = ref([]);
-// 预览数据
-const previewOpen = ref(false);
-const previewData = ref({});
-const previewVariables = ref([]);
-// 组件引用
 const templateFormDialogRef = ref(null);
 
 const data = reactive({
@@ -126,11 +106,10 @@ const data = reactive({
     pageSize: 10,
     templateName: null,
     templateType: null,
-  },
-  rules: {}
+  }
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const { queryParams, form } = toRefs(data);
 
 /** 查询模版管理列表 */
 function getList() {
@@ -199,19 +178,6 @@ function handleUpdate(row) {
   });
 }
 
-/** 预览模板 */
-function handlePreview(row) {
-  previewData.value = { ...row };
-  previewVariables.value = row.templateVariable ? row.templateVariable.split('/') : [];
-  previewOpen.value = true;
-}
-
-/** 获取模板类型文字 */
-function getTemplatTypeText(type) {
-  const found = template_type.value.find(item => item.value === type);
-  return found ? found.label : '未知类型';
-}
-
 /** 处理表单提交 */
 function handleFormSubmit(formData) {
   const submitData = { ...formData };
@@ -231,8 +197,6 @@ function handleFormSubmit(formData) {
     });
   }
 }
-
-
 
 /** 删除按钮操作 */
 function handleDelete(row) {
@@ -260,28 +224,6 @@ async function getVariable() {
   }
 }
 
-
-
 getVariable();
 getList();
 </script>
-
-<style scoped>
-.template-container { padding: 16px; min-height: 100vh; background: #f0f2f5; }
-
-/* 卡片通用样式 */
-.search-card, .action-card, .table-card { margin-bottom: 16px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important; transition: all 0.3s; }
-.search-card:hover, .action-card:hover, .table-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important; }
-
-/* 卡片标题 */
-.card-header { display: flex; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #ebeef5; font-size: 16px; font-weight: 500; color: #303133; }
-.card-header .el-icon { margin-right: 6px; font-size: 18px; color: #409EFF; }
-
-/* 操作栏样式 */
-.action-bar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 4px 0; }
-
-/* 表格和分页样式 */
-.pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
-
-
-</style>
