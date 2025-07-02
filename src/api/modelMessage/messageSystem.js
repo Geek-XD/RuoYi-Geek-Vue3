@@ -17,16 +17,6 @@ export function getMessageSystem(messageId) {
   })
 }
 
-// 新增消息管理
-export function addMessage(data) {
-  return request({
-    url: '/modelMessage/messageSystem',
-    method: 'post',
-    data: data,
-    headers: { 'isRepeatSubmit': false }
-  })
-}
-
 // 修改消息管理
 export function updateMessageSystem(data) {
   return request({
@@ -44,60 +34,28 @@ export function delMessageSystem(messageId) {
   })
 }
 
-// 查询系统用户收件人
-export function selectUser(sendMode) {
-  const url = '/modelMessage/messageSystem/selectUser' + (sendMode ? `?sendMode=${encodeURIComponent(sendMode)}` : '');
+// 统一查询系统资源信息（角色、部门、用户）
+export function getSystemResource(type, id, sendMode) {
+  const params = { type };
+  if (id !== null && id !== undefined) {
+    params.id = id;
+  }
+  if (sendMode !== null && sendMode !== undefined) {
+    params.sendMode = sendMode;
+  }
+
   return request({
-    url: url,
-    method: 'get'
+    url: '/modelMessage/messageSystem/systemResource',
+    method: 'get',
+    params: params
   });
 }
 
-// 查询角色信息
-export function selectRole() {
-  return request({
-    url: '/modelMessage/messageSystem/selectRole',
-    method: 'get'
-  })
-}
-
-// 查询部门信息
-export function selectDept() {
-  return request({
-    url: '/modelMessage/messageSystem/selectDept',
-    method: 'get'
-  })
-}
-
-//消息状态
+//点击信息详情状态调整为已读
 export function getUpdate(messageId) {
   return request({
     url: '/modelMessage/messageSystem/' + messageId,
     method: 'post'
-  })
-}
-
-//根据角色ID获取所有符合条件的用户信息。
-export function getUsersByRoleId(roleId) {
-  return request({
-    url: 'modelMessage/messageSystem/getUsersByRole/'+roleId,
-    method: 'get'
-  })
-}
-
-//根据部门ID获取所有符合条件的用户信息。
-export function getUserNamesByDeptId(deptId) {
-  return request({
-    url: 'modelMessage/messageSystem/getUserNameByDeptId/'+deptId,  
-    method: 'get'
-  })
-}
-
-// 查询模版签名
-export function selecTemplates() {
-  return request({
-    url: '/modelMessage/messageSystem/selecTemplates',
-    method: 'get'
   })
 }
 
