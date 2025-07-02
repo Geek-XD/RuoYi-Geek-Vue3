@@ -35,7 +35,7 @@
           <el-button type="warning" plain icon="download" @click="handleExport"
             v-hasPermi="['system:listener:export']">导出</el-button>
         </el-col>
-        <right-toolbar :showSearch.sync="shoSearch" @queryTable="getList"></right-toolbar>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-alert title="流程监听使用说明" type="success">

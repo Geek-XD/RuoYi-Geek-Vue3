@@ -1,70 +1,59 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
       <el-form-item label="角色名称" prop="roleName">
-        <el-input
-          v-model="queryParams.roleName"
-          placeholder="请输入角色名称"
-          clearable
-          style="width: 240px"
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable style="width: 240px"
+          @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+        <el-button icon="refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-table v-show="checkType === 'multiple'" ref="dataTable"  v-loading="loading" :data="roleList" @selection-change="handleMultipleRoleSelect">
+    <el-table v-show="checkType === 'multiple'" ref="dataTable" v-loading="loading" :data="roleList"
+      @selection-change="handleMultipleRoleSelect">
       <el-table-column type="selection" width="50" align="center" />
-      <el-table-column label="角色编号" prop="roleId" width="120" />
-      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="显示顺序" prop="roleSort" width="100" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="角色编号" prop="roleId" />
+      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" />
+      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" />
+      <el-table-column label="显示顺序" prop="roleSort" />
+      <el-table-column label="创建时间" align="center" prop="createTime">
         <template v-slot="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
     </el-table>
-    <el-table v-show="checkType === 'single'" v-loading="loading" :data="roleList" @current-change="handleSingleRoleSelect">
-      <el-table-column  width="55" align="center" >
+    <el-table v-show="checkType === 'single'" v-loading="loading" :data="roleList"
+      @current-change="handleSingleRoleSelect">
+      <el-table-column width="55" align="center">
         <template v-slot="scope">
           <!-- 可以手动的修改label的值，从而控制选择哪一项 -->
-          <el-radio v-model="radioSelected" :label="scope.row.roleId">{{''}}</el-radio>
+          <el-radio v-model="radioSelected" :label="scope.row.roleId">{{ '' }}</el-radio>
         </template>
       </el-table-column>
-      <el-table-column label="角色编号" prop="roleId" width="120" />
-      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="显示顺序" prop="roleSort" width="100" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="角色编号" prop="roleId" />
+      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" />
+      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" />
+      <el-table-column label="显示顺序" prop="roleSort" />
+      <el-table-column label="创建时间" align="center" prop="createTime">
         <template v-slot="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page-sizes="[5,10]"
-      layout="prev, pager, next"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page-sizes="[5, 10]" layout="prev, pager, next"
+      :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
   </div>
 </template>
 
 <script>
-import { listRole} from "@/api/system/role";
-import {StrUtil} from "@/utils/StrUtil";
+import { listRole } from "@/api/system/role";
+import { StrUtil } from "@/utils/StrUtil";
 
 export default {
   name: "FlowRole",
-  dicts: ['sys_normal_disable'],
   // 接受父组件的值
   props: {
     // 回显数据传值
@@ -131,7 +120,10 @@ export default {
         if (StrUtil.isNotBlank(newVal) && this.selectRoleList.length > 0) {
           this.$nextTick(() => {
             this.$refs.dataTable.clearSelection();
-            this.selectRoleList?.split(',').forEach(key => {
+            if (typeof this.selectRoleList === 'string') {
+              this.selectRoleList = this.selectRoleList.split(',');
+            }
+            this.selectRoleList?.forEach(key => {
               this.$refs.dataTable.toggleRowSelection(newVal.find(
                 item => key == item.roleId
               ), true)
@@ -149,10 +141,10 @@ export default {
     getList() {
       this.loading = true;
       listRole(this.queryParams).then(response => {
-          this.roleList = response.rows;
-          this.total = response.total;
-          this.loading = false;
-        }
+        this.roleList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      }
       );
     },
     // 多选框选中数据

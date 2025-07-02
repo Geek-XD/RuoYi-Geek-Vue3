@@ -4,7 +4,7 @@
       <!--部门数据-->
       <el-col :span="6" :xs="24">
         <div class="head-container">
-          <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="small" prefix-icon="search"
+          <el-input v-model="deptName" placeholder="请输入部门名称" clearable prefix-icon="search"
             style="margin-bottom: 20px" />
         </div>
         <div class="head-container">
@@ -15,29 +15,21 @@
       </el-col>
       <!--用户数据-->
       <el-col :span="18" :xs="24">
-        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
-          label-width="68px">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
           <el-form-item label="用户名称" prop="userName">
             <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 150px"
               @keyup.enter.native="handleQuery" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-            <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
+            <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+            <el-button icon="refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
         <el-table v-show="checkType === 'multiple'" ref="dataTable" v-loading="loading" :row-key="getRowKey"
           :data="userList" @selection-change="handleMultipleUserSelect">
           <el-table-column type="selection" :reserve-selection="true" width="50" align="center" />
-          <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
-          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible"
-            width="120" />
+          <el-table-column v-for="column in columns" :label="column.label" align="center" :key="column.key"
+            :prop="column.key" v-show="column.visible" show-overflow-tooltip />
         </el-table>
         <el-table v-show="checkType === 'single'" v-loading="loading" :data="userList"
           @current-change="handleSingleUserSelect">
@@ -46,15 +38,8 @@
               <el-radio v-model="radioSelected" :label="scope.row.userId">{{ '' }}</el-radio>
             </template>
           </el-table-column>
-          <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
-          <el-table-column label="登录账号" align="center" key="userName" prop="userName" v-if="columns[1].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="用户姓名" align="center" key="nickName" prop="nickName" v-if="columns[2].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible"
-            :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible"
-            width="120" />
+          <el-table-column v-for="column in columns" :label="column.label" align="center" :key="column.key"
+            :prop="column.key" v-show="column.visible" show-overflow-tooltip />
         </el-table>
         <pagination v-show="total > 0" :total="total" :page-sizes="[5, 10]" layout="prev, pager, next"
           :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
@@ -71,7 +56,6 @@ import { StrUtil } from '@/utils/StrUtil'
 
 export default {
   name: "FlowUser",
-  dicts: ['sys_normal_disable', 'sys_user_sex'],
   components: { Treeselect },
   // 接受父组件的值
   props: {
@@ -129,13 +113,13 @@ export default {
       },
       // 列信息
       columns: [
-        { key: 0, label: `用户编号`, visible: true },
-        { key: 1, label: `用户名称`, visible: true },
-        { key: 2, label: `用户昵称`, visible: true },
-        { key: 3, label: `部门`, visible: true },
-        { key: 4, label: `手机号码`, visible: true },
-        { key: 5, label: `状态`, visible: true },
-        { key: 6, label: `创建时间`, visible: true }
+        { key: 'userId', label: `用户编号`, visible: true },
+        { key: 'userName', label: `登录账号`, visible: true },
+        { key: 'nickName', label: `用户昵称`, visible: true },
+        { key: 'deptName', label: `部门`, visible: true },
+        { key: 'phonenumber', label: `手机号码`, visible: true },
+        { key: 'status', label: `状态`, visible: false },
+        { key: 'createTime', label: `创建时间`, visible: false }
       ],
       radioSelected: 0, // 单选框传值
       selectUserList: [] // 回显数据传值

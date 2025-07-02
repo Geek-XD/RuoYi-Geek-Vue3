@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form label-width="80px" size="small">
+    <el-form label-width="80px">
       <el-form-item label="异步">
         <el-switch v-model="bpmnFormData.async" active-text="是" inactive-text="否"
           @change="updateElementTask('async')" />
@@ -16,11 +16,11 @@
         <el-button-group class="ml-4" style="margin-top: 4px">
           <!--指定人员-->
           <el-tooltip class="box-item" effect="dark" content="指定人员" placement="bottom">
-            <el-button size="small" type="primary" icon="user" @click="singleUserCheck" />
+            <el-button type="primary" icon="user" @click="singleUserCheck" />
           </el-tooltip>
           <!--选择表达式-->
           <el-tooltip class="box-item" effect="dark" content="选择表达式" placement="bottom">
-            <el-button size="small" type="warning" icon="postcard" @click="singleExpCheck" />
+            <el-button type="warning" icon="postcard" @click="singleExpCheck" />
           </el-tooltip>
         </el-button-group>
       </el-form-item>
@@ -30,11 +30,11 @@
         <el-button-group class="ml-4" style="margin-top: 4px">
           <!--候选人员-->
           <el-tooltip class="box-item" effect="dark" content="候选人员" placement="bottom">
-            <el-button size="small" type="primary" icon="user" @click="multipleUserCheck" />
+            <el-button type="primary" icon="user" @click="multipleUserCheck" />
           </el-tooltip>
           <!--选择表达式-->
           <el-tooltip class="box-item" effect="dark" content="选择表达式" placement="bottom">
-            <el-button size="small" type="warning" icon="postcard" @click="singleExpCheck" />
+            <el-button type="warning" icon="postcard" @click="singleExpCheck" />
           </el-tooltip>
         </el-button-group>
       </el-form-item>
@@ -44,11 +44,11 @@
         <el-button-group class="ml-4" style="margin-top: 4px">
           <!--候选角色-->
           <el-tooltip class="box-item" effect="dark" content="候选角色" placement="bottom">
-            <el-button size="small" type="primary" icon="user" @click="multipleRoleCheck" />
+            <el-button type="primary" icon="user" @click="multipleRoleCheck" />
           </el-tooltip>
           <!--选择表达式-->
           <el-tooltip class="box-item" effect="dark" content="选择表达式" placement="bottom">
-            <el-button size="small" type="warning" icon="postcard" @click="singleExpCheck" />
+            <el-button type="warning" icon="postcard" @click="singleExpCheck" />
           </el-tooltip>
         </el-button-group>
       </el-form-item>
@@ -64,35 +64,33 @@
     <!--选择人员-->
     <el-dialog title="选择人员" v-model="userVisible" width="60%" :close-on-press-escape="false" :show-close="false">
       <flow-user v-if="userVisible" :checkType="checkType"
-        :selectValues="selectData.assignee || selectData.candidateUsers" @handleUserSelect="userSelect"></flow-user>
+        :selectValues="selectData.assignee || selectData.candidateUsers" @handleUserSelect="userSelect" />
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="userVisible = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="checkUserComplete">确 定</el-button>
+          <el-button @click="userVisible = false">取 消</el-button>
+          <el-button type="primary" @click="checkUserComplete">确 定</el-button>
         </div>
       </template>
     </el-dialog>
 
     <!--选择角色-->
-    <el-dialog title="选择候选角色" v-model="roleVisible" width="60%" :close-on-press-escape="false"
-      :show-close="false">
-      <flow-role v-if="roleVisible" :selectValues="selectData.candidateGroups"
-        @handleRoleSelect="roleSelect"></flow-role>
+    <el-dialog title="选择候选角色" v-model="roleVisible" width="60%" :close-on-press-escape="false" :show-close="false">
+      <flow-role v-if="roleVisible" :selectValues="selectData.candidateGroups" @handleRoleSelect="roleSelect" />
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="roleVisible = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="checkRoleComplete">确 定</el-button>
+          <el-button @click="roleVisible = false">取 消</el-button>
+          <el-button type="primary" @click="checkRoleComplete">确 定</el-button>
         </div>
       </template>
     </el-dialog>
 
     <!--选择表达式-->
     <el-dialog title="选择表达式" v-model="expVisible" width="60%" :close-on-press-escape="false" :show-close="false">
-      <flow-exp v-if="expVisible" :selectValues="selectData.exp" @handleSingleExpSelect="expSelect"></flow-exp>
+      <flow-exp v-if="expVisible" :selectValues="selectData.exp" @handleSingleExpSelect="expSelect" />
       <template #footer class="dialog-footer">
         <div class="dialog-footer">
-          <el-button size="small" @click="expVisible = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="checkExpComplete">确 定</el-button>
+          <el-button @click="expVisible = false">取 消</el-button>
+          <el-button type="primary" @click="checkExpComplete">确 定</el-button>
         </div>
       </template>
     </el-dialog>

@@ -5,57 +5,57 @@
         <span>{{ translateNodeName(elementType) }}</span>
       </div>
     </template>
-    <el-collapse v-model="activeName" >
-        <!--   常规信息     -->
-        <el-collapse-item name="common">
-          <template #title><i class="el-icon-info"></i> 常规信息</template>
-          <common-panel :id="elementId"/>
-        </el-collapse-item>
+    <el-collapse v-model="activeName">
+      <!--   常规信息     -->
+      <el-collapse-item name="common">
+        <template #title><i class="el-icon-info"></i> 常规信息</template>
+        <common-panel :id="elementId" />
+      </el-collapse-item>
 
-        <!--   任务信息     -->
-        <el-collapse-item name="Task" v-if="elementType.indexOf('Task') !== -1">
-          <template #title><i class="el-icon-s-claim"></i> 任务配置</template>
-          <user-task-panel :id="elementId"/>
-        </el-collapse-item>
+      <!--   任务信息     -->
+      <el-collapse-item name="Task" v-if="elementType.indexOf('Task') !== -1">
+        <template #title><i class="el-icon-s-claim"></i> 任务配置</template>
+        <user-task-panel :id="elementId" />
+      </el-collapse-item>
 
-        <!--   表单     -->
-        <el-collapse-item name="form" v-if="formVisible">
-          <template #title><i class="el-icon-s-order"></i> 表单配置</template>
-          <form-panel :id="elementId"/>
-        </el-collapse-item>
+      <!--   表单     -->
+      <el-collapse-item name="form" v-if="formVisible">
+        <template #title><i class="el-icon-s-order"></i> 表单配置</template>
+        <form-panel :id="elementId" />
+      </el-collapse-item>
 
-        <!--   执行监听器     -->
-        <el-collapse-item name="executionListener">
-          <template #title><i class="el-icon-s-promotion"></i> 执行监听器
-             <el-badge :value="executionListenerCount" class="item" type="primary"/>
-           </template>
-          <execution-listener :id="elementId" @getExecutionListenerCount="getExecutionListenerCount"/>
-        </el-collapse-item>
+      <!--   执行监听器     -->
+      <el-collapse-item name="executionListener">
+        <template #title><i class="el-icon-s-promotion"></i> 执行监听器
+          <el-badge :value="executionListenerCount" class="item" type="primary" />
+        </template>
+        <execution-listener :id="elementId" @getExecutionListenerCount="getExecutionListenerCount" />
+      </el-collapse-item>
 
-        <!--   任务监听器     -->
-        <el-collapse-item name="taskListener" v-if="elementType === 'UserTask'" >
-          <template #title><i class="el-icon-s-flag"></i> 任务监听器
-            <el-badge :value="taskListenerCount" class="item" type="primary"/>
-          </template>
-          <task-listener :id="elementId" @getTaskListenerCount="getTaskListenerCount"/>
-        </el-collapse-item>
+      <!--   任务监听器     -->
+      <el-collapse-item name="taskListener" v-if="elementType === 'UserTask'">
+        <template #title><i class="el-icon-s-flag"></i> 任务监听器
+          <el-badge :value="taskListenerCount" class="item" type="primary" />
+        </template>
+        <task-listener :id="elementId" @getTaskListenerCount="getTaskListenerCount" />
+      </el-collapse-item>
 
-        <!--   多实例     -->
-        <el-collapse-item name="multiInstance" v-if="elementType.indexOf('Task') !== -1" >
-          <template #title><i class="el-icon-s-grid"></i> 多实例</template>
-          <multi-instance :id="elementId"/>
-        </el-collapse-item>
-        <!--   流转条件     -->
-        <el-collapse-item name="condition" v-if="conditionVisible" >
-          <template #title><i class="el-icon-share"></i> 流转条件</template>
-          <condition-panel :id="elementId"/>
-        </el-collapse-item>
+      <!--   多实例     -->
+      <el-collapse-item name="multiInstance" v-if="elementType.indexOf('Task') !== -1">
+        <template #title><i class="el-icon-s-grid"></i> 多实例</template>
+        <multi-instance :id="elementId" />
+      </el-collapse-item>
+      <!--   流转条件     -->
+      <el-collapse-item name="condition" v-if="conditionVisible">
+        <template #title><i class="el-icon-share"></i> 流转条件</template>
+        <condition-panel :id="elementId" />
+      </el-collapse-item>
 
-        <!--   扩展属性     -->
-        <el-collapse-item name="properties" >
-          <template #title><i class="el-icon-circle-plus"></i> 扩展属性</template>
-          <properties-panel :id="elementId"/>
-        </el-collapse-item>
+      <!--   扩展属性     -->
+      <el-collapse-item name="properties">
+        <template #title><i class="el-icon-circle-plus"></i> 扩展属性</template>
+        <properties-panel :id="elementId" />
+      </el-collapse-item>
 
     </el-collapse>
   </el-card>
@@ -94,14 +94,14 @@ export default {
   },
   data() {
     return {
-      activeName : 'common',
+      activeName: 'common',
       executionListenerCount: 0,
-      taskListenerCount:0,
-      elementId:"",
-      elementType:"",
-      conditionVisible:false,// 流转条件设置
-      formVisible:false, // 表单配置
-      rules:{
+      taskListenerCount: 0,
+      elementId: "",
+      elementType: "",
+      conditionVisible: false,// 流转条件设置
+      formVisible: false, // 表单配置
+      rules: {
         id: [
           { required: true, message: '节点Id 不能为空', trigger: 'blur' },
         ],
@@ -137,10 +137,10 @@ export default {
         this.initFormOnChanged(null);
       });
       // 监听选择事件，修改当前激活的元素以及表单
-      this.modelerStore.modeler.on("selection.changed", ({newSelection}) => {
+      this.modelerStore.modeler.on("selection.changed", ({ newSelection }) => {
         this.initFormOnChanged(newSelection[0] || null);
       });
-      this.modelerStore.modeler.on("element.changed", ({element}) => {
+      this.modelerStore.modeler.on("element.changed", ({ element }) => {
         // 保证 修改 "默认流转路径" 类似需要修改多个元素的事件发生的时候，更新表单的元素与原选中元素不一致。
         if (element && element.id === this.elementId) {
           this.initFormOnChanged(element);
@@ -176,12 +176,11 @@ export default {
     getTaskListenerCount(value) {
       this.taskListenerCount = value;
     },
-    translateNodeName(val){
+    translateNodeName(val) {
       return translateNodeName(val);
     }
   }
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

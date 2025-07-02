@@ -1,51 +1,39 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="名称" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入表达式名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.name" placeholder="请输入表达式名称" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="search" size="small" @click="handleQuery">搜索</el-button>
-        <el-button icon="refresh" size="small" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+        <el-button icon="refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-table v-loading="loading" :data="expressionList" @current-change="handleSingleExpSelect">
-      <el-table-column  width="55" align="center" >
+      <el-table-column width="55" align="center">
         <template v-slot="scope">
           <!-- 可以手动的修改label的值，从而控制选择哪一项 -->
-          <el-radio v-model="radioSelected" :label="scope.row.id">{{''}}</el-radio>
+          <el-radio v-model="radioSelected" :label="scope.row.id">{{ '' }}</el-radio>
         </template>
       </el-table-column>
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="表达式内容" align="center" prop="expression" />
-      <el-table-column label="表达式类型" align="center" prop="dataType" >
+      <el-table-column label="表达式类型" align="center" prop="dataType">
         <template v-slot="scope">
-          <dict-tag :options="exp_data_type" :value="scope.row.dataType"/>
+          <dict-tag :options="exp_data_type" :value="scope.row.dataType" />
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page-sizes="[5,10]"
-      layout="prev, pager, next"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page-sizes="[5, 10]" layout="prev, pager, next"
+      :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
   </div>
 </template>
 
 <script>
 import { listExpression } from "@/api/flowable/expression";
-import {StrUtil} from "@/utils/StrUtil";
+import { StrUtil } from "@/utils/StrUtil";
 
 export default {
   name: "Expression",
@@ -134,7 +122,7 @@ export default {
     // 单选框选中数据
     handleSingleExpSelect(selection) {
       this.radioSelected = selection.id;//点击当前行时,radio同样有选中效果
-      this.$emit('handleSingleExpSelect',selection);
+      this.$emit('handleSingleExpSelect', selection);
     },
   }
 };
