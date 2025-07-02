@@ -65,7 +65,6 @@ import { ref, reactive, toRefs, getCurrentInstance, watch } from 'vue';
 const { proxy } = getCurrentInstance();
 const { template_type } = proxy.useDict("template_type");
 
-// Props
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -85,10 +84,8 @@ const props = defineProps({
   }
 });
 
-// Emits
 const emit = defineEmits(['update:visible', 'submit', 'cancel']);
 
-// Data
 const templateRef = ref(null);
 const data = reactive({
   form: { templateContent: '' },
@@ -103,14 +100,12 @@ const data = reactive({
 
 const { form, rules } = toRefs(data);
 
-// Watch props changes
 watch(() => props.formData, (newVal) => {
   if (newVal) {
     form.value = { ...newVal };
   }
 }, { deep: true, immediate: true });
 
-// Methods
 function validateTemplateCode(_, value, callback) {
   if (!value) {
     callback(new Error('请输入模版CODE'));
@@ -128,23 +123,35 @@ function handleVariableChange(value) {
     form.value.templateContent = '';
   }
 
-  // 移除未选中的变量占位符
-  const currentPlaceholders = form.value.templateContent.match(/\$\{\w+\}/g) || [];
+  // 获取当前模板内容中的所有 ${变量名} 格式的占位符
+  const currentPlaceholders = form.value.templateContent.match(/\$\{[^}]+\}/g) || [];
   const selectedVariableNames = value.map(v => `\${${v}}`);
+
+  // 移除未选中的变量占位符
   currentPlaceholders.forEach(placeholder => {
     if (!selectedVariableNames.includes(placeholder)) {
-      form.value.templateContent = form.value.templateContent.replace(placeholder, '').trim();
+      // 使用全局替换，移除所有匹配的占位符及其前后空格
+      const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp('\\s*' + escapedPlaceholder + '\\s*', 'g');
+      form.value.templateContent = form.value.templateContent.replace(regex, ' ');
     }
   });
 
-  // 添加新选中的变量占位符
+  // 添加新选中的变量占位符（只添加最后一个新选择的变量）
   const lastSelectedVariableName = value[value.length - 1];
   if (lastSelectedVariableName) {
     const variablePlaceholder = `\${${lastSelectedVariableName}}`;
     if (!form.value.templateContent.includes(variablePlaceholder)) {
-      form.value.templateContent += ` ${variablePlaceholder}`;
+      // 在模板内容末尾添加新变量
+      if (form.value.templateContent.trim()) {
+        form.value.templateContent = form.value.templateContent.trim() + ` ${variablePlaceholder}`;
+      } else {
+        form.value.templateContent = variablePlaceholder;
+      }
     }
   }
+
+  // 清理多余的空格
   form.value.templateContent = form.value.templateContent.replace(/\s+/g, ' ').trim();
 }
 
@@ -160,7 +167,6 @@ function handleCancel() {
   emit('cancel');
 }
 
-// Reset form
 function resetForm() {
   form.value = {
     templateId: null, templateName: null, templateCode: null, templateType: null, templateContent: '',
@@ -171,7 +177,6 @@ function resetForm() {
   }
 }
 
-// Expose methods
 defineExpose({
   resetForm
 });

@@ -79,7 +79,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const submitLoading = ref(false); // 新增: 提交按钮加载状态
+const submitLoading = ref(false);
 
 const data = reactive({
   form: {
