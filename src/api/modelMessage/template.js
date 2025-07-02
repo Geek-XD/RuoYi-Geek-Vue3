@@ -42,3 +42,11 @@ export function delTemplate(templateId) {
     method: 'delete'
   })
 }
+
+// 查询模版签名
+export function selecTemplates() {
+  return request({
+    url: '/modelMessage/template/selecTemplates',
+    method: 'get'
+  })
+}
