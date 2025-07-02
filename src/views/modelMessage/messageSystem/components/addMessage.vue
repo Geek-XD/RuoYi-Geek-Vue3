@@ -51,7 +51,7 @@
       </div>
 
       <!-- 收件人选择组件 -->
-      <RecipientSelector :send-mode="form.sendMode" @update:recipients="form.messageRecipient = $event" @update:contactInfo="form.code = $event" ref="recipientSelectorRef" />
+      <RecipientSelector :send-mode="form.sendMode" @update:recipients="handleRecipientsUpdate" @update:contactInfo="form.code = $event" ref="recipientSelectorRef" />
 
       <!-- 备注区域 -->
       <div class="form-section">
@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, watch } from 'vue';
+import { ref, getCurrentInstance, watch, nextTick } from 'vue';
 import { batchAddMessage } from '@/api/modelMessage/messageSystem';
 import { selecTemplates } from '@/api/modelMessage/template';
 import { ElMessage } from 'element-plus';
@@ -84,13 +84,11 @@ const props = defineProps({ title: { type: String, default: "发送消息" } });
 const { proxy } = getCurrentInstance();
 const { send_mode, message_type } = proxy.useDict("send_mode", "message_type");
 const emit = defineEmits(['success', 'close']);
-// Refs
 const messageSystemFormRef = ref(null);
 const recipientSelectorRef = ref(null);
 const dialogVisible = ref(false);
 const loading = ref(false);
 
-// Form Data
 const form = ref({
   messageTitle: null,
   messageContent: null,
@@ -101,8 +99,6 @@ const form = ref({
   contentType: "template",
   messageType: null
 });
-
-// 内容类型和模板相关数据
 const contentType = ref('template');
 const templates = ref([]);
 const templateLoading = ref(false);
@@ -111,15 +107,38 @@ const templateLoading = ref(false);
 const rules = ref({
   messageTitle: [{ required: true, message: '请输入标题', trigger: 'blur' }],
   sendMode: [{ required: true, message: '请选择发送方式', trigger: 'change' }],
-  messageRecipient: [{ required: true, message: '请选择收件人', trigger: 'change' }],
+  messageRecipient: [
+    {
+      required: true,
+      message: '请选择收件人',
+      trigger: 'change',
+      validator: (_, value, callback) => {
+        if (!value || (Array.isArray(value) && value.length === 0)) {
+          callback(new Error('请选择收件人'));
+        } else {
+          callback();
+        }
+      }
+    }
+  ],
   messageType: [{ required: true, message: '请选择消息类型', trigger: 'change' }],
   messageContent: [{ required: true, message: '模版签名或消息内容不能为空', trigger: 'blur' }]
 });
 
 // 处理发送方式改变
 function handleSendModeChange() {
-  // 清空联系方式，子组件会自动处理数据更新
   form.value.code = '';
+}
+
+// 处理收件人更新
+function handleRecipientsUpdate(recipients) {
+  form.value.messageRecipient = recipients;
+  // 手动触发表单验证
+  nextTick(() => {
+    if (messageSystemFormRef.value) {
+      messageSystemFormRef.value.validateField('messageRecipient');
+    }
+  });
 }
 
 // 获取模板列表
@@ -177,9 +196,7 @@ watch(() => form.value.sendMode, () => {
 async function submitForm() {
   loading.value = true;
   try {
-    // 表单验证
     await messageSystemFormRef.value.validate();
-    
     // 验证消息内容格式
     const contentValidation = validateMessageContent(form.value.messageContent);
     if (contentValidation !== true) {
@@ -202,15 +219,12 @@ async function submitForm() {
             recipient.name,
       sendMode: form.value.sendMode
     }));
-
-    // 发送消息
     await batchAddMessage(messages);
     ElMessage.success("消息发送成功！");
     emit('success');
     toggleDialog();
   } catch (error) {
     console.error('Submit form error:', error);
-    ElMessage.error('发送信息失败: ' + (error.message || '未知错误'));
   } finally {
     loading.value = false;
   }
@@ -228,10 +242,7 @@ function reset() {
     contentType: "template",
     messageType: null
   };
-  
   contentType.value = 'template';
-
-  // 重置子组件
   if (recipientSelectorRef.value) {
     recipientSelectorRef.value.reset();
   }
@@ -247,7 +258,6 @@ function toggleDialog() {
   }
 }
 
-// 暴露方法给父组件
 defineExpose({
   open: () => {
     dialogVisible.value = true;

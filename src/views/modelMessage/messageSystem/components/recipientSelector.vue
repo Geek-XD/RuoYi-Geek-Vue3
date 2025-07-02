@@ -50,26 +50,19 @@ import { ref, computed, watch } from 'vue';
 import { getSystemResource } from '@/api/modelMessage/messageSystem';
 import { ElMessage } from 'element-plus';
 
-// Props
 const props = defineProps({
   sendMode: {
     type: String,
     default: ''
   }
 });
-
-// Emits
 const emit = defineEmits(['update:recipients', 'update:contactInfo']);
-
-// 响应式数据
 const recipientType = ref('');
 const selectedRecipients = ref([]);
 const users = ref([]);
 const roles = ref([]);
 const depts = ref([]);
 const contactInfo = ref('');
-
-// 计算属性
 const recipientTypes = computed(() => [
   { value: 'user', label: '用户' },
   { value: 'role', label: '角色' },
@@ -159,22 +152,14 @@ function buildTree(depts) {
   return root;
 }
 
-// 处理收件人类型变化
+const handlers = { user: getUsers, role: getRoles, dept: getDepts};
+
+// 处理收件人选择
 async function handleTypeChange() {
   selectedRecipients.value = [];
   contactInfo.value = '';
-  
-  switch (recipientType.value) {
-    case 'user':
-      await getUsers();
-      break;
-    case 'role':
-      await getRoles();
-      break;
-    case 'dept':
-      await getDepts();
-      break;
-  }
+  const handler = handlers[recipientType.value];
+  if (handler) await handler();
 }
 
 // 处理选择变化

@@ -25,13 +25,13 @@
           <el-form-item label="内置变量" prop="variableContent">
             <el-select v-model="form.variableContent" placeholder="请选择内置变量" style="width: 100%">
               <el-option
-                v-for="(item, key) in builtInVariableOptions"
+                v-for="(label, key) in builtInVariableOptions"
                 :key="key"
-                :label="item.label"
+                :label="label"
                 :value="key"
               >
-                <span style="float: left">{{ item.label }}</span>
-                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.description }}</span>
+                <span style="float: left">{{ label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ key }}</span>
               </el-option>
             </el-select>
           </el-form-item>
@@ -71,7 +71,6 @@
 <script setup name="VariableFormDialog">
 import { ref } from 'vue'
 
-// Props
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -90,20 +89,14 @@ const props = defineProps({
     default: false
   }
 })
-
-// Emits
 const emit = defineEmits(['update:visible', 'submit', 'cancel', 'variable-type-change'])
-
-// Refs
 const variableRef = ref(null)
-
-// 表单验证规则
 const rules = {
   variableName: [{ required: true, message: '请输入变量名称', trigger: 'blur' }],
   variableType: [{ required: true, message: '请选择变量类型', trigger: 'change' }]
 }
 
-// 内置变量的显示文本配置（简化版）
+// 内置变量的显示文本配置
 const builtInVariableLabels = {
   'time': '发送时间',
   'date': '发送日期',
@@ -115,13 +108,8 @@ const builtInVariableLabels = {
   'RandomNDigitLetters': '随机数字+字母'
 }
 
-// 将 labels 转换为 options 数组用于下拉选择器
-const builtInVariableOptions = Object.entries(builtInVariableLabels).map(([value, label]) => ({
-  value,
-  label
-}))
-
-// 方法
+// 将 labels 转换为 options 对象用于下拉选择器
+const builtInVariableOptions = builtInVariableLabels
 const handleVariableTypeChange = (value) => {
   emit('variable-type-change', value)
 }
@@ -131,7 +119,6 @@ const handleCancel = () => {
 }
 
 const handleSubmit = () => {
-  // 在子组件内部进行表单验证
   variableRef.value.validate((valid) => {
     if (valid) {
       emit('submit')
@@ -139,7 +126,6 @@ const handleSubmit = () => {
   })
 }
 
-// 暴露给父组件的方法
 defineExpose({
   variableRef
 })
