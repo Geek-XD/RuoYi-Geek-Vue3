@@ -50,15 +50,3 @@ export function selectVariable() {
     method: 'get'
   })
 }
-
-// 根据变量类型生成不同的变量内容
-export function generateVariableContent(variableType, customLength) {
-  return request({
-    url: '/modelMessage/variable/generate',
-    method: 'get',
-    params: {
-      variableType,
-      customLength: customLength || undefined // 可选参数
-    }
-  })
-}

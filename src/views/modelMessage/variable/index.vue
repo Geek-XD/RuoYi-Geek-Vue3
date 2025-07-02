@@ -1,89 +1,74 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="变量名称" prop="variableName">
-          <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" clearable @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="变量名称" prop="variableName">
+        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      </el-form-item>
+    </el-form>
 
-    <el-card shadow="never" class="mt10">
-      <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5">
-          <el-button type="primary" plain icon="Plus" @click="handleAdd">新增变量</el-button>
-        </el-col>
-        <el-col :span="1.5">
-          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除变量</el-button>
-        </el-col>
-        <el-col :span="1.5">
-          <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-        </el-col>
-      </el-row>
+    <el-row :gutter="10" class="mb8">
+      <el-col :span="1.5">
+        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+      </el-col>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+    </el-row>
 
-      <el-table v-loading="loading" :data="variableList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="变量名称" align="center" prop="variableName" />
-        <el-table-column label="变量类型" align="center" prop="variableType" />
-        <el-table-column label="变量内容" align="center" prop="variableContent" />
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-          <template #default="scope">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">编辑</el-button>
-            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <el-table v-loading="loading" :data="variableList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50" align="center" />
+      <el-table-column label="变量编号" align="center" prop="variableId" />
+      <el-table-column label="变量名称" align="center" prop="variableName" :show-overflow-tooltip="true" />
+      <el-table-column label="变量类型" align="center" prop="variableType"/>
+      <el-table-column label="变量内容" align="center" prop="variableContent" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ formatVariableContent(scope.row) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width">
+        <template #default="scope">
+          <el-tooltip content="修改" placement="top">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除" placement="top">
+            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize" @pagination="getList" />
-    </el-card>
+    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改变量管理对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="variableRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="变量名称" prop="variableName">
-          <el-input v-model="form.variableName" placeholder="请输入变量名称" />
-        </el-form-item>
-        <el-form-item label="变量类型" prop="variableType">
-          <el-select v-model="form.variableType" placeholder="请选择变量类型" @change="handleVariableTypeChange">
-            <el-option label="指定文本" value="指定文本"></el-option>
-            <el-option label="内置变量" value="内置变量"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="form.variableType === '内置变量'" label="内置变量内容" label-width="100px" prop="builtInVariable">
-          <el-select v-model="form.variableContent" placeholder="请选择内置变量">
-            <el-option label="发送时间" value="time"></el-option>
-            <el-option label="发送日期" value="date"></el-option>
-            <el-option label="发送日期时间" value="datetime"></el-option>
-            <el-option label="发件人" value="addresser"></el-option>
-            <el-option label="收件人" value="recipients"></el-option>
-            <el-option label="随机n位数字" value="RandomnDigits"></el-option>
-            <el-option label="随机n位字母" value="RandomnCharacters"></el-option>
-            <el-option label="随机n位数字字母" value="RandomN-digitLetters"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="form.variableType !== '内置变量'" label="变量内容" prop="variableContent">
-          <el-input v-model="form.variableContent" type="textarea" placeholder="请输入变量内容" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <VariableFormDialog ref="variableFormDialog" :visible="open" :title="title" :form="form"
+      :submitLoading="submitLoading"  @update:visible="open = $event" @submit="submitForm"
+      @cancel="cancel" @variable-type-change="handleVariableTypeChange"/>
   </div>
 </template>
 
 <script setup name="Variable">
 import { listVariable, getVariable, delVariable, addVariable, updateVariable } from "@/api/modelMessage/variable";
 import { ElMessage } from "element-plus";
+import VariableFormDialog from "./components/variableFormDialog.vue";
 const { proxy } = getCurrentInstance();
+const { parseTime } = proxy;
 
 const variableList = ref([]);
 const open = ref(false);
@@ -94,6 +79,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const submitLoading = ref(false); // 新增: 提交按钮加载状态
 
 const data = reactive({
   form: {
@@ -104,17 +90,13 @@ const data = reactive({
   },
   queryParams: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 8,
     variableName: null,
-  },
-  rules: {
-    variableName: [{ required: true, message: '请输入变量名称', trigger: 'blur' }],
-    variableType: [{ required: true, message: '请选择变量类型', trigger: 'change' }]
   }
 });
 
-const { queryParams, form, rules } = toRefs(data);
-
+const { queryParams, form } = toRefs(data);
+ 
 /** 查询变量管理列表 */
 function getList() {
   loading.value = true;
@@ -134,10 +116,17 @@ function cancel() {
 // 表单重置
 function reset() {
   form.value = {
-    variableId: null, variableName: null, variableType: null, variableContent: null, builtInVariable: null,
-    createBy: null, createTime: null, updateBy: null, updateTime: null, remark: null
+    variableId: null,
+    variableName: null,
+    variableType: null,
+    variableContent: null,
+    builtInVariable: null,
+    createBy: null,
+    createTime: null,
+    updateBy: null,
+    updateTime: null,
+    remark: null
   };
-  proxy.resetForm("variableRef");
 }
 
 /** 搜索按钮操作 */
@@ -183,43 +172,41 @@ function handleVariableTypeChange(value) {
     form.value.builtInVariable = null;
     form.value.variableContent = '';
   } else {
-    form.value.variableContent = '';
+    form.value.variableContent = ''; 
   }
 }
 
 /** 提交按钮 */
-function submitForm() {
-  proxy.$refs["variableRef"].validate(async (valid) => {
-    if (valid) {
-      try {
-        let result;
-        if (form.value.variableId != null) {
-          result = await updateVariable(form.value);
-          proxy.$modal.msgSuccess("编辑成功");
-        } else {
-          result = await addVariable(form.value);
-          proxy.$modal.msgSuccess("新增成功");
-        }
-
-        // 关闭对话框并刷新列表
-        open.value = false;
-        getList();
-      } catch (error) {
-        ElMessage.error('操作失败');
-      }
+async function submitForm() {
+  try {
+    submitLoading.value = true;
+    if (form.value.variableId != null) {
+      await updateVariable(form.value);
+      proxy.$modal.msgSuccess("编辑成功");
+    } else {
+      await addVariable(form.value);
+      proxy.$modal.msgSuccess("新增成功");
     }
-  });
+
+    // 关闭对话框并刷新列表
+    open.value = false;
+    getList();
+  } catch (error) {
+    ElMessage.error('操作失败');
+  } finally {
+    submitLoading.value = false;
+  }
 }
 
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _variableIds = row.variableId || ids.value;
-  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function () {
-    return delVariable(_variableIds);
+  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function() {
+   return delVariable(_variableIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => { });
+  }).catch(() => {});
 }
 
 /** 导出按钮操作 */
@@ -229,90 +216,21 @@ function handleExport() {
   }, `variable_${new Date().getTime()}.xlsx`)
 }
 
+// 格式化变量内容展示
+function formatVariableContent(item) {
+  // 内置变量的显示文本配置
+  const labels = {
+    'time': '发送时间',
+    'date': '发送日期',
+    'datetime': '发送日期+时间',
+    'addresser': '发件人',
+    'recipients': '收件人',
+    'RandomnDigits': '随机数字',
+    'RandomnCharacters': '随机字母',
+    'RandomNDigitLetters': '随机数字+字母'
+  };
+  return item.variableType === '内置变量' ? labels[item.variableContent] || item.variableContent : item.variableContent;
+}
+
 getList();
-</script>
-<style scoped>
-.app-container {
-  padding: 20px;
-}
-
-.el-form,
-.el-table,
-.el-dialog {
-  margin-bottom: 20px;
-}
-
-/* Table */
-.el-table {
-  margin-top: 20px;
-}
-
-.el-table th>.cell {
-  color: #303133;
-  font-weight: bold;
-}
-
-.el-table td {
-  padding: 10px;
-}
-
-/* Form */
-.el-form-item {
-  margin-bottom: 10px;
-}
-
-.el-input,
-.el-select {
-  width: 100%;
-}
-
-/* Dialog */
-.el-dialog {
-  border-radius: 12px;
-}
-
-.el-dialog__header {
-  background-color: #f5f7fa;
-  padding: 15px;
-  border-bottom: 1px solid #ebeef5;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.el-dialog__footer {
-  border-top: 1px solid #ebeef5;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-}
-
-/* Input fields */
-.el-input__inner {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 10px;
-}
-
-/* Select dropdown */
-.el-select .el-input__inner {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 10px;
-}
-
-/* Textarea */
-.el-textarea__inner {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 10px;
-}
-
-/* Icons */
-.el-icon {
-  color: #409eff;
-}
-
-/* Hover effects */
-.el-button:hover {
-  cursor: pointer;
-}
-</style>
+</script>    
