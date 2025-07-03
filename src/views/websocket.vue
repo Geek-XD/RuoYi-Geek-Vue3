@@ -2,6 +2,8 @@
 import profile from '@/assets/images/profile.jpg'
 import { ref, nextTick } from "vue";
 import socketclient from "@/plugins/socketclient";
+import { parseTime } from '@/utils/ruoyi';
+import { createMessage } from '@/types/Message';
 
 const message = ref("");
 const url = ref("ws://127.0.0.1:8080/websocket/message");
@@ -22,12 +24,11 @@ const chatContainer = ref<HTMLElement>();
 
 function join() {
   socketclient.connect({ url: url.value })
-  socketclient.onMessage((event) => {
-    const now = new Date();
+  socketclient.onMessage((msg) => {
     chatMessages.value.push({
       from: "Art Bot",
-      content: event.data,
-      time: now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0')
+      content: msg.content,
+      time: parseTime(new Date(), '{h}:{m}')
     });
     nextTick(() => {
       if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
@@ -37,13 +38,12 @@ function join() {
 
 function send() {
   if (!message.value.trim()) return;
-  const now = new Date();
   chatMessages.value.push({
     from: username.value,
     content: message.value,
-    time: now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0')
+    time: parseTime(new Date(), '{h}:{m}')
   });
-  socketclient.send(message.value);
+  socketclient.send(createMessage('admin', { content: message.value }));
   message.value = "";
   nextTick(() => {
     if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
@@ -93,7 +93,7 @@ function close() {
             <span class="chat-status" v-if="currentContact.online">在线</span>
           </div>
           <div class="chat-actions">
-            <el-input placeholder="请输入内容..." v-model="url" />
+            <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
             <el-button type="primary" @click="join">连接</el-button>
             <el-button type="danger" @click="close">断开连接</el-button>
           </div>
@@ -253,7 +253,7 @@ function close() {
     }
 
     .chat-actions {
-      width: 400px;
+      width: 80%;
       display: flex;
       align-items: center;
     }

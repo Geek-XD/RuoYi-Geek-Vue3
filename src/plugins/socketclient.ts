@@ -1,10 +1,8 @@
+import { Message } from '@/types/Message';
 import { getToken } from '@/utils/auth'
-import { generateUUID } from '@/utils/geek';
+import { StrUtil } from '@/utils/StrUtil';
 let _socket: WebSocket;
 let _callback: { [key: string]: (data: any) => void } = {}
-const enableJSON = true // 开启JSON解析消息，需要开启JSON解析消息才能开启uuid和event
-const enableUUID = true // 需要接收信息中包含uuid字段，uuid优先级高于event，适用于需要单独处理每条消息的场景
-const enableEvent = true // 需要接收信息中包含event字段，适用于以事件为驱动的场景
 type ConnectSocketOption = {
     url: string | URL, headers?: {
         isToken?: boolean
@@ -36,25 +34,6 @@ export default {
         })
     },
     /**
-     * 发送信息
-     * @param msg 消息，会被处理成json字符串
-     * @param uuid 唯一标识,可以传入uuid，也可以传入true自动生成uuid，flase表示该消息不需要单独处理
-     * @returns
-     */
-    send(msg: any, uuid: string | boolean = false) {
-        return new Promise((resolve, reject) => {
-            if (enableUUID && uuid != undefined && uuid != "" && uuid != false) {
-                if (uuid == true) {
-                    msg.uuid = generateUUID()
-                    _callback[msg.uuid] = resolve
-                } else {
-                    _callback[uuid] = resolve
-                }
-            }
-            _socket.send(JSON.stringify(msg),)
-        })
-    },
-    /**
      * 关闭连接
      * @returns 关闭连接的Promise，回调函数只会运行一次
      */
@@ -66,6 +45,25 @@ export default {
                 _socket.onclose = onclose
             }
             _socket.close()
+        })
+    },
+    /**
+     * 发送信息
+     * @param msg 消息，会被处理成json字符串
+     * @returns
+     */
+    send(msg: Message) {
+        _socket.send(JSON.stringify(msg))
+    },
+    /**
+     * 发送信息,可以异步回调
+     * @param msg 消息，会被处理成json字符串
+     * @returns
+     */
+    asyncSend(msg: Message) {
+        return new Promise((resolve, reject) => {
+            _callback[msg.messageId] = resolve
+            _socket.send(JSON.stringify(msg))
         })
     },
     /**
@@ -89,36 +87,27 @@ export default {
      * 定义默认监听事件
      * @param callback 默认监听事件的处理函数
      */
-    onMessage(callback: (data: any) => void) {
+    onMessage(callback: (data: Message) => void) {
         _socket.onmessage = res => {
-            if (enableJSON) {
-                let uuid: string | undefined;
-                try {
-                    let data: {
-                        uuid?: string,
-                        event?: string,
-                        data: any
-                    } = JSON.parse((res || {}).data)
-                    if (enableUUID && data.uuid !== undefined) {
-                        uuid = data.uuid
-                        if (!_callback[uuid]) return
-                        _callback[uuid](data)
-                    } else if (enableEvent && data.event !== undefined) {
-                        if (!_callback[data.event]) return
-                        _callback[data.event](data)
-                    } else {
-                        callback(data);
-                    }
-                } catch (error) {
-                    console.error("WebSocket JSON parse error:", error);
-                    console.error("Received data:", res.data);
-                } finally {
-                    if (uuid && _callback[uuid]) {
-                        delete _callback[uuid]
-                    }
+            let uuid: string | undefined;
+            try {
+                let data: Message = JSON.parse(res.data)
+                uuid = data.messageId
+                const event = data.subject
+                if (StrUtil.isNotEmpty(uuid) && !!_callback[uuid]) {
+                    _callback[uuid](data)
+                } else if (StrUtil.isNotEmpty(event) && !!_callback[event]) {
+                    _callback[event](data)
+                } else {
+                    callback(data);
                 }
-            } else {
-                callback(res.data);
+            } catch (error) {
+                console.error("WebSocket JSON parse error:", error);
+                console.error("Received data:", res.data);
+            } finally {
+                if (uuid && _callback[uuid]) {
+                    delete _callback[uuid]
+                }
             }
         }
     },
