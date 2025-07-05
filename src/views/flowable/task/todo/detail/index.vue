@@ -132,7 +132,6 @@ import FlowRole from '@/components/flow/Role'
 import { flowXmlAndNode } from "@/api/flowable/definition";
 import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@/api/flowable/todo";
 import BpmnViewer from '@/components/Process/viewer';
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Record",

@@ -1,17 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import JsBarcode from 'jsbarcode'
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-const props = defineProps({
-    data: {
-        type: String,
-        required: true,
-        default: ''
-    },
-    options: {
-        type: Object,
-        default: () => ({})
-    }
+const props = withDefaults(defineProps < {
+    data?: string,
+    options?: JsBarcode.Options
+} > (), {
+    data: '',
+    options: () => ({})
 });
 watch(() => props.data, () => { generateJsBarcode() });
 const generateJsBarcode = async () => {

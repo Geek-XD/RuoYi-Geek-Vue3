@@ -1,4 +1,4 @@
-import { generateUUID } from "@/utils/geek";
+import UUID from "uuid";
 
 export class Message {
   /** 消息唯一标识符 */
@@ -29,7 +29,7 @@ export class Message {
   retryInterval: string;
 
   constructor() {
-    this.messageId = generateUUID();
+    this.messageId = UUID.v4();
     this.sender = '';
     this.receiver = '';
     this.timestamp = new Date();

@@ -7,11 +7,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-const props = defineProps({
-  src: {
-    type: String,
-    required: true
-  }
+const props = withDefaults(defineProps<{
+  src?: string
+}>(), {
+  src: ''
 })
 
 const height = ref(document.documentElement.clientHeight - 94.5 + "px;")

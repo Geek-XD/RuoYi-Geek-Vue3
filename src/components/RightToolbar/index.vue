@@ -4,6 +4,11 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  /* 显隐列类型（transfer穿梭框、checkbox复选框） */
+  showColumnsType: {
+    type: String,
+    default: "transfer",
+  },
   columns: {
     type: Array,
   },
@@ -34,6 +39,15 @@ const style = computed(() => {
   return ret;
 });
 
+const isChecked = computed({
+  get() {
+    return props.columns.every((col) => col.visible);
+  },
+  set() { }
+});
+const isIndeterminate = computed(() => {
+  return props.columns.some((col) => col.visible) && !isChecked.value;
+});
 // 搜索
 function toggleSearch() {
   emits("update:showSearch", !props.showSearch);
@@ -57,11 +71,24 @@ function showColumn() {
   open.value = true;
 }
 
-// 显隐列初始默认隐藏列
-for (let item in props.columns) {
-  if (props.columns[item].visible === false) {
-    value.value.push(parseInt(item));
+if (props.showColumnsType == 'transfer') {
+  // 显隐列初始默认隐藏列
+  for (let item in props.columns) {
+    if (props.columns[item].visible === false) {
+      value.value.push(parseInt(item));
+    }
   }
+}
+
+// 单勾选
+function checkboxChange(event, label) {
+  props.columns.filter(item => item.label == label)[0].visible = event;
+}
+
+// 切换全选/反选
+function toggleCheckAll() {
+  const newValue = !isChecked.value;
+  props.columns.forEach((col) => (col.visible = newValue))
 }
 </script>
 <template>
@@ -74,17 +101,39 @@ for (let item in props.columns) {
         <el-button circle icon="Refresh" @click="refresh()" />
       </el-tooltip>
       <el-tooltip class="item" effect="dark" content="显隐列" placement="top" v-if="columns">
-        <el-button circle icon="Menu" @click="showColumn()" />
+        <el-button circle icon="Menu" @click="showColumn()" v-if="showColumnsType == 'transfer'" />
+        <el-dropdown trigger="click" :hide-on-click="false" style="padding-left: 12px"
+          v-if="showColumnsType == 'checkbox'">
+          <el-button circle icon="Menu" />
+          <template #dropdown>
+            <el-dropdown-menu>
+              <!-- 全选/反选 按钮 -->
+              <el-dropdown-item>
+                <el-checkbox :indeterminate="isIndeterminate" v-model="isChecked" @change="toggleCheckAll"> 列展示
+                </el-checkbox>
+              </el-dropdown-item>
+              <div class="check-line"></div>
+              <template v-for="item in columns" :key="item.key">
+                <el-dropdown-item>
+                  <el-checkbox v-model="item.visible" @change="checkboxChange($event, item.label)"
+                    :label="item.label" />
+                </el-dropdown-item>
+              </template>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </el-tooltip>
     </el-row>
     <el-dialog :title="title" v-model="open" append-to-body>
-      <el-transfer :titles="['显示', '隐藏']" v-model="value" :data="columns" @change="dataChange"></el-transfer>
+      <div class="my-el-transfer">
+        <el-transfer :titles="['显示', '隐藏']" v-model="value" :data="columns" @change="dataChange" />
+      </div>
     </el-dialog>
   </div>
 </template>
 <style lang='scss' scoped>
 :deep(.el-transfer__button) {
-  border-radius: 50%;
+  // border-radius: 50%;
   display: block;
   margin-left: 0px;
 }
@@ -95,5 +144,12 @@ for (let item in props.columns) {
 
 .my-el-transfer {
   text-align: center;
+}
+
+.check-line {
+  width: 90%;
+  height: 1px;
+  background-color: #ccc;
+  margin: 3px auto;
 }
 </style>

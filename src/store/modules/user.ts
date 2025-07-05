@@ -12,6 +12,7 @@ const useUserStore = defineStore(
     state: () => ({
       token: getToken(),
       name: '',
+      nickName: '',
       avatar: '',
       roleName: '',
       deptName: '',
@@ -60,6 +61,7 @@ const useUserStore = defineStore(
               this.roles = ['ROLE_DEFAULT']
             }
             this.name = user.userName
+            this.nickName = user.nickName
             this.roleName = (user.roles || [])[0] ? user.roles[0].roleName : '普通角色'
             this.deptName = user.dept ? user.dept.deptName : '暂无部门'
             this.loginDate = user.loginDate

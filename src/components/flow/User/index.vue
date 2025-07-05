@@ -50,13 +50,10 @@
 
 <script>
 import { listUser, deptTreeSelect } from "@/api/system/user";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { StrUtil } from '@/utils/StrUtil'
 
 export default {
   name: "FlowUser",
-  components: { Treeselect },
   // 接受父组件的值
   props: {
     // 回显数据传值

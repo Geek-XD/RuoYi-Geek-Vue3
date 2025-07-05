@@ -2,27 +2,22 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import QRCode from 'qrcode';
 
-const props = defineProps({
-    data: {
-        type: String,
-        required: true,
-        default: ''
-    },
-    logo: {
-        type: String,
-        default: ''
-    },
-    logoSize: {
-        type: Number,
-        default: 20
-    },
-    options: {
-        type: Object,
-        default: () => ({
-            width: 400,
-            height: 400
-        })
+const props = withDefaults(defineProps<{
+    data: string,
+    logo?: string,
+    logoSize?: number,
+    options?: {
+        width?: number,
+        height?: number
     }
+}>(), {
+    data: '',
+    logo: '',
+    logoSize: 20,
+    options: () => ({
+        width: 400,
+        height: 400
+    })
 });
 
 const qrDataUrl = ref(null);

@@ -67,7 +67,6 @@
 import { flowRecord } from "@/api/flowable/finished";
 import { getProcessVariables, flowXmlAndNode } from "@/api/flowable/definition";
 import BpmnViewer from '@/components/Process/viewer';
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Record",

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-defineProps({
-  isActive: {
-    type: Boolean,
-    default: false
-  }
+const props = withDefaults(defineProps<{
+  isActive?: boolean
+}>(), {
+  isActive: false
 })
 
 const emit = defineEmits()

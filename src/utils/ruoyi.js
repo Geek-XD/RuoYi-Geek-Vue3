@@ -113,8 +113,8 @@ export function selectDictLabels(datas, value, separator) {
 }
 
 // 字符串格式化(%s )
-export function sprintf(str) {
-  var args = arguments, flag = true, i = 1;
+export function sprintf(str, ...args) {
+  var flag = true, i = 0;
   str = str.replace(/%s/g, function () {
     var arg = args[i++];
     if (typeof arg === 'undefined') {

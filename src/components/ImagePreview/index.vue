@@ -2,19 +2,14 @@
 import { isExternal } from "@/utils/validate";
 import { computed } from "vue";
 
-const props = defineProps({
-  src: {
-    type: String,
-    default: ""
-  },
-  width: {
-    type: [Number, String],
-    default: ""
-  },
-  height: {
-    type: [Number, String],
-    default: ""
-  }
+const props = withDefaults(defineProps<{
+  src?: string,
+  width?: number | string,
+  height?: number | string
+}>(), {
+  src: "",
+  width: "",
+  height: ""
 });
 
 const realSrc = computed(() => {

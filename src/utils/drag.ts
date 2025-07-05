@@ -1,22 +1,4 @@
 /**
- * 获取uuid
- * @returns 生成的uuid字符串
- */
-export function generateUUID(): string {
-  let uuid = "";
-  const chars = "0123456789abcdef";
-
-  for (let i = 0; i < 32; i++) {
-    if (i === 8 || i === 12 || i === 16 || i === 20) {
-      uuid += "-";
-    }
-    uuid += chars[Math.floor(Math.random() * chars.length)];
-  }
-
-  return uuid;
-}
-
-/**
  * 拖拽函数
  * @param onDraging 拖拽时触发的函数
  * @param beforeStop 拖拽结束前触发的函数
