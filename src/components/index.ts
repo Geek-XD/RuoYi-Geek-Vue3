@@ -5,9 +5,11 @@ import Pagination from '@/components/Pagination/index.vue'
 // 自定义表格工具组件
 import RightToolbar from '@/components/RightToolbar/index.vue'
 // 文件上传组件
-import FileUpload from "@/components/FileUpload/index.vue"
+import FileUpload from "@/components/UploadComponents/FileUpload/index.vue"
 // 图片上传组件
-import ImageUpload from "@/components/ImageUpload/index.vue"
+import ImageUpload from "@/components/UploadComponents/ImageUpload/index.vue"
+// 分片上传组件
+import ChunkUpload from "@/components/UploadComponents/ChunkUpload/index.vue"
 // 图片预览组件
 import ImagePreview from "@/components/ImagePreview/index.vue"
 // 自定义树选择组件
@@ -40,6 +42,7 @@ export default function initComponents(app: App<Element>): void {
   app.component('TreeSelect', TreeSelect)
   app.component('FileUpload', FileUpload)
   app.component('ImageUpload', ImageUpload)
+  app.component('ChunkUpload', ChunkUpload)
   app.component('ImagePreview', ImagePreview)
   app.component('RightToolbar', RightToolbar)
   app.component('Editor', Editor)

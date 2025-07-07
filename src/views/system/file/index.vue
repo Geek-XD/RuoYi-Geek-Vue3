@@ -100,9 +100,9 @@
 <script setup name="Info">
 import { listInfo, delInfo, downloadFileUnified, getClientList } from '@/api/file/info';
 import ImagePreview from "@/components/ImagePreview/index.vue";
-import ImageUpload from '@/components/ImageUpload/index.vue';
-import FileUpload from '@/components/FileUpload/index.vue';
-import ChunkUpload from './components/ChunkUpload.vue'; // 引入分片上传组件
+import FileUpload from "@/components/UploadComponents/FileUpload/index.vue"
+import ImageUpload from "@/components/UploadComponents/ImageUpload/index.vue"
+import ChunkUpload from "@/components/UploadComponents/ChunkUpload/index.vue"
 import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
