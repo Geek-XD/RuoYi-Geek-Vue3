@@ -1,3 +1,5 @@
+@use "sass:map";
+
 /*
   Vue 3 过渡类名规则:
   - .v-enter-from: 进入动画的开始状态。
@@ -72,7 +74,7 @@ $fade-transform-map: (
   }
   .fade-transform#{$suffix}-enter-from {
     opacity: 0;
-    transform: translateX(map-get($val, x)) translateY(map-get($val, y));
+    transform: translateX(map.get($val, x)) translateY(map.get($val, y));
   }
   .fade-transform#{$suffix}-enter-to,
   .fade-transform#{$suffix}-leave-from {
@@ -81,7 +83,7 @@ $fade-transform-map: (
   }
   .fade-transform#{$suffix}-leave-to {
     opacity: 0;
-    transform: translateX(map-get($val, out-x)) translateY(map-get($val, out-y));
+    transform: translateX(map.get($val, out-x)) translateY(map.get($val, out-y));
   }
 }
 
