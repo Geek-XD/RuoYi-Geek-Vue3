@@ -42,8 +42,8 @@ import { definitionStart, flowXmlAndNode } from "@/api/flowable/definition";
 import BpmnViewer from '@/components/Process/viewer';
 import { flowFormData } from "@/api/flowable/process";
 import { getNextFlowNodeByStart } from "@/api/flowable/todo";
-import FlowUser from '@/components/flow/User'
-import FlowRole from '@/components/flow/Role'
+import FlowUser from '@/components/Flow/User'
+import FlowRole from '@/components/Flow/Role'
 
 export default {
   name: "Record",

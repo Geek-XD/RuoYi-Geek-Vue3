@@ -67,45 +67,46 @@ function setLayout() {
         <header-search id="header-search" class="right-menu-item" />
 
         <el-tooltip content="gitee源码地址" effect="dark" placement="bottom">
-          <ruo-yi-gitee id="ruoyi-gitee" class="right-menu-item hover-effect" />
+          <ruo-yi-gitee id="ruoyi-gitee" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
 
         <el-tooltip content="github源码地址" effect="dark" placement="bottom">
-          <ruo-yi-github id="ruoyi-github" class="right-menu-item hover-effect" />
+          <ruo-yi-github id="ruoyi-github" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
 
         <el-tooltip content="文档地址" effect="dark" placement="bottom">
-          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
+          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
 
         <el-tooltip content="专注模式" effect="dark" placement="bottom">
-          <screenfull id="screenfull" class="right-menu-item hover-effect" />
+          <screenfull id="screenfull" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
 
         <el-tooltip content="布局大小" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
+          <size-select id="size-select" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
       </template>
-      <div class="avatar-container">
-        <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
-          <div class="avatar-wrapper">
-            <img :src="userStore.avatar" class="user-avatar" />
-            <el-icon><caret-bottom /></el-icon>
-          </div>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <router-link to="/user/profile">
-                <el-dropdown-item>个人中心</el-dropdown-item>
-              </router-link>
-              <el-dropdown-item command="setLayout">
-                <span>布局设置</span>
-              </el-dropdown-item>
-              <el-dropdown-item divided command="logout">
-                <span>退出登录</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+      <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
+        <div class="avatar-wrapper">
+          <el-avatar :size="30" :src="userStore.avatar" />
+          <span>{{ userStore.name }}</span>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <router-link to="/user/profile">
+              <el-dropdown-item>个人中心</el-dropdown-item>
+            </router-link>
+            <el-dropdown-item command="setLayout">
+              <span>布局设置</span>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="logout">
+              <span>退出登录</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      <div class="right-menu-item hover-effect" @click="setLayout">
+        <svg-icon icon-class="more-up" />
       </div>
     </div>
   </div>
@@ -158,50 +159,53 @@ function setLayout() {
     height: 100%;
     line-height: 50px;
     display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:focus {
       outline: none;
     }
 
     .right-menu-item {
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 0 8px;
-      height: 100%;
       font-size: 18px;
       color: #5a5e66;
-      vertical-align: text-bottom;
+
+      &.svg-menu-item {
+        height: 38px;
+        width: 38px;
+        border-radius: 8px;
+        margin-left: 8px;
+      }
+
+      &:not(.svg-menu-item) {
+        height: 100%;
+      }
 
       &.hover-effect {
         cursor: pointer;
         transition: background 0.3s;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.025);
+          background: #f4f4f6;
         }
       }
     }
 
-    .avatar-container {
-      margin-right: 40px;
 
-      .avatar-wrapper {
-        margin-top: 5px;
-        position: relative;
+    .avatar-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-        .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        i {
-          cursor: pointer;
-          position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
-        }
+      span {
+        margin-left: 8px;
+        color: #5a5e66;
+        font-size: 14px;
+        font-weight: bold;
       }
     }
   }

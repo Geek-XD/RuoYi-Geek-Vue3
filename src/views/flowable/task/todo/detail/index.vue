@@ -127,8 +127,8 @@
 
 <script>
 import { flowRecord } from "@/api/flowable/finished";
-import FlowUser from '@/components/flow/User'
-import FlowRole from '@/components/flow/Role'
+import FlowUser from '@/components/Flow/User'
+import FlowRole from '@/components/Flow/Role'
 import { flowXmlAndNode } from "@/api/flowable/definition";
 import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@/api/flowable/todo";
 import BpmnViewer from '@/components/Process/viewer';

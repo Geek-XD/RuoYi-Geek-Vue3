@@ -73,9 +73,9 @@ import OtherPanel from './panel/otherPanel'
 import PropertiesPanel from './panel/PropertiesPanel'
 
 import { translateNodeName } from "./common/bpmnUtils";
-import FlowUser from "@/components/flow/User/index.vue";
-import FlowRole from "@/components/flow/Role/index.vue";
-import FlowExp from "@/components/flow/Expression/index.vue";
+import FlowUser from "@/components/Flow/User/index.vue";
+import FlowRole from "@/components/Flow/Role/index.vue";
+import FlowExp from "@/components/Flow/Expression/index.vue";
 export default {
   name: "Designer",
   components: {

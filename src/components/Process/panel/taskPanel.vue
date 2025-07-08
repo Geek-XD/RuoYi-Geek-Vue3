@@ -98,10 +98,10 @@
 </template>
 
 <script>
-import FlowUser from '@/components/flow/User'
-import FlowRole from '@/components/flow/Role'
-import FlowExp from '@/components/flow/Expression'
-import ElInputTag from '@/components/flow/ElInputTag'
+import FlowUser from '@/components/Flow/User'
+import FlowRole from '@/components/Flow/Role'
+import FlowExp from '@/components/Flow/Expression'
+import ElInputTag from '@/components/Flow/ElInputTag'
 import { StrUtil } from '@/utils/StrUtil'
 
 export default {

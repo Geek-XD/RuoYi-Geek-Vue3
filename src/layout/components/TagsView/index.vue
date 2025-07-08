@@ -243,6 +243,8 @@ function handleScroll() {
   }
 
   .tags-view-wrapper {
+    padding: 0 15px;
+
     .tags-view-item {
       display: inline-block;
       position: relative;
@@ -254,16 +256,11 @@ function handleScroll() {
       background: #fff;
       padding: 0 8px;
       font-size: 13px;
-      margin-left: 5px;
       margin-top: 4px;
       border-radius: 5px;
 
-      &:first-of-type {
-        margin-left: 15px;
-      }
-
-      &:last-of-type {
-        margin-right: 15px;
+      &+.tags-view-item {
+        margin-left: 10px;
       }
 
       &:hover {
@@ -271,9 +268,9 @@ function handleScroll() {
       }
 
       &.active {
+        border-color: var(--el-color-primary);
         background-color: var(--el-color-primary);
         color: #fff;
-        border-color: var(--el-color-primary);
 
         &::before {
           content: "";

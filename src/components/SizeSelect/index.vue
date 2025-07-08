@@ -38,6 +38,5 @@ function handleSetSize(size: typeof appStore.size) {
 .size-icon--style {
   font-size: 18px;
   line-height: 50px;
-  padding-right: 7px;
 }
 </style>
