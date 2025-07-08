@@ -11,7 +11,7 @@ defineProps({
   }
 })
 
-const title = ref('若依Geek管理系统');
+const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }));
@@ -56,8 +56,8 @@ const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-da
     width: 100%;
 
     & .sidebar-logo {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       vertical-align: middle;
       margin-right: 12px;
     }
@@ -66,9 +66,8 @@ const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-da
       display: inline-block;
       margin: 0;
       color: #fff;
-      font-weight: 600;
       line-height: 50px;
-      font-size: 14px;
+      font-size: 18px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
       vertical-align: middle;
     }

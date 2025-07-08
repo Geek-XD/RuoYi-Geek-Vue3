@@ -62,7 +62,7 @@ const methods = computed(() => {
   ]
 });
 
-const title = computed(() => import.meta.env.VITE_APP_TITLE || '若依Geek后台管理系统');
+const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系统');
 
 </script>
 <template>
