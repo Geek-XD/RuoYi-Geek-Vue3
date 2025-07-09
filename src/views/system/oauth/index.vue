@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+    <el-card shadow="never" body-class="search-card">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="120px">
         <el-form-item label="第三方用户来源" prop="source">
           <el-input v-model="queryParams.source" placeholder="请输入第三方用户来源" clearable @keyup.enter="handleQuery" />
         </el-form-item>

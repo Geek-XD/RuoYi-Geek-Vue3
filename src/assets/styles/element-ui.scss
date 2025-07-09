@@ -166,3 +166,11 @@
 .el-message-box {
   padding: 25px 20px;
 }
+
+.el-form--inline {
+  .el-form-item {
+    .el-select {
+      min-width: 120px;
+    }
+  }
+}

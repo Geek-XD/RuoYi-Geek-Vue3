@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
+    <el-card shadow="never" body-class="search-card">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
         <el-form-item label="原始文件名" prop="fileName">
           <el-input v-model="queryParams.fileName" placeholder="请输入原始文件名" clearable @keyup.enter="handleQuery" />

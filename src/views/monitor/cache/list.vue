@@ -5,55 +5,18 @@
         <el-card style="height: calc(100vh - 125px)">
           <template #header>
             <span>缓存列表</span>
-            <el-button
-              style="float: right; padding: 3px 0"
-              link
-              type="primary"
-              icon="Refresh"
-              @click="refreshCacheNames()"
-            />
+            <el-button style="float: right; padding: 3px 0" link type="primary" icon="Refresh"
+              @click="refreshCacheNames()" />
           </template>
-          <el-table
-            v-loading="loading"
-            :data="cacheNames"
-            :height="tableHeight"
-            highlight-current-row
-            @row-click="getCacheKeys"
-            style="width: 100%"
-          >
-            <el-table-column
-              label="序号"
-              width="60"
-              type="index"
-            ></el-table-column>
-
-            <el-table-column
-              label="缓存名称"
-              align="center"
-              prop="cacheName"
-              :show-overflow-tooltip="true"
-              :formatter="nameFormatter"
-            ></el-table-column>
-
-            <el-table-column
-              label="备注"
-              align="center"
-              prop="remark"
-              :show-overflow-tooltip="true"
-            />
-            <el-table-column
-              label="操作"
-              width="60"
-              align="center"
-              class-name="small-padding fixed-width"
-            >
+          <el-table v-loading="loading" :data="cacheNames" :height="tableHeight" highlight-current-row
+            @row-click="getCacheKeys" style="width: 100%">
+            <el-table-column label="序号" width="60" type="index" />
+            <el-table-column label="缓存名称" align="center" prop="cacheName" show-overflow-tooltip
+              :formatter="nameFormatter" />
+            <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip />
+            <el-table-column label="操作" width="60" align="center" class-name="small-padding fixed-width">
               <template #default="scope">
-                <el-button
-                  link
-                  type="primary"
-                  icon="Delete"
-                  @click="handleClearCacheName(scope.row)"
-                />
+                <el-button link type="primary" icon="Delete" @click="handleClearCacheName(scope.row)" />
               </template>
             </el-table-column>
           </el-table>
@@ -64,47 +27,17 @@
         <el-card style="height: calc(100vh - 125px)">
           <template #header>
             <span>键名列表</span>
-            <el-button
-              style="float: right; padding: 3px 0"
-              link
-              type="primary"
-              icon="Refresh"
-              @click="refreshCacheKeys()"
-            />
+            <el-button style="float: right; padding: 3px 0" link type="primary" icon="Refresh"
+              @click="refreshCacheKeys()" />
           </template>
-          <el-table
-            v-loading="subLoading"
-            :data="cacheKeys"
-            :height="tableHeight"
-            highlight-current-row
-            @row-click="handleCacheValue"
-            style="width: 100%"
-          >
-            <el-table-column
-              label="序号"
-              width="60"
-              type="index"
-            ></el-table-column>
-            <el-table-column
-              label="缓存键名"
-              align="center"
-              :show-overflow-tooltip="true"
-              :formatter="keyFormatter"
-            >
+          <el-table v-loading="subLoading" :data="cacheKeys" :height="tableHeight" highlight-current-row
+            @row-click="handleCacheValue" style="width: 100%">
+            <el-table-column label="序号" width="60" type="index"></el-table-column>
+            <el-table-column label="缓存键名" align="center" :show-overflow-tooltip="true" :formatter="keyFormatter">
             </el-table-column>
-            <el-table-column
-              label="操作"
-              width="60"
-              align="center"
-              class-name="small-padding fixed-width"
-            >
+            <el-table-column label="操作" width="60" align="center" class-name="small-padding fixed-width">
               <template #default="scope">
-                <el-button
-                  link
-                  type="primary"
-                  icon="Delete"
-                  @click="handleClearCacheKey(scope.row)"
-                />
+                <el-button link type="primary" icon="Delete" @click="handleClearCacheKey(scope.row)" />
               </template>
             </el-table-column>
           </el-table>
@@ -115,14 +48,8 @@
         <el-card :bordered="false" style="height: calc(100vh - 125px)">
           <template #header>
             <span>缓存内容</span>
-            <el-button
-              style="float: right; padding: 3px 0"
-              link
-              type="primary"
-              icon="Refresh"
-              @click="handleClearCacheAll()"
-              >清理全部</el-button
-            >
+            <el-button style="float: right; padding: 3px 0" link type="primary" icon="Refresh"
+              @click="handleClearCacheAll()">清理全部</el-button>
           </template>
           <el-form :model="cacheForm">
             <el-row :gutter="32">
@@ -138,12 +65,7 @@
               </el-col>
               <el-col :offset="1" :span="22">
                 <el-form-item label="缓存内容:" prop="cacheValue">
-                  <el-input
-                    v-model="cacheForm.cacheValue"
-                    type="textarea"
-                    :rows="8"
-                    :readOnly="true"
-                  />
+                  <el-input v-model="cacheForm.cacheValue" type="textarea" :rows="8" :readOnly="true" />
                 </el-form-item>
               </el-col>
             </el-row>

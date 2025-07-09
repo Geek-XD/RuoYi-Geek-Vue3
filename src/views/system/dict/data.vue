@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-card shadow="never">
+      <el-card shadow="never" body-class="search-card">
          <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
             <el-form-item label="字典名称" prop="dictType">
                <el-select v-model="queryParams.dictType" style="width: 200px">
@@ -114,7 +114,7 @@
             <el-form-item label="状态" prop="status">
                <el-radio-group v-model="form.status">
                   <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label
-                     }}</el-radio>
+                  }}</el-radio>
                </el-radio-group>
             </el-form-item>
             <el-form-item label="备注" prop="remark">

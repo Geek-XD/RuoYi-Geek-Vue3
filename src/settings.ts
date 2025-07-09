@@ -15,63 +15,34 @@ interface Setting {
   initDbSetting: () => Promise<Setting>;
 }
 const setting = {
-  /**
-   * 网页标题
-   */
+  /** 网页标题 */
   title: import.meta.env.VITE_APP_TITLE,
-  /**
-   * 主题色
-   */
+  /** 主题色 */
   theme: '#409EFF',
-  /**
-   * 侧边栏主题 深色主题theme-dark，浅色主题theme-light
-   */
+  /** 侧边栏主题 深色主题theme-dark，浅色主题theme-light */
   sideTheme: 'theme-dark',
-  /**
-   * 是否系统布局配置
-   */
+  /** 是否系统布局配置 */
   showSettings: false,
-
-  /**
-   * 是否显示顶部导航
-   */
+  /** 是否显示顶部导航 */
   topNav: false,
-
-  /**
-   * 是否显示 tagsView
-   */
+  /** 是否显示 tagsView */
   tagsView: true,
-
-  /**
-   * 是否固定头部
-   */
+  /** 是否固定头部 */
   fixedHeader: false,
-
-  /**
-   * 是否显示logo
-   */
+  /** 是否显示logo */
   sidebarLogo: true,
-
-  /**
-   * 是否显示动态标题
-   */
+  /** 是否显示动态标题 */
   dynamicTitle: false,
-
-  /**
-   * 是否显示底部版权
-   */
+  /** 是否显示底部版权 */
   footerVisible: true,
-
-  /**
-   * 底部版权文本内容
-   */
+  /** 底部版权文本内容 */
   footerContent: 'Copyright © 2018-2025 RuoYi-Geek. All Rights Reserved.',
 
   /**
    * @type {string | array} 'production' | ['production', 'development']
-   * @description Need show err logs component.
-   * The default is only used in the production env
-   * If you want to also use it in dev, you can pass ['production', 'development']
+   * @description 需要显示错误日志组件的环境。
+   * 默认只在生产环境中使用。
+   * 如果你也想在开发环境中使用，可以传 ['production', 'development']。
    */
   errorLog: 'production',
 

@@ -2,7 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="模版名称" prop="templateName">
-        <el-input v-model="queryParams.templateName" placeholder="请输入模版名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.templateName" placeholder="请输入模版名称" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="模版类型" prop="templateType">
         <el-select v-model="queryParams.templateType" placeholder="请选择模版类型" clearable style="width: 240px">
@@ -61,27 +62,19 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改模版管理对话框 -->
-    <TemplateFormDialog
-      :visible="open"
-      :title="title"
-      :formData="form"
-      :variable="variable"
-      @update:visible="open = $event"
-      @submit="handleFormSubmit"
-      @cancel="cancel"
-      ref="templateFormDialogRef"
-    />
+    <TemplateFormDialog :visible="open" :title="title" :formData="form" :variable="variable"
+      @update:visible="open = $event" @submit="handleFormSubmit" @cancel="cancel" ref="templateFormDialogRef" />
   </div>
 </template>
 
 <script setup name="Template">
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/modelMessage/template";
 import { selectVariable } from "@/api/modelMessage/variable";
-import TemplateFormDialog from './components/templateFormDialog.vue';
+import TemplateFormDialog from './components/TemplateFormDialog.vue';
 
 const { proxy } = getCurrentInstance();
 const { template_type } = proxy.useDict("template_type");
