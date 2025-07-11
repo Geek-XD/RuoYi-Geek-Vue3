@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
+    <el-card shadow="never" body-class="search-card">
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter.native="handleQuery" />
@@ -105,7 +105,7 @@
         <el-form-item label="值类型" prop="valueType">
           <el-radio-group v-model="form.valueType">
             <el-radio v-for="dict in sys_listener_value_type" :key="dict.value" :value="dict.value">{{ dict.label
-            }}</el-radio>
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="执行内容" prop="value">

@@ -2,7 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="变量名称" prop="variableName">
-        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" style="width: 240px"
+          @keyup.enter="handleQuery" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -30,7 +31,7 @@
       <el-table-column type="selection" width="50" align="center" />
       <el-table-column label="变量编号" align="center" prop="variableId" />
       <el-table-column label="变量名称" align="center" prop="variableName" :show-overflow-tooltip="true" />
-      <el-table-column label="变量类型" align="center" prop="variableType"/>
+      <el-table-column label="变量类型" align="center" prop="variableType" />
       <el-table-column label="变量内容" align="center" prop="variableContent" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ formatVariableContent(scope.row) }}</span>
@@ -53,20 +54,20 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改变量管理对话框 -->
     <VariableFormDialog ref="variableFormDialog" :visible="open" :title="title" :form="form"
-      :submitLoading="submitLoading"  @update:visible="open = $event" @submit="submitForm"
-      @cancel="cancel" @variable-type-change="handleVariableTypeChange"/>
+      :submitLoading="submitLoading" @update:visible="open = $event" @submit="submitForm" @cancel="cancel"
+      @variable-type-change="handleVariableTypeChange" />
   </div>
 </template>
 
 <script setup name="Variable">
 import { listVariable, getVariable, delVariable, addVariable, updateVariable } from "@/api/modelMessage/variable";
 import { ElMessage } from "element-plus";
-import VariableFormDialog from "./components/variableFormDialog.vue";
+import VariableFormDialog from "./components/VariableFormDialog.vue";
 const { proxy } = getCurrentInstance();
 const { parseTime } = proxy;
 
@@ -96,7 +97,7 @@ const data = reactive({
 });
 
 const { queryParams, form } = toRefs(data);
- 
+
 /** 查询变量管理列表 */
 function getList() {
   loading.value = true;
@@ -172,7 +173,7 @@ function handleVariableTypeChange(value) {
     form.value.builtInVariable = null;
     form.value.variableContent = '';
   } else {
-    form.value.variableContent = ''; 
+    form.value.variableContent = '';
   }
 }
 
@@ -201,12 +202,12 @@ async function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _variableIds = row.variableId || ids.value;
-  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function() {
-   return delVariable(_variableIds);
+  proxy.$modal.confirm('是否确认删除变量管理编号为"' + _variableIds + '"的数据项？').then(function () {
+    return delVariable(_variableIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */
@@ -233,4 +234,4 @@ function formatVariableContent(item) {
 }
 
 getList();
-</script>    
+</script>

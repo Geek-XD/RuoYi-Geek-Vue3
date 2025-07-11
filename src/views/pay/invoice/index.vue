@@ -84,7 +84,7 @@ handleQuery();
 </script>
 <template>
   <div class="app-container">
-    <el-card shadow="never">
+    <el-card shadow="never" body-class="search-card">
       <SchemaForm :model="queryParams" inline v-show="showSearch" label-width="100px" :target="PayInvoice"
         v-model="queryParams" schema="query">
         <el-form-item>

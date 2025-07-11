@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-card shadow="never">
+      <el-card shadow="never" body-class="search-card">
          <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
             <el-form-item label="任务名称" prop="jobName">
                <el-input v-model="queryParams.jobName" placeholder="请输入任务名称" clearable style="width: 200px"
@@ -68,23 +68,23 @@
                <template #default="scope">
                   <el-tooltip content="修改" placement="top">
                      <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                        v-hasPermi="['monitor:job:edit']"/>
+                        v-hasPermi="['monitor:job:edit']" />
                   </el-tooltip>
                   <el-tooltip content="删除" placement="top">
                      <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                        v-hasPermi="['monitor:job:remove']"/>
+                        v-hasPermi="['monitor:job:remove']" />
                   </el-tooltip>
                   <el-tooltip content="执行一次" placement="top">
                      <el-button link type="primary" icon="CaretRight" @click="handleRun(scope.row)"
-                        v-hasPermi="['monitor:job:changeStatus']"/>
+                        v-hasPermi="['monitor:job:changeStatus']" />
                   </el-tooltip>
                   <el-tooltip content="任务详细" placement="top">
                      <el-button link type="primary" icon="View" @click="handleView(scope.row)"
-                        v-hasPermi="['monitor:job:query']"/>
+                        v-hasPermi="['monitor:job:query']" />
                   </el-tooltip>
                   <el-tooltip content="调度日志" placement="top">
                      <el-button link type="primary" icon="Operation" @click="handleJobLog(scope.row)"
-                        v-hasPermi="['monitor:job:query']"/>
+                        v-hasPermi="['monitor:job:query']" />
                   </el-tooltip>
                </template>
             </el-table-column>
@@ -164,7 +164,7 @@
                   <el-form-item label="状态">
                      <el-radio-group v-model="form.status">
                         <el-radio v-for="dict in sys_job_status" :key="dict.value" :value="dict.value">{{ dict.label
-                        }}</el-radio>
+                           }}</el-radio>
                      </el-radio-group>
                   </el-form-item>
                </el-col>

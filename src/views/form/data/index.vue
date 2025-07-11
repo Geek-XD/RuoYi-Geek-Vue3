@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-card shadow="never" body-class="search-card">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
         <el-form-item label="关联的表单ID" prop="formId">
           <el-input v-model="queryParams.formId" placeholder="请输入关联的表单ID" clearable @keyup.enter="handleQuery" />
         </el-form-item>

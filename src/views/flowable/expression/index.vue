@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
+    <el-card shadow="never" body-class="search-card">
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="queryParams.name" placeholder="请输入表达式名称" clearable @keyup.enter.native="handleQuery" />
@@ -83,7 +83,7 @@
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio v-for="dict in sys_common_status" :key="dict.value" :value="parseInt(dict.value)">{{ dict.label
-            }}</el-radio>
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">

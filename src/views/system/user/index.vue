@@ -17,7 +17,7 @@
          </el-col>
          <!--用户数据-->
          <el-col :span="20" :xs="24">
-            <el-card shadow="never">
+            <el-card shadow="never" body-class="search-card">
                <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
                   <el-form-item label="用户名称" prop="userName">
                      <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 240px"
@@ -99,19 +99,19 @@
                      <template #default="scope">
                         <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== 1">
                            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                              v-hasPermi="['system:user:edit']"/>
+                              v-hasPermi="['system:user:edit']" />
                         </el-tooltip>
                         <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== 1">
                            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                              v-hasPermi="['system:user:remove']"/>
+                              v-hasPermi="['system:user:remove']" />
                         </el-tooltip>
                         <el-tooltip content="重置密码" placement="top" v-if="scope.row.userId !== 1">
                            <el-button link type="primary" icon="Key" @click="handleResetPwd(scope.row)"
-                              v-hasPermi="['system:user:resetPwd']"/>
+                              v-hasPermi="['system:user:resetPwd']" />
                         </el-tooltip>
                         <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
                            <el-button link type="primary" icon="CircleCheck" @click="handleAuthRole(scope.row)"
-                              v-hasPermi="['system:user:edit']"/>
+                              v-hasPermi="['system:user:edit']" />
                         </el-tooltip>
                      </template>
                   </el-table-column>

@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-card shadow="never">
+      <el-card shadow="never" body-class="search-card">
          <el-form :model="queryParams" ref="queryRef" :inline="true">
             <el-form-item label="登录地址" prop="ipaddr">
                <el-input v-model="queryParams.ipaddr" placeholder="请输入登录地址" clearable style="width: 200px"

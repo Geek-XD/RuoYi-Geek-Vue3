@@ -2,7 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="消息标题" prop="messageTitle">
-        <el-input v-model="queryParams.messageTitle" placeholder="请输入消息标题" clearable style="width: 240px" @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.messageTitle" placeholder="请输入消息标题" clearable style="width: 240px"
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="消息状态" prop="messageStatus">
         <el-select v-model="queryParams.messageStatus" placeholder="请选择消息状态" clearable style="width: 240px">
@@ -17,7 +18,8 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['modelMessage:messageSystem:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd"
+          v-hasPermi="['modelMessage:messageSystem:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
@@ -30,11 +32,11 @@
       <el-table-column label="消息标题" align="center" prop="messageTitle" :show-overflow-tooltip="true" />
       <el-table-column label="收件人" align="center" prop="messageRecipient" :show-overflow-tooltip="true" />
       <el-table-column label="消息状态" align="center" prop="messageStatus">
-          <template #default="scope">
-            <dict-tag :options="message_status" :value="scope.row.messageStatus" />
-          </template>
+        <template #default="scope">
+          <dict-tag :options="message_status" :value="scope.row.messageStatus" />
+        </template>
       </el-table-column>
-      <el-table-column label="发送时间" align="center" prop="createTime" >
+      <el-table-column label="发送时间" align="center" prop="createTime">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -51,11 +53,11 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum"
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />
-      
+
     <!-- 添加或修改消息管理对话框 -->
-    <AddMessage ref="sendMessageRef" @success="handleSendSuccess"/>
+    <AddMessage ref="sendMessageRef" @success="handleSendSuccess" />
 
     <!-- 消息详情对话框 -->
     <el-dialog :title="title" v-model="drawerVisible" width="600px" append-to-body>
@@ -206,9 +208,9 @@ function handleSendSuccess() {
 function openDrawer(messageId) {
   getMessageSystem(messageId).then(response => {
     detailForm.value = response.data;
-    title.value ='信息详情';
+    title.value = '信息详情';
     drawerVisible.value = true;
-    getUpdate(messageId).then(response => {});
+    getUpdate(messageId).then(response => { });
   });
 }
 

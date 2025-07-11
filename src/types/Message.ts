@@ -1,4 +1,4 @@
-import UUID from "uuid";
+import * as UUID from "uuid";
 
 export class Message {
   /** 消息唯一标识符 */

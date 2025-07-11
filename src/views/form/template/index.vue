@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never">
+    <el-card shadow="never" body-class="search-card">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="表单名称" prop="formName">
           <el-input v-model="queryParams.formName" placeholder="请输入表单名称" clearable @keyup.enter="handleQuery" />
