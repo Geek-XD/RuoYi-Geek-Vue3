@@ -44,7 +44,7 @@
     </el-table>
 
     <pagination v-show="total > 0" :total="total" :page-sizes="[5, 10]" layout="prev, pager, next"
-      :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
+      v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
   </div>
 </template>
 

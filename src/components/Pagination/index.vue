@@ -4,8 +4,6 @@ import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{
   total: number
-  page?: number
-  limit?: number
   pageSizes?: number[]
   pagerCount?: number
   layout?: string
@@ -13,8 +11,6 @@ const props = withDefaults(defineProps<{
   autoScroll?: boolean
   hidden?: boolean
 }>(), {
-  page: 1,
-  limit: 20,
   pageSizes: () => [10, 20, 30, 50],
   pagerCount: document.body.clientWidth < 992 ? 5 : 7,
   layout: 'total, sizes, prev, pager, next, jumper',
@@ -24,22 +20,9 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits();
-const currentPage = computed({
-  get() {
-    return props.page
-  },
-  set(val) {
-    emit('update:page', val)
-  }
-})
-const pageSize = computed({
-  get() {
-    return props.limit
-  },
-  set(val) {
-    emit('update:limit', val)
-  }
-})
+
+const pageSize = defineModel<number>('limit', { default: 20 })
+const currentPage = defineModel<number>('page', { default: 1 })
 function handleSizeChange(val: number) {
   if (currentPage.value * val > props.total) {
     currentPage.value = 1
@@ -64,13 +47,13 @@ function handleCurrentChange(val: number) {
       @current-change="handleCurrentChange" />
   </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
 .pagination-container {
   padding: 32px 16px;
   position: relative;
-}
 
-.pagination-container.hidden {
-  display: none;
+  &.hidden {
+    display: none;
+  }
 }
 </style>

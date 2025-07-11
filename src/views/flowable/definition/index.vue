@@ -29,7 +29,7 @@
           <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['system:deployment:remove']">删除</el-button>
         </el-col>
-        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
       <el-alert title="流程表达式注意项" type="success">
         <div>1、XML文件中的流程定义id属性用作流程定义的key参数。</div>
@@ -85,8 +85,8 @@
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-        @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
     <!-- bpmn20.xml导入对话框 -->
@@ -151,7 +151,8 @@
           </el-table>
 
           <pagination small layout="prev, pager, next" v-show="formTotal > 0" :total="formTotal"
-            :page.sync="formQueryParams.pageNum" :limit.sync="formQueryParams.pageSize" @pagination="ListFormDeploy" />
+            v-model:page="formQueryParams.pageNum" v-model:limit="formQueryParams.pageSize"
+            @pagination="ListFormDeploy" />
         </el-col>
         <el-col :span="14" :xs="24">
           <el-card header="表单预览">

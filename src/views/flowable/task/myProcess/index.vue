@@ -26,7 +26,7 @@
           <el-button type="danger" plain icon="delete" :disabled="multiple" @click="handleDelete"
             v-hasPermi="['system:deployment:remove']">删除</el-button>
         </el-col>
-        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
       <el-table v-loading="loading" :data="myProcessList" @selection-change="handleSelectionChange">
@@ -67,8 +67,8 @@
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-        @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
     <!-- 发起流程 -->
@@ -96,8 +96,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <pagination v-show="processTotal > 0" :total="processTotal" :page.sync="queryProcessParams.pageNum"
-        :limit.sync="queryProcessParams.pageSize" @pagination="listDefinition" />
+      <pagination v-show="processTotal > 0" :total="processTotal" v-model:page="queryProcessParams.pageNum"
+        v-model:limit="queryProcessParams.pageSize" @pagination="listDefinition" />
     </el-dialog>
 
   </div>

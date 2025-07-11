@@ -161,8 +161,8 @@
         <el-table-column label="执行内容" align="center" prop="value" :show-overflow-tooltip="true" />
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" layout="prev, pager, next" :page.sync="queryParams.pageNum"
-        :limit.sync="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" layout="prev, pager, next" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
 
       <div class="element-drawer__button">
         <el-button size="small" @click="listenerSystemVisible = false">取 消</el-button>
