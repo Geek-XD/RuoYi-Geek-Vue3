@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { getCodeImg, sendEmailCode, sendPhoneCode } from "@/api/login";
 import { RoutesAlias } from "@/router/routesAlias";
+import { useStorage } from "@vueuse/core";
 
 const props = defineProps<{
   register: boolean,
@@ -18,13 +19,15 @@ const router = useRouter();
 const loginForm = ref({
   username: "",
   password: "",
-  code: "",
-  uuid: "",
   email: '',
   phonenumber: '',
+  code: "",
+  uuid: "",
   rememberMe: false,
   autoRegister: false
 });
+
+const loginFormState = useStorage('loginForm', loginForm.value);
 
 const loginRules = {
   username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
@@ -48,13 +51,17 @@ function handleLogin() {
       }).finally(() => {
         loading.value = false;
         if (loginForm.value.rememberMe) {
-          localStorage.setItem("username", loginForm.value.username);
-          localStorage.setItem("password", encrypt(loginForm.value.password));
-          localStorage.setItem("rememberMe", loginForm.value.rememberMe + '');
+          loginFormState.value.username = loginForm.value.username;
+          loginFormState.value.email = loginForm.value.email;
+          loginFormState.value.phonenumber = loginForm.value.phonenumber;
+          loginFormState.value.password = encrypt(loginForm.value.password);
+          loginFormState.value.rememberMe = loginForm.value.rememberMe;
         } else {
-          localStorage.removeItem("username");
-          localStorage.removeItem("password");
-          localStorage.removeItem("rememberMe");
+          loginFormState.value.username = '';
+          loginFormState.value.password = '';
+          loginFormState.value.email = '';
+          loginFormState.value.phonenumber = '';
+          loginFormState.value.rememberMe = false;
         }
       });
     }
@@ -78,19 +85,14 @@ function sendCode() {
 }
 
 function getCookie() {
-  const username = localStorage.getItem("username");
-  const password = localStorage.getItem("password");
-  const phonenumber = localStorage.getItem("phonenumber");
-  const rememberMe = localStorage.getItem("rememberMe");
-  const email = localStorage.getItem("email");
   loginForm.value = {
-    username: username ?? '',
-    password: password ? decrypt(password) : '',
-    email: email ?? '',
-    phonenumber: phonenumber ?? '',
+    username: loginFormState.value.username ?? '',
+    password: loginFormState.value.password ? decrypt(loginFormState.value.password) : '',
+    email: loginFormState.value.email ?? '',
+    phonenumber: loginFormState.value.phonenumber ?? '',
     code: "",
     uuid: "",
-    rememberMe: !rememberMe ? false : Boolean(rememberMe),
+    rememberMe: !loginFormState.value.rememberMe ? false : loginFormState.value.rememberMe,
     autoRegister: false
   };
 }

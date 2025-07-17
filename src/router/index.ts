@@ -1,4 +1,4 @@
-import { createWebHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter, createWebHashHistory } from 'vue-router'
 import { constantRoutes } from './routes/staticRoutes'
 import { configureNProgress } from './utils/utils'
 import { setupBeforeEachGuard } from './guards/beforeEach'
@@ -6,6 +6,7 @@ import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
 
 export const router = createRouter({
+  // createWebHistory  createWebHashHistory
   history: createWebHistory(import.meta.env.VITE_BASE_ROUTER),
   routes: constantRoutes,
   scrollBehavior(to, from, savedPosition) {

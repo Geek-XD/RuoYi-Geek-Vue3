@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目介绍 - 文化基因 | 章丘传统村落保护项目</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/aos.css">
+    <style>
+        /* 项目介绍页面特定样式 */
+        .about-banner {
+            height: 50vh;
+            min-height: 400px;
+            background-image: url('images/章丘区全景.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: 80px;
+        }
+
+        .about-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+        }
+
+        .about-banner-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 0 var(--spacing-md);
+        }
+
+        .background-section,
+        .framework-section,
+        .timeline-section,
+        .team-section {
+            padding: var(--spacing-xl) 0;
+        }
+
+        .background-section,
+        .timeline-section {
+            background-color: var(--color-background-alt);
+        }
+
+        .two-column {
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: center;
+        }
+
+        .text-column,
+        .image-column {
+            flex: 1;
+        }
+
+        .text-column h3 {
+            font-size: 1.8rem;
+            color: var(--color-secondary);
+            margin-bottom: var(--spacing-md);
+            font-family: var(--font-title);
+        }
+
+        .text-column p {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .text-column ul {
+            padding-left: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .text-column ul li {
+            margin-bottom: var(--spacing-sm);
+            position: relative;
+            padding-left: var(--spacing-md);
+        }
+
+        .text-column ul li:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+        }
+
+        .image-column img {
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .framework-image {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--color-secondary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: white;
+            border: 4px solid var(--color-primary);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(even)::after {
+            left: -10px;
+        }
+
+        .timeline-date {
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .timeline-title {
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-secondary);
+        }
+
+        @media screen and (max-width: 768px) {
+            .two-column {
+                flex-direction: column;
+            }
+
+            .timeline::after {
+                left: 30px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 60px;
+                padding-right: 20px;
+            }
+
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+
+            .timeline-item::after {
+                left: 20px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo.jpg" alt="文化基因项目" class="logo-img">
+                <span class="logo-text">章丘基因</span>
+            </div>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="home.html">首页</a></li>
+                    <li class="nav-item active"><a href="about.html">项目介绍</a></li>
+                    <li class="nav-item"><a href="pilot-zone.html">示范区概览</a></li>
+                    <li class="nav-item"><a href="results.html">核心成果</a></li>
+                    <li class="nav-item"><a href="media.html">多媒体资料</a></li>
+                    <li class="nav-item"><a href="engagement.html">公众参与</a></li>
+                    <li class="nav-item"><a href="downloads.html">下载中心</a></li>
+                    <li class="nav-item"><a href="contact.html">联系我们</a></li>
+                </ul>
+            </nav>
+            <div class="lang-switch">
+                <span class="active">中</span> | <span>EN</span>
+            </div>
+            <button class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 横幅 -->
+    <div class="about-banner">
+        <div class="about-banner-content">
+            <h1 class="section-title" style="color: white;">项目介绍</h1>
+            <p>探索传统村落保护的创新实践与理论框架</p>
+        </div>
+    </div>
+
+    <!-- 项目背景 -->
+    <section class="background-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">项目背景</h2>
+                <p class="section-subtitle">传统村落保护的当代困境</p>
+            </div>
+            <div class="two-column">
+                <div class="text-column" data-aos="fade-right">
+                    <h3>城乡文化断层问题</h3>
+                    <p>在我国城镇化进程快速推进的新时代背景下，传统村落作为中华优秀传统文化的重要载体，正面临前所未有的存续危机。随着城乡人口流动的加剧，传统村落的社会结构正发生深刻变革，具体表现为：</p>
+                    <ul>
+                        <li>人口空心化导致文化主体流失，传统民俗活动因参与者锐减而日渐式微</li>
+                        <li>遗产空间功能退化，祠堂、庙宇等文化空间活力衰减</li>
+                        <li>文化认同感弱化，年轻一代对村落传统文化的情感联结日益淡薄</li>
+                    </ul>
+                    <p>2022年，财政部、住建部联合发文，组织开展以县域为单元的传统村落集中连片保护利用示范工作，通过整体性保护策略破解单一村落"碎片化"保护的困境。</p>
+                </div>
+                <div class="image-column" data-aos="fade-left">
+                    <img src="images/about-1.jpg" alt="传统村落保护现状">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 研究框架 -->
+    <section class="framework-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">研究框架</h2>
+                <p class="section-subtitle">"基因识别-价值解析-创新活化"三维模型</p>
+            </div>
+            <div class="framework-content">
+                <div class="framework-text" data-aos="fade-up">
+                    <p>本研究选取全国首批传统村落集中连片保护利用示范区——山东省济南市章丘区作为实证研究对象，通过对章丘示范区内22个传统村落开展系统性田野调查，引入文化基因理论，构建"基因识别-价值解析-创新活化"的三维研究框架。
+                    </p>
+                </div>
+                <div class="framework-image" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="images/framework.jpg" alt="研究框架图">
+                </div>
+                <div class="two-column" style="margin-top: 3rem;">
+                    <div class="text-column" data-aos="fade-right">
+                        <h3>基因解码</h3>
+                        <p>从文化内核到遗产表征，通过系统性的调研与分析，识别章丘区域文化的基因结构与特征，建立文化遗产价值的评估体系。</p>
+                    </div>
+                    <div class="text-column" data-aos="fade-left">
+                        <h3>功能重构</h3>
+                        <p>从遗产保护到基因活化，探索传统文化基因在当代语境下的功能转化与重构路径，实现文化遗产的活态传承。</p>
+                    </div>
+                </div>
+                <div class="text-column" data-aos="fade-up" style="margin-top: 2rem;">
+                    <h3>系统再生</h3>
+                    <p>从单点保护到网络韧性，构建"党建引领、片区联动、文化破圈、社会共治"的协同治理策略，着力突破传统村落保护模式的局限，实现文化遗产活态传承与乡村振兴有机融合，促进地域文化基因的系统性修复。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 研究时间线 -->
+    <section class="timeline-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">研究历程</h2>
+                <p class="section-subtitle">调研与成果发展时间线</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2023年3月</div>
+                        <h3 class="timeline-title">项目启动</h3>
+                        <p>确定章丘示范区作为研究对象，组建跨学科研究团队，制定调研计划。</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2023年4月-6月</div>
+                        <h3 class="timeline-title">前期调研</h3>
+                        <p>开展文献研究，搜集章丘区传统村落相关资料，明确调研重点与方法。</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2023年7月-9月</div>
+                        <h3 class="timeline-title">田野调查</h3>
+                        <p>赴章丘示范区22个传统村落开展实地调研，记录文化遗产资源，开展访谈与问卷调查。</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2023年10月-12月</div>
+                        <h3 class="timeline-title">资料整理与分析</h3>
+                        <p>整理调研数据，构建文化基因图谱，分析现存问题与挑战。</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2024年1月-3月</div>
+                        <h3 class="timeline-title">方案设计</h3>
+                        <p>基于研究成果，提出"党建引领、片区联动、文化破圈、社会共治"协同策略。</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2024年4月至今</div>
+                        <h3 class="timeline-title">成果应用</h3>
+                        <p>研究成果获得章丘区政府采纳，部分策略已开始在示范区实施。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/logo-white.svg" alt="文化基因项目">
+                    <p class="slogan">文化基因 · 活态传承</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>导航</h4>
+                        <ul>
+                            <li><a href="home.html">首页</a></li>
+                            <li><a href="about.html">项目介绍</a></li>
+                            <li><a href="pilot-zone.html">示范区概览</a></li>
+                            <li><a href="results.html">核心成果</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>资源</h4>
+                        <ul>
+                            <li><a href="media.html">多媒体资料</a></li>
+                            <li><a href="downloads.html">下载中心</a></li>
+                            <li><a href="engagement.html">公众参与</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>联系方式</h4>
+                        <ul>
+                            <li>邮箱：contact@cultural-genes.org</li>
+                            <li>电话：123-4567-8910</li>
+                            <li class="social-links">
+                                <a href="#"><img src="images/icon-weixin.svg" alt="微信"></a>
+                                <a href="#"><img src="images/icon-weibo.svg" alt="微博"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2024 文化基因项目 版权所有</p>
+                <div class="cooperation">
+                    <span>合作单位：</span>
+                    <img src="images/logo-partner1.png" alt="合作单位1">
+                    <img src="images/logo-partner2.png" alt="合作单位2">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本引用 -->
+    <script src="js/aos.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

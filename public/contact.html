@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 文化基因 | 章丘传统村落保护项目</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/aos.css">
+    <style>
+        /* 联系我们页面特定样式 */
+        .contact-banner {
+            height: 50vh;
+            min-height: 400px;
+            background-image: url('images/contact-banner1.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: 80px;
+        }
+
+        .contact-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+        }
+
+        .contact-banner-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 0 var(--spacing-md);
+        }
+
+        .contact-section,
+        .map-section,
+        .faq-section {
+            padding: var(--spacing-xl) 0;
+        }
+
+        .contact-section,
+        .faq-section {
+            background-color: var(--color-background-alt);
+        }
+
+        .contact-content {
+            display: flex;
+            gap: var(--spacing-xl);
+        }
+
+        .contact-form {
+            flex: 3;
+            background-color: white;
+            padding: var(--spacing-lg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-info {
+            flex: 2;
+            background-color: white;
+            padding: var(--spacing-lg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            transition: border-color var(--transition-fast);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+
+        .form-submit:hover {
+            background-color: #b02a2a;
+        }
+
+        .contact-method {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(197, 48, 48, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: var(--spacing-md);
+            color: var(--color-primary);
+        }
+
+        .contact-icon img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--color-secondary);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .social-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform var(--transition-fast);
+        }
+
+        .social-button:hover {
+            transform: translateY(-3px);
+        }
+
+        .social-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background-color: white;
+            border-radius: 8px;
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: var(--spacing-md);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color var(--transition-fast);
+        }
+
+        .faq-question:hover {
+            background-color: rgba(197, 48, 48, 0.05);
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        .faq-item.active .faq-question::after {
+            content: '-';
+        }
+
+        .faq-answer {
+            padding: 0 var(--spacing-md);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal), padding var(--transition-normal);
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            max-height: 500px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .contact-content {
+                flex-direction: column;
+            }
+
+            .contact-form {
+                margin-bottom: var(--spacing-lg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo.jpg" alt="文化基因项目" class="logo-img">
+                <span class="logo-text">章丘基因</span>
+            </div>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="home.html">首页</a></li>
+                    <li class="nav-item"><a href="about.html">项目介绍</a></li>
+                    <li class="nav-item"><a href="pilot-zone.html">示范区概览</a></li>
+                    <li class="nav-item"><a href="results.html">核心成果</a></li>
+                    <li class="nav-item"><a href="media.html">多媒体资料</a></li>
+                    <li class="nav-item"><a href="engagement.html">公众参与</a></li>
+                    <li class="nav-item"><a href="downloads.html">下载中心</a></li>
+                    <li class="nav-item active"><a href="contact.html">联系我们</a></li>
+                </ul>
+            </nav>
+            <div class="lang-switch">
+                <span class="active">中</span> | <span>EN</span>
+            </div>
+            <button class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 横幅 -->
+    <div class="contact-banner">
+        <div class="contact-banner-content">
+            <h1 class="section-title" style="color: white;">联系我们</h1>
+            <p>有任何问题或想要参与项目，都可以联系我们</p>
+        </div>
+    </div>
+
+    <!-- 研究团队 -->
+    <section class="team-section" style="padding: var(--spacing-xl) 0; background-color: var(--color-background-alt);">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">研究团队</h2>
+                <p class="section-subtitle">跨学科专业团队</p>
+            </div>
+            <div class="team-members">
+                <!-- 指导教师 -->
+                <h3 style="text-align: center; margin-bottom: var(--spacing-md); color: var(--color-secondary);"
+                    data-aos="fade-up">指导教师</h3>
+                <div class="team-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="100"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/teacher1.jpg" alt="王江"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">王江</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">指导教师</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 副教授</p>
+                            <a href="team/wangjiang.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="150"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/teacher2.jpg" alt="杨阳"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">杨阳</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">指导教师</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 讲师</p>
+                            <a href="team/yangyang.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="200"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/teacher3.jpg" alt="赵继龙"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">赵继龙</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">指导教师</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 教授 副校长</p>
+                            <a href="team/zhaojilong.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 团队成员 -->
+                <h3 style="text-align: center; margin-bottom: var(--spacing-md); color: var(--color-secondary);"
+                    data-aos="fade-up">团队成员</h3>
+                <div class="team-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--spacing-lg);">
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="100"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member1.jpg" alt="陈一啸"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">陈一啸</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队长</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/chenyixiao.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="150"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member2.jpg" alt="谢堂华"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">谢堂华</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学、设计学本科</p>
+                            <a href="team/xietanghua.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="200"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member3.jpg" alt="娄雅晴"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">娄雅晴</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/louyaqing.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="250"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member4.jpg" alt="唐亚静"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">唐亚静</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/tangyajing.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="300"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member5.jpg" alt="周建东"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">周建东</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/zhoujiandong.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="350"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member6.jpg" alt="郝文杰"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">郝文杰</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/haowenjie.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="400"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member7.jpg" alt="陈建安"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">陈建安</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/chenjianan.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="450"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member8.jpg" alt="毛欢欢"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">毛欢欢</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/maohuanhuan.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                    <div class="team-card" data-aos="fade-up" data-aos-delay="500"
+                        style="background: white; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-md);">
+                        <div class="member-photo" style="height: 200px; overflow: hidden;">
+                            <img src="images/team-member9.jpg" alt="夏延亮"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="padding: var(--spacing-md);">
+                            <h3 class="member-name" style="margin-bottom: 5px;">夏延亮</h3>
+                            <p class="member-role"
+                                style="color: var(--color-primary); font-weight: 500; margin-bottom: 10px;">队员</p>
+                            <p class="member-desc" style="font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
+                                山东建筑大学建筑城规学院 建筑学专硕</p>
+                            <a href="team/xiayanliang.html" class="btn-secondary"
+                                style="display: inline-block; font-size: 0.9rem;">查看简介</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系表单 -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">联系方式</h2>
+                <p class="section-subtitle">我们期待您的来信</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-form" data-aos="fade-right">
+                    <h3 style="margin-bottom: var(--spacing-md); color: var(--color-secondary);">发送消息</h3>
+                    <form id="contact-form" action="#" method="post">
+                        <div class="form-group">
+                            <label class="form-label" for="name">您的姓名 *</label>
+                            <input class="form-input" type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">电子邮箱 *</label>
+                            <input class="form-input" type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone">联系电话</label>
+                            <input class="form-input" type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="subject">主题 *</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">请选择...</option>
+                                <option value="cooperation" id="register">活动报名</option>
+                                <option value="volunteer" id="volunteer">志愿者申请</option>
+                                <option value="story" id="story">分享故事</option>
+                                <option value="question">项目咨询</option>
+                                <option value="cooperation">合作洽谈</option>
+                                <option value="media">媒体联系</option>
+                                <option value="other">其他问题</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="message">消息内容 *</label>
+                            <textarea class="form-textarea" id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="form-submit">发送消息</button>
+                    </form>
+                </div>
+                <div class="contact-info" data-aos="fade-left">
+                    <h3 style="margin-bottom: var(--spacing-md); color: var(--color-secondary);">联系信息</h3>
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <img src="images/icon-address.svg" alt="地址">
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">地址</div>
+                            <p>山东省济南市山东建筑大学建艺馆502工作室</p>
+                        </div>
+                    </div>
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <img src="images/icon-email.svg" alt="邮箱">
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">电子邮箱</div>
+                            <p>contact@cultural-genes.org</p>
+                        </div>
+                    </div>
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <img src="images/icon-phone.svg" alt="电话">
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">电话</div>
+                            <p>123-4567-8910</p>
+                        </div>
+                    </div>
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <img src="images/icon-clock.svg" alt="工作时间">
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-label">工作时间</div>
+                            <p>周一至周五: 9:00 - 17:30<br>周末: 休息</p>
+                        </div>
+                    </div>
+                    <div class="social-buttons">
+                        <a href="#" class="social-button">
+                            <img src="images/icon-weixin-white.svg" alt="微信">
+                        </a>
+                        <a href="#" class="social-button">
+                            <img src="images/icon-weibo-white.svg" alt="微博">
+                        </a>
+                        <a href="#" class="social-button">
+                            <img src="images/icon-douyin-white.svg" alt="抖音">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 地图 -->
+    <section class="map-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">项目位置</h2>
+                <p class="section-subtitle">来访路线与交通方式</p>
+            </div>
+            <div class="map-container" data-aos="zoom-in">
+                <iframe src="https://map.baidu.com/@13414977.42,3676545.59,15z" width="100%" height="100%"
+                    frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+            <div style="max-width: 800px; margin: var(--spacing-lg) auto 0; text-align: center;" data-aos="fade-up">
+                <h3 style="margin-bottom: var(--spacing-md); color: var(--color-secondary);">交通指南</h3>
+                <div style="display: flex; gap: var(--spacing-lg); flex-wrap: wrap; justify-content: center;">
+                    <div
+                        style="flex: 1; min-width: 250px; background-color: white; padding: var(--spacing-md); border-radius: 8px; box-shadow: var(--shadow-sm);">
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">公共交通</h4>
+                        <p>乘坐K12路公交车，在大学路站下车，步行约300米即可到达。</p>
+                    </div>
+                    <div
+                        style="flex: 1; min-width: 250px; background-color: white; padding: var(--spacing-md); border-radius: 8px; box-shadow: var(--shadow-sm);">
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">自驾路线</h4>
+                        <p>沿济南绕城高速至章丘出口，按导航前往明水街道大学路147号。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 常见问题 -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">常见问题</h2>
+                <p class="section-subtitle">关于文化基因项目的常见问题解答</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">如何参与文化基因项目的活动？</div>
+                    <div class="faq-answer">
+                        <p>您可以通过以下方式参与我们的活动：</p>
+                        <ol>
+                            <li>在本页面填写联系表单，选择"活动报名"主题</li>
+                            <li>关注我们的微信公众号，获取最新活动通知</li>
+                            <li>直接发送邮件至contact@cultural-genes.org，说明您想参与的活动</li>
+                        </ol>
+                        <p>我们会在收到您的申请后，尽快与您联系确认详情。</p>
+                    </div>
+                </div>
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">如何成为文化基因项目的志愿者？</div>
+                    <div class="faq-answer">
+                        <p>我们欢迎热爱传统文化的各界人士加入志愿者团队。申请成为志愿者，您需要：</p>
+                        <ol>
+                            <li>填写本页面的联系表单，选择"志愿者申请"主题</li>
+                            <li>在消息内容中简要介绍您的背景、特长和参与志愿服务的动机</li>
+                            <li>我们会安排面谈，并根据项目需要和您的特长安排合适的志愿工作</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">文化基因项目的研究成果如何获取？</div>
+                    <div class="faq-answer">
+                        <p>您可以通过以下途径获取我们的研究成果：</p>
+                        <ul>
+                            <li>在网站的<a href="downloads.html" style="color: var(--color-primary);">下载中心</a>下载公开的研究报告与资料
+                            </li>
+                            <li>参加我们组织的学术研讨会和成果发布会</li>
+                            <li>如需特定研究资料，可通过联系表单向我们提出申请</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">如何与文化基因项目进行合作？</div>
+                    <div class="faq-answer">
+                        <p>我们欢迎各类合作伙伴，包括：</p>
+                        <ul>
+                            <li>学术机构与研究团队</li>
+                            <li>政府部门与文化机构</li>
+                            <li>企业与社会组织</li>
+                            <li>媒体与传播渠道</li>
+                        </ul>
+                        <p>请通过联系表单选择"合作洽谈"主题，详细说明您的合作意向，我们会尽快回复您。</p>
+                    </div>
+                </div>
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">我可以提供传统村落的口述历史或老照片吗？</div>
+                    <div class="faq-answer">
+                        <p>非常欢迎！您的珍贵记忆和资料对传统村落文化的保护与研究具有重要价值。您可以：</p>
+                        <ul>
+                            <li>填写联系表单，选择"分享故事"主题</li>
+                            <li>在消息中简要描述您要分享的内容</li>
+                            <li>我们会安排专人与您联系，进行详细的记录与采集</li>
+                        </ul>
+                        <p>您提供的资料将在征得您同意的情况下，纳入章丘传统村落数字档案。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/logo-white.svg" alt="文化基因项目">
+                    <p class="slogan">文化基因 · 活态传承</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>导航</h4>
+                        <ul>
+                            <li><a href="home.html">首页</a></li>
+                            <li><a href="about.html">项目介绍</a></li>
+                            <li><a href="pilot-zone.html">示范区概览</a></li>
+                            <li><a href="results.html">核心成果</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>资源</h4>
+                        <ul>
+                            <li><a href="media.html">多媒体资料</a></li>
+                            <li><a href="downloads.html">下载中心</a></li>
+                            <li><a href="engagement.html">公众参与</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>联系方式</h4>
+                        <ul>
+                            <li>邮箱：contact@cultural-genes.org</li>
+                            <li>电话：123-4567-8910</li>
+                            <li class="social-links">
+                                <a href="#"><img src="images/icon-weixin.svg" alt="微信"></a>
+                                <a href="#"><img src="images/icon-weibo.svg" alt="微博"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2024 文化基因项目 版权所有</p>
+                <div class="cooperation">
+                    <span>合作单位：</span>
+                    <img src="images/logo-partner1.png" alt="合作单位1">
+                    <img src="images/logo-partner2.png" alt="合作单位2">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本引用 -->
+    <script src="js/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // FAQ 手风琴效果
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+
+                question.addEventListener('click', () => {
+                    // 关闭其他所有FAQ项
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                        }
+                    });
+
+                    // 切换当前项的激活状态
+                    item.classList.toggle('active');
+                });
+            });
+
+            // 表单提交
+            const contactForm = document.getElementById('contact-form');
+
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                // 这里添加表单提交逻辑，例如AJAX请求
+                alert('表单已提交，我们会尽快与您联系！');
+                contactForm.reset();
+            });
+
+            // 检查URL参数以预选主题
+            const urlParams = new URLSearchParams(window.location.search);
+            const subject = urlParams.get('subject');
+
+            if (subject) {
+                const subjectSelect = document.getElementById('subject');
+                const option = [...subjectSelect.options].find(option => option.value === subject);
+
+                if (option) {
+                    option.selected = true;
+                }
+            }
+
+            // 如果URL有hash，自动滚动到表单并选择相应主题
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const element = document.getElementById(hash);
+
+                if (element) {
+                    // 选择对应的主题选项
+                    const subjectSelect = document.getElementById('subject');
+                    for (let i = 0; i < subjectSelect.options.length; i++) {
+                        if (subjectSelect.options[i].id === hash) {
+                            subjectSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    // 滚动到表单
+                    contactForm.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+
+                    // 聚焦姓名输入框
+                    setTimeout(() => {
+                        document.getElementById('name').focus();
+                    }, 800);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
