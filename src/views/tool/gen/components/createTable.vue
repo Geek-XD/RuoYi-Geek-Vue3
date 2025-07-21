@@ -256,8 +256,6 @@ interface RestaurantItem {
   value: string;
 }
 
-const state1 = ref("");
-
 const restaurants = ref<RestaurantItem[]>([]);
 const querySearch = (queryString: string, cb: any) => {
   const results = queryString
