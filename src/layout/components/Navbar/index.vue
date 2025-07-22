@@ -53,13 +53,13 @@ function setLayout() {
 <template>
   <div class="navbar">
     <!-- 侧边栏切换按钮 -->
-    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"
+    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened"
       @toggleClick="appStore.toggleSideBar(false)" />
 
     <!-- 顶部导航栏 -->
-    <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav" />
+    <top-nav id="topmenu-container" v-if="settingsStore.topNav" />
     <!-- 面包屑导航栏 -->
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-else />
+    <breadcrumb id="breadcrumb-container" v-else />
 
     <!-- 右侧菜单 -->
     <div class="right-menu">
@@ -127,7 +127,7 @@ function setLayout() {
     box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   }
 
-  .hamburger-container {
+  #hamburger-container {
     line-height: 46px;
     height: 100%;
     float: left;
@@ -140,11 +140,11 @@ function setLayout() {
     }
   }
 
-  .breadcrumb-container {
+  #breadcrumb-container {
     float: left;
   }
 
-  .topmenu-container {
+  #topmenu-container {
     position: absolute;
     left: 50px;
   }

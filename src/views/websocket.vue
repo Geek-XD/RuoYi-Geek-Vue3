@@ -3,7 +3,7 @@ import profile from '@/assets/images/profile.jpg'
 import { ref, nextTick } from "vue";
 import socketclient from "@/plugins/socketclient";
 import { parseTime } from '@/utils/ruoyi';
-import { createMessage } from '@/types/Message';
+import { createAsyncMessage, createMessage } from '@/types/Message';
 
 const message = ref("");
 const url = ref("ws://127.0.0.1:8080/websocket/message");
@@ -23,7 +23,11 @@ const chatMessages = ref<Array<{ from: string, content: string, time: string }>>
 const chatContainer = ref<HTMLElement>();
 
 function join() {
-  socketclient.connect({ url: url.value })
+  socketclient.connect({ url: url.value }).then(() => {
+    socketclient.asyncSend(createAsyncMessage('admin', { content: '你好，我是Ricky，很高兴见到你！' })).then(() => {
+      console.log("回调");
+    });
+  })
   socketclient.onMessage((msg) => {
     chatMessages.value.push({
       from: "Art Bot",

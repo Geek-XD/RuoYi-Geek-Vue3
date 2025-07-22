@@ -71,10 +71,8 @@ export default {
      * @param event 要监听的事件
      * @returns 在回调函数中处理事件
      */
-    on(event: string) {
-        return new Promise((resolve) => {
-            _callback[event] = resolve
-        })
+    on(event: string, callback: (data: any) => void) {
+        _callback[event] = callback
     },
     /**
      * 取消监听事件

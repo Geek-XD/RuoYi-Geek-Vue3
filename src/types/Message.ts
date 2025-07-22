@@ -10,7 +10,7 @@ export class Message {
   /** 消息时间戳 */
   timestamp: string | number | Date;
   /** 消息类型（如命令、聊天、日志、事件等） */
-  type: string;
+  type: MessageType;
   /** 消息主题或事件名称 */
   subject: string;
   /** 消息内容 */
@@ -33,7 +33,7 @@ export class Message {
     this.sender = '';
     this.receiver = '';
     this.timestamp = new Date();
-    this.type = '';
+    this.type = MessageType.MESSAGE;
     this.content = '';
     this.subject = '';
     this.payload = {};
@@ -45,10 +45,16 @@ export class Message {
   }
 }
 
+export enum MessageType {
+  EVENT = 'event',
+  MESSAGE = 'message',
+  ASYNC_MESSAGE = 'asyncMessage',
+}
+
 export function createMessage(receiver: string, params: Partial<Message>): Message {
   const message = new Message();
   Object.assign(message, params);
-  message.type = 'message';
+  message.type = MessageType.MESSAGE;
   message.receiver = receiver;
   return message;
 }
@@ -56,7 +62,15 @@ export function createMessage(receiver: string, params: Partial<Message>): Messa
 export function createEventMessage(eventName: string, params: Partial<Message>): Message {
   const message = new Message();
   Object.assign(message, params);
-  message.type = 'event';
+  message.type = MessageType.EVENT;
   message.subject = eventName;
+  return message;
+}
+
+export function createAsyncMessage(receiver: string, params: Partial<Message>): Message {
+  const message = new Message();
+  Object.assign(message, params);
+  message.type = MessageType.ASYNC_MESSAGE;
+  message.receiver = receiver;
   return message;
 }

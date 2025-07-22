@@ -13,8 +13,6 @@ import { dynamicRoutes } from '@/router/routes/asyncRoutes'
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
 
-
-
 // 定义 store 状态接口
 interface PermissionState {
   routes: RouteItem[]
@@ -69,16 +67,14 @@ const usePermissionStore = defineStore(
           getRouters().then(res => {
             const sdata = JSON.parse(JSON.stringify(res.data))
             const rdata = JSON.parse(JSON.stringify(res.data))
-            const defaultData = JSON.parse(JSON.stringify(res.data))
             const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            const defaultRoutes = filterAsyncRouter(defaultData)
+            const rewriteRoutes = filterAsyncRouter(rdata, true)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
             this.setSidebarRouters([...constantRoutes, ...sidebarRoutes])
             this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes([...constantRoutes, ...defaultRoutes])
+            this.setTopbarRoutes([...constantRoutes, ...sidebarRoutes])
             resolve(rewriteRoutes)
           })
         })
@@ -87,7 +83,7 @@ const usePermissionStore = defineStore(
   })
 
 // 遍历后台传来的路由字符串，转换为组件对象
-function filterAsyncRouter(asyncRouterMap: RouteItem[], lastRouter: RouteItem | false = false, type = false): RouteItem[] {
+function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem[] {
   return asyncRouterMap.filter(route => {
     // 确保route有hidden属性
     if (route.hidden === undefined) {
@@ -112,7 +108,7 @@ function filterAsyncRouter(asyncRouterMap: RouteItem[], lastRouter: RouteItem | 
       }
     }
     if (route.children != null && route.children && route.children.length) {
-      route.children = filterAsyncRouter(route.children, route, type)
+      route.children = filterAsyncRouter(route.children, type)
     } else {
       delete route['children']
       delete route['redirect']
@@ -120,8 +116,15 @@ function filterAsyncRouter(asyncRouterMap: RouteItem[], lastRouter: RouteItem | 
     return true
   })
 }
-
-function filterChildren(childrenMap: RouteItem[], lastRouter: RouteItem | false = false): RouteItem[] {
+/**
+ * 递归过滤并处理路由子项，将所有子路由展平为一个数组，并根据父路由调整路径。
+ * 如果遇到组件为 'ParentView' 的路由，会将其子路由的路径拼接父路由路径，并继续递归处理。
+ * 
+ * @param childrenMap 路由子项数组
+ * @param lastRouter 上一级父路由（可选），用于路径拼接
+ * @returns 处理后的路由子项数组
+ */
+function filterChildren(childrenMap: RouteItem[], lastRouter?: RouteItem): RouteItem[] {
   const children: RouteItem[] = []
   childrenMap.forEach((el) => {
     const item = { ...el, hidden: false } // 确保hidden属性存在
@@ -147,7 +150,7 @@ function filterChildren(childrenMap: RouteItem[], lastRouter: RouteItem | false 
 }
 
 // 动态路由遍历，验证是否具备权限
-export function filterDynamicRoutes(routes: RouteItem[]): RouteItem[] {
+function filterDynamicRoutes(routes: RouteItem[]): RouteItem[] {
   const res: RouteItem[] = []
   routes.forEach(route => {
     if (route.permissions) {
@@ -163,7 +166,7 @@ export function filterDynamicRoutes(routes: RouteItem[]): RouteItem[] {
   return res
 }
 
-export const loadView = (view: string): (() => Promise<Component>) => {
+const loadView = (view: string): (() => Promise<Component>) => {
   let res: (() => Promise<Component>) | undefined
   for (const path in modules) {
     const dir = path.split('views/')[1].split('.vue')[0]
