@@ -133,6 +133,10 @@ aside {
 //main-container全局样式
 .app-container {
   padding: 20px;
+
+  .el-card {
+    --el-card-border-radius: 0.75rem;
+  }
 }
 
 .components-container {
