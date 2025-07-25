@@ -198,51 +198,55 @@ onMounted(() => {
 <style lang="scss" scoped>
 @use "@/assets/styles/variables.module.scss";
 
+
+
 .topmenu-container {
   --el-menu-bg-color: variables.$navbar-color;
 
-  :deep {
-    &.el-menu--horizontal>.el-menu-item {
-      float: left;
-      height: variables.$navbar-height;
-      line-height: variables.$navbar-height;
-      color: #999093;
-      padding: 0 5px;
-      margin: 0 10px;
-      background-color: transparent;
+  &.el-menu--horizontal>:deep(.el-menu-item) {
+    float: left;
+    height: variables.$navbar-height;
+    line-height: variables.$navbar-height;
+    color: #999093;
+    padding: 0 5px;
+    margin: 0 10px;
+    background-color: transparent;
 
 
-      &:hover {
-        color: var(--el-menu-active-color);
-      }
-
-    }
-
-    &.el-menu--horizontal>.el-menu-item.is-active,
-    &.el-menu--horizontal>.el-sub-menu.is-active .el-sub-menu__title {
-      border-bottom: 2px solid transparent;
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 6px;
-        left: 25%;
-        width: 50%;
-        height: 2px;
-        background-color: var(--el-menu-active-color);
-      }
-    }
-
-    /* sub-menu item */
-    &.el-menu--horizontal>.el-sub-menu .el-sub-menu__title {
-      float: left;
-      height: variables.$navbar-height;
-      line-height: variables.$navbar-height;
-      color: #999093;
-      padding: 0 5px;
-      margin: 0 10px;
+    &:hover {
+      color: var(--el-menu-active-color);
     }
   }
+
+  &.el-menu--horizontal>:deep(.el-menu-item.is-active),
+  &.el-menu--horizontal>.el-sub-menu.is-active :deep(.el-sub-menu__title) {
+    border-bottom: 2px solid transparent;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      left: 25%;
+      width: 50%;
+      height: 2px;
+      background-color: var(--el-menu-active-color);
+    }
+
+    &>.el-sub-menu__icon-arrow {
+      position: absolute;
+      right: -8px;
+    }
+  }
+
+  &.el-menu--horizontal>.el-sub-menu :deep(.el-sub-menu__title) {
+    float: left;
+    height: variables.$navbar-height;
+    line-height: variables.$navbar-height;
+    color: #999093;
+    padding: 0 5px;
+    margin: 0 10px;
+  }
+
 }
 </style>

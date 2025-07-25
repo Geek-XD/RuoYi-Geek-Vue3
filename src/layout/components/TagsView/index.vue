@@ -2,7 +2,6 @@
 import ScrollPane from './ScrollPane.vue'
 import { getNormalPath } from '@/utils/ruoyi'
 import useTagsViewStore from '@/store/modules/tagsView'
-import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { tab } from '@/plugins'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
@@ -21,7 +20,6 @@ const router = useRouter();
 
 const visitedViews = computed(() => useTagsViewStore().visitedViews);
 const routes = computed(() => usePermissionStore().routes);
-const theme = computed(() => useSettingsStore().theme);
 
 watch(route, () => {
   addTags()

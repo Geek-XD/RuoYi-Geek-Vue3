@@ -88,12 +88,5 @@ function submitFormData() {
         height: calc(100vh - 84px) !important;
         overflow-y: auto;
     }
-
-    :deep {
-        // .main-header {
-        //     display: none;
-        // }
-
-    }
 }
 </style>
