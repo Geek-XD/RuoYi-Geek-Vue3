@@ -5,6 +5,7 @@ type Dict = {
     updateBy: string | null,
     updateTime: string | null,
     remark: string | null,
+    dictName: string,
     dictCode: string,
     dictSort: number,
     dictLabel: string,

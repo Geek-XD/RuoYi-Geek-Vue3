@@ -97,7 +97,7 @@
       <el-table-column type="expand">
         <template #default="scope">
           <div style="width: 90%;">
-            <el-form :disabled="info.haveSubColumn != 1" label-width="150px">
+            <el-form :disabled="parseInt(info.haveSubColumn) != 1" label-width="150px">
               <el-row>
                 <el-col :span="8">
                   <el-form-item label="关联表">
@@ -155,17 +155,18 @@
   </div>
 </template>
 
-<script setup name="GenEdit">
-import { onMounted } from 'vue';
+<script setup name="GenEdit" lang="ts">
+import { onMounted, ref } from 'vue';
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-const tables = defineModel("tables", { type: Array, default: () => [] });
-const info = defineModel("info", { type: Array, default: () => ({}) });
-const columns = defineModel("columns", { type: Array, default: () => [] });
+import { GenTable, GenTableColumn } from '.';
+const tables = defineModel<GenTable[]>("tables", { default: () => [] });
+const info = defineModel<GenTable>("info", { default: () => ({}) });
+const columns = defineModel<GenTableColumn[]>("columns", { default: () => [] });
 
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
-const dictOptions = ref([]);
+const dictOptions = ref<Dict[]>([]);
 
-function setSubTableColumns(value) {
+function setSubTableColumns(value: string) {
   for (var item in tables.value) {
     const name = tables.value[item].tableName;
     if (value === name) {

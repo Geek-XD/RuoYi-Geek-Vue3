@@ -1,61 +1,65 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="变量名称" prop="variableName">
-        <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" style="width: 240px"
-          @keyup.enter="handleQuery" clearable />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card shadow="never" body-class="search-card">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="变量名称" prop="variableName">
+          <el-input v-model="queryParams.variableName" placeholder="请输入变量名称" style="width: 240px"
+            @keyup.enter="handleQuery" clearable />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+    <el-card shadow="never" class="mt10">
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+        </el-col>
+        <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
 
-    <el-table v-loading="loading" :data="variableList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="50" align="center" />
-      <el-table-column label="变量编号" align="center" prop="variableId" />
-      <el-table-column label="变量名称" align="center" prop="variableName" :show-overflow-tooltip="true" />
-      <el-table-column label="变量类型" align="center" prop="variableType" />
-      <el-table-column label="变量内容" align="center" prop="variableContent" :show-overflow-tooltip="true">
-        <template #default="scope">
-          <span>{{ formatVariableContent(scope.row) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-tooltip content="修改" placement="top">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"></el-button>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-    </el-table>
+      <el-table v-loading="loading" :data="variableList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" align="center" />
+        <el-table-column label="变量编号" align="center" prop="variableId" />
+        <el-table-column label="变量名称" align="center" prop="variableName" :show-overflow-tooltip="true" />
+        <el-table-column label="变量类型" align="center" prop="variableType" />
+        <el-table-column label="变量内容" align="center" prop="variableContent" :show-overflow-tooltip="true">
+          <template #default="scope">
+            <span>{{ formatVariableContent(scope.row) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.createTime) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width">
+          <template #default="scope">
+            <el-tooltip content="修改" placement="top">
+              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip content="删除" placement="top">
+              <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
+    </el-card>
 
     <!-- 添加或修改变量管理对话框 -->
     <VariableFormDialog ref="variableFormDialog" :visible="open" :title="title" :form="form"

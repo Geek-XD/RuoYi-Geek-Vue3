@@ -18,6 +18,9 @@ export function listDbTable(query) {
 }
 
 // 查询表详细信息
+/**
+ * @returns { Promise<import('@/types/request.ts').GeekResponse<import('@/views/tool/gen/edit/index').GenTableVo>> }
+ */
 export function getGenTable(tableId) {
   return request({
     url: '/tool/gen/' + tableId,

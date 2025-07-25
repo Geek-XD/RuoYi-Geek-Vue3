@@ -1,20 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { listTable, getGenTable } from "@/api/tool/gen";
 import { ref, watch } from 'vue';
-const props = defineProps({
-  info: {
-    type: Object,
-    default: null
-  }
-});
+import { GenJoinTable, GenTable } from ".";
+const props = defineProps<{
+  info: GenTable
+}>();
 
-const joins = defineModel("joins", { type: Array, default: () => [] });
-const tables = defineModel("tables", { type: Array, default: () => [] });
+const tables = defineModel<GenTable[]>("tables", { default: () => [] });
+const joins = defineModel<GenJoinTable[]>("joins", { type: Array, default: () => [] });
 const tableDict = defineModel("tableDict", { type: Object, default: () => ({}) });
-const selectTables = ref([])
+const selectTables = ref<GenTable[]>([])
 const loading = ref(false);
-const options = ref([])
-const remoteMethod = (query) => {
+const options = ref<{ value: GenTable; label: string }[]>([])
+const remoteMethod = (query: string) => {
   loading.value = true;
   listTable({ tableName: query }).then((response) => {
     loading.value = false;
@@ -29,26 +27,19 @@ watch(tables, () => {
 
 // 添加关联关系
 const addJoin = () => {
-  joins.value.push({
-    tableId: props.info.tableId,
-    rightTableId: '',
-    leftTableId: props.info.tableId,
-    leftTableAlias: props.info.tableAlias,
-    rightTableAlias: '',
-    rightTableFk: null,
-    leftTableFk: null,
-    joinType: 'left',
-    joinColumns: [],
-  });
+  const newJoin = new GenJoinTable()
+  newJoin.tableId = props.info.tableId;
+  newJoin.leftTableId = props.info.tableId;
+  newJoin.leftTableAlias = props.info.tableAlias;
+  newJoin.joinColumns = []
+  joins.value.push(newJoin);
 };
 
 // 删除关联关系
-const removeJoin = (index) => {
-  joins.value.splice(index, 1);
-};
+const removeJoin = (index: number) => joins.value.splice(index, 1);
 
 // 获取表信息
-async function getTable(tableId) {
+async function getTable(tableId: number) {
   if (tableDict.value[tableId]) return tableDict.value[tableId]
   else {
     const table = await getGenTable(tableId).then(res => res.data.table);
@@ -57,14 +48,14 @@ async function getTable(tableId) {
   }
 }
 // 处理关联表选择变化
-const handleLeftTableChange = async (tableId, index) => {
+const handleLeftTableChange = async (tableId: number, index: number) => {
   const table = await getTable(tableId);
   joins.value[index].tableId = props.info.tableId;
   joins.value[index].leftTableAlias = table.tableAlias;
   joins.value[index].leftTableId = table.tableId;
 };
 // 处理关联表选择变化
-const handleRightTableChange = async (tableId, index) => {
+const handleRightTableChange = async (tableId: number, index: number) => {
   const table = await getTable(tableId);
   joins.value[index].tableId = props.info.tableId;
   joins.value[index].rightTableAlias = table.tableAlias;
@@ -110,7 +101,7 @@ const handleRightTableChange = async (tableId, index) => {
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="左表">
-              <el-select v-model="join.leftTableId" @change="(val) => handleLeftTableChange(val, index)"
+              <el-select v-model="join.leftTableId" @change="(val: number) => handleLeftTableChange(val, index)"
                 placeholder="选择关联表">
                 <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
                   :value="table.tableId" />
@@ -135,7 +126,7 @@ const handleRightTableChange = async (tableId, index) => {
           </el-col>
           <el-col :span="12">
             <el-form-item label="右表">
-              <el-select v-model="join.rightTableId" @change="(val) => handleRightTableChange(val, index)"
+              <el-select v-model="join.rightTableId" @change="(val: number) => handleRightTableChange(val, index)"
                 placeholder="选择右表">
                 <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
                   :value="table.tableId" />

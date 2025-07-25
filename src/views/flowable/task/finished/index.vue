@@ -42,7 +42,7 @@
         <el-table-column label="接收时间" align="center" prop="createTime" width="180" />
         <el-table-column label="审批时间" align="center" prop="finishTime" width="180" />
         <el-table-column label="耗时" align="center" prop="duration" width="180" />
-        <el-table-column label="操作" width="150" fixed="right" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" width="150" fixed="right" class-name="small-padding fixed-width">
           <template v-slot="scope">
             <el-button type="primary" link icon="tickets" @click="handleFlowRecord(scope.row)">流转记录</el-button>
             <el-button type="primary" link icon="refresh-left" @click="handleRevoke(scope.row)">撤回</el-button>

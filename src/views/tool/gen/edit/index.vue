@@ -1,46 +1,24 @@
-<template>
-  <el-card>
-    <el-tabs v-model="activeName">
-      <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" :tables="tables" />
-      </el-tab-pane>
-      <el-tab-pane label="字段信息" name="columnInfo">
-        <edit-table-form ref="editTable" v-model:info="info" :tables="tables" v-model:columns="columns"
-          v-model:tables="tables" />
-      </el-tab-pane>
-      <el-tab-pane label="关联表" name="joinTable">
-        <join-table-form ref="joinTable" :info="info" :tables="tables" v-model:joins="joinTablesMate"
-          v-model="tableDict" />
-      </el-tab-pane>
-      <el-tab-pane label="生成信息" name="genInfo">
-        <gen-info-form ref="genInfo" :info="info" :tables="tables" />
-      </el-tab-pane>
-    </el-tabs>
-    <el-form label-width="100px">
-      <div style="text-align: center;margin-left:-100px;margin-top:10px;">
-        <el-button type="primary" @click="submitForm()">提交</el-button>
-        <el-button @click="close()">返回</el-button>
-      </div>
-    </el-form>
-  </el-card>
-</template>
-<script setup>
+<script setup lang="ts">
 import { getGenTable, updateGenTable } from "@/api/tool/gen";
-import { onMounted } from "vue";
-const route = useRoute();
+import { onMounted, ref, useTemplateRef } from "vue";
 import basicInfoForm from "./basicInfoForm.vue";
 import genInfoForm from "./genInfoForm.vue";
 import joinTableForm from "./joinTableForm.vue";
 import editTableForm from "./editTableForm.vue";
-const { proxy } = getCurrentInstance();
-const activeName = ref("columnInfo");
-const tables = ref([]);
-const tableDict = ref({});
-const joinTablesMate = ref([]);
-const columns = ref([]);
-const info = ref({});
+import { useRoute } from "vue-router";
+import { modal, tab } from "@/plugins";
+import { GenJoinTable, GenTable, GenTableColumn } from ".";
+import { FormInstance } from "element-plus";
+const route = useRoute();
 
-function getFormPromise(form) {
+const activeName = ref("columnInfo");
+const tables = ref<GenTable[]>([]);
+const tableDict = ref({});
+const joinTablesMate = ref<GenJoinTable[]>([]);
+const columns = ref<GenTableColumn[]>([]);
+const info = ref<GenTable>(new GenTable());
+
+function getFormPromise(form: FormInstance) {
   return new Promise((resolve, reject) => {
     form.validate((res, error) => {
       if (error) {
@@ -51,11 +29,14 @@ function getFormPromise(form) {
     });
   });
 }
+const basicInfo = useTemplateRef("basicInfo");
+const genInfo = useTemplateRef("genInfo");
 /** 提交按钮 */
 function submitForm() {
-  const basicForm = proxy.$refs.basicInfo.$refs.basicInfoForm;
-  const genForm = proxy.$refs.genInfo.$refs.genInfoForm;
-  Promise.all([basicForm, genForm].map(getFormPromise)).then(res => {
+  Promise.all([
+    basicInfo.value!.$refs.basicInfoForm as FormInstance,
+    genInfo.value!.$refs.genInfoForm as FormInstance
+  ].map(getFormPromise)).then(res => {
     const validateResult = res.every(item => !!item);
     if (validateResult) {
       const genTable = Object.assign({}, info.value);
@@ -74,18 +55,18 @@ function submitForm() {
         joinTablesMate: joinTablesMate.value
       }
       updateGenTable(genTableVo).then(res => {
-        proxy.$modal.msgSuccess(res.msg);
+        modal.msgSuccess(res.msg);
         if (res.code === 200) {
           close();
         }
       });
     } else {
-      proxy.$modal.msgError("表单校验未通过，请重新检查提交内容");
+      modal.msgError("表单校验未通过，请重新检查提交内容");
     }
   }).catch(error => {
     for (const errKey in error) {
       for (const err in error[errKey]) {
-        proxy.$modal.msgError(error[errKey][err].message);
+        modal.msgError(error[errKey][err].message);
       }
     }
   });
@@ -107,6 +88,31 @@ onMounted(() => {
 
 function close() {
   const obj = { path: "/tool/gen", query: { t: Date.now(), pageNum: route.query.pageNum } };
-  proxy.$tab.closeOpenPage(obj);
+  tab.closeOpenPage(obj);
 }
 </script>
+<template>
+  <el-card>
+    <el-tabs v-model="activeName">
+      <el-tab-pane label="基本信息" name="basic">
+        <basic-info-form ref="basicInfo" :info="info" :tables="tables" />
+      </el-tab-pane>
+      <el-tab-pane label="字段信息" name="columnInfo">
+        <edit-table-form ref="editTable" v-model:info="info" v-model:columns="columns" v-model:tables="tables" />
+      </el-tab-pane>
+      <el-tab-pane label="关联表" name="joinTable">
+        <join-table-form ref="joinTable" :info="info" :tables="tables" v-model:joins="joinTablesMate"
+          v-model="tableDict" />
+      </el-tab-pane>
+      <el-tab-pane label="生成信息" name="genInfo">
+        <gen-info-form ref="genInfo" :info="info" :tables="tables" />
+      </el-tab-pane>
+    </el-tabs>
+    <el-form label-width="100px">
+      <div style="text-align: center;margin-left:-100px;margin-top:10px;">
+        <el-button type="primary" @click="submitForm()">提交</el-button>
+        <el-button @click="close()">返回</el-button>
+      </div>
+    </el-form>
+  </el-card>
+</template>

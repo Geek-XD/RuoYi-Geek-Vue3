@@ -1,21 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { listMenu } from "@/api/system/menu";
-import { onMounted } from "vue";
+import { onMounted, ref, watch } from "vue";
+import { GenTable, GenTableColumn } from ".";
+import { handleTree } from "@/utils/ruoyi";
 
-const subColumns = ref([]);
-const menuOptions = ref([]);
-const { proxy } = getCurrentInstance();
+const subColumns = ref<GenTableColumn[]>([]);
+const menuOptions = ref<any[]>([]);
 
-const props = defineProps({
-  info: {
-    type: Object,
-    default: null
-  },
-  tables: {
-    type: Array,
-    default: null
-  }
-});
+const props = defineProps<{
+  info: GenTable,
+  tables: GenTable[]
+}>();
 
 // 表单校验
 const rules = ref({
@@ -26,16 +21,16 @@ const rules = ref({
   businessName: [{ required: true, message: "请输入生成业务名", trigger: "blur" }],
   functionName: [{ required: true, message: "请输入生成功能名", trigger: "blur" }]
 });
-function subSelectChange(value) {
+function subSelectChange(value: string) {
   props.info.subTableFkName = "";
 }
-function tplSelectChange(value) {
+function tplSelectChange(value: string) {
   if (value !== "sub") {
     props.info.subTableName = "";
     props.info.subTableFkName = "";
   }
 }
-function setSubTableColumns(value) {
+function setSubTableColumns(value: string) {
   for (var item in props.tables) {
     const name = props.tables[item].tableName;
     if (value === name) {
@@ -47,7 +42,7 @@ function setSubTableColumns(value) {
 /** 查询菜单下拉树结构 */
 function getMenuTreeselect() {
   listMenu().then(response => {
-    menuOptions.value = proxy.handleTree(response.data, "menuId");
+    menuOptions.value = handleTree(response.data, "menuId");
   });
 }
 
