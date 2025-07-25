@@ -263,8 +263,9 @@ export function debounce(func, wait, immediate) {
  * 这只是deep copy的一个简单版本
  * 有很多边缘案例bug
  * 如果要使用完美的深度拷贝，请使用lodash的_.cloneDeep
- * @param {Object} source
- * @returns {Object}
+ * @template T
+ * @param {T} source
+ * @returns {T}
  */
 export function deepClone(source) {
   if (!source && typeof source !== 'object') {

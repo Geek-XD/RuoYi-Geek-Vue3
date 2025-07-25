@@ -9,6 +9,7 @@ import type { Component } from 'vue'
 import { RouteItem } from '@/types/route'
 import { constantRoutes } from '@/router/routes/staticRoutes'
 import { dynamicRoutes } from '@/router/routes/asyncRoutes'
+import { deepClone } from '@/utils'
 
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
@@ -49,32 +50,29 @@ const usePermissionStore = defineStore(
     }),
     actions: {
       setRoutes(routes: RouteItem[]) {
-        this.addRoutes = routes;
         this.routes = [...constantRoutes, ...routes];
       },
       setDefaultRoutes(routes: RouteItem[]) {
-        this.defaultRoutes = [...constantRoutes, ...routes];
+        this.defaultRoutes = deepClone(routes);
       },
       setTopbarRoutes(routes: RouteItem[]) {
-        this.topbarRouters = routes;
+        this.topbarRouters = deepClone(routes);
       },
       setSidebarRouters(routes: RouteItem[]) {
-        this.sidebarRouters = routes;
+        this.sidebarRouters = deepClone(routes);
       },
       generateRoutes(): Promise<RouteItem[]> {
         return new Promise(resolve => {
           // 向后端请求路由数据
           getRouters().then(res => {
-            const sdata = JSON.parse(JSON.stringify(res.data))
-            const rdata = JSON.parse(JSON.stringify(res.data))
-            const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, true)
+            const sidebarRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
+            const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
-            this.setSidebarRouters([...constantRoutes, ...sidebarRoutes])
+            this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes([...constantRoutes, ...sidebarRoutes])
+            this.setTopbarRoutes(sidebarRoutes)
             resolve(rewriteRoutes)
           })
         })
@@ -150,7 +148,7 @@ function filterChildren(childrenMap: RouteItem[], lastRouter?: RouteItem): Route
 }
 
 // 动态路由遍历，验证是否具备权限
-function filterDynamicRoutes(routes: RouteItem[]): RouteItem[] {
+function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
   const res: RouteItem[] = []
   routes.forEach(route => {
     if (route.permissions) {
