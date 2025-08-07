@@ -10,7 +10,6 @@ import { modal, tab } from "@/plugins";
 import { GenJoinTable, GenTable, GenTableColumn } from ".";
 import { FormInstance } from "element-plus";
 const route = useRoute();
-
 const activeName = ref("columnInfo");
 const tables = ref<GenTable[]>([]);
 const tableDict = ref({});
@@ -47,14 +46,13 @@ function submitForm() {
         treeParentCode: info.value.treeParentCode,
         parentMenuId: info.value.parentMenuId
       };
-      const genTableVo = {
+      updateGenTable({
         table: genTable,
         columns: columns.value,
         joinTables: tables.value,
         joinColumns: [],
         joinTablesMate: joinTablesMate.value
-      }
-      updateGenTable(genTableVo).then(res => {
+      }).then(res => {
         modal.msgSuccess(res.msg);
         if (res.code === 200) {
           close();
@@ -71,7 +69,6 @@ function submitForm() {
     }
   });
 }
-
 
 onMounted(() => {
   const tableId = route.params && route.params.tableId;
@@ -97,12 +94,12 @@ function close() {
       <el-tab-pane label="基本信息" name="basic">
         <basic-info-form ref="basicInfo" :info="info" :tables="tables" />
       </el-tab-pane>
-      <el-tab-pane label="字段信息" name="columnInfo">
-        <edit-table-form ref="editTable" v-model:info="info" v-model:columns="columns" v-model:tables="tables" />
-      </el-tab-pane>
       <el-tab-pane label="关联表" name="joinTable">
         <join-table-form ref="joinTable" :info="info" :tables="tables" v-model:joins="joinTablesMate"
           v-model="tableDict" />
+      </el-tab-pane>
+      <el-tab-pane label="字段信息" name="columnInfo">
+        <edit-table-form ref="editTable" v-model:info="info" v-model:columns="columns" v-model:tables="tables" />
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
         <gen-info-form ref="genInfo" :info="info" :tables="tables" />
