@@ -145,7 +145,7 @@ onMounted(() => {
         </template>
       </el-input>
       <div class="register-code">
-        <el-button class="register-code-img" style="margin-left: 12px;width: 100%;" @click="sendCode">发送验证码</el-button>
+        <el-button class="register-code-img" @click="sendCode">发送验证码</el-button>
       </div>
     </el-form-item>
     <el-form-item prop="code" v-if="captchaEnabled && method === 'password'">
@@ -192,20 +192,17 @@ onMounted(() => {
 
 
 .register-code {
-  width: 33%;
+  width: 37%;
   height: 40px;
   float: right;
 
-  img {
+  .register-code-img {
     cursor: pointer;
     vertical-align: middle;
+    width: calc(100% - 12px);
+    height: 40px;
+    margin-left: 12px;
   }
-}
-
-
-.register-code-img {
-  height: 40px;
-  padding-left: 12px;
 }
 
 .login-link {

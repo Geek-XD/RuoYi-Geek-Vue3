@@ -140,8 +140,8 @@ onMounted(() => {
           <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
         </template>
       </el-input>
-      <div class="register-code">
-        <el-button class="login-code-img" style="margin-left: 12px;width: 100%;" @click="sendCode">发送验证码</el-button>
+      <div class="login-code">
+        <el-button class="login-code-img" @click="sendCode">发送验证码</el-button>
       </div>
     </el-form-item>
     <el-form-item prop="code" v-if="captchaEnabled && method === 'password'">
@@ -188,13 +188,16 @@ onMounted(() => {
 }
 
 .login-code {
-  width: 33%;
+  width: 37%;
   height: 40px;
   float: right;
 
-  img {
+  .login-code-img {
     cursor: pointer;
     vertical-align: middle;
+    width: calc(100% - 12px);
+    height: 40px;
+    margin-left: 12px;
   }
 }
 
@@ -238,10 +241,5 @@ onMounted(() => {
       }
     }
   }
-}
-
-.login-code-img {
-  height: 40px;
-  padding-left: 12px;
 }
 </style>

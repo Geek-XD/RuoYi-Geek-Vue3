@@ -187,6 +187,11 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
 .container {
   display: flex;
   width: 85%;
+
+  @media screen and (max-width: 768px) {
+    width: 95%;
+  }
+
   max-width: 1200px;
   min-height: 600px;
   height: 70vh;
@@ -216,6 +221,10 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
   color: var(--el-color-white);
   padding: 40px;
   text-align: center;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 
   h1 {
     font-size: 2.5rem;
@@ -301,6 +310,10 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
   justify-content: center;
   background-color: #fff;
   position: relative;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 
   &::after {
     content: '';

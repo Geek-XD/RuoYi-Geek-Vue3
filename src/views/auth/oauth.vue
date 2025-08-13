@@ -45,6 +45,10 @@ function oauthLogin(provider: string) {
 </template>
 <style lang="scss" scoped>
 .other-login {
+  max-width: 360px;
+  padding: 0 20px;
+  width: 100%;
+
   .divider {
     position: relative;
     text-align: center;
@@ -74,8 +78,7 @@ function oauthLogin(provider: string) {
 
   .oauth-buttons {
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-between;
     margin-top: 15px;
 
     .oauth-btn {
