@@ -80,22 +80,19 @@ const handleRightTableChange = async (tableId: number, index: number) => {
       </el-col>
     </el-row>
     <div class="join-card">
-      <el-form v-for="(join, index) in joins" :key="index" label-width="100px" class="join-form">
+      <el-form v-for="(join, index) in joins" :key="index" label-width="85px" class="join-form">
         <el-row>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-form-item label="关联顺序">
               <el-input v-model="join.orderNum" type="number" />
             </el-form-item>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-form-item label="关联类型">
               <el-select v-model="join.joinType" placeholder="选择关联类型">
                 <el-option v-for="type in ['left', 'right', 'inner']" :key="type" :label="type" :value="type" />
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col :span="3" :offset="1">
-            <el-button type="danger" @click="() => removeJoin(index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row :gutter="10">
@@ -108,14 +105,11 @@ const handleRightTableChange = async (tableId: number, index: number) => {
               </el-select>
             </el-form-item>
             <el-form-item label="左表别名">
-              <el-input v-model="join.leftTableAlias" placeholder="请输入左表别名">
-                <template #append>
-                  <div :style="{ color: join.newTableId === join.leftTableId ? 'red' : '' }" style="cursor: pointer;"
-                    @click="join.newTableId = join.leftTableId">
-                    设为新表
-                  </div>
-                </template>
-              </el-input>
+              <div style="display: flex; gap: 10px;">
+                <el-input v-model="join.leftTableAlias" placeholder="请输入左表别名" />
+                <el-button :type="join.newTableId === join.leftTableId ? 'success' : 'info'"
+                  @click="join.newTableId = join.leftTableId">设为新表</el-button>
+              </div>
             </el-form-item>
             <el-form-item label="左表关联键">
               <el-select v-model="join.leftTableFk" placeholder="选择左表关联键">
@@ -133,14 +127,11 @@ const handleRightTableChange = async (tableId: number, index: number) => {
               </el-select>
             </el-form-item>
             <el-form-item label="右表别名">
-              <el-input v-model="join.rightTableAlias" placeholder="请输入右表别名">
-                <template #append>
-                  <div :style="{ color: join.newTableId === join.rightTableId ? 'red' : '' }" style="cursor: pointer;"
-                    @click="join.newTableId = join.rightTableId">
-                    设为新表
-                  </div>
-                </template>
-              </el-input>
+              <div style="display: flex;gap: 10px;">
+                <el-input v-model="join.rightTableAlias" placeholder="请输入右表别名" />
+                <el-button :type="join.newTableId === join.rightTableId ? 'success' : 'info'"
+                  @click="join.newTableId = join.rightTableId">设为新表</el-button>
+              </div>
             </el-form-item>
             <el-form-item label="右表关联键">
               <el-select v-model="join.rightTableFk" placeholder="选择右表关联键">
@@ -157,6 +148,9 @@ const handleRightTableChange = async (tableId: number, index: number) => {
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="24">
+            <el-button style="width: 100%;" type="danger" @click="() => removeJoin(index)">删除</el-button>
+          </el-col>
         </el-row>
       </el-form>
     </div>
@@ -169,9 +163,10 @@ const handleRightTableChange = async (tableId: number, index: number) => {
 
   .join-form {
     margin: 1px;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #dcdfe6;
     width: 550px;
+    border-radius: 12px;
   }
 }
 </style>
