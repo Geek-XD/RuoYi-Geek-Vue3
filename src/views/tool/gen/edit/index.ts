@@ -1,9 +1,3 @@
-
-
-// GenTableVo.ts
-
-import { createGlobalState } from "@vueuse/core";
-
 export class BaseEntity {
   /** 搜索值 */
   searchValue!: string;
@@ -32,16 +26,16 @@ export class GenTableVo extends BaseEntity {
   table!: GenTable;
 
   /** 业务表的列 */
-  columns!: GenTableColumn[];
+  columns!: GenColumn[];
 
   /** 关联信息 */
-  joinTablesMate!: GenJoinTable[];
+  joinTablesMate!: GenJoin[];
 
   /** 参与关联的表 */
   joinTables!: GenTable[];
 
   /** 参与关联的列 */
-  joinColumns!: GenTableColumn[];
+  joinColumns!: GenColumn[];
 
   getAllGenTables(): GenTable[] {
     const allGenTables: GenTable[] = [];
@@ -52,15 +46,15 @@ export class GenTableVo extends BaseEntity {
     return allGenTables;
   }
 
-  getAllGenTableColumns(): GenTableColumn[] {
-    const allGenTableColumns: GenTableColumn[] = [];
+  getAllGenColumns(): GenColumn[] {
+    const allGenColumns: GenColumn[] = [];
     if (this.columns) {
-      allGenTableColumns.push(...this.columns);
+      allGenColumns.push(...this.columns);
     }
     if (this.joinColumns) {
-      allGenTableColumns.push(...this.joinColumns);
+      allGenColumns.push(...this.joinColumns);
     }
-    return allGenTableColumns;
+    return allGenColumns;
   }
 
   getTableMap(): Record<number, GenTable> {
@@ -94,8 +88,8 @@ export class GenTableVo extends BaseEntity {
     return tableMap;
   }
 
-  getColumnMap(): Record<number, GenTableColumn> {
-    const columnMap: Record<number, GenTableColumn> = {};
+  getColumnMap(): Record<number, GenColumn> {
+    const columnMap: Record<number, GenColumn> = {};
     const genTables = this.getAllGenTables();
     for (const genTable of genTables) {
       for (const genTableColumn of genTable.columns) {
@@ -106,9 +100,7 @@ export class GenTableVo extends BaseEntity {
   }
 }
 
-// GenJoinTable.ts
-
-export class GenJoinTable extends BaseEntity {
+export class GenJoin extends BaseEntity {
   /** 表编号 */
   tableId!: number;
 
@@ -140,8 +132,6 @@ export class GenJoinTable extends BaseEntity {
 
   orderNum!: number;
 }
-
-// GenTable.ts
 
 export class GenTable extends BaseEntity {
   /** 编号 */
@@ -193,13 +183,13 @@ export class GenTable extends BaseEntity {
   genPath!: string;
 
   /** 主键信息 */
-  pkColumn!: GenTableColumn;
+  pkColumn!: GenColumn;
 
   /** 子表信息 */
   subTable!: GenTable;
 
   /** 表列信息 */
-  columns!: GenTableColumn[];
+  columns!: GenColumn[];
 
   /** 其它生成选项 */
   options!: string;
@@ -223,9 +213,7 @@ export class GenTable extends BaseEntity {
   haveSubColumn!: string;
 }
 
-// GenTableColumn.ts
-
-export class GenTableColumn extends BaseEntity {
+export class GenColumn extends BaseEntity {
   /** 编号 */
   columnId!: number;
 

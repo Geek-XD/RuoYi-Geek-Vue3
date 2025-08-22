@@ -158,16 +158,16 @@
 <script setup name="GenEdit" lang="ts">
 import { onMounted, ref } from 'vue';
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import { GenTable, GenTableColumn } from '.';
+import { GenTable, GenColumn } from '.';
 const tables = defineModel<GenTable[]>("tables", { default: () => [] });
 const info = defineModel<GenTable>("info", { default: () => ({}) });
-const columns = defineModel<GenTableColumn[]>("columns", { default: () => [] });
+const columns = defineModel<GenColumn[]>("columns", { default: () => [] });
 
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
 const dictOptions = ref<Dict[]>([]);
 
 function setSubTableColumns(value: string) {
-  for (var item in tables.value) {
+  for (const item in tables.value) {
     const name = tables.value[item].tableName;
     if (value === name) {
       return tables.value[item].columns;

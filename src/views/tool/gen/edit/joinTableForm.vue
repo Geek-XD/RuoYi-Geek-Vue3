@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { listTable, getGenTable } from "@/api/tool/gen";
 import { ref, watch } from 'vue';
-import { GenJoinTable, GenTable } from ".";
+import { GenJoin, GenTable } from ".";
 const props = defineProps<{
   info: GenTable
 }>();
 
 const tables = defineModel<GenTable[]>("tables", { default: () => [] });
-const joins = defineModel<GenJoinTable[]>("joins", { type: Array, default: () => [] });
+const joins = defineModel<GenJoin[]>("joins", { type: Array, default: () => [] });
 const tableDict = defineModel("tableDict", { type: Object, default: () => ({}) });
 const selectTables = ref<GenTable[]>([])
 const loading = ref(false);
@@ -27,7 +27,7 @@ watch(tables, () => {
 
 // 添加关联关系
 const addJoin = () => {
-  const newJoin = new GenJoinTable()
+  const newJoin = new GenJoin()
   newJoin.tableId = props.info.tableId;
   newJoin.leftTableId = props.info.tableId;
   newJoin.leftTableAlias = props.info.tableAlias;

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { listMenu } from "@/api/system/menu";
 import { onMounted, ref, watch } from "vue";
-import { GenTable, GenTableColumn } from ".";
+import { GenTable, GenColumn } from ".";
 import { handleTree } from "@/utils/ruoyi";
 
-const subColumns = ref<GenTableColumn[]>([]);
+const subColumns = ref<GenColumn[]>([]);
 const menuOptions = ref<any[]>([]);
 
 const props = defineProps<{
@@ -263,6 +263,5 @@ onMounted(() => {
         </el-col>
       </el-row>
     </template>
-
   </el-form>
 </template>

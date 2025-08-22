@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { GenJoin, GenTable, GenColumn } from ".";
 import { getGenTable, updateGenTable } from "@/api/tool/gen";
 import { onMounted, ref, useTemplateRef } from "vue";
 import basicInfoForm from "./basicInfoForm.vue";
@@ -7,14 +8,13 @@ import joinTableForm from "./joinTableForm.vue";
 import editTableForm from "./editTableForm.vue";
 import { useRoute } from "vue-router";
 import { modal, tab } from "@/plugins";
-import { GenJoinTable, GenTable, GenTableColumn } from ".";
 import { FormInstance } from "element-plus";
 const route = useRoute();
 const activeName = ref("columnInfo");
 const tables = ref<GenTable[]>([]);
 const tableDict = ref({});
-const joinTablesMate = ref<GenJoinTable[]>([]);
-const columns = ref<GenTableColumn[]>([]);
+const joinTablesMate = ref<GenJoin[]>([]);
+const columns = ref<GenColumn[]>([]);
 const info = ref<GenTable>(new GenTable());
 
 function getFormPromise(form: FormInstance) {
