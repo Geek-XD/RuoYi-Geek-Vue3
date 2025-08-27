@@ -5,24 +5,23 @@ import { GenJoin, GenTable } from ".";
 const props = defineProps<{
   info: GenTable
 }>();
-
-const tables = defineModel<GenTable[]>("tables", { default: () => [] });
-const joins = defineModel<GenJoin[]>("joins", { type: Array, default: () => [] });
+const tables = defineModel<readonly GenTable[]>("tables", { default: () => [] });
 const tableDict = defineModel("tableDict", { type: Object, default: () => ({}) });
-const selectTables = ref<GenTable[]>([])
+const joins = defineModel<GenJoin[]>("joins", { type: Array, default: () => [] });
+const selectTables = ref<number[]>([])
 const loading = ref(false);
-const options = ref<{ value: GenTable; label: string }[]>([])
+const options = ref<{ value: number; label: string }[]>([])
 const remoteMethod = (query: string) => {
   loading.value = true;
   listTable({ tableName: query }).then((response) => {
     loading.value = false;
-    options.value = response.rows.map((item) => ({ value: item, label: item.tableName }));
+    options.value = response.rows.map((item) => ({ value: item.tableId, label: item.tableName }));
   });
 }
 watch(tables, () => {
   tables.value?.forEach(item => tableDict.value[item.tableId] = item);
-  options.value = tables.value?.map(item => ({ value: item, label: item.tableName }));
-  selectTables.value = tables.value;
+  options.value = tables.value?.map(item => ({ value: item.tableId, label: item.tableName }));
+  selectTables.value = tables.value.map(item => item.tableId);
 })
 
 // 添加关联关系
@@ -35,9 +34,6 @@ const addJoin = () => {
   joins.value.push(newJoin);
 };
 
-// 删除关联关系
-const removeJoin = (index: number) => joins.value.splice(index, 1);
-
 // 获取表信息
 async function getTable(tableId: number) {
   if (tableDict.value[tableId]) return tableDict.value[tableId]
@@ -49,6 +45,9 @@ async function getTable(tableId: number) {
 }
 // 处理关联表选择变化
 const handleLeftTableChange = async (tableId: number, index: number) => {
+  if (joins.value[index].newTableId === joins.value[index].leftTableId) {
+    joins.value[index].joinColumns = [];
+  }
   const table = await getTable(tableId);
   joins.value[index].tableId = props.info.tableId;
   joins.value[index].leftTableAlias = table.tableAlias;
@@ -56,18 +55,28 @@ const handleLeftTableChange = async (tableId: number, index: number) => {
 };
 // 处理关联表选择变化
 const handleRightTableChange = async (tableId: number, index: number) => {
+  if (joins.value[index].newTableId === joins.value[index].rightTableId) {
+    joins.value[index].joinColumns = [];
+  }
   const table = await getTable(tableId);
   joins.value[index].tableId = props.info.tableId;
   joins.value[index].rightTableAlias = table.tableAlias;
   joins.value[index].rightTableId = table.tableId;
 };
+// 设置新表
+const setNewTable = (join: GenJoin, tableId: number) => {
+  join.newTableId = tableId;
+  join.joinColumns = [];
+};
+// 删除关联关系
+const removeJoin = (index: number) => joins.value.splice(index, 1);
 </script>
 <template>
   <el-form label-width="150px">
     <el-row>
       <el-col :span="16">
         <el-form-item label="添加可选择关联表">
-          <el-select v-model="selectTables" multiple value-key="tableId" placeholder="" clearable filterable remote
+          <el-select v-model="selectTables" multiple placeholder="" clearable filterable remote
             :remote-method="remoteMethod" :loading="loading">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -100,15 +109,15 @@ const handleRightTableChange = async (tableId: number, index: number) => {
             <el-form-item label="左表">
               <el-select v-model="join.leftTableId" @change="(val: number) => handleLeftTableChange(val, index)"
                 placeholder="选择关联表">
-                <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
-                  :value="table.tableId" />
+                <el-option v-for="tableId in selectTables" :key="tableId" :label="tableDict[tableId]?.tableName"
+                  :value="tableId" />
               </el-select>
             </el-form-item>
             <el-form-item label="左表别名">
               <div style="display: flex; gap: 10px;">
                 <el-input v-model="join.leftTableAlias" placeholder="请输入左表别名" />
                 <el-button :type="join.newTableId === join.leftTableId ? 'success' : 'info'"
-                  @click="join.newTableId = join.leftTableId">设为新表</el-button>
+                  @click="setNewTable(join, join.leftTableId)">设为新表</el-button>
               </div>
             </el-form-item>
             <el-form-item label="左表关联键">
@@ -122,15 +131,15 @@ const handleRightTableChange = async (tableId: number, index: number) => {
             <el-form-item label="右表">
               <el-select v-model="join.rightTableId" @change="(val: number) => handleRightTableChange(val, index)"
                 placeholder="选择右表">
-                <el-option v-for="table in selectTables" :key="table.tableId" :label="table.tableName"
-                  :value="table.tableId" />
+                <el-option v-for="tableId in selectTables" :key="tableId" :label="tableDict[tableId]?.tableName"
+                  :value="tableId" />
               </el-select>
             </el-form-item>
             <el-form-item label="右表别名">
               <div style="display: flex;gap: 10px;">
                 <el-input v-model="join.rightTableAlias" placeholder="请输入右表别名" />
                 <el-button :type="join.newTableId === join.rightTableId ? 'success' : 'info'"
-                  @click="join.newTableId = join.rightTableId">设为新表</el-button>
+                  @click="setNewTable(join, join.rightTableId)">设为新表</el-button>
               </div>
             </el-form-item>
             <el-form-item label="右表关联键">

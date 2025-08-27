@@ -1,3 +1,36 @@
+<script setup name="GenEdit" lang="ts">
+import { onMounted, ref } from 'vue';
+import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
+import { GenTable, GenColumn } from '.';
+const tables = defineModel<GenTable[]>("tables", { default: () => [] });
+const info = defineModel<GenTable>("info", { default: () => ({}) });
+const columns = defineModel<GenColumn[]>("columns", { default: () => [] });
+
+const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
+const dictOptions = ref<Dict[]>([]);
+
+function setSubTableColumns(value: string) {
+  for (const item in tables.value) {
+    const name = tables.value[item].tableName;
+    if (value === name) {
+      return tables.value[item].columns;
+    }
+  }
+}
+
+onMounted(() => {
+  /** 查询字典下拉列表 */
+  getDictOptionselect().then(response => {
+    dictOptions.value = response.data;
+  });
+})
+
+const handleSubColumnNameChange = (column: GenColumn, val: string | undefined) => {
+  column.subColumnJavaField = val?.replace(/_(\w)/g, (_, c) => c.toUpperCase()) ?? '';
+  column.subColumnJavaType = setSubTableColumns(column.subColumnTableName)?.find(item => item.columnName === column.subColumnName)?.javaType ?? ''
+
+};
+</script>
 <template>
   <div>
     <el-switch v-model="info.haveSubColumn" active-value="1" inactive-value="0" active-text="开启字段关联"
@@ -103,7 +136,7 @@
                   <el-form-item label="关联表">
                     <el-select v-model="scope.row.subColumnTableName" clearable placeholder="请选择">
                       <el-option v-for="(table, index) in tables" :key="index"
-                        :label="table.tableName + '：' + table.tableComment" :value="table.tableName"></el-option>
+                        :label="table.tableName + '：' + table.tableComment" :value="table.tableName" />
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -112,16 +145,17 @@
                     <el-select v-model="scope.row.subColumnFkName" clearable placeholder="请选择">
                       <el-option v-for="(column, index) in setSubTableColumns(scope.row.subColumnTableName)"
                         :key="index" :label="column.columnName + '：' + column.columnComment"
-                        :value="column.columnName"></el-option>
+                        :value="column.columnName" />
                     </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="映射字段">
-                    <el-select v-model="scope.row.subColumnName" clearable placeholder="请选择">
+                    <el-select v-model="scope.row.subColumnName" clearable placeholder="请选择"
+                      @change="(val: string) => handleSubColumnNameChange(scope.row, val)">
                       <el-option v-for="(column, index) in setSubTableColumns(scope.row.subColumnTableName)"
                         :key="index" :label="column.columnName + '：' + column.columnComment"
-                        :value="column.columnName"></el-option>
+                        :value="column.columnName" />
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -154,31 +188,3 @@
     </el-table>
   </div>
 </template>
-
-<script setup name="GenEdit" lang="ts">
-import { onMounted, ref } from 'vue';
-import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import { GenTable, GenColumn } from '.';
-const tables = defineModel<GenTable[]>("tables", { default: () => [] });
-const info = defineModel<GenTable>("info", { default: () => ({}) });
-const columns = defineModel<GenColumn[]>("columns", { default: () => [] });
-
-const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
-const dictOptions = ref<Dict[]>([]);
-
-function setSubTableColumns(value: string) {
-  for (const item in tables.value) {
-    const name = tables.value[item].tableName;
-    if (value === name) {
-      return tables.value[item].columns;
-    }
-  }
-}
-
-onMounted(() => {
-  /** 查询字典下拉列表 */
-  getDictOptionselect().then(response => {
-    dictOptions.value = response.data;
-  });
-})
-</script>
