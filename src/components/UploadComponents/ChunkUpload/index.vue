@@ -1,27 +1,19 @@
-<script setup>
-
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { initMultipartUpload, uploadFileChunk, completeMultipartUpload } from '@/api/file/info';
 import { ElMessage } from 'element-plus';
+import { TaskQueue } from '../utils';
 
 const emits = defineEmits(['update:modelValue']);
-const props = defineProps({
-  chunkSize: {
-    type: Number,
-    default: 10
-  },
-  maxConcurrency: {
-    type: Number,
-    default: 1
-  }
+const props = withDefaults(defineProps<{
+  chunkSize: number;
+  maxConcurrency: number;
+}>(), {
+  chunkSize: 10,
+  maxConcurrency: 1
 });
 
-const selectedFile = ref(null);
-const fileInfo = reactive({
-  fileName: '',
-  fileSize: 0,
-  totalChunks: 0
-});
+
 const uploadProgress = ref(0);
 const uploadStatus = ref('');
 const uploadProgressInfo = reactive({
@@ -31,19 +23,22 @@ const uploadProgressInfo = reactive({
 const isUploading = ref(false);
 const uploadId = ref('');
 const filePath = ref('');
-const partETags = ref([]);
+const partETags = ref<{ partNumber: number; etag: string }[]>([]);
+const chunkBytes = computed(() => props.chunkSize * 1024 * 1024); // 分片大小（字节）
+const selectedFile = ref<File | null>(null);
+const fileBytes = computed(() => selectedFile.value?.size ?? 0);
+const chunkTotal = computed(() => Math.ceil(fileBytes.value / chunkBytes.value));
+const fileInfo = computed(() => ({
+  fileName: selectedFile.value?.name ?? '',
+  fileSize: (selectedFile.value?.size ?? 0) / (1024 * 1024),
+  totalChunks: chunkTotal.value
+}));
 
 // 处理文件选择
-function handleBeforeUpload(file) {
+function handleBeforeUpload(file: File) {
   selectedFile.value = file;
-  fileInfo.fileName = file.name;
-  fileInfo.fileSize = (file.size / (1024 * 1024)).toFixed(2);
-  fileInfo.totalChunks = chunkTotal.value;
   return false; // 阻止默认上传
 }
-const chunkBytes = computed(() => props.chunkSize * 1024 * 1024); // 分片大小（字节）
-const fileBytes = computed(() => selectedFile.value ? selectedFile.value.size : 0);
-const chunkTotal = computed(() => Math.ceil(fileBytes.value / chunkBytes.value));
 
 // 开始上传
 async function startUpload() {
@@ -56,10 +51,16 @@ async function startUpload() {
     uploadStatus.value = '';
     uploadProgressInfo.message = '开始初始化上传...';
     partETags.value = [];
-
-    const chunks = [];
-    for (let start = 0; start < selectedFile.value.size; start += chunkBytes.value) {
-      chunks.push(selectedFile.value.slice(start, start + chunkBytes.value));
+    type Chunk = {
+      partNumber: number;
+      chunk: Blob;
+    };
+    const chunks: Chunk[] = [];
+    for (let i = 0; i < selectedFile.value.size; i += chunkBytes.value) {
+      chunks.push({
+        partNumber: i,
+        chunk: selectedFile.value.slice(i, i + chunkBytes.value)
+      });
     }
     // 1. 初始化上传
     const { data } = await initMultipartUpload({
@@ -77,46 +78,32 @@ async function startUpload() {
 
     // 2. 并发上传所有分片
     const concurrency = props.maxConcurrency;
-    let current = 0;
     let completed = 0;
-    let errorOccurred = false;
-    const total = chunks.length;
 
-    async function uploadChunk(i) {
-      if (errorOccurred) return;
-      const chunk = chunks[i];
+    async function uploadChunk(chunk: Chunk) {
       try {
-        const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, i, chunk);
+        const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, chunk.partNumber, chunk.chunk);
         if (!chunkResponse || !chunkResponse.etag) {
           throw new Error('服务器返回的分片信息无效');
         }
         partETags.value.push({
-          partNumber: i + 1,
+          partNumber: chunk.partNumber + 1,
           etag: chunkResponse.etag
         });
         completed++;
         uploadProgress.value = Math.round((completed / chunkTotal.value) * 100);
         uploadProgressInfo.currentChunk = completed;
         uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${completed}/${chunkTotal.value})`;
-        await new Promise(resolve => setTimeout(resolve, 100));
-        // 启动下一个
-        if (current < total) {
-          await uploadChunk(current++);
-        }
-      } catch (error) {
-        errorOccurred = true;
+      } catch (error: any) {
         console.error('分片上传失败:', error);
-        throw new Error(`分片 ${i + 1} 上传失败: ${error.message}`);
+        throw new Error(`分片 ${chunk.partNumber} 上传失败: ${error.message}`);
       }
     }
 
     // 启动并发上传
-    const tasks = [];
-    while (current < concurrency && current < total) {
-      tasks.push(uploadChunk(current++));
-    }
-    await Promise.all(tasks);
-    if (errorOccurred) throw new Error('有分片上传失败');
+    const taskQueue = new TaskQueue(concurrency);
+    chunks.forEach((chunk) => taskQueue.add(() => uploadChunk(chunk)));
+    await taskQueue.waitAll();
 
     // 3. 完成上传
     uploadProgressInfo.message = '正在合并分片...';
@@ -133,7 +120,7 @@ async function startUpload() {
     uploadProgressInfo.message = '上传完成';
     ElMessage.success('文件上传成功');
     emits('update:modelValue', completeResult);
-  } catch (error) {
+  } catch (error: any) {
     uploadStatus.value = 'exception';
     uploadProgressInfo.message = `上传失败: ${error.message}`;
     ElMessage.error(`文件上传失败: ${error.message}`);
@@ -146,9 +133,6 @@ async function startUpload() {
 // 重置上传状态
 function resetUpload() {
   selectedFile.value = null;
-  fileInfo.fileName = '';
-  fileInfo.fileSize = 0;
-  fileInfo.totalChunks = 0;
   uploadProgress.value = 0;
   uploadStatus.value = '';
   uploadProgressInfo.currentChunk = 0;
@@ -166,11 +150,11 @@ function resetUpload() {
         <div class="file-details">
           <div class="detail-item">
             <span class="detail-label">文件大小:</span>
-            <span class="detail-value">{{ fileInfo.fileSize ?? '0' }} MB</span>
+            <span class="detail-value">{{ fileInfo.fileSize }} MB</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">总分片数:</span>
-            <span class="detail-value">{{ fileInfo.totalChunks ?? '0' }}</span>
+            <span class="detail-value">{{ fileInfo.totalChunks }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">分片大小:</span>
