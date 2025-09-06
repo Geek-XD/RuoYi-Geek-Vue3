@@ -12,17 +12,13 @@ const props = withDefaults(defineProps<{
   chunkSize: 10,
   maxConcurrency: 1
 });
-
-
 const uploadProgress = ref(0);
-const uploadStatus = ref('');
+const uploadStatus = ref<'' | 'success' | 'warning' | 'exception'>('');
 const uploadProgressInfo = reactive({
   currentChunk: 0,
   message: ''
 });
 const isUploading = ref(false);
-const uploadId = ref('');
-const filePath = ref('');
 const partETags = ref<{ partNumber: number; etag: string }[]>([]);
 const chunkBytes = computed(() => props.chunkSize * 1024 * 1024); // 分片大小（字节）
 const selectedFile = ref<File | null>(null);
@@ -42,67 +38,53 @@ function handleBeforeUpload(file: File) {
 
 // 开始上传
 async function startUpload() {
-  if (!selectedFile.value) {
-    ElMessage.warning('请先选择文件');
-    return;
-  }
   try {
+    const file = selectedFile.value;
+    if (!file) throw new Error('未选择文件');
     isUploading.value = true;
     uploadStatus.value = '';
+
+    // 1. 初始化上传
     uploadProgressInfo.message = '开始初始化上传...';
-    partETags.value = [];
+    const { data } = await initMultipartUpload({ fileName: file.name, fileSize: file.size });
+    if (!data || !data.uploadId || !data.filePath) throw new Error('初始化上传失败');
+    const uploadId: string = data.uploadId;
+    const filePath: string = data.filePath;
+
+    // 2. 并发上传所有分片
+    uploadProgressInfo.message = '初始化成功，开始上传分片...';
     type Chunk = {
       partNumber: number;
       chunk: Blob;
     };
     const chunks: Chunk[] = [];
-    for (let i = 0; i < selectedFile.value.size; i += chunkBytes.value) {
+    partETags.value = [];
+    for (let i = 0; i < file.size; i += chunkBytes.value) {
       chunks.push({
-        partNumber: i,
-        chunk: selectedFile.value.slice(i, i + chunkBytes.value)
+        partNumber: i + 1,
+        chunk: file.slice(i, i + chunkBytes.value)
       });
     }
-    // 1. 初始化上传
-    const { data } = await initMultipartUpload({
-      fileName: selectedFile.value.name,
-      fileSize: selectedFile.value.size,
-    });
-
-    if (!data || !data.uploadId || !data.filePath) {
-      throw new Error('初始化上传失败');
-    }
-
-    uploadId.value = data.uploadId;
-    filePath.value = data.filePath;
-    uploadProgressInfo.message = '初始化成功，开始上传分片...';
-
-    // 2. 并发上传所有分片
-    const concurrency = props.maxConcurrency;
     let completed = 0;
-
-    async function uploadChunk(chunk: Chunk) {
+    const taskQueue = new TaskQueue(props.maxConcurrency);
+    chunks.forEach((chunk) => taskQueue.add(async () => {
       try {
-        const { data: chunkResponse } = await uploadFileChunk(uploadId.value, filePath.value, chunk.partNumber, chunk.chunk);
+        const { data: chunkResponse } = await uploadFileChunk(uploadId, filePath, chunk.partNumber, chunk.chunk);
         if (!chunkResponse || !chunkResponse.etag) {
           throw new Error('服务器返回的分片信息无效');
         }
         partETags.value.push({
-          partNumber: chunk.partNumber + 1,
+          partNumber: chunk.partNumber,
           etag: chunkResponse.etag
         });
-        completed++;
-        uploadProgress.value = Math.round((completed / chunkTotal.value) * 100);
+        uploadProgress.value = Math.round((++completed / chunkTotal.value) * 100);
         uploadProgressInfo.currentChunk = completed;
         uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${completed}/${chunkTotal.value})`;
       } catch (error: any) {
         console.error('分片上传失败:', error);
         throw new Error(`分片 ${chunk.partNumber} 上传失败: ${error.message}`);
       }
-    }
-
-    // 启动并发上传
-    const taskQueue = new TaskQueue(concurrency);
-    chunks.forEach((chunk) => taskQueue.add(() => uploadChunk(chunk)));
+    }));
     await taskQueue.waitAll();
 
     // 3. 完成上传
@@ -110,10 +92,10 @@ async function startUpload() {
     partETags.value.sort((a, b) => a.partNumber - b.partNumber);
     const formattedPartETags = partETags.value.map(item => ({ partNumber: item.partNumber, ETag: item.etag }));
     const { data: completeResult } = await completeMultipartUpload({
-      uploadId: uploadId.value,
-      filePath: filePath.value,
-      fileSize: selectedFile.value.size,
-      fileName: selectedFile.value.name,
+      uploadId: uploadId,
+      filePath: filePath,
+      fileSize: file.size,
+      fileName: file.name,
       partETags: formattedPartETags,
     });
     uploadStatus.value = 'success';
@@ -137,8 +119,6 @@ function resetUpload() {
   uploadStatus.value = '';
   uploadProgressInfo.currentChunk = 0;
   uploadProgressInfo.message = '';
-  uploadId.value = '';
-  filePath.value = '';
   partETags.value = [];
 }
 

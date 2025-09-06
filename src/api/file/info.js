@@ -92,7 +92,7 @@ export function initMultipartUpload(params) {
 /**
  * 上传文件分片
  */
-export function uploadFileChunk(uploadId, filePath, chunkIndex, chunk) {
+export function uploadFileChunk(uploadId, filePath, partNumber, chunk) {
   const formData = new FormData();
   formData.append('chunk', chunk);
   return request({
@@ -101,7 +101,7 @@ export function uploadFileChunk(uploadId, filePath, chunkIndex, chunk) {
     params: {
       uploadId,
       filePath,
-      chunkIndex
+      partNumber
     },
     data: formData,
     headers: {
