@@ -56,7 +56,7 @@ const props = defineProps({
   // 新增：自定义上传地址
   uploadImgUrl: {
     type: String,
-    default: ''
+    default: `${import.meta.env.VITE_APP_BASE_API}/file/upload`
   }
 });
 
