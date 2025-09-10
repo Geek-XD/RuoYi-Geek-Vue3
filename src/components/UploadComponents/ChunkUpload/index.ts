@@ -1,5 +1,5 @@
 import { completeMultipartUpload, initMultipartUpload, uploadFileChunk } from "@/api/file/info";
-import TaskQueue from "../utils";
+import TaskQueue from "./TaskQueue";
 import { computed, ref } from "vue";
 
 type Chunk = {
