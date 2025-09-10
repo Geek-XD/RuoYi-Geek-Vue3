@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
-import { initMultipartUpload, uploadFileChunk, completeMultipartUpload } from '@/api/file/info';
+import { ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { TaskQueue } from '../utils';
+import { useChunkUpload } from '.';
 
 const emits = defineEmits(['update:modelValue']);
 const props = withDefaults(defineProps<{
@@ -12,22 +11,13 @@ const props = withDefaults(defineProps<{
   chunkSize: 10,
   maxConcurrency: 1
 });
-const uploadProgress = ref(0);
-const uploadStatus = ref<'' | 'success' | 'warning' | 'exception'>('');
-const uploadProgressInfo = reactive({
-  currentChunk: 0,
-  message: ''
-});
 const isUploading = ref(false);
 const partETags = ref<{ partNumber: number; etag: string }[]>([]);
 const chunkBytes = computed(() => props.chunkSize * 1024 * 1024); // 分片大小（字节）
 const selectedFile = ref<File | null>(null);
-const fileBytes = computed(() => selectedFile.value?.size ?? 0);
-const chunkTotal = computed(() => Math.ceil(fileBytes.value / chunkBytes.value));
 const fileInfo = computed(() => ({
   fileName: selectedFile.value?.name ?? '',
   fileSize: (selectedFile.value?.size ?? 0) / (1024 * 1024),
-  totalChunks: chunkTotal.value
 }));
 
 // 处理文件选择
@@ -35,76 +25,21 @@ function handleBeforeUpload(file: File) {
   selectedFile.value = file;
   return false; // 阻止默认上传
 }
-
+const chunkUpload = ref(useChunkUpload())
 // 开始上传
 async function startUpload() {
   try {
+    isUploading.value = true;
     const file = selectedFile.value;
     if (!file) throw new Error('未选择文件');
-    isUploading.value = true;
-    uploadStatus.value = '';
-
-    // 1. 初始化上传
-    uploadProgressInfo.message = '开始初始化上传...';
-    const { data } = await initMultipartUpload({ fileName: file.name, fileSize: file.size });
-    if (!data || !data.uploadId || !data.filePath) throw new Error('初始化上传失败');
-    const uploadId: string = data.uploadId;
-    const filePath: string = data.filePath;
-
-    // 2. 并发上传所有分片
-    uploadProgressInfo.message = '初始化成功，开始上传分片...';
-    type Chunk = {
-      partNumber: number;
-      chunk: Blob;
-    };
-    const chunks: Chunk[] = [];
-    partETags.value = [];
-    for (let i = 0; i < file.size; i += chunkBytes.value) {
-      chunks.push({
-        partNumber: i + 1,
-        chunk: file.slice(i, i + chunkBytes.value)
-      });
-    }
-    let completed = 0;
-    const taskQueue = new TaskQueue(props.maxConcurrency);
-    chunks.forEach((chunk) => taskQueue.add(async () => {
-      try {
-        const { data: chunkResponse } = await uploadFileChunk(uploadId, filePath, chunk.partNumber, chunk.chunk);
-        if (!chunkResponse || !chunkResponse.etag) {
-          throw new Error('服务器返回的分片信息无效');
-        }
-        partETags.value.push({
-          partNumber: chunk.partNumber,
-          etag: chunkResponse.etag
-        });
-        uploadProgress.value = Math.round((++completed / chunkTotal.value) * 100);
-        uploadProgressInfo.currentChunk = completed;
-        uploadProgressInfo.message = `已上传 ${uploadProgress.value}% (分片 ${completed}/${chunkTotal.value})`;
-      } catch (error: any) {
-        console.error('分片上传失败:', error);
-        throw new Error(`分片 ${chunk.partNumber} 上传失败: ${error.message}`);
-      }
-    }));
-    await taskQueue.waitAll();
-
-    // 3. 完成上传
-    uploadProgressInfo.message = '正在合并分片...';
-    partETags.value.sort((a, b) => a.partNumber - b.partNumber);
-    const formattedPartETags = partETags.value.map(item => ({ partNumber: item.partNumber, ETag: item.etag }));
-    const { data: completeResult } = await completeMultipartUpload({
-      uploadId: uploadId,
-      filePath: filePath,
-      fileSize: file.size,
-      fileName: file.name,
-      partETags: formattedPartETags,
-    });
-    uploadStatus.value = 'success';
-    uploadProgressInfo.message = '上传完成';
+    chunkUpload.value = useChunkUpload(file, {
+      chunkSize: chunkBytes.value,
+      concurrency: props.maxConcurrency
+    })
+    await chunkUpload.value.startUpload();
     ElMessage.success('文件上传成功');
-    emits('update:modelValue', completeResult);
+    emits('update:modelValue');
   } catch (error: any) {
-    uploadStatus.value = 'exception';
-    uploadProgressInfo.message = `上传失败: ${error.message}`;
     ElMessage.error(`文件上传失败: ${error.message}`);
     console.error('分片上传失败', error);
   } finally {
@@ -115,11 +50,8 @@ async function startUpload() {
 // 重置上传状态
 function resetUpload() {
   selectedFile.value = null;
-  uploadProgress.value = 0;
-  uploadStatus.value = '';
-  uploadProgressInfo.currentChunk = 0;
-  uploadProgressInfo.message = '';
   partETags.value = [];
+  chunkUpload.value = useChunkUpload();
 }
 
 </script>
@@ -134,15 +66,15 @@ function resetUpload() {
           </div>
           <div class="detail-item">
             <span class="detail-label">总分片数:</span>
-            <span class="detail-value">{{ fileInfo.totalChunks }}</span>
+            <span class="detail-value">{{ chunkUpload.totalChunks }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">分片大小:</span>
-            <span class="detail-value">{{ chunkSize ?? 0 }} MB</span>
+            <span class="detail-value">{{ chunkSize }} MB</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">并发数量:</span>
-            <span class="detail-value">{{ maxConcurrency ?? 0 }}</span>
+            <span class="detail-value">{{ maxConcurrency }}</span>
           </div>
         </div>
       </template>
@@ -157,9 +89,9 @@ function resetUpload() {
       </el-upload>
       <template #footer>
         <div>
-          <el-progress :percentage="uploadProgress" :status="uploadStatus">
-            <span style="margin-right: 10px;">{{ uploadProgressInfo.message || '等待上传...' }}</span>
-            <span>分片: {{ uploadProgressInfo.currentChunk }} / {{ fileInfo.totalChunks || '0' }}</span>
+          <el-progress :percentage="chunkUpload.uploadPercentage" :status="chunkUpload.uploadStatus">
+            <span style="margin-right: 10px;">{{ chunkUpload.uploadMessage || '等待上传...' }}</span>
+            <span>分片: {{ chunkUpload.uploadedChunks }} / {{ chunkUpload.totalChunks }}</span>
           </el-progress>
           <div class="dialog-footer">
             <el-button @click="resetUpload" class="btn-cancel" icon="Refresh">重置</el-button>
