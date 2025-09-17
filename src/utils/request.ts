@@ -26,12 +26,12 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use((config) => {
   // 是否需要设置 token
-  const isToken = (config.headers || {}).isToken === false
+  const isToken = (config.headers ?? {}).isToken === false
   // 是否需要防止数据重复提交
-  const isRepeatSubmit = (config.headers || {}).repeatSubmit === false
+  const isRepeatSubmit = (config.headers ?? {}).repeatSubmit === false
   if (getToken() && !isToken) {
     // 让每个请求携带自定义token 请根据实际情况自行修改
-    (<AxiosRequestHeaders>config.headers)['Authorization'] = 'Bearer ' + getToken()
+    config.headers['Authorization'] = 'Bearer ' + getToken()
   }
   // get请求映射params参数
   if (config.method === 'get' && config.params) {

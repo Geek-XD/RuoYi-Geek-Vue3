@@ -11,7 +11,7 @@ export type GeekRequestConfig = {
     params?: any,
     headers?: {
         /** 是否需要防止数据重复提交 */
-        isRepeatSubmit?: boolean,
+        repeatSubmit?: boolean,
         /** 是否需要设置 token */
         isToken?: boolean,
     } | AxiosRequestHeaders
