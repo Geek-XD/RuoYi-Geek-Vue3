@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { listTable, getGenTable } from "@/api/tool/gen";
 import { ref, watch } from 'vue';
-import { GenJoin, GenTable } from ".";
-const props = defineProps<{
-  info: GenTable
-}>();
-const tables = defineModel<readonly GenTable[]>("tables", { default: () => [] });
-const tableDict = defineModel("tableDict", { type: Object, default: () => ({}) });
-const joins = defineModel<GenJoin[]>("joins", { type: Array, default: () => [] });
+import { GenJoin, genTableState } from ".";
+const info = genTableState().info;
+const tables = genTableState().tables;
+const tableDict = genTableState().tableDict;
+const joins = genTableState().joins;
 const selectTables = ref<number[]>([])
 const loading = ref(false);
 const options = ref<{ value: number; label: string }[]>([])
@@ -27,9 +25,9 @@ watch(tables, () => {
 // 添加关联关系
 const addJoin = () => {
   const newJoin = new GenJoin()
-  newJoin.tableId = props.info.tableId;
-  newJoin.leftTableId = props.info.tableId;
-  newJoin.leftTableAlias = props.info.tableAlias;
+  newJoin.tableId = info.value.tableId;
+  newJoin.leftTableId = info.value.tableId;
+  newJoin.leftTableAlias = info.value.tableAlias;
   newJoin.joinColumns = []
   joins.value.push(newJoin);
 };
@@ -49,7 +47,7 @@ const handleLeftTableChange = async (tableId: number, index: number) => {
     joins.value[index].joinColumns = [];
   }
   const table = await getTable(tableId);
-  joins.value[index].tableId = props.info.tableId;
+  joins.value[index].tableId = info.value.tableId;
   joins.value[index].leftTableAlias = table.tableAlias;
   joins.value[index].leftTableId = table.tableId;
 };
@@ -59,7 +57,7 @@ const handleRightTableChange = async (tableId: number, index: number) => {
     joins.value[index].joinColumns = [];
   }
   const table = await getTable(tableId);
-  joins.value[index].tableId = props.info.tableId;
+  joins.value[index].tableId = info.value.tableId;
   joins.value[index].rightTableAlias = table.tableAlias;
   joins.value[index].rightTableId = table.tableId;
 };

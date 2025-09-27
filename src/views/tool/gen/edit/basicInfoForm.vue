@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { GenTable } from '.';
-defineProps<{
-  info: GenTable
-}>();
+import { genTableState } from '.';
+const info = genTableState().info;
+
 // 表单校验
 const rules = ref({
   tableName: [{ required: true, message: "请输入表名称", trigger: "blur" }],

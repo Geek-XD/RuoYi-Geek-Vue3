@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { listMenu } from "@/api/system/menu";
 import { onMounted, ref, watch } from "vue";
-import { GenTable, GenColumn } from ".";
+import { GenColumn, genTableState } from ".";
 import { handleTree } from "@/utils/ruoyi";
 
 const subColumns = ref<GenColumn[]>([]);
 const menuOptions = ref<any[]>([]);
-
-const props = defineProps<{
-  info: GenTable,
-  tables: GenTable[]
-}>();
+const info = genTableState().info;
+const tables = genTableState().tables;
 
 // 表单校验
 const rules = ref({
@@ -21,20 +18,17 @@ const rules = ref({
   businessName: [{ required: true, message: "请输入生成业务名", trigger: "blur" }],
   functionName: [{ required: true, message: "请输入生成功能名", trigger: "blur" }]
 });
-function subSelectChange(value: string) {
-  props.info.subTableFkName = "";
-}
 function tplSelectChange(value: string) {
   if (value !== "sub") {
-    props.info.subTableName = "";
-    props.info.subTableFkName = "";
+    info.value.subTableName = "";
+    info.value.subTableFkName = "";
   }
 }
 function setSubTableColumns(value: string) {
-  for (var item in props.tables) {
-    const name = props.tables[item].tableName;
+  for (var item in tables.value) {
+    const name = tables.value[item].tableName;
     if (value === name) {
-      subColumns.value = props.tables[item].columns;
+      subColumns.value = tables.value[item].columns;
       break;
     }
   }
@@ -46,18 +40,17 @@ function getMenuTreeselect() {
   });
 }
 
-watch(() => props.info.subTableName, val => {
+watch(() => info.value.subTableName, val => {
   setSubTableColumns(val);
+  info.value.subTableFkName = "";
 });
-watch(() => props.info.tplWebType, val => {
+watch(() => info.value.tplWebType, val => {
   if (val === '') {
-    props.info.tplWebType = "element-ui";
+    info.value.tplWebType = "element-ui";
   }
 });
 
-onMounted(() => {
-  getMenuTreeselect();
-});
+onMounted(() => { getMenuTreeselect(); });
 </script>
 
 <template>
@@ -240,7 +233,7 @@ onMounted(() => {
                 <el-icon><question-filled /></el-icon>
               </el-tooltip>
             </template>
-            <el-select v-model="info.subTableName" placeholder="请选择" @change="subSelectChange">
+            <el-select v-model="info.subTableName" placeholder="请选择">
               <el-option v-for="(table, index) in tables" :key="index"
                 :label="table.tableName + '：' + table.tableComment" :value="table.tableName"></el-option>
             </el-select>

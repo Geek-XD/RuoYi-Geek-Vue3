@@ -1,13 +1,11 @@
 <script setup name="GenEdit" lang="ts">
 import { onMounted, ref } from 'vue';
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import { GenTable, GenColumn } from '.';
-const tables = defineModel<GenTable[]>("tables", { default: () => [] });
-const info = defineModel<GenTable>("info", { default: () => ({}) });
-const columns = defineModel<GenColumn[]>("columns", { default: () => [] });
-
+import { GenColumn, genTableState } from '.';
+const tables = genTableState().tables;
+const info = genTableState().info;
+const columns = genTableState().columns;
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + "px");
-const dictOptions = ref<Dict[]>([]);
 
 function setSubTableColumns(value: string) {
   for (const item in tables.value) {
@@ -18,18 +16,13 @@ function setSubTableColumns(value: string) {
   }
 }
 
-onMounted(() => {
-  /** 查询字典下拉列表 */
-  getDictOptionselect().then(response => {
-    dictOptions.value = response.data;
-  });
-})
-
 const handleSubColumnNameChange = (column: GenColumn, val: string | undefined) => {
   column.subColumnJavaField = val?.replace(/_(\w)/g, (_, c) => c.toUpperCase()) ?? '';
   column.subColumnJavaType = setSubTableColumns(column.subColumnTableName)?.find(item => item.columnName === column.subColumnName)?.javaType ?? ''
-
 };
+
+const dictOptions = ref<Dict[]>([]);
+onMounted(() => { getDictOptionselect().then(response => { dictOptions.value = response.data; }); })
 </script>
 <template>
   <div>
@@ -179,7 +172,6 @@ const handleSubColumnNameChange = (column: GenColumn, val: string | undefined) =
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8"></el-col>
               </el-row>
             </el-form>
           </div>

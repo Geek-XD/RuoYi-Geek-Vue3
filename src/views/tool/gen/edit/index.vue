@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { GenJoin, GenTable, GenColumn } from ".";
-import { getGenTable, updateGenTable } from "@/api/tool/gen";
+import { genTableState } from ".";
 import { onMounted, ref, useTemplateRef } from "vue";
 import basicInfoForm from "./basicInfoForm.vue";
 import genInfoForm from "./genInfoForm.vue";
@@ -11,23 +10,8 @@ import { modal, tab } from "@/plugins";
 import { FormInstance } from "element-plus";
 const route = useRoute();
 const activeName = ref("columnInfo");
-const tables = ref<GenTable[]>([]);
-const tableDict = ref({});
-const joinTablesMate = ref<GenJoin[]>([]);
-const columns = ref<GenColumn[]>([]);
-const info = ref<GenTable>(new GenTable());
-
-function getFormPromise(form: FormInstance) {
-  return new Promise((resolve, reject) => {
-    form.validate((res, error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-}
+const info = genTableState().info;
+const tables = genTableState().tables;
 const basicInfo = useTemplateRef("basicInfo");
 const genInfo = useTemplateRef("genInfo");
 /** 提交按钮 */
@@ -35,29 +19,15 @@ function submitForm() {
   Promise.all([
     basicInfo.value!.$refs.basicInfoForm as FormInstance,
     genInfo.value!.$refs.genInfoForm as FormInstance
-  ].map(getFormPromise)).then(res => {
+  ].map(form => new Promise((resolve, reject) => {
+    form.validate((res, error) => {
+      if (error) { reject(error); }
+      else { resolve(res); }
+    });
+  }))).then(res => {
     const validateResult = res.every(item => !!item);
     if (validateResult) {
-      const genTable = Object.assign({}, info.value);
-      genTable.columns = columns.value;
-      genTable.params = {
-        treeCode: info.value.treeCode,
-        treeName: info.value.treeName,
-        treeParentCode: info.value.treeParentCode,
-        parentMenuId: info.value.parentMenuId
-      };
-      updateGenTable({
-        table: genTable,
-        columns: columns.value,
-        joinTables: tables.value,
-        joinColumns: [],
-        joinTablesMate: joinTablesMate.value
-      }).then(res => {
-        modal.msgSuccess(res.msg);
-        if (res.code === 200) {
-          close();
-        }
-      });
+      genTableState().updateGenTableVo();
     } else {
       modal.msgError("表单校验未通过，请重新检查提交内容");
     }
@@ -71,16 +41,8 @@ function submitForm() {
 }
 
 onMounted(() => {
-  const tableId = route.params && route.params.tableId;
-  if (tableId) {
-    // 获取表详细信息
-    getGenTable(tableId).then(res => {
-      columns.value = res.data.columns;
-      info.value = res.data.table;
-      tables.value = res.data.joinTables;
-      joinTablesMate.value = res.data.joinTablesMate;
-    });
-  }
+  const tableId = route.params && route.params.tableId as string;
+  if (tableId) genTableState().initGenTableVo(tableId);
 })
 
 function close() {
@@ -95,14 +57,13 @@ function close() {
         <basic-info-form ref="basicInfo" :info="info" :tables="tables" />
       </el-tab-pane>
       <el-tab-pane label="关联表" name="joinTable">
-        <join-table-form ref="joinTable" :info="info" :tables="tables" v-model:joins="joinTablesMate"
-          v-model="tableDict" />
+        <join-table-form ref="joinTable" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
-        <edit-table-form ref="editTable" v-model:info="info" v-model:columns="columns" v-model:tables="tables" />
+        <edit-table-form ref="editTable" />
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
-        <gen-info-form ref="genInfo" :info="info" :tables="tables" />
+        <gen-info-form ref="genInfo" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
