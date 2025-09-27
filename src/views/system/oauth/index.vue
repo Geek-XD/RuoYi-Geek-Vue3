@@ -118,7 +118,6 @@ getList();
         <el-table-column label="部门名称" align="center" prop="deptName" />
         <el-table-column label="第三方用户来源" align="center" prop="source" />
         <el-table-column label="用户的授权令牌" align="center" prop="accessToken" />
-        <el-table-column label="第三方用户的授权令牌的有效期" align="center" prop="expireIn" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
