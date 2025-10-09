@@ -20,8 +20,7 @@ const {
   list,
   total,
   loading,
-  form,
-  service
+  form
 } = usePage(PayOrder)
 const open = ref(false);
 const showSearch = ref(true);

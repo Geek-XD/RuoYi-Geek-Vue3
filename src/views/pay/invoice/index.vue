@@ -1,10 +1,9 @@
 <script setup name="Invoice" lang="ts">
-import SchemaForm from "@/components/Schema/form.vue";
-import SchemaTable from "@/components/Schema/table.vue";
+import { SchemaForm, SchemaTable } from "@/components/Schema";
 import { usePage } from "@/hook";
 import { modal } from "@/plugins";
 import { PayInvoice } from "@/entity/pay/PayInvoice";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 const {
   handleQuery,
   handleUpdate,
@@ -73,14 +72,16 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDeleteClick(row: PayInvoice) {
   const _invoiceIds = row.invoiceId || ids.value;
-  modal.confirm('是否确认删除发票编号为"' + _invoiceIds + '"的数据项？').then(function () {
+  modal.confirm('是否确认删除发票编号为"' + _invoiceIds + '"的数据项？').then(() => {
     return handleDelete(_invoiceIds);
   }).then(() => {
     modal.msgSuccess("删除成功");
   }).catch(() => { });
 }
 
-handleQuery();
+onMounted(() => {
+  handleQuery();
+});
 </script>
 <template>
   <div class="app-container">
