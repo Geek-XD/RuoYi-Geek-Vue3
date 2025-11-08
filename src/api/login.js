@@ -56,7 +56,7 @@ export function sendEmailCode(data, type = 'register') {
   return request({
     url: `/auth/mail/send/${type}`,
     headers: {
-      isToken: false
+      isToken: (type == 'register' || type == 'login') ? false : true
     },
     method: 'post',
     timeout: 20000,
@@ -71,7 +71,7 @@ export function verifyEmailCode(data, type = 'register') {
   return request({
     url: `/auth/mail/verify/${type}`,
     headers: {
-      isToken: false
+      isToken: (type == 'register' || type == 'login') ? false : true
     },
     method: 'post',
     timeout: 20000,
@@ -86,7 +86,7 @@ export function sendPhoneCode(data, type = 'register') {
   return request({
     url: `/auth/dySms/send/${type}`,
     headers: {
-      isToken: false
+      isToken: (type == 'register' || type == 'login') ? false : true
     },
     method: 'post',
     timeout: 20000,
@@ -101,7 +101,7 @@ export function verifyPhoneCode(data, type = 'register') {
   return request({
     url: `/auth/dySms/verify/${type}`,
     headers: {
-      isToken: false
+      isToken: (type == 'register' || type == 'login') ? false : true
     },
     method: 'post',
     timeout: 20000,

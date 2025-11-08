@@ -56,12 +56,6 @@
                   <el-tab-pane label="修改密码" name="resetPwd">
                      <resetPwd />
                   </el-tab-pane>
-                  <el-tab-pane label="修改邮箱" name="resetEmail">
-                     <resetEmail />
-                  </el-tab-pane>
-                  <el-tab-pane label="修改手机号" name="resetPhone">
-                     <resetPhone />
-                  </el-tab-pane>
                </el-tabs>
             </el-card>
          </el-col>
@@ -73,8 +67,6 @@
 import userAvatar from "./userAvatar.vue";
 import userInfo from "./userInfo.vue";
 import resetPwd from "./resetPwd.vue";
-import resetEmail from "./resetEmail.vue";
-import resetPhone from "./resetPhone.vue";
 import { getUserProfile } from "@/api/system/user";
 import { onMounted } from "vue";
 
