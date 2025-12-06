@@ -12,7 +12,7 @@ import { dynamicRoutes } from '@/router/routes/asyncRoutes'
 import { deepClone } from '@/utils'
 
 // 匹配views里面所有的.vue文件
-const modules = import.meta.glob('./../../views/**/*.vue')
+const modules = import.meta.glob(['../../**/views/**/*.vue', '../../**/view/**/*.vue'])
 
 // 定义 store 状态接口
 interface PermissionState {
@@ -167,8 +167,18 @@ function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
 const loadView = (view: string): (() => Promise<Component>) => {
   let res: (() => Promise<Component>) | undefined
   for (const path in modules) {
-    const dir = path.split('views/')[1].split('.vue')[0]
-    if (dir === view) {
+    // 要考虑views 或者view 两种情况
+    let dir = ''
+    let model = ''
+    if (path.includes('modules/')) {
+      model = path.split('modules/')[1].split('/view')[0]
+    }
+    if (path.includes('views/')) {
+      dir = path.split('views/')[1].split('.vue')[0]
+    } else if (path.includes('view/')) {
+      dir = path.split('view/')[1].split('.vue')[0]
+    }
+    if (model + '/' + dir === view) {
       res = modules[path] as () => Promise<Component>
     }
   }

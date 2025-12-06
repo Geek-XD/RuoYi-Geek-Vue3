@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd())
@@ -19,6 +20,7 @@ export default defineConfig(({ mode, command }) => {
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),
+        '@modules': path.resolve(__dirname, './src/modules'),
       },
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']

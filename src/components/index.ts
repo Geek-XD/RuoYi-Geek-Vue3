@@ -22,10 +22,10 @@ import Editor from "@/components/Editor/index.vue"
 import QRCodeView from "@/components/QRCodeView/index.vue"
 // JsBarcode 条形码组件
 import JsBarcodeView from "@/components/JsBarcodeView/index.vue"
-// 流程全局状态管理
-import modelerStore from '@/components/Process/common/global'
+
 
 // svg图标
+// @ts-ignore
 import 'virtual:svg-icons-register'
 import SvgIcon from '@/components/SvgIcon/index.vue'
 
@@ -50,7 +50,7 @@ export default function initComponents(app: App<Element>): void {
   app.component('JsBarcodeView', JsBarcodeView)
   app.component('svg-icon', SvgIcon)
 
-  app.config.globalProperties.modelerStore = modelerStore
+
 
   for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

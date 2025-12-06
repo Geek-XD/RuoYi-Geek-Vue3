@@ -5,6 +5,20 @@ import { setupBeforeEachGuard } from './guards/beforeEach'
 import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
 
+const modules = import.meta.glob('../**/router/index.{ts,js}', { eager: true });
+const asyncRoutes: any[] = [];
+
+for (const key in modules) {
+  const mod = (modules as Record<string, any>)[key];
+  const list = mod.default || mod.routes || mod;
+  if (Array.isArray(list)) asyncRoutes.push(...list);
+  else asyncRoutes.push(list);
+}
+
+if (asyncRoutes.length) {
+  (constantRoutes as any[]).push(...asyncRoutes);
+}
+
 export const router = createRouter({
   // createWebHistory  createWebHashHistory
   history: createWebHistory(import.meta.env.VITE_BASE_ROUTER),
