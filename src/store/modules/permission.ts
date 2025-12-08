@@ -169,16 +169,16 @@ const loadView = (view: string): (() => Promise<Component>) => {
   for (const path in modules) {
     // 要考虑views 或者view 两种情况
     let dir = ''
-    let model = ''
     if (path.includes('modules/')) {
-      model = path.split('modules/')[1].split('/view')[0]
+      dir += path.split('modules/')[1].split('/view')[0]
+      dir += "/"
     }
     if (path.includes('views/')) {
-      dir = path.split('views/')[1].split('.vue')[0]
+      dir += path.split('views/')[1].split('.vue')[0]
     } else if (path.includes('view/')) {
-      dir = path.split('view/')[1].split('.vue')[0]
+      dir += path.split('view/')[1].split('.vue')[0]
     }
-    if (model + '/' + dir === view) {
+    if (dir === view) {
       res = modules[path] as () => Promise<Component>
     }
   }
