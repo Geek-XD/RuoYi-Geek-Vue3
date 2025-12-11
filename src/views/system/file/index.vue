@@ -73,11 +73,6 @@
           </el-radio-group>
         </el-form-item>
         <div v-if="uploadForm.uploadType !== 'chunk'">
-          <el-form-item label="存储Client">
-            <el-select v-model="uploadForm.clientKey" placeholder="请选择Client" style="width: 200px">
-              <el-option v-for="item in clientList" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </el-form-item>
           <el-form-item v-if="uploadForm.uploadType === 'image'" label="图片上传">
             <ImageUpload :limit="5" :fileSize="10" isShowTip :uploadImgUrl="uploadUrl"
               @update:modelValue="onUploadSuccess" style="width:100%" v-model="fileList"
@@ -98,7 +93,7 @@
 </template>
 
 <script setup name="Info">
-import { listInfo, delInfo, downloadFileUnified, getClientList } from '@/api/file/info';
+import { listInfo, delInfo, downloadFileUnified } from '@/api/file/info';
 import ImagePreview from "@/components/ImagePreview/index.vue";
 import FileUpload from "@/components/UploadComponents/FileUpload/index.vue"
 import ImageUpload from "@/components/UploadComponents/ImageUpload/index.vue"
@@ -185,14 +180,7 @@ function isImage(fileType) {
 // 统一图片预览URL
 function getFileUrl(row) {
   if (!row.filePath) return '';
-  return `${import.meta.env.VITE_APP_BASE_API}/file/${row.storageType}/${getClientNameFromRow(row)}/preview?filePath=${encodeURIComponent(row.filePath)}`;
-}
-
-// 从 row 获取 clientName（如有扩展可自定义）
-function getClientNameFromRow(row) {
-  if (row.storageType === 'minio') return 'MASTER';
-  if (row.storageType === 'local') return 'MASTER';
-  return 'MASTER';
+  return `${import.meta.env.VITE_APP_BASE_API}/file/MASTER/preview?filePath=${encodeURIComponent(row.filePath)}`;
 }
 
 const openUploadDialog = ref(false);
@@ -201,17 +189,6 @@ const uploadForm = reactive({
   clientKey: '', // 形如 'minio:MASTER'
   uploadType: 'image', // 新增上传类型，默认图片
 });
-const clientOptions = ref({});
-const clientList = computed(() =>
-  Object.entries(clientOptions.value).flatMap(([type, arr]) =>
-    arr.map(client => ({
-      type,
-      client,
-      value: `${type}:${client}`,
-      label: `${type} - ${client}`
-    }))
-  )
-);
 // 兼容ImageUpload和FileUpload的上传url属性
 const uploadUrl = computed(() => {
   if (!uploadForm.clientKey) return '';
@@ -225,24 +202,13 @@ function onUploadSuccess() {
 }
 onMounted(() => {
   getList();
-  getClientList().then(res => {
-    if (res.code === 200 && res.data) {
-      clientOptions.value = res.data;
-      const allClients = Object.entries(res.data).flatMap(([type, arr]) =>
-        arr.map(client => `${type}:${client}`)
-      );
-      if (allClients.length > 0) {
-        uploadForm.clientKey = allClients[0];
-      }
-    }
-  });
 });
 
 // 统一下载方法
 function handleDownload(row) {
   downloadFileUnified({
     storageType: row.storageType,
-    clientName: getClientNameFromRow(row),
+    clientName: 'MASTER',
     filePath: row.filePath
   }).then(res => {
     if (!res) return;

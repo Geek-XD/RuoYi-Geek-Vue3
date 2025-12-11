@@ -67,14 +67,6 @@ export function downloadFileUnified({ storageType, clientName, filePath }) {
   });
 }
 
-// 获取所有可用存储渠道及其client列表
-export function getClientList() {
-  return request({
-    url: '/file/client-list',
-    method: 'get'
-  });
-}
-
 /**
  * 初始化分片上传
  */
