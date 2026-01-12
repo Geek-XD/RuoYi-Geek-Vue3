@@ -63,7 +63,7 @@
     </el-card>
 
     <!-- 添加或修改单数据对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
       <v-form-render ref="vFormRef" :key="form.dataId" />
       <template #footer>
         <div class="dialog-footer">
@@ -186,7 +186,7 @@ function handleUpdate(row) {
   getData(_dataId).then(response => {
     form.value = response.data;
     open.value = true;
-    title.value = "修改单数据";
+    title.value = "修改表单数据";
     nextTick(() => {
       vFormRef.value.setFormJson(JSON.parse(form.value.formSchema));
       vFormRef.value.setFormData(JSON.parse(form.value.dataContent));

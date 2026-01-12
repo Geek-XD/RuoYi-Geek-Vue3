@@ -24,7 +24,7 @@ const emit = defineEmits();
 const pageSize = defineModel<number>('limit', { default: 20 })
 const currentPage = defineModel<number>('page', { default: 1 })
 function handleSizeChange(val: number) {
-  if (currentPage.value * val > props.total) {
+  if (currentPage.value * val > +props.total) {
     currentPage.value = 1
   }
   emit('pagination', { page: currentPage.value, limit: val })
@@ -43,7 +43,7 @@ function handleCurrentChange(val: number) {
 <template>
   <div :class="{ 'hidden': hidden }" class="pagination-container">
     <el-pagination :background="background" v-model:current-page="currentPage" v-model:page-size="pageSize"
-      :layout="layout" :page-sizes="pageSizes" :pager-count="pagerCount" :total="total" @size-change="handleSizeChange"
+      :layout="layout" :page-sizes="pageSizes" :pager-count="pagerCount" :total="+total" @size-change="handleSizeChange"
       @current-change="handleCurrentChange" />
   </div>
 </template>
