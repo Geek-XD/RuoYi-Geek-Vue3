@@ -1,7 +1,8 @@
+import { LoginForm, RegisterForm } from '@/types/user'
 import request from '@/utils/request'
 
 // 登录方法
-export function login(data) {
+export function login(data: LoginForm) {
   return request({
     url: '/login',
     headers: {
@@ -13,7 +14,7 @@ export function login(data) {
 }
 
 // 注册方法
-export function register(data) {
+export function register(data: RegisterForm) {
   return request({
     url: '/register',
     headers: {
@@ -40,19 +41,7 @@ export function logout() {
   })
 }
 
-// 获取验证码
-export function getCodeImg() {
-  return request({
-    url: '/captchaImage',
-    headers: {
-      isToken: false
-    },
-    method: 'get',
-    timeout: 20000
-  })
-}
-
-export function sendEmailCode(data, type = 'register') {
+export function sendEmailCode(data: LoginForm, type = 'register') {
   return request({
     url: `/auth/mail/send/${type}`,
     headers: {
@@ -67,7 +56,7 @@ export function sendEmailCode(data, type = 'register') {
   })
 }
 
-export function verifyEmailCode(data, type = 'register') {
+export function verifyEmailCode(data: LoginForm, type = 'register') {
   return request({
     url: `/auth/mail/verify/${type}`,
     headers: {
@@ -82,7 +71,7 @@ export function verifyEmailCode(data, type = 'register') {
   })
 }
 
-export function sendPhoneCode(data, type = 'register') {
+export function sendPhoneCode(data: LoginForm, type = 'register') {
   return request({
     url: `/auth/dySms/send/${type}`,
     headers: {
@@ -97,7 +86,7 @@ export function sendPhoneCode(data, type = 'register') {
   })
 }
 
-export function verifyPhoneCode(data, type = 'register') {
+export function verifyPhoneCode(data: LoginForm, type = 'register') {
   return request({
     url: `/auth/dySms/verify/${type}`,
     headers: {

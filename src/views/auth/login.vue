@@ -2,8 +2,10 @@
 import { encrypt, decrypt } from "@/utils/jsencrypt";
 import useUserStore from '@/store/modules/user'
 import { useRouter } from "vue-router";
-import { onMounted, ref } from "vue";
-import { getCodeImg, sendEmailCode, sendPhoneCode } from "@/api/login";
+import { onMounted, ref, useTemplateRef } from "vue";
+import Verify from '@/components/Verifition/Verify.vue'
+import { getCaptcha } from "@/api/captcha";
+import { sendEmailCode, sendPhoneCode } from "@/api/login";
 import { RoutesAlias } from "@/router/routesAlias";
 import { useStorage } from "@vueuse/core";
 
@@ -24,45 +26,63 @@ const loginForm = ref({
   code: "",
   uuid: "",
   rememberMe: false,
-  autoRegister: false
+  autoRegister: false,
+  captcha: {}
 });
 
 const loginFormState = useStorage('loginForm', loginForm.value);
 
-const loginRules = {
+const loginRules: any = {
   username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
   password: [{ required: true, trigger: "blur", message: "请输入您的密码" }],
-  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
 };
 
 const codeUrl = ref("");
 const loading = ref(false);
 const redirect = ref(undefined);
-const loginRef = ref<any | null>(null)
-
+const loginRef = ref<any | null>(null);
+const verify = useTemplateRef('verify')
+const captchaType = ref<'char' | 'math' | 'clickWord' | 'blockPuzzle'>('blockPuzzle')
+async function handleCheck(data: any) {
+  loginForm.value.captcha = data;
+  try {
+    try {
+      await userStore.login(loginForm.value, props.method);
+      router.push({ path: redirect.value || "/" });
+    } catch {
+      getCode();
+      throw new Error("验证失败");
+    }
+  } finally {
+    loading.value = false;
+    if (loginForm.value.rememberMe) {
+      loginFormState.value.username = loginForm.value.username;
+      loginFormState.value.email = loginForm.value.email;
+      loginFormState.value.phonenumber = loginForm.value.phonenumber;
+      loginFormState.value.password = encrypt(loginForm.value.password);
+      loginFormState.value.rememberMe = loginForm.value.rememberMe;
+    } else {
+      loginFormState.value.username = '';
+      loginFormState.value.password = '';
+      loginFormState.value.email = '';
+      loginFormState.value.phonenumber = '';
+      loginFormState.value.rememberMe = false;
+    }
+  }
+}
 function handleLogin() {
   loginRef.value?.validate((valid: any) => {
-    if (valid) {
+    if (!valid) return;
+    if (captchaType.value === 'blockPuzzle' || captchaType.value === 'clickWord') {
+      loginRules['code'] = undefined
+      verify.value?.show()
+    } else {
       loading.value = true;
-      userStore.login(loginForm.value, props.method).then(() => {
-        router.push({ path: redirect.value || "/" });
-      }).catch(() => {
-        getCode();
-      }).finally(() => {
-        loading.value = false;
-        if (loginForm.value.rememberMe) {
-          loginFormState.value.username = loginForm.value.username;
-          loginFormState.value.email = loginForm.value.email;
-          loginFormState.value.phonenumber = loginForm.value.phonenumber;
-          loginFormState.value.password = encrypt(loginForm.value.password);
-          loginFormState.value.rememberMe = loginForm.value.rememberMe;
-        } else {
-          loginFormState.value.username = '';
-          loginFormState.value.password = '';
-          loginFormState.value.email = '';
-          loginFormState.value.phonenumber = '';
-          loginFormState.value.rememberMe = false;
-        }
+      loginRules['code'] = [{ required: true, trigger: "change", message: "请输入验证码" }]
+      handleCheck({
+        ...loginForm.value.captcha,
+        captchaType: captchaType.value,
+        wordList: loginForm.value.code.split('')
       });
     }
   });
@@ -70,9 +90,10 @@ function handleLogin() {
 
 function getCode() {
   if (!props.captchaEnabled) return
-  getCodeImg().then((res: any) => {
-    codeUrl.value = "data:image/gif;base64," + res.img;
-    loginForm.value.uuid = res.uuid;
+  if (!['char', 'math'].includes(captchaType.value)) return
+  getCaptcha({ captchaType: captchaType.value }).then((res) => {
+    codeUrl.value = 'data:image/png;base64,' + res.data.originalImageBase64
+    loginForm.value.captcha = res.data
   });
 }
 
@@ -93,7 +114,8 @@ function getCookie() {
     code: "",
     uuid: "",
     rememberMe: !loginFormState.value.rememberMe ? false : loginFormState.value.rememberMe,
-    autoRegister: false
+    autoRegister: false,
+    captcha: {}
   };
 }
 
@@ -145,14 +167,19 @@ onMounted(() => {
       </div>
     </el-form-item>
     <el-form-item prop="code" v-if="captchaEnabled && method === 'password'">
-      <el-input v-model="loginForm.code" size="large" auto-complete="off" placeholder="验证码" style="width: 63%"
-        @keyup.enter="handleLogin">
-        <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
-      </el-input>
-      <div class="login-code">
-        <img :src="codeUrl" @click="getCode" class="login-code-img" />
+      <div style="width: 100%;" v-if="['char', 'math'].includes(captchaType)">
+        <el-input v-model="loginForm.code" size="large" auto-complete="off" placeholder="验证码" style="width: 63%"
+          @keyup.enter="handleLogin">
+          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
+        </el-input>
+        <div class="login-code">
+          <img :src="codeUrl" @click="getCode" class="login-code-img" />
+        </div>
       </div>
+      <Verify v-else mode="pop" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200px' }" ref="verify"
+        :check="handleCheck" />
     </el-form-item>
+
     <div style="width:100%;display:flex;justify-content:space-between;align-items:center;">
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住我！</el-checkbox>
       <el-checkbox v-if="method != 'password'" v-model="loginForm.autoRegister"

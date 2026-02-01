@@ -14,7 +14,8 @@ export type GeekRequestConfig = {
         repeatSubmit?: boolean,
         /** 是否需要设置 token */
         isToken?: boolean,
-    } | AxiosRequestHeaders
+    } | AxiosRequestHeaders,
+    timeout?: number,
 }
 
 export type GeekResponse<T = any> = {

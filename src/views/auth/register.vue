@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ElMessageBox } from "element-plus";
-import { getCodeImg, sendEmailCode, sendPhoneCode } from "@/api/login";
-import { onMounted, ref } from "vue";
+import { sendEmailCode, sendPhoneCode } from "@/api/login";
+import { onMounted, ref, useTemplateRef } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/store/modules/user";
 import { RoutesAlias } from "@/router/routesAlias";
+import { getCaptcha } from "@/api/captcha";
+import Verify from '@/components/Verifition/Verify.vue'
 
 const router = useRouter();
 const userStore = useUserStore()
@@ -23,7 +25,9 @@ const registerForm = ref({
   phonenumber: '',
   code: "",
   uuid: "",
+  captcha: {}
 });
+const captchaType = ref<'char' | 'math' | 'clickWord' | 'blockPuzzle'>('blockPuzzle')
 
 const equalToPassword = (rule: any, value: any, callback: Function) => {
   if (registerForm.value.password !== value) {
@@ -33,7 +37,7 @@ const equalToPassword = (rule: any, value: any, callback: Function) => {
   }
 };
 
-const registerRules = {
+const registerRules: any = {
   username: [
     { required: true, trigger: "blur", message: "请输入您的账号" },
     { min: 2, max: 20, message: "用户账号长度必须介于 2 和 20 之间", trigger: "blur" }
@@ -46,30 +50,47 @@ const registerRules = {
   confirmPassword: [
     { required: true, trigger: "blur", message: "请再次输入您的密码" },
     { required: true, validator: equalToPassword, trigger: "blur" }
-  ],
-  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+  ]
 };
 
 const codeUrl = ref("");
 const loading = ref(false);
-
+const verify = useTemplateRef('verify')
 const registerRef = ref<any | null>(null)
+async function handleCheck(data: any) {
+  registerForm.value.captcha = data;
+  try {
+    try {
+      await userStore.register(registerForm.value, props.method);
+      const username = registerForm.value.username;
+      ElMessageBox.alert(`<font color='red'>恭喜你，您的账号 ${username} 注册成功！</font>`, "系统提示", {
+        dangerouslyUseHTMLString: true,
+        type: "success",
+      }).then(() => {
+        router.push(RoutesAlias.Login);
+      }).catch(() => { });
+    } catch {
+      getCode();
+      throw new Error("验证失败");
+    }
+  } finally {
+    loading.value = false;
+  }
+}
+
 function handleRegister() {
   registerRef.value?.validate((valid: any) => {
-    if (valid) {
-      loading.value = true;
-      userStore.register(registerForm.value, props.method).then(() => {
-        const username = registerForm.value.username;
-        ElMessageBox.alert("<font color='red'>恭喜你，您的账号 " + username + " 注册成功！</font>", "系统提示", {
-          dangerouslyUseHTMLString: true,
-          type: "success",
-        }).then(() => {
-          router.push(RoutesAlias.Login);
-        }).catch(() => { });
-      }).catch(() => {
-        getCode();
-      }).finally(() => {
-        loading.value = false;
+    if (!valid) return
+    loading.value = true;
+    if (captchaType.value === 'blockPuzzle' || captchaType.value === 'clickWord') {
+      registerRules['code'] = undefined
+      verify.value?.show()
+    } else {
+      registerRules['code'] = [{ required: true, trigger: "change", message: "请输入验证码" }]
+      handleCheck({
+        ...registerForm.value.captcha,
+        captchaType: captchaType.value,
+        wordList: registerForm.value.code.split('')
       });
     }
   });
@@ -77,9 +98,10 @@ function handleRegister() {
 
 function getCode() {
   if (!props.captchaEnabled) return
-  getCodeImg().then((res: any) => {
-    codeUrl.value = "data:image/gif;base64," + res.img;
-    registerForm.value.uuid = res.uuid;
+  if (!['char', 'math'].includes(captchaType.value)) return
+  getCaptcha({ captchaType: captchaType.value }).then((res) => {
+    codeUrl.value = 'data:image/png;base64,' + res.data.originalImageBase64
+    registerForm.value.captcha = res.data
   });
 }
 
@@ -149,15 +171,19 @@ onMounted(() => {
       </div>
     </el-form-item>
     <el-form-item prop="code" v-if="captchaEnabled && method === 'password'">
-      <el-input size="large" v-model="registerForm.code" auto-complete="off" placeholder="验证码" style="width: 63%"
-        @keyup.enter="handleRegister">
-        <template #prefix>
-          <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
-        </template>
-      </el-input>
-      <div class="register-code">
-        <img :src="codeUrl" @click="getCode" class="register-code-img" />
+      <div style="width: 100%;" v-if="['char', 'math'].includes(captchaType)">
+        <el-input size="large" v-model="registerForm.code" auto-complete="off" placeholder="验证码" style="width: 63%"
+          @keyup.enter="handleRegister">
+          <template #prefix>
+            <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+          </template>
+        </el-input>
+        <div class="register-code">
+          <img :src="codeUrl" @click="getCode" class="register-code-img" />
+        </div>
       </div>
+      <Verify v-else mode="pop" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200px' }" ref="verify"
+        :check="handleCheck" />
     </el-form-item>
     <el-form-item style="width:100%;">
       <el-button :loading="loading" size="large" type="primary" style="width:100%;" @click.prevent="handleRegister">

@@ -22,7 +22,16 @@ declare module '*.glsl' {
 }
 
 declare module 'particles.vue3';
-declare module 'jsencrypt/bin/jsencrypt.min';
+declare module 'jsencrypt/bin/jsencrypt.min' {
+  class JSEncrypt {
+    constructor();
+    setPublicKey(pubkey: string): void;
+    setPrivateKey(privkey: string): void;
+    encrypt(str: string): string;
+    decrypt(str: string): string;
+  }
+  export default JSEncrypt;
+}
 
 declare module '*.mjs' {
   const value: any;

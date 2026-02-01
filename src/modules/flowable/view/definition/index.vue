@@ -274,7 +274,7 @@ export default {
       }
     };
   },
-  created() {
+  mounted() {
     this.getList();
   },
   activated() {

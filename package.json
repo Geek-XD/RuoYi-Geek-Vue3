@@ -27,6 +27,7 @@
     "bpmn-js-bpmnlint": "^0.23.0",
     "bpmnlint": "^11.4.4",
     "bpmnlint-loader": "^0.1.4",
+    "crypto-js": "^4.2.0",
     "diagram-js": "^15.3.0",
     "echarts": "5.6.0",
     "element-plus": "2.10.3",
@@ -52,6 +53,7 @@
     "vue-router": "4.5.1"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/nprogress": "^0.2.3",
     "@types/three": "0.178.0",
     "@vitejs/plugin-vue": "6.0.0",
