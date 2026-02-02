@@ -68,18 +68,15 @@ export default {
       }
     },
   },
-  created() {
-
-  },
   methods: {
     // 加载流程图片
     async loadFlowCanvas(flowData) {
       try {
         await this.bpmnViewer.importXML(flowData.xmlData);
-        await this.fitViewport();
+        this.fitViewport();
         // 流程线高亮设置
         if (flowData.nodeData !== undefined && flowData.nodeData.length > 0 && this.procInsId) {
-          await this.fillColor(flowData.nodeData);
+          this.fillColor(flowData.nodeData);
         }
       } catch (err) {
         console.error(err.message, err.warnings)

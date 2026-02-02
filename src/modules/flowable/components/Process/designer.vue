@@ -57,11 +57,17 @@
         <properties-panel :id="elementId" />
       </el-collapse-item>
 
+      <!--   其他     -->
+      <el-collapse-item name="other">
+        <template #title><i class="el-icon-circle-plus"></i> 其他</template>
+        <other-panel :id="elementId" />
+      </el-collapse-item>
+
     </el-collapse>
   </el-card>
 </template>
 
-<script>
+<script setup>
 import ExecutionListener from './panel/executionListener'
 import TaskListener from './panel/taskListener'
 import MultiInstance from './panel/multiInstance'
@@ -69,119 +75,79 @@ import CommonPanel from './panel/commonPanel'
 import UserTaskPanel from './panel/taskPanel'
 import ConditionPanel from './panel/conditionPanel'
 import FormPanel from './panel/formPanel'
-import OtherPanel from './panel/otherPanel'
 import PropertiesPanel from './panel/PropertiesPanel'
-
+import OtherPanel from './panel/otherPanel'
 import { translateNodeName } from "./common/bpmnUtils";
+import modelerStore from '@modules/flowable/components/Process/common/global'
 import FlowUser from "@modules/flowable/components/Flow/User/index.vue";
 import FlowRole from "@modules/flowable/components/Flow/Role/index.vue";
 import FlowExp from "@modules/flowable/components/Flow/Expression/index.vue";
-import modelerStore from '@modules/flowable/components/Process/common/global'
-export default {
-  name: "Designer",
-  components: {
-    ExecutionListener,
-    TaskListener,
-    MultiInstance,
-    CommonPanel,
-    UserTaskPanel,
-    ConditionPanel,
-    FormPanel,
-    OtherPanel,
-    PropertiesPanel,
-    FlowUser,
-    FlowRole,
-    FlowExp,
-  },
-  data() {
-    return {
-      activeName: 'common',
-      executionListenerCount: 0,
-      taskListenerCount: 0,
-      elementId: "",
-      elementType: "",
-      conditionVisible: false,// 流转条件设置
-      formVisible: false, // 表单配置
-      rules: {
-        id: [
-          { required: true, message: '节点Id 不能为空', trigger: 'blur' },
-        ],
-        name: [
-          { required: true, message: '节点名称不能为空', trigger: 'blur' },
-        ],
-      },
-    }
-  },
+import { onMounted, ref, watch } from 'vue'
 
-  /** 传值监听 */
-  watch: {
-    elementId: {
-      handler() {
-        this.activeName = "common";
-      }
-    },
-  },
-  created() {
-    this.initModels();
-  },
-  methods: {
-    // 初始化流程设计器
-    initModels() {
-      this.getActiveElement();
-    },
+defineOptions({ name: 'Designer' })
 
-    // 注册节点事件
-    getActiveElement() {
-      // 初始第一个选中元素 bpmn:Process
-      this.initFormOnChanged(null);
-      modelerStore.modeler.on("import.done", e => {
-        this.initFormOnChanged(null);
-      });
-      // 监听选择事件，修改当前激活的元素以及表单
-      modelerStore.modeler.on("selection.changed", ({ newSelection }) => {
-        this.initFormOnChanged(newSelection[0] || null);
-      });
-      modelerStore.modeler.on("element.changed", ({ element }) => {
-        // 保证 修改 "默认流转路径" 类似需要修改多个元素的事件发生的时候，更新表单的元素与原选中元素不一致。
-        if (element && element.id === this.elementId) {
-          this.initFormOnChanged(element);
-        }
-      });
-    },
-
-    // 初始化数据
-    initFormOnChanged(element) {
-      let activatedElement = element;
-      if (!activatedElement) {
-        activatedElement =
-          modelerStore.elRegistry.find(el => el.type === "bpmn:Process") ??
-          modelerStore.elRegistry.find(el => el.type === "bpmn:Collaboration");
-      }
-      if (!activatedElement) return;
-      modelerStore.element = activatedElement;
-      this.elementId = activatedElement.id;
-      this.elementType = activatedElement.type.split(":")[1] || "";
-      this.conditionVisible = !!(
-        this.elementType === "SequenceFlow" &&
-        activatedElement.source &&
-        activatedElement.source.type.indexOf("StartEvent") === -1
-      );
-      this.formVisible = this.elementType === "UserTask" || this.elementType === "StartEvent";
-    },
-
-    /** 获取执行监听器数量 */
-    getExecutionListenerCount(value) {
-      this.executionListenerCount = value;
-    },
-    /** 获取任务监听器数量 */
-    getTaskListenerCount(value) {
-      this.taskListenerCount = value;
-    },
-    translateNodeName(val) {
-      return translateNodeName(val);
-    }
+const activeName = ref('common');
+const executionListenerCount = ref(0);
+const taskListenerCount = ref(0);
+const elementId = ref('');
+const elementType = ref('');
+const conditionVisible = ref(false); // 流转条件设置
+const formVisible = ref(false); // 表单配置
+const rules = ref({
+  id: [
+    { required: true, message: '节点Id 不能为空', trigger: 'blur' },
+  ],
+  name: [
+    { required: true, message: '节点名称不能为空', trigger: 'blur' },
+  ],
+});
+watch(elementId, () => {
+  activeName.value = "common";
+});
+// 初始化数据
+function initFormOnChanged(element) {
+  let activatedElement = element;
+  if (!activatedElement) {
+    activatedElement =
+      modelerStore.elRegistry.find(el => el.type === "bpmn:Process") ??
+      modelerStore.elRegistry.find(el => el.type === "bpmn:Collaboration");
   }
+  if (!activatedElement) return;
+  modelerStore.element = activatedElement;
+  elementId.value = activatedElement.id;
+  elementType.value = activatedElement.type.split(":")[1] || "";
+  conditionVisible.value = !!(
+    elementType.value === "SequenceFlow" &&
+    activatedElement.source &&
+    activatedElement.source.type.indexOf("StartEvent") === -1
+  );
+  formVisible.value = elementType.value === "UserTask" || elementType.value === "StartEvent";
 }
+// 注册节点事件
+function getActiveElement() {
+  // 初始第一个选中元素 bpmn:Process
+  initFormOnChanged(null);
+  modelerStore.modeler.on("import.done", e => {
+    initFormOnChanged(null);
+  });
+  // 监听选择事件，修改当前激活的元素以及表单
+  modelerStore.modeler.on("selection.changed", ({ newSelection }) => {
+    initFormOnChanged(newSelection[0] || null);
+  });
+  modelerStore.modeler.on("element.changed", ({ element }) => {
+    // 保证 修改 "默认流转路径" 类似需要修改多个元素的事件发生的时候，更新表单的元素与原选中元素不一致。
+    if (element && element.id === elementId.value) {
+      initFormOnChanged(element);
+    }
+  });
+}
+function getExecutionListenerCount(value) {
+  executionListenerCount.value = value;
+}
+function getTaskListenerCount(value) {
+  taskListenerCount.value = value;
+}
+onMounted(() => {
+  getActiveElement();
+});
 </script>
-
-<style lang="scss"></style>
