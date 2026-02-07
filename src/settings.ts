@@ -36,7 +36,7 @@ const setting = {
   /** 是否显示底部版权 */
   footerVisible: true,
   /** 底部版权文本内容 */
-  footerContent: 'Copyright © 2018-2025 RuoYi-Geek. All Rights Reserved.',
+  footerContent: 'Copyright © 2018-2026 RuoYi-Geek. All Rights Reserved.',
 
   /**
    * @type {string | array} 'production' | ['production', 'development']
@@ -51,7 +51,7 @@ const setting = {
    * @returns Promise<Object>
    */
   async initDbSetting(): Promise<Setting> {
-    const config = (key: string, type: any) => getConfigKey(key).then(res => {
+    const config = (key: string, type: any, defaultValue?: any) => getConfigKey(key).then(res => {
       if (type === String) {
         return res.msg
       } else if (type === Number) {
@@ -63,9 +63,24 @@ const setting = {
       } else {
         return new type(res.msg)
       }
+    }).catch(() => {
+      if (defaultValue !== undefined) {
+        return defaultValue
+      }
+      if (type === String) {
+        return ''
+      } else if (type === Number) {
+        return 0
+      } else if (type === Boolean) {
+        return false
+      } else if (type === Array) {
+        return []
+      } else {
+        return new type()
+      }
     })
     return {
-      theme: await config("sys.index.theme", String),
+      theme: await config("sys.index.theme", String, "#409eff"),
       sideTheme: await config("sys.index.sideTheme", String),
       topNav: await config("sys.index.topNav", Boolean),
       tagsView: await config("sys.index.tagsView", Boolean),

@@ -93,13 +93,14 @@ const useUserStore = defineStore(
       logOut() {
         return new Promise((resolve, reject) => {
           logout().then(() => {
+            resolve(null)
+          }).catch(error => {
+            reject(error)
+          }).finally(() => {
             this.token = ''
             this.roles = []
             this.permissions = []
             removeToken()
-            resolve(null)
-          }).catch(error => {
-            reject(error)
           })
         })
       }
