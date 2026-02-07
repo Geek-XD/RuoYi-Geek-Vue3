@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, useCssModule, watch } from 'vue';
 import { Document, ChatDotRound, User } from '@element-plus/icons-vue';
 import { getConfigKey } from '@/api/system/config';
 import { useRoute, useRouter } from 'vue-router';
@@ -36,12 +36,14 @@ onMounted(async () => {
     useRouter().push(RoutesAlias.Home)
     return;
   }
-
-  captchaEnabled.value = await getConfigKey("sys.account.captchaEnabled").then(res => res.msg === 'true')
-  register.value = await getConfigKey("sys.account.registerUser").then(res => res.msg === 'true')
-  // 设置页面加载状态为true，触发动画
-  pageLoaded.value = true;
-  startCountAnimation();
+  try {
+    captchaEnabled.value = await getConfigKey("sys.account.captchaEnabled").then(res => res.msg === 'true')
+    register.value = await getConfigKey("sys.account.registerUser").then(res => res.msg === 'true')
+  } finally {
+    // 设置页面加载状态为true，触发动画
+    pageLoaded.value = true;
+    startCountAnimation();
+  }
 });
 
 const features = [
