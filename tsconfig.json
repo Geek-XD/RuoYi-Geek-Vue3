@@ -23,6 +23,7 @@
       "@/*": ["./src/*"],
       "@lib": ["./lib"],
       "@lib/*": ["./lib/*"],
+      "@modules": ["./src/modules"],
       "vue": ["./node_modules/vue"],
       "tslib" : ["./node_modules/tslib/tslib.d.ts"]
     }
