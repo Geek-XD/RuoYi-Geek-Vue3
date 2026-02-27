@@ -124,7 +124,7 @@ function close() {
           </div>
           <div class="chat-input-area">
             <el-input v-model="message" type="textarea" :rows="5" placeholder="请输入内容..." />
-            <el-button type="primary" @click="send" class="send-btn">发送</el-button>
+            <el-button type="primary" @click="send" style="height:30px">发送</el-button>
           </div>
         </div>
       </div>
@@ -133,9 +133,10 @@ function close() {
 </template>
 <style lang="scss" scoped>
 $chat-app-height: 80vh;
+$chat-app-width: 80vw;
 $chat-app-header-height: 45px;
-$chat-chat-header-height: 53px;
-$chat-input-area-height: 192px;
+$chat-header-height: 53px;
+$chat-input-height: 192px;
 
 .app-container {
   display: flex;
@@ -145,7 +146,7 @@ $chat-input-area-height: 192px;
 
 .chat-app {
   height: $chat-app-height;
-  width: 80vw;
+  width: $chat-app-width;
   background: #f5f6fa;
   border-radius: 10px;
   border: 1px solid #e6e6e6;
@@ -193,7 +194,7 @@ $chat-input-area-height: 192px;
   flex-direction: column;
 
   .search-section {
-    height: $chat-chat-header-height;
+    height: $chat-header-height;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #f0f0f0;
@@ -202,7 +203,7 @@ $chat-input-area-height: 192px;
 
   .contact-list {
     overflow-y: auto;
-    height: calc(#{$chat-app-height} - #{$chat-app-header-height} - #{$chat-chat-header-height});
+    height: calc(#{$chat-app-height} - #{$chat-app-header-height} - #{$chat-header-height});
     padding: 12px 5px;
 
 
@@ -269,7 +270,7 @@ $chat-input-area-height: 192px;
     padding: 0 24px;
     background: #fff;
     border-bottom: 1px solid #e6e6e6;
-    height: $chat-chat-header-height;
+    height: $chat-header-height;
 
     .chat-title {
       display: flex;
@@ -297,8 +298,7 @@ $chat-input-area-height: 192px;
   .chat-content {
     overflow-y: auto;
     padding: 30px 40px 20px 40px;
-    background: #f9fafb;
-    height: calc(#{$chat-app-height} - #{$chat-chat-header-height} - #{$chat-app-header-height} - #{$chat-input-area-height});
+    flex: 1;
 
     .chat-bubble-row {
       display: flex;
@@ -360,16 +360,11 @@ $chat-input-area-height: 192px;
     background: #fff;
     border-top: 1px solid #e6e6e6;
     gap: 10px;
-    height: $chat-input-area-height;
+    height: $chat-input-height;
 
     :deep(.el-textarea__inner) {
       box-shadow: none;
       resize: none;
-    }
-
-    .send-btn {
-      margin-left: 12px;
-      height: 30px;
     }
   }
 }
