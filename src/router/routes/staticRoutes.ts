@@ -63,15 +63,21 @@ export const constantRoutes: RouteItem[] = [
     children: [
       {
         path: 'threeTest',
-        component: () => import('@/views/three/gltfmode.vue'),
+        component: () => import('@/views/laboratory/three/gltfmode.vue'),
         name: 'threeTest',
         meta: { title: 'three实验室', icon: 'dashboard' }
       },
       {
         path: "websocket",
-        component: () => import('@/views/websocket.vue'),
+        component: () => import('@/views/laboratory/websocket.vue'),
         name: 'websocket',
         meta: { title: 'websocket实验室', icon: 'dashboard' }
+      },
+      {
+        path: "chat",
+        component: () => import('@/views/laboratory/chat.vue'),
+        name: 'chat',
+        meta: { title: 'chat实验室', icon: 'dashboard' }
       },
     ]
   },
