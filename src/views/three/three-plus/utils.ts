@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
 /**
  * 将事件坐标转换为标准化设备坐标系(NDC)
@@ -38,17 +38,29 @@ export function loadModel(model: { gltf?: string, obj?: string, mtl?: string, fb
             dracoLoader.setDecoderConfig({ type: "js" });
             dracoLoader.preload();
             gltfloader.setDRACOLoader(dracoLoader);
+            let resourcePath = '';
+            try {
+                const url = new URL(model.gltf, window.location.href);
+                resourcePath = url.href.slice(0, url.href.lastIndexOf('/') + 1);
+            } catch {
+                const lastSlashIndex = model.gltf.lastIndexOf('/');
+                if (lastSlashIndex !== -1) {
+                    resourcePath = model.gltf.slice(0, lastSlashIndex + 1);
+                }
+            }
+            if (resourcePath) {
+                gltfloader.setResourcePath(resourcePath);
+            }
             gltfloader.load(
                 model.gltf,
                 load => {
-                    console.log(load);
                     resolve(load.scene)
                 },
                 progress => {
                     if (onProgress) onProgress(progress)
                 },
                 error => {
-                    console.log(error);
+                    reject(error);
                 }
             )
         } else if (type == "obj" && !!model.obj) {
@@ -87,7 +99,7 @@ export function MeshStandardMaterialToShaderMaterial(msm: THREE.MeshStandardMate
     if (msm.emissive) {
         sm.uniforms['emissive'].value.copy(msm.emissive);
     }
-    
+
     // 迁移纹理属性
     if (msm.map) {
         sm.uniforms['map'].value = msm.map;
@@ -146,8 +158,6 @@ export function MeshStandardMaterialToShaderMaterial(msm: THREE.MeshStandardMate
 }
 
 export function MeshBasicMaterialToShaderMaterial(basicMat: THREE.MeshBasicMaterial, shaderMat: THREE.ShaderMaterial) {
-    console.log(basicMat);
-
     // 迁移基础属性
     if (basicMat.color) {
         shaderMat.uniforms['color'].value.copy(basicMat.color);

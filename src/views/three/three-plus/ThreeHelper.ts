@@ -1,12 +1,14 @@
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import * as THREE from 'three'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { SelectControls } from './SelectControls';
 import CapsControls from './CapsControls';
-import { DragControls } from 'three/examples/jsm/controls/DragControls';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
+import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 interface DirectorOption {
     /** canvas DOM */
@@ -49,6 +51,10 @@ export class Director {
     wait: number = 0
     /** 环境光 */
     ambientLight: THREE.AmbientLight = new THREE.AmbientLight(0xffffff, 2)
+    /** 半球光 */
+    hemisphereLight: THREE.HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6)
+    /** 方向光 */
+    directionalLight: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.2)
     /** 辅助坐标 */
     axesHelper: THREE.AxesHelper = new THREE.AxesHelper(100)
     showAxesHelper: boolean = false
@@ -73,6 +79,12 @@ export class Director {
         this.camera.position.z = 10
         this.camera.position.y = 2
         this.scene.add(this.ambientLight)
+        this.hemisphereLight.position.set(0, 10, 0)
+        this.scene.add(this.hemisphereLight)
+        this.directionalLight.position.set(10, 20, 10)
+        this.directionalLight.target.position.set(0, 0, 0)
+        this.scene.add(this.directionalLight)
+        this.scene.add(this.directionalLight.target)
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
@@ -81,6 +93,14 @@ export class Director {
         this.renderer.setSize(options.width, options.height)
         this.renderer.setClearColor(0xffffff);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.0;
+
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        const env = new RoomEnvironment();
+        this.scene.environment = pmremGenerator.fromScene(env).texture;
+        pmremGenerator.dispose();
 
         const renderPass = new RenderPass(this.scene, this.camera);
         const orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
@@ -98,6 +118,7 @@ export class Director {
         this.controls = { orbitControls, selectControls, capsControls, dragControls, transformControls }
         this.composer.addPass(renderPass);
         this.composer.addPass(selectControls.outlinePass);
+        this.composer.addPass(new OutputPass());
         this.FPS = options.FPS || 30
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -197,7 +218,6 @@ export class Director {
                 }
             }
             if (!found) {
-                console.log(`未找到具有UUID ${uuid} 的对象`);
                 return null;
             }
             currentObject = found;
