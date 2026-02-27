@@ -66,66 +66,77 @@ function close() {
 <template>
   <div class="app-container">
     <div class="chat-app">
-      <div class="sidebar">
+      <div class="chat-app-header">
         <div class="profile-section">
-          <el-avatar :src="profile" size="large" />
+          <el-avatar :src="profile" size="small" />
           <div class="profile-info">
             <div class="profile-name">伊桑·李特</div>
             <div class="profile-email">ethan@domain.com</div>
           </div>
         </div>
-        <div class="contact-list">
-          <div v-for="contact in contacts" :key="contact.email"
-            :class="['contact-item', { active: contact === currentContact }]" @click="selectContact(contact)">
-            <el-avatar :src="contact.avatar" size="small" />
-            <div class="contact-info">
-              <div class="contact-name">{{ contact.name }}</div>
-              <div class="contact-email">{{ contact.email }}</div>
-            </div>
-            <div class="contact-status">
-              <span v-if="contact.online" class="online-dot"></span>
-              <span class="last-msg">{{ contact.lastMsg }}</span>
-            </div>
-          </div>
-        </div>
       </div>
-      <div class="chat-main">
-        <div class="chat-header">
-          <div class="chat-title">
-            <el-avatar :src="currentContact.avatar" size="small" />
-            <span class="chat-name">{{ currentContact.name }}</span>
-            <span class="chat-status" v-if="currentContact.online">在线</span>
+      <div class="chat-app-main">
+        <div class="sidebar">
+          <div class="search-section">
+            <el-input placeholder="搜索联系人..."></el-input>
           </div>
-          <div class="chat-actions">
-            <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
-            <el-button type="primary" @click="join">连接</el-button>
-            <el-button type="danger" @click="close">断开连接</el-button>
-          </div>
-        </div>
-        <div class="chat-content" ref="chatContainer">
-          <div v-for="(msg, idx) in chatMessages" :key="idx"
-            :class="['chat-bubble-row', msg.from === username ? 'self' : 'other']">
-            <el-avatar class="bubble-avatar" size="small"
-              :src="msg.from === username ? currentContact.avatar : profile" />
-            <div class="chat-bubble">
-              <div class="bubble-header">
-                <span class="bubble-name">{{ msg.from }}</span>
-                <span class="bubble-time">{{ msg.time }}</span>
+          <div class="contact-list">
+            <div v-for="contact in contacts" :key="contact.email"
+              :class="['contact-item', { active: contact === currentContact }]" @click="selectContact(contact)">
+              <el-avatar :src="contact.avatar" size="small" />
+              <div class="contact-info">
+                <div class="contact-name">{{ contact.name }}</div>
+                <div class="contact-email">{{ contact.email }}</div>
               </div>
-              <div class="bubble-content">{{ msg.content }}</div>
+              <div class="contact-status">
+                <span v-if="contact.online" class="online-dot"></span>
+                <span class="last-msg">{{ contact.lastMsg }}</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="chat-input-area">
-          <el-input v-model="message" type="textarea" :rows="2" placeholder="请输入内容..."
-            @keydown.enter.native.prevent="send" />
-          <el-button type="primary" @click="send" class="send-btn">发送</el-button>
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-title">
+              <el-avatar :src="currentContact.avatar" size="small" />
+              <span class="chat-name">{{ currentContact.name }}</span>
+              <span class="chat-status" v-if="currentContact.online">在线</span>
+            </div>
+            <div class="chat-actions">
+              <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
+              <el-button type="primary" @click="join">连接</el-button>
+              <el-button type="danger" @click="close">断开连接</el-button>
+            </div>
+          </div>
+          <div class="chat-content" ref="chatContainer">
+            <div v-for="(msg, idx) in chatMessages" :key="idx"
+              :class="['chat-bubble-row', msg.from === username ? 'self' : 'other']">
+              <el-avatar class="bubble-avatar" size="small"
+                :src="msg.from === username ? currentContact.avatar : profile" />
+              <div class="chat-bubble">
+                <div class="bubble-header">
+                  <span class="bubble-name">{{ msg.from }}</span>
+                  <span class="bubble-time">{{ msg.time }}</span>
+                </div>
+                <div class="bubble-content">{{ msg.content }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <el-input v-model="message" type="textarea" :rows="5" placeholder="请输入内容..." />
+            <el-button type="primary" @click="send" class="send-btn">发送</el-button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 <style lang="scss" scoped>
+$chat-app-height: 80vh;
+$chat-app-header-height: 45px;
+$chat-chat-header-height: 53px;
+$chat-input-area-height: 192px;
+
 .app-container {
   display: flex;
   justify-content: center;
@@ -133,13 +144,45 @@ function close() {
 }
 
 .chat-app {
-  display: flex;
-  height: 80vh;
+  height: $chat-app-height;
   width: 80vw;
   background: #f5f6fa;
   border-radius: 10px;
   border: 1px solid #e6e6e6;
   overflow: hidden;
+
+  .chat-app-header {
+    background-color: #409eff;
+    height: $chat-app-header-height;
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px 10px 16px;
+      border-bottom: 1px solid #f0f0f0;
+
+      .profile-info {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        margin-left: 12px;
+        color: white;
+
+        .profile-name {
+          font-weight: bold;
+          font-size: 16px;
+        }
+
+        .profile-email {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .chat-app-main {
+    display: flex;
+  }
 }
 
 .sidebar {
@@ -149,30 +192,17 @@ function close() {
   display: flex;
   flex-direction: column;
 
-  .profile-section {
+  .search-section {
+    height: $chat-chat-header-height;
     display: flex;
     align-items: center;
-    padding: 20px 16px 10px 16px;
     border-bottom: 1px solid #f0f0f0;
-
-    .profile-info {
-      margin-left: 12px;
-
-
-      .profile-name {
-        font-weight: bold;
-        font-size: 16px;
-      }
-
-      .profile-email {
-        font-size: 12px;
-        color: #888;
-      }
-    }
+    padding: 0 16px;
   }
 
   .contact-list {
     overflow-y: auto;
+    height: calc(#{$chat-app-height} - #{$chat-app-header-height} - #{$chat-chat-header-height});
     padding: 12px 5px;
 
 
@@ -236,9 +266,10 @@ function close() {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 24px;
+    padding: 0 24px;
     background: #fff;
     border-bottom: 1px solid #e6e6e6;
+    height: $chat-chat-header-height;
 
     .chat-title {
       display: flex;
@@ -264,10 +295,10 @@ function close() {
   }
 
   .chat-content {
-    flex: 1;
     overflow-y: auto;
     padding: 30px 40px 20px 40px;
     background: #f9fafb;
+    height: calc(#{$chat-app-height} - #{$chat-chat-header-height} - #{$chat-app-header-height} - #{$chat-input-area-height});
 
     .chat-bubble-row {
       display: flex;
@@ -319,20 +350,26 @@ function close() {
         }
       }
     }
-
-
   }
 
   .chat-input-area {
     display: flex;
+    flex-direction: column;
     align-items: flex-end;
     padding: 18px 24px;
     background: #fff;
     border-top: 1px solid #e6e6e6;
+    gap: 10px;
+    height: $chat-input-area-height;
+
+    :deep(.el-textarea__inner) {
+      box-shadow: none;
+      resize: none;
+    }
 
     .send-btn {
       margin-left: 12px;
-      height: 40px;
+      height: 30px;
     }
   }
 }

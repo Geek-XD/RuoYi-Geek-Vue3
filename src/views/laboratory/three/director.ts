@@ -2,12 +2,14 @@ import { ref, shallowReactive, watch } from "vue";
 import { Director, TreeNode } from "./three-plus/ThreeHelper";
 import * as THREE from 'three'
 import { explodeModel, initExplodeModel } from "./three-plus/ExplodeControls";
+import { useEventListener } from "@vueuse/core";
 const director = new Director({
     width: window.innerWidth,
     height: window.innerHeight,
 })
-function initFastKey() {
-    document.addEventListener('keydown', (e) => {
+export function initDirector(dom: HTMLElement) {
+    dom.appendChild(director.renderer.domElement)
+    useEventListener(document, 'keydown', (e: KeyboardEvent) => {
         console.log(e.altKey);
         if (e.key === 'Escape') {
             e.preventDefault();
@@ -28,10 +30,6 @@ function initFastKey() {
             }
         }
     })
-}
-export function initDirector(dom: HTMLElement) {
-    dom.appendChild(director.renderer.domElement)
-    initFastKey()
     director.scene.background = new THREE.TextureLoader().load("/glb/bg.jpeg")
     director.switchAxesHelper(true)
     director.switchGridHelper(true)
