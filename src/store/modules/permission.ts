@@ -58,6 +58,7 @@ const usePermissionStore = defineStore(
       setTopbarRoutes(routes: RouteItem[]) {
         this.topbarRouters = deepClone(routes);
       },
+      /** 设置侧边栏路由 */
       setSidebarRouters(routes: RouteItem[]) {
         this.sidebarRouters = deepClone(routes);
       },

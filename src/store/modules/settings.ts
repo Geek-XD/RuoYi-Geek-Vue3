@@ -38,7 +38,7 @@ const useSettingsStore = defineStore('settings', {
         this.inited = true
       }
     },
-    // 修改布局设置
+    /** 修改布局设置 */
     changeSetting(data: { key: keyof typeof storageSetting, value: any }) {
       const { key, value } = data
       if (this.hasOwnProperty(key)) {
@@ -46,7 +46,7 @@ const useSettingsStore = defineStore('settings', {
         this[key] = value
       }
     },
-    // 设置网页标题
+    /** 设置网页标题 */
     setTitle(title: string) {
       this.title = title
       useDynamicTitle();

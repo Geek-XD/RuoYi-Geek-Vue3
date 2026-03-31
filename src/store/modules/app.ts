@@ -9,10 +9,11 @@ const useAppStore = defineStore(
         withoutAnimation: false,
         hide: false
       },
-      device: 'desktop',
+      device: 'desktop' as 'mobile' | 'desktop',
       size: (localStorage.getItem('size') || 'default') as 'large' | 'default' | 'small'
     }),
     actions: {
+      /** 切换侧边栏 */
       toggleSideBar(withoutAnimation: boolean) {
         if (this.sidebar.hide) {
           return false;
@@ -25,18 +26,22 @@ const useAppStore = defineStore(
           localStorage.setItem('sidebarStatus', '0')
         }
       },
+      /** 关闭侧边栏 */
       closeSideBar(withoutAnimation: boolean) {
         localStorage.setItem('sidebarStatus', '0')
         this.sidebar.opened = false
         this.sidebar.withoutAnimation = withoutAnimation
       },
-      toggleDevice(device: string) {
+      /** 切换设备类型 */
+      toggleDevice(device: 'mobile' | 'desktop') {
         this.device = device
       },
+      /** 设置界面尺寸 */
       setSize(size: 'large' | 'default' | 'small') {
         this.size = size;
         localStorage.setItem('size', size)
       },
+      /** 切换侧边栏隐藏状态 */
       toggleSideBarHide(status: boolean) {
         this.sidebar.hide = status
       }
