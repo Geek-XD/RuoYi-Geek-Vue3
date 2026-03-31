@@ -37,7 +37,7 @@ export function useChunkUpload(file?: File, options?: { chunkSize?: number; conc
     filePath = data.filePath;
 
     uploadMessage.value = '初始化成功，开始上传分片...';
-    for (let i = 0; i < file.size; i += chunkBytes) {
+    for (let i = 0; i < fileSize; i += chunkBytes) {
       chunks.push({
         partNumber: i + 1,
         chunk: file.slice(i, i + chunkBytes)
@@ -68,8 +68,8 @@ export function useChunkUpload(file?: File, options?: { chunkSize?: number; conc
     await completeMultipartUpload({
       uploadId: uploadId,
       filePath: filePath,
-      fileSize: file.size,
-      fileName: file.name,
+      fileSize,
+      fileName,
       partETags: formattedPartETags,
     });
 

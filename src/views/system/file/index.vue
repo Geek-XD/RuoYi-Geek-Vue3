@@ -207,7 +207,6 @@ onMounted(() => {
 // 统一下载方法
 function handleDownload(row) {
   downloadFileUnified({
-    storageType: row.storageType,
     clientName: 'MASTER',
     filePath: row.filePath
   }).then(res => {

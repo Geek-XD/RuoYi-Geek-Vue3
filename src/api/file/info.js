@@ -57,9 +57,9 @@ export function uploadFileUnified({ storageType, clientName, file }) {
 }
 
 // 统一下载接口（返回文件流）
-export function downloadFileUnified({ storageType, clientName, filePath }) {
+export function downloadFileUnified({ clientName, filePath }) {
   return request({
-    url: `/file/${storageType}/${clientName}/download`,
+    url: `/file/${clientName}/download`,
     method: 'get',
     params: { filePath },
     responseType: 'blob',
