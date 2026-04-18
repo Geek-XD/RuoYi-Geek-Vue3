@@ -17,16 +17,15 @@ function hasOneShowingChild(children: RouteItem[] = [], parent: RouteItem) {
   if (!children) children = [];
   const showingChildren = children.filter(item => {
     if (item.hidden) return false
-
-    // Temp set(will be used if only has one showing child)
+    // 温度设置（仅当仅有一个显示子项时生效）
     onlyOneChild.value = { ...item, noShowingChildren: false };
     return true;
   })
 
-  // When there is only one child router, the child router is displayed by default
+  // 当仅有一个子路由时，默认显示该子路由
   if (showingChildren.length === 1) return true
 
-  // Show parent if there are no child router to display
+  // 当没有子路由可显示时，显示父路由
   if (showingChildren.length === 0) {
     onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
     return true

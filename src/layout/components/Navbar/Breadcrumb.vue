@@ -1,16 +1,14 @@
 <script setup>
 import usePermissionStore from '@/store/modules/permission'
 import { RoutesAlias } from '@/router/routesAlias'
+import { useRoute, useRouter } from 'vue-router'
+import { onMounted } from 'vue';
 
 const route = useRoute()
 const router = useRouter();
-const levelList = ref([])
 const permissionStore = usePermissionStore()
-
 const sidebarRouters = computed(() => permissionStore.sidebarRouters);
-function getTitle(item) {
-  return typeof item.meta.title === 'function' ? item.meta.title(route) : item.meta.title
-}
+const getTitle = (item) => typeof item.meta.title === 'function' ? item.meta.title(route) : item.meta.title
 function findPathNum(str, char = "/") {
   let index = str.indexOf(char)
   let num = 0
@@ -30,6 +28,14 @@ function getMatched(pathList, routeList, matched) {
     getMatched(pathList, data.children, matched)
   }
 }
+
+function isDashboard(route) {
+  const name = route && route.name
+  if (!name) return false
+  return name.trim() === 'Index'
+}
+
+const levelList = ref([])
 function getBreadcrumb() {
   // only show routes with meta.title
   let matched = [];
@@ -50,30 +56,21 @@ function getBreadcrumb() {
   }
   levelList.value = matched.filter((item) => item.meta && item.meta.title && item.meta.breadcrumb !== false)
 }
-function isDashboard(route) {
-  const name = route && route.name
-  if (!name) {
-    return false
-  }
-  return name.trim() === 'Index'
-}
-function handleLink(item) {
-  const { redirect, path } = item
-  if (redirect) {
-    router.push(redirect)
-    return
-  }
-  router.push(path)
-}
 
 watchEffect(() => {
-  // if you go to the redirect page, do not update the breadcrumbs
-  if (route.path.startsWith('/redirect/')) {
-    return
-  }
+  // 如果跳转到重定向页面，请勿更新面包屑导航
+  if (route.path.startsWith('/redirect/')) return;
   getBreadcrumb()
 })
-getBreadcrumb();
+
+onMounted(() => {
+  getBreadcrumb();
+})
+
+function handleLink(item) {
+  const { redirect, path } = item
+  router.push(redirect ? redirect : path)
+}
 </script>
 <template>
   <el-breadcrumb class="app-breadcrumb" separator="/">

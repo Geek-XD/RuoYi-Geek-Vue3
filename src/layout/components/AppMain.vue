@@ -40,6 +40,7 @@ const tagsViewStore = useTagsViewStore()
   padding-top: variables.$navbar-height;
 }
 
+/** 此处受 src\layout\index.vue needTagsView控制 */
 .hasTagsView {
   .app-main {
     min-height: calc(100vh - (variables.$navbar-height + variables.$tags-view-height));

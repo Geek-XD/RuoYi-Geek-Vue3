@@ -2,9 +2,6 @@
 import { ElMessageBox } from 'element-plus'
 import Breadcrumb from './Breadcrumb.vue'
 import TopNav from './TopNav.vue'
-import RuoYiGitee from './RuoYi/Git/gitee.vue'
-import RuoYiGithub from './RuoYi/Git/github.vue'
-import RuoYiDoc from './RuoYi/Doc/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
@@ -14,6 +11,7 @@ import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
 import { useRouter } from 'vue-router'
 import { RoutesAlias } from '@/router/routesAlias'
+import { ref } from 'vue'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -49,6 +47,13 @@ const emits = defineEmits(['setLayout'])
 function setLayout() {
   emits('setLayout');
 }
+
+const tooltips = ref([
+  { id: 'ruoyi-gitee', url: 'https://gitee.com/geek-xd', content: 'gitee源码地址', icon: 'gitee' },
+  { id: 'ruoyi-github', url: 'https://github.com/Geek-XD', content: 'github源码地址', icon: 'github' },
+  { id: 'ruoyi-doc', url: 'http://doc.ruoyi.vip/ruoyi-vue', content: '文档地址', icon: 'question' },
+])
+const goto = (url: string) => window.open(url)
 </script>
 <template>
   <div class="navbar">
@@ -66,23 +71,17 @@ function setLayout() {
       <template v-if="appStore.device !== 'mobile'">
         <header-search id="header-search" class="right-menu-item" />
 
-        <el-tooltip content="gitee源码地址" effect="dark" placement="bottom">
-          <ruo-yi-gitee id="ruoyi-gitee" class="right-menu-item hover-effect svg-menu-item" />
+        <el-tooltip v-for="tooltip in tooltips" :key="tooltip.id" :content="tooltip.content">
+          <div class="right-menu-item hover-effect svg-menu-item">
+            <svg-icon :icon-class="tooltip.icon" @click="goto(tooltip.url)" />
+          </div>
         </el-tooltip>
 
-        <el-tooltip content="github源码地址" effect="dark" placement="bottom">
-          <ruo-yi-github id="ruoyi-github" class="right-menu-item hover-effect svg-menu-item" />
-        </el-tooltip>
-
-        <el-tooltip content="文档地址" effect="dark" placement="bottom">
-          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect svg-menu-item" />
-        </el-tooltip>
-
-        <el-tooltip content="专注模式" effect="dark" placement="bottom">
+        <el-tooltip content="专注模式">
           <screenfull id="screenfull" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
 
-        <el-tooltip content="布局大小" effect="dark" placement="bottom">
+        <el-tooltip content="布局大小">
           <size-select id="size-select" class="right-menu-item hover-effect svg-menu-item" />
         </el-tooltip>
       </template>

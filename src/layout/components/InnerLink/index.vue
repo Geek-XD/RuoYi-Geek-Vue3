@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-defineProps({
-  src: {
-    type: String,
-    default: "/"
-  },
-  iframeId: {
-    type: String
-  }
+withDefaults(defineProps<{
+  src?: string;
+  iframeId: string;
+}>(), {
+  src: "/"
 });
 
 const height = ref(document.documentElement.clientHeight - 94.5 + "px");

@@ -23,11 +23,9 @@ import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { RoutesAlias } from '@/router/routesAlias'
+import { useEventListener } from "@vueuse/core"
 
-// 顶部栏初始数
-const visibleNumber = ref(null);
-// 当前激活菜单的 index
-const currentIndex = ref(null);
+
 // 隐藏侧边栏路由
 const hideList = [RoutesAlias.Home, '/user/profile'];
 
@@ -82,7 +80,6 @@ const topMenus = computed(() => {
   return topMenus;
 })
 
-
 // 设置子路由
 const childrenMenus = computed(() => {
   let childrenMenus = [];
@@ -104,6 +101,23 @@ const childrenMenus = computed(() => {
   return constantRoutes.concat(childrenMenus);
 })
 
+function activeRoutes(key) {
+  const routes = [];
+  if (childrenMenus.value && childrenMenus.value.length > 0) {
+    childrenMenus.value.map((item) => {
+      if (key == item.parentPath || (key == "index" && "" == item.path)) {
+        routes.push(item);
+      }
+    });
+  }
+  if (routes.length > 0) {
+    permissionStore.setSidebarRouters(routes);
+  } else {
+    appStore.toggleSideBarHide(true);
+  }
+  return routes;
+}
+
 // 默认激活的菜单
 const activeMenu = computed(() => {
   const path = route.path;
@@ -122,11 +136,8 @@ const activeMenu = computed(() => {
   return activePath;
 })
 
-function setVisibleNumber() {
-  const width = document.body.getBoundingClientRect().width / 3;
-  visibleNumber.value = parseInt(width / 85);
-}
-
+// 当前激活菜单的 index
+const currentIndex = ref(null);
 function handleSelect(key, keyPath) {
   currentIndex.value = key;
   const route = routers.value.find(item => item.path === key);
@@ -144,33 +155,14 @@ function handleSelect(key, keyPath) {
   }
 }
 
-function activeRoutes(key) {
-  let routes = [];
-  if (childrenMenus.value && childrenMenus.value.length > 0) {
-    childrenMenus.value.map((item) => {
-      if (key == item.parentPath || (key == "index" && "" == item.path)) {
-        routes.push(item);
-      }
-    });
-  }
-  if (routes.length > 0) {
-    permissionStore.setSidebarRouters(routes);
-  } else {
-    appStore.toggleSideBarHide(true);
-  }
-  return routes;
+/** 顶部栏初始数 */
+const visibleNumber = ref(null);
+const setVisibleNumber = () => {
+  const width = document.body.getBoundingClientRect().width / 3;
+  visibleNumber.value = parseInt(width / 85);
 }
-
-onMounted(() => {
-  window.addEventListener('resize', setVisibleNumber)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', setVisibleNumber)
-})
-
-onMounted(() => {
-  setVisibleNumber()
-})
+useEventListener("resize", setVisibleNumber);
+onMounted(() => { setVisibleNumber() })
 </script>
 <template>
   <el-menu :default-active="activeMenu" mode="horizontal" @select="handleSelect" :ellipsis="false"
@@ -197,8 +189,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use "@/assets/styles/variables.module.scss";
-
-
 
 .topmenu-container {
   --el-menu-bg-color: variables.$navbar-color;

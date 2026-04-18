@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 const prop = withDefaults(defineProps<{
-  contact: any
+  contact: {
+    avatar?: string;
+    name?: string;
+    email?: string;
+    online?: boolean;
+    lastMsg?: string;
+  }
 }>(), {
   contact: () => ({})
 })

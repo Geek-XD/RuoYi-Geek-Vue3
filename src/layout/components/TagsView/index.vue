@@ -25,6 +25,7 @@ watch(route, () => {
   addTags()
   moveToCurrentTag()
 })
+const closeMenu = () => visible.value = false
 watch(visible, (value) => {
   if (value) {
     document.body.addEventListener('click', closeMenu)
@@ -37,26 +38,11 @@ onMounted(() => {
   addTags()
 })
 
-function isActive(r: RouteLocationNormalizedGeneric) {
-  return r.path === route.path
-}
-function isAffix(tag: RouteLocationNormalizedGeneric) {
-  return tag.meta && tag.meta.affix
-}
-function isFirstView() {
-  try {
-    return selectedTag.value.fullPath === visitedViews.value[1].fullPath || selectedTag.value.fullPath === RoutesAlias.Home
-  } catch (err) {
-    return false
-  }
-}
-function isLastView() {
-  try {
-    return selectedTag.value.fullPath === visitedViews.value[visitedViews.value.length - 1].fullPath
-  } catch (err) {
-    return false
-  }
-}
+const isActive = (r: RouteLocationNormalizedGeneric) => r.path === route.path
+const isAffix = (tag: RouteLocationNormalizedGeneric) => tag.meta && tag.meta.affix
+const isFirstView = () => selectedTag.value.fullPath === visitedViews.value[1]?.fullPath || selectedTag.value.fullPath === RoutesAlias.Home
+const isLastView = () => selectedTag.value.fullPath === visitedViews.value[visitedViews.value.length - 1]?.fullPath
+
 function filterAffixTags(routes: RouteItem[], basePath = '') {
   let tags: RouteLocationNormalizedGeneric[] = []
   routes.forEach(route => {
@@ -185,17 +171,10 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
   visible.value = true
   selectedTag.value = tag
 }
-function closeMenu() {
-  visible.value = false
-}
-function handleScroll() {
-  closeMenu()
-}
 </script>
-
 <template>
   <div id="tags-view-container" class="tags-view-container">
-    <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="handleScroll">
+    <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="closeMenu">
       <router-link v-for="tag in visitedViews" :key="tag.path" class="tags-view-item"
         :class="isActive(tag) ? 'active' : ''" :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
         @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">

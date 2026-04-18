@@ -3,10 +3,11 @@ import useTagsViewStore from '@/store/modules/tagsView'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouteLocationNormalizedGeneric } from 'vue-router';
 
-const tagAndTagSpacing = ref(4);
 const scrollContainer = ref<any>(null);
 const scrollWrapper = computed(() => scrollContainer.value!.$refs.wrapRef);
 
+const emits = defineEmits()
+const emitScroll = () => emits('scroll')
 onMounted(() => {
   scrollWrapper.value.addEventListener('scroll', emitScroll, true)
 })
@@ -19,22 +20,17 @@ function handleScroll(e: WheelEvent) {
   const $scrollWrapper = scrollWrapper.value;
   $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4
 }
-const emits = defineEmits()
-const emitScroll = () => {
-  emits('scroll')
-}
 
 const tagsViewStore = useTagsViewStore()
 const visitedViews = computed(() => tagsViewStore.visitedViews);
+const tagAndTagSpacing = ref(4);
 
 function moveToTarget(currentTag: RouteLocationNormalizedGeneric) {
   const $container = scrollContainer.value!.$el
   const $containerWidth = $container.offsetWidth
   const $scrollWrapper = scrollWrapper.value;
 
-  let firstTag = null
-  let lastTag = null
-
+  let firstTag = null, lastTag = null
   // find first tag and last tag
   if (visitedViews.value.length > 0) {
     firstTag = visitedViews.value[0]

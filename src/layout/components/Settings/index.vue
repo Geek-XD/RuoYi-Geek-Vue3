@@ -96,17 +96,10 @@ function resetSetting() {
   setTimeout(() => window.location.reload(), 1000)
 }
 
-function openSetting() {
-  showSettings.value = true;
-}
+const openSetting = () => showSettings.value = true
+const closeSetting = () => showSettings.value = false
 
-function closeSetting() {
-  showSettings.value = false;
-}
-
-defineExpose({
-  openSetting,
-})
+defineExpose({ openSetting })
 </script>
 
 <template>

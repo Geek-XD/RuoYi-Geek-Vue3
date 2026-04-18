@@ -2,15 +2,9 @@
 import variables from '@/assets/styles/variables.module.scss'
 import logo from '@/assets/logo/logo.png'
 import useSettingsStore from '@/store/modules/settings'
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
-defineProps({
-  collapse: {
-    type: Boolean,
-    required: true
-  }
-})
-
+defineProps<{ collapse: boolean }>()
 const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);

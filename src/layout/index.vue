@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { AppMain, Settings, TagsView, Sidebar, Navbar } from './components'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, useTemplateRef, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 
 const settingsStore = useSettingsStore()
+const appStore = useAppStore()
 const theme = computed(() => settingsStore.theme);
 const needTagsView = computed(() => settingsStore.tagsView);
 const fixedHeader = computed(() => settingsStore.fixedHeader);
-const sidebarOption = computed(() => useAppStore().sidebar);
-const device = computed(() => useAppStore().device);
+const sidebarOption = computed(() => appStore.sidebar);
+const device = computed(() => appStore.device);
 
 const classObj = computed(() => ({
   hideSidebar: !sidebarOption.value.opened,
@@ -19,39 +20,32 @@ const classObj = computed(() => ({
   mobile: device.value === 'mobile'
 }))
 
+const WIDTH = 992; // 参考 Bootstrap 的响应式设计
 const { width, height } = useWindowSize();
-const WIDTH = 992; // refer to Bootstrap's responsive design
 
 watchEffect(() => {
   if (device.value === 'mobile' && sidebarOption.value.opened) {
-    useAppStore().closeSideBar(false)
+    appStore.closeSideBar(false)
   }
   if (width.value - 1 < WIDTH) {
-    useAppStore().toggleDevice('mobile')
-    useAppStore().closeSideBar(true)
+    appStore.toggleDevice('mobile')
+    appStore.closeSideBar(true)
   } else {
-    useAppStore().toggleDevice('desktop')
+    appStore.toggleDevice('desktop')
   }
 })
 
-function handleClickOutside() {
-  useAppStore().closeSideBar(false)
-}
-
-const settingRef = ref<typeof Settings>();
-function setLayout() {
-  settingRef.value!.openSetting();
-}
+const settingRef = useTemplateRef('settingRef')
 </script>
 <template>
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
-    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="handleClickOutside" />
+    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="appStore.closeSideBar(false)" />
     <!-- 侧边栏 -->
     <sidebar v-if="!sidebarOption.hide" />
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <!-- 导航栏/面包屑 -->
-        <navbar @setLayout="setLayout" />
+        <navbar @setLayout="settingRef?.openSetting()" />
         <!-- 标签页 -->
         <tags-view v-if="needTagsView" />
       </div>
@@ -96,17 +90,17 @@ function setLayout() {
   z-index: 9;
   width: calc(100% - variables.$base-sidebar-width);
   transition: width 0.28s;
-}
 
-.hideSidebar .fixed-header {
-  width: calc(100% - variables.$hide-sidebar-width);
-}
+  .hideSidebar & {
+    width: calc(100% - variables.$hide-sidebar-width);
+  }
 
-.sidebarHide .fixed-header {
-  width: 100%;
-}
+  .sidebarHide & {
+    width: 100%;
+  }
 
-.mobile .fixed-header {
-  width: 100%;
+  .mobile & {
+    width: 100%;
+  }
 }
 </style>

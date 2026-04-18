@@ -2,17 +2,10 @@
 import { isExternal } from '@/utils/validate'
 import { computed } from 'vue'
 
-const props = defineProps({
-  to: {
-    type: String,
-    required: true
-  }
-})
-
+const props = defineProps<{ to: string }>()
 const isExt = computed(() => isExternal(props.to))
 const type = computed(() => isExt.value ? 'a' : 'router-link')
-
-function linkProps() {
+const linkProps = computed(() => {
   if (isExt.value) {
     return {
       href: props.to,
@@ -21,12 +14,10 @@ function linkProps() {
     }
   }
   return { to: props.to }
-}
+})
 </script>
-
-
 <template>
-  <component :is="type" v-bind="linkProps()">
+  <component :is="type" v-bind="linkProps">
     <slot />
   </component>
 </template>
