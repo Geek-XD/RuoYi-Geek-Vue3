@@ -58,7 +58,7 @@ const goto = (url: string) => window.open(url)
 <template>
   <div class="navbar">
     <!-- 侧边栏切换按钮 -->
-    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened"
+    <hamburger v-if="!settingsStore.isTopMenu" id="hamburger-container" :is-active="appStore.sidebar.opened"
       @toggleClick="appStore.toggleSideBar(false)" />
 
     <!-- 顶部导航栏 -->

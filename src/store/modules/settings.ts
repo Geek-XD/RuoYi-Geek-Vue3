@@ -1,7 +1,7 @@
-import defaultSettings from '@/settings'
+import defaultSettings, { resolveMenuLayout, type MenuLayout } from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
 import { defineStore } from 'pinia'
-const { theme, sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
+const { theme, sideTheme, showSettings, menuLayout, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
 
 const storageSetting: typeof defaultSettings = JSON.parse(
   localStorage.getItem('layout-setting') || '{}'
@@ -13,6 +13,7 @@ const useSettingsStore = defineStore('settings', {
     theme: '#11A983',
     sideTheme: 'theme-light',
     showSettings: showSettings,
+    menuLayout: 'left' as MenuLayout,
     topNav: false,
     tagsView: true,
     fixedHeader: true,
@@ -29,7 +30,11 @@ const useSettingsStore = defineStore('settings', {
         const config = await initDbSetting()
         this.theme = storageSetting.theme ?? config.theme ?? theme
         this.sideTheme = storageSetting.sideTheme ?? config.sideTheme ?? sideTheme
-        this.topNav = storageSetting.topNav ?? config.topNav ?? topNav
+        this.menuLayout = resolveMenuLayout(storageSetting.menuLayout, storageSetting.topNav)
+        if (!storageSetting.menuLayout && !storageSetting.topNav) {
+          this.menuLayout = config.menuLayout ?? resolveMenuLayout(undefined, config.topNav ?? topNav)
+        }
+        this.topNav = this.menuLayout !== 'left'
         this.tagsView = storageSetting.tagsView ?? config.tagsView ?? tagsView
         this.fixedHeader = storageSetting.fixedHeader ?? config.fixedHeader ?? fixedHeader
         this.sidebarLogo = storageSetting.sidebarLogo ?? config.sidebarLogo ?? sidebarLogo
@@ -41,9 +46,17 @@ const useSettingsStore = defineStore('settings', {
     /** 修改布局设置 */
     changeSetting(data: { key: keyof typeof storageSetting, value: any }) {
       const { key, value } = data
+      if (key === 'menuLayout') {
+        this.menuLayout = resolveMenuLayout(value)
+        this.topNav = this.menuLayout !== 'left'
+        return
+      }
       if (this.hasOwnProperty(key)) {
         //@ts-ignore
         this[key] = value
+        if (key === 'topNav') {
+          this.menuLayout = value ? 'mix' : 'left'
+        }
       }
     },
     /** 设置网页标题 */
@@ -51,6 +64,11 @@ const useSettingsStore = defineStore('settings', {
       this.title = title
       useDynamicTitle();
     }
+  },
+  getters: {
+    isLeftMenu: state => state.menuLayout === 'left',
+    isMixMenu: state => state.menuLayout === 'mix',
+    isTopMenu: state => state.menuLayout === 'top'
   }
 })
 

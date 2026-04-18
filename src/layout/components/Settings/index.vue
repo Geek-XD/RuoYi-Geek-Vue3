@@ -5,6 +5,7 @@ import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { handleThemeStyle } from '@/utils/theme'
 import { computed, ref } from 'vue'
+import type { MenuLayout } from '@/settings'
 import { modal } from '@/plugins'
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
@@ -15,14 +16,17 @@ const sideTheme = ref(settingsStore.sideTheme);
 const storeSettings = computed(() => settingsStore);
 const predefineColors = ref(["#409EFF", "#ff4500", "#ff8c00", "#ffd700", "#90ee90", "#00ced1", "#1e90ff", "#c71585"]);
 
-/** 是否需要topnav */
-const topNav = computed({
-  get: () => storeSettings.value.topNav,
-  set: (val) => {
-    settingsStore.changeSetting({ key: 'topNav', value: val })
-    if (!val) {
-      appStore.toggleSideBarHide(false);
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes);
+const menuLayout = computed({
+  get: () => storeSettings.value.menuLayout,
+  set: (val: MenuLayout) => {
+    settingsStore.changeSetting({ key: 'menuLayout', value: val })
+    if (val === 'left') {
+      appStore.toggleSideBarHide(false)
+      permissionStore.setSidebarRouters(permissionStore.defaultRoutes)
+    } else if (val === 'top') {
+      appStore.toggleSideBarHide(true)
+    } else {
+      appStore.toggleSideBarHide(false)
     }
   }
 })
@@ -77,6 +81,7 @@ function handleTheme(val: 'theme-dark' | 'theme-light') {
 function saveSetting() {
   modal.loading("正在保存到本地，请稍候...");
   const layoutSetting = {
+    "menuLayout": storeSettings.value.menuLayout,
     "topNav": storeSettings.value.topNav,
     "tagsView": storeSettings.value.tagsView,
     "fixedHeader": storeSettings.value.fixedHeader,
@@ -151,10 +156,14 @@ defineExpose({ openSetting })
     <h3 class="drawer-title">系统布局配置</h3>
 
     <div class="drawer-item">
-      <span>开启 TopNav</span>
-      <span class="comp-style">
-        <el-switch v-model="topNav" class="drawer-switch" />
-      </span>
+      <span>菜单布局</span>
+      <div class="layout-mode-group">
+        <el-radio-group v-model="menuLayout" size="small">
+          <el-radio-button label="left" value="left">左侧菜单</el-radio-button>
+          <el-radio-button label="mix" value="mix">混合菜单</el-radio-button>
+          <el-radio-button label="top" value="top">顶部菜单</el-radio-button>
+        </el-radio-group>
+      </div>
     </div>
 
     <div class="drawer-item">
@@ -255,6 +264,24 @@ defineExpose({ openSetting })
   .comp-style {
     float: right;
     margin: -3px 8px 0px 0px;
+  }
+}
+
+.layout-mode-group {
+  margin-top: 12px;
+
+  :deep(.el-radio-group) {
+    display: flex;
+    width: 100%;
+  }
+
+  :deep(.el-radio-button) {
+    flex: 1;
+  }
+
+  :deep(.el-radio-button__inner) {
+    width: 100%;
+    padding: 8px 0;
   }
 }
 </style>

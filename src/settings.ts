@@ -1,9 +1,19 @@
 import { getConfigKey } from '@/api/system/config'
+export type MenuLayout = 'left' | 'mix' | 'top'
+
+export function resolveMenuLayout(menuLayout?: string | null, topNav?: boolean): MenuLayout {
+  if (menuLayout === 'left' || menuLayout === 'mix' || menuLayout === 'top') {
+    return menuLayout
+  }
+  return topNav ? 'mix' : 'left'
+}
+
 interface Setting {
   title: string;
   theme: string;
   sideTheme: string;
   showSettings: boolean;
+  menuLayout: MenuLayout;
   topNav: boolean;
   tagsView: boolean;
   fixedHeader: boolean;
@@ -23,6 +33,8 @@ const setting = {
   sideTheme: 'theme-dark',
   /** 是否系统布局配置 */
   showSettings: false,
+  /** 菜单布局模式：left 左侧菜单，mix 混合菜单，top 顶部菜单 */
+  menuLayout: 'left' as MenuLayout,
   /** 是否显示顶部导航 */
   topNav: false,
   /** 是否显示 tagsView */
@@ -79,10 +91,13 @@ const setting = {
         return new type()
       }
     })
+    const dbTopNav = await config("sys.index.topNav", Boolean)
+    const dbMenuLayout = await config("sys.index.menuLayout", String, '')
     return {
       theme: await config("sys.index.theme", String, "#409eff"),
       sideTheme: await config("sys.index.sideTheme", String),
-      topNav: await config("sys.index.topNav", Boolean),
+      menuLayout: resolveMenuLayout(dbMenuLayout, dbTopNav),
+      topNav: dbTopNav,
       tagsView: await config("sys.index.tagsView", Boolean),
       fixedHeader: await config("sys.index.fixedHeader", Boolean),
       sidebarLogo: await config("sys.index.sidebarLogo", Boolean),

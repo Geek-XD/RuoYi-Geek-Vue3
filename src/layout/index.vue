@@ -12,6 +12,8 @@ const needTagsView = computed(() => settingsStore.tagsView);
 const fixedHeader = computed(() => settingsStore.fixedHeader);
 const sidebarOption = computed(() => appStore.sidebar);
 const device = computed(() => appStore.device);
+const showSidebar = computed(() => !settingsStore.isTopMenu && !sidebarOption.value.hide);
+const sidebarHidden = computed(() => settingsStore.isTopMenu || sidebarOption.value.hide);
 
 const classObj = computed(() => ({
   hideSidebar: !sidebarOption.value.opened,
@@ -39,10 +41,11 @@ const settingRef = useTemplateRef('settingRef')
 </script>
 <template>
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
-    <div v-if="device === 'mobile' && sidebarOption.opened" class="drawer-bg" @click="appStore.closeSideBar(false)" />
+    <div v-if="device === 'mobile' && showSidebar && sidebarOption.opened" class="drawer-bg"
+      @click="appStore.closeSideBar(false)" />
     <!-- 侧边栏 -->
-    <sidebar v-if="!sidebarOption.hide" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarOption.hide }" class="main-container">
+    <sidebar v-if="showSidebar" />
+    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarHidden }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <!-- 导航栏/面包屑 -->
         <navbar @setLayout="settingRef?.openSetting()" />

@@ -16,14 +16,19 @@
 * - 开启/关闭TopNav导入本地路由
 * 2. 路由配置中可使用meta.isTopMenu控制菜单行为
 */
-<script setup>
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { constantRoutes } from "@/router/routes/staticRoutes"
 import { isHttp } from '@/utils/validate'
+import { getNormalPath } from '@/utils/ruoyi'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { RoutesAlias } from '@/router/routesAlias'
 import { useEventListener } from "@vueuse/core"
+import type { RouteItem } from '@/types/route'
+import TopNavItem from './TopNavItem.vue'
 
 
 // 隐藏侧边栏路由
@@ -39,72 +44,108 @@ const router = useRouter();
 const theme = computed(() => settingsStore.theme);
 // 所有的路由信息
 const routers = computed(() => permissionStore.topbarRouters);
+const isMixMenu = computed(() => settingsStore.isMixMenu)
+const isTopMenu = computed(() => settingsStore.isTopMenu)
+
+function normalizeMenu(route: RouteItem, parentPath?: string): RouteItem {
+  const currentPath = resolvePath(route.path, parentPath)
+  const currentRoute = {
+    ...route,
+    path: currentPath,
+    parentPath
+  } as RouteItem & { parentPath?: string }
+
+  if (!currentRoute.meta) {
+    currentRoute.meta = {}
+  }
+  if (!currentRoute.meta.icon) {
+    currentRoute.meta.icon = 'dashboard'
+  }
+
+  if (route.children?.length) {
+    currentRoute.children = route.children
+      .filter(item => item.hidden !== true)
+      .map(child => normalizeMenu(child, currentPath))
+  }
+
+  return currentRoute
+}
+
+function resolvePath(path: string, parentPath?: string) {
+  if (isHttp(path)) {
+    return path
+  }
+  if (!parentPath || path.startsWith('/')) {
+    return getNormalPath(path)
+  }
+  return getNormalPath(`${parentPath}/${path}`)
+}
+
+function getMenuChildren(route: RouteItem) {
+  return (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
+}
 
 // 顶部显示菜单
 const topMenus = computed(() => {
-  let topMenus = [];
-  routers.value.map((menu) => {
+  const menus: RouteItem[] = [];
+  routers.value.forEach((menu) => {
     if (menu.hidden !== true) {
-      // 兼容顶部栏一级菜单内部跳转
       if (menu.path === "" || menu.path === "/") {
-        if (menu.children && menu.children[0]) {
-          const child = menu.children[0];
-          // 确保子路由有正确的path
-          child.path = child.path.replace('//', '/');
-          if (!child.meta) {
-            child.meta = {};
-          }
-          if (!child.meta.icon) {
-            child.meta.icon = 'dashboard';
-          }
-          topMenus.push(child);
+        if (menu.children?.[0]) {
+          const child = menu.children[0]
+          const childPath = resolvePath(child.path, menu.path || '/')
+          const normalizedChild = normalizeMenu({
+            ...child,
+            path: childPath,
+            meta: {
+              ...child.meta,
+              icon: child.meta?.icon || 'dashboard'
+            }
+          })
+          menus.push(normalizedChild)
         }
       } else if (menu.meta?.isTopMenu && menu.children?.[0]) {
-        // 使用isTopMenu标处理需要显示子路由为顶级菜单的情况
-        const firstChild = menu.children[0];
-        firstChild.path = menu.path;
-        topMenus.push(firstChild);
+        const firstChild = normalizeMenu({
+          ...menu.children[0],
+          path: menu.path,
+          meta: {
+            ...menu.children[0].meta,
+            icon: menu.children[0].meta?.icon || menu.meta?.icon || 'dashboard'
+          }
+        })
+        menus.push(firstChild)
       } else {
-        // 确保menu有meta对象
-        if (!menu.meta) {
-          menu.meta = {};
-        }
-        // 确保menu有icon属性
-        if (!menu.meta.icon) {
-          menu.meta.icon = 'dashboard';
-        }
-        topMenus.push(menu);
+        menus.push(normalizeMenu(menu))
       }
     }
   })
-  return topMenus;
+  return menus;
 })
 
 // 设置子路由
 const childrenMenus = computed(() => {
-  let childrenMenus = [];
-  routers.value.map((router) => {
-    for (let item in router.children) {
-      if (router.children[item].parentPath === undefined) {
+  const menuChildren: RouteItem[] = [];
+  routers.value.forEach((router) => {
+    const children = getMenuChildren(router)
+    for (const item of children) {
+      if (item.parentPath === undefined) {
         if (router.path === "/") {
-          router.children[item].path = "/" + router.children[item].path;
-        } else {
-          if (!isHttp(router.children[item].path)) {
-            router.children[item].path = router.path + "/" + router.children[item].path;
-          }
+          item.path = "/" + item.path;
+        } else if (!isHttp(item.path)) {
+          item.path = router.path + "/" + item.path;
         }
-        router.children[item].parentPath = router.path;
+        item.parentPath = router.path;
       }
-      childrenMenus.push(router.children[item]);
+      menuChildren.push(item);
     }
   })
-  return constantRoutes.concat(childrenMenus);
+  return constantRoutes.concat(menuChildren);
 })
 
-function activeRoutes(key) {
-  const routes = [];
+function activeRoutes(key: string) {
+  const routes: RouteItem[] = [];
   if (childrenMenus.value && childrenMenus.value.length > 0) {
-    childrenMenus.value.map((item) => {
+    childrenMenus.value.forEach((item) => {
       if (key == item.parentPath || (key == "index" && "" == item.path)) {
         routes.push(item);
       }
@@ -118,17 +159,37 @@ function activeRoutes(key) {
   return routes;
 }
 
+function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): RouteItem | undefined {
+  for (const item of menus) {
+    if (item.path === path) {
+      return item
+    }
+    const found = findTopMenuByPath(path, getMenuChildren(item))
+    if (found) {
+      return found
+    }
+  }
+  return undefined
+}
+
 // 默认激活的菜单
 const activeMenu = computed(() => {
   const path = route.path;
   let activePath = path;
+  if (isTopMenu.value) {
+    const matchedTopMenu = topMenus.value.find(item => path === item.path || path.startsWith(`${item.path}/`))
+    if (matchedTopMenu) {
+      return path === matchedTopMenu.path ? matchedTopMenu.path : path
+    }
+    return path
+  }
   if (path !== undefined && path.lastIndexOf("/") > 0 && hideList.indexOf(path) === -1) {
     const tmpPath = path.substring(1, path.length);
     activePath = "/" + tmpPath.substring(0, tmpPath.indexOf("/"));
     if (!route.meta.link) {
       appStore.toggleSideBarHide(false);
     }
-  } else if (!route.children) {
+  } else {
     activePath = path;
     appStore.toggleSideBarHide(true);
   }
@@ -137,29 +198,36 @@ const activeMenu = computed(() => {
 })
 
 // 当前激活菜单的 index
-const currentIndex = ref(null);
-function handleSelect(key, keyPath) {
+const currentIndex = ref<string | null>(null);
+function handleSelect(key: string) {
   currentIndex.value = key;
-  const route = routers.value.find(item => item.path === key);
+  const topRoute = findTopMenuByPath(key) || routers.value.find(item => item.path === key);
   if (isHttp(key)) {
-    // http(s):// 路径新窗口打开
     window.open(key, "_blank");
-  } else if (!route || !route.children) {
-    // 没有子路由路径内部打开
+    return
+  }
+
+  if (isTopMenu.value) {
     router.push({ path: key });
     appStore.toggleSideBarHide(true);
-  } else {
-    // 显示左侧联动菜单
-    activeRoutes(key);
-    appStore.toggleSideBarHide(false);
+    return
   }
+
+  if (!topRoute || !topRoute.children?.length) {
+    router.push({ path: key });
+    appStore.toggleSideBarHide(true);
+    return
+  }
+
+  activeRoutes(key);
+  appStore.toggleSideBarHide(false);
 }
 
 /** 顶部栏初始数 */
-const visibleNumber = ref(null);
+const visibleNumber = ref(0);
 const setVisibleNumber = () => {
   const width = document.body.getBoundingClientRect().width / 3;
-  visibleNumber.value = parseInt(width / 85);
+  visibleNumber.value = Math.floor(width / 85);
 }
 useEventListener("resize", setVisibleNumber);
 onMounted(() => { setVisibleNumber() })
@@ -167,21 +235,26 @@ onMounted(() => { setVisibleNumber() })
 <template>
   <el-menu :default-active="activeMenu" mode="horizontal" @select="handleSelect" :ellipsis="false"
     class="topmenu-container">
-    <template v-for="(item, index) in topMenus">
-      <el-menu-item :style="{ '--theme': theme }" :index="item.path" :key="index" v-if="index < visibleNumber">
-        <svg-icon :icon-class="item.meta.icon" />
-        <span>{{ item.meta.title }}</span>
+    <template v-for="(item, index) in topMenus" :key="item.path">
+      <el-menu-item v-if="index < visibleNumber && isMixMenu" :style="{ '--theme': theme }" :index="item.path">
+        <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
+        <span>{{ item.meta?.title }}</span>
       </el-menu-item>
+
+      <top-nav-item v-else-if="index < visibleNumber" :item="item" :resolve-path="resolvePath"
+        :get-children="getMenuChildren" :style="{ '--theme': theme }" />
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
     <el-sub-menu :style="{ '--theme': theme }" index="more" v-if="topMenus.length > visibleNumber">
       <template #title>更多菜单</template>
-      <template v-for="(item, index) in topMenus">
-        <el-menu-item :index="item.path" :key="index" v-if="index >= visibleNumber">
-          <svg-icon :icon-class="item.meta.icon" />
-          <span>{{ item.meta.title }}</span>
+      <template v-for="(item, index) in topMenus" :key="`${item.path}-more`">
+        <el-menu-item v-if="index >= visibleNumber && isMixMenu" :index="item.path">
+          <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
+          <span>{{ item.meta?.title }}</span>
         </el-menu-item>
+        <top-nav-item v-else-if="index >= visibleNumber" :item="item" :resolve-path="resolvePath"
+          :get-children="getMenuChildren" />
       </template>
     </el-sub-menu>
   </el-menu>

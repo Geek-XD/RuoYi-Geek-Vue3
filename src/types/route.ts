@@ -1,5 +1,5 @@
 import { Component } from "vue"
-import { LocationQueryRaw, RouteLocationNormalized, RouteRecordRaw } from "vue-router"
+import { LocationQueryRaw, RouteLocationNormalized, RouteRecordNameGeneric, RouteRecordRaw } from "vue-router"
 
 type RouteMeta = {
   noCache?: boolean
@@ -39,11 +39,12 @@ type RouteMeta = {
     }
  */
 
-export type RouteItem = RouteRecordRaw & {
+export type RouteItem = Omit<RouteRecordRaw, 'path' | 'component' | 'redirect' | 'name' | 'meta' | 'children'> & {
   path: string
+  parentPath?: string
   component?: Component | string
   redirect?: string
-  name?: string
+  name?: RouteRecordNameGeneric
   query?: LocationQueryRaw
   roles?: string[]
   permissions?: string[]
