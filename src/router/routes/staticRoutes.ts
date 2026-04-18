@@ -72,13 +72,7 @@ export const constantRoutes: RouteItem[] = [
         component: () => import('@/views/laboratory/chat/websocket.vue'),
         name: 'websocket',
         meta: { title: 'websocket实验室', icon: 'dashboard' }
-      },
-      {
-        path: "chat",
-        component: () => import('@/views/laboratory/chat/chat.vue'),
-        name: 'chat',
-        meta: { title: 'chat实验室', icon: 'dashboard' }
-      },
+      }
     ]
   },
   {
