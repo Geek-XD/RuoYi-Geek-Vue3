@@ -4,10 +4,7 @@ import { ref, nextTick } from "vue";
 import socketclient from "@/plugins/socketclient";
 import { parseTime } from '@/utils/ruoyi';
 import { createAsyncMessage, createMessage } from '@/types/Message';
-import ChatLayout from './layout/index.vue'
-import ContactList from './components/contact-list.vue'
-import ContactItem from './components/contact-item.vue'
-import ChatApp from './app/chat-app.vue';
+import { ChatLayout, ContactList, ContactItem, ChatApp } from '@/components/Chat';
 import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue'
 const _contacts = [
   { id: 1, name: "梅洛迪·梅西", email: "melody@altbox.com", avatar: profile, online: true, lastMsg: "20小时前" },
@@ -75,14 +72,14 @@ const wsDialogVisible = ref(false);
         </ContactList>
       </template>
       <ChatApp :currentContact="currentContact" :chatMessages="chatMessages" />
-      <el-dialog v-model="wsDialogVisible" title="设置ws" width="800">
-        <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
-        <template #footer>
-          <el-button type="warning" @click="join">连接</el-button>
-          <el-button type="danger" @click="close">断开连接</el-button>
-        </template>
-      </el-dialog>
     </chat-layout>
+    <el-dialog v-model="wsDialogVisible" title="设置ws" width="800">
+      <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
+      <template #footer>
+        <el-button type="warning" @click="join">连接</el-button>
+        <el-button type="danger" @click="close">断开连接</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
