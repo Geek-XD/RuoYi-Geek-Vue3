@@ -1,6 +1,6 @@
-import { RouteItem } from '@/types/route'
-import { LoginForm, RegisterForm } from '@/types/user'
-import request, { getAction, postAction } from '@/utils/request'
+import { RouteItem } from '@ruoyi/core/types/route'
+import { LoginForm, RegisterForm } from '@ruoyi/core/types/user'
+import request, { getAction, postAction } from '@ruoyi/core/utils/request'
 
 export const login = (data: LoginForm) => postAction('/login', data, { isToken: false })
 export const register = (data: RegisterForm) => postAction('/register', data, { isToken: false })

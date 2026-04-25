@@ -6,7 +6,7 @@ import genInfoForm from "./genInfoForm.vue";
 import joinTableForm from "./joinTableForm.vue";
 import editTableForm from "./editTableForm.vue";
 import { useRoute } from "vue-router";
-import { modal, tab } from "@/plugins";
+import { modal, tab } from "@ruoyi/core/plugins";
 import { FormInstance } from "element-plus";
 const route = useRoute();
 const activeName = ref("columnInfo");

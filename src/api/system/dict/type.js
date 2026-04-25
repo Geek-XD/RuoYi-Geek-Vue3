@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 查询字典类型列表
 export function listType(query) {

@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*", "../../src/env.d.ts"],
+  "compilerOptions": {
+    "rootDir": "../..",
+    "baseUrl": "../..",
+    "noEmit": true
+  }
+}

@@ -67,7 +67,7 @@
 import userAvatar from "./userAvatar.vue";
 import userInfo from "./userInfo.vue";
 import resetPwd from "./resetPwd.vue";
-import { getUserProfile } from "@/api/system/user";
+import { getUserProfile } from "@ruoyi/core/api/system/user";
 import { onMounted } from "vue";
 
 const selectedTab = ref("userinfo");

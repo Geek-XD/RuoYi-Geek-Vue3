@@ -5,8 +5,8 @@ import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { handleThemeStyle } from '@/utils/theme'
 import { computed, ref } from 'vue'
-import type { MenuLayout } from '@/settings'
-import { modal } from '@/plugins'
+import type { MenuLayout } from '@ruoyi/core/settings'
+import { modal } from '@ruoyi/core/plugins'
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()

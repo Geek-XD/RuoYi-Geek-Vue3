@@ -1,30 +1,11 @@
+import { resolveMenuLayout, type CoreSettingsConfig, type MenuLayout } from '@ruoyi/core/settings'
 import { getConfigKey } from '@/api/system/config'
-export type MenuLayout = 'left' | 'mix' | 'top'
 
-export function resolveMenuLayout(menuLayout?: string | null, topNav?: boolean): MenuLayout {
-  if (menuLayout === 'left' || menuLayout === 'mix' || menuLayout === 'top') {
-    return menuLayout
-  }
-  return topNav ? 'mix' : 'left'
+type Setting = CoreSettingsConfig & {
+  errorLog: string | string[]
 }
 
-interface Setting {
-  title: string;
-  theme: string;
-  sideTheme: string;
-  showSettings: boolean;
-  menuLayout: MenuLayout;
-  topNav: boolean;
-  tagsView: boolean;
-  fixedHeader: boolean;
-  sidebarLogo: boolean;
-  dynamicTitle: boolean;
-  footerVisible: boolean;
-  footerContent: string;
-  errorLog: string | string[];
-  initDbSetting: () => Promise<Setting>;
-}
-const setting = {
+const setting: Setting = {
   /** 网页标题 */
   title: import.meta.env.VITE_APP_TITLE,
   /** 主题色 */
@@ -62,7 +43,7 @@ const setting = {
    * 获取后端配置的设置
    * @returns Promise<Object>
    */
-  async initDbSetting(): Promise<Setting> {
+  async initDbSetting(): Promise<Partial<Setting>> {
     const config = (key: string, type: any, defaultValue?: any) => getConfigKey(key).then(res => {
       if (type === String) {
         return res.msg
@@ -102,7 +83,7 @@ const setting = {
       fixedHeader: await config("sys.index.fixedHeader", Boolean),
       sidebarLogo: await config("sys.index.sidebarLogo", Boolean),
       dynamicTitle: await config("sys.index.dynamicTitle", Boolean),
-    } as Setting;
+    };
   }
 }
 

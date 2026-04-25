@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 查询生成表数据
 export function listTable(query) {
@@ -19,7 +19,7 @@ export function listDbTable(query) {
 
 // 查询表详细信息
 /**
- * @returns { Promise<import('@/types/request.ts').GeekResponse<import('@/views/tool/gen/edit/index').GenTableVo>> }
+ * @returns { Promise<import('@ruoyi/core/types/request').GeekResponse<import('@/views/tool/gen/edit/index').GenTableVo>> }
  */
 export function getGenTable(tableId) {
   return request({

@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { updateUserProfile } from "@/api/system/user";
+import { updateUserProfile } from "@ruoyi/core/api/system/user";
 import {
   sendEmailCode,
   verifyEmailCode,

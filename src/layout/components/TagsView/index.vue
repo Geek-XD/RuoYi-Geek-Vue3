@@ -3,10 +3,10 @@ import ScrollPane from './ScrollPane.vue'
 import { getNormalPath } from '@/utils/ruoyi'
 import useTagsViewStore from '@/store/modules/tagsView'
 import usePermissionStore from '@/store/modules/permission'
-import { tab } from '@/plugins'
+import { tab } from '@ruoyi/core/plugins'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
 import { RouteLocationNormalizedGeneric, useRoute, useRouter } from 'vue-router'
-import { RouteItem } from '@/types/route'
+import { RouteItem } from '@ruoyi/core/types/route'
 import { RoutesAlias } from '@/router/routesAlias'
 
 const visible = ref(false);

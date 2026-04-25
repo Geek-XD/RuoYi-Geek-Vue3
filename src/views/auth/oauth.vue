@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAction } from '@/utils/request';
+import { getAction } from '@ruoyi/core/utils/request';
 
 function oauthLogin(provider: string) {
   console.log(`开始 ${provider} 登录流程`);

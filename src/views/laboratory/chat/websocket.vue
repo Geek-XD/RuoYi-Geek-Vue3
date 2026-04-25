@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import profile from '@/assets/images/profile.jpg'
 import { ref, nextTick } from "vue";
-import socketclient from "@/plugins/socketclient";
+import socketclient from "@ruoyi/core/plugins/socketclient";
 import { parseTime } from '@/utils/ruoyi';
-import { createAsyncMessage, createMessage } from '@/types/Message';
+import { createAsyncMessage, createMessage } from '@ruoyi/core/types/Message';
 import { ChatLayout, ContactList, ContactItem, ChatApp } from '@/components/Chat';
 import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue'
 const _contacts = [

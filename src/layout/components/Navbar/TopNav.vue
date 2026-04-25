@@ -27,7 +27,7 @@ import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { RoutesAlias } from '@/router/routesAlias'
 import { useEventListener } from "@vueuse/core"
-import type { RouteItem } from '@/types/route'
+import type { RouteItem } from '@ruoyi/core/types/route'
 import TopNavItem from './TopNavItem.vue'
 
 

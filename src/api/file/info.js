@@ -1,5 +1,5 @@
-import request from '@/utils/request'
-import { getToken } from '@/utils/auth';
+import request from '@ruoyi/core/utils/request'
+import { getToken } from '@ruoyi/core/utils/auth';
 
 // 查询文件信息列表
 export function listInfo(query) {

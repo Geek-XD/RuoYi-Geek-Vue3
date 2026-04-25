@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "rootDir": "../..",
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "@ruoyi/core": ["../../core/src"],
+      "@ruoyi/core/*": ["../../core/src/*"],
+      "@form": ["./src"],
+      "@form/*": ["./src/*"]
+    }
+  }
+}

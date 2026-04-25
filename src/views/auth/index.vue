@@ -4,7 +4,7 @@ import { Document, ChatDotRound, User } from '@element-plus/icons-vue';
 import { getConfigKey } from '@/api/system/config';
 import { useRoute, useRouter } from 'vue-router';
 import Oauth from "./oauth.vue";
-import { getToken } from '@/utils/auth';
+import { getToken } from '@ruoyi/core/utils/auth';
 import { RoutesAlias } from '@/router/routesAlias';
 import BackgroundAnimation from './background-animation.vue';
 // 页面加载状态

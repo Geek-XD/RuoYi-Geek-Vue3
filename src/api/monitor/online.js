@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 查询在线用户列表
 export function list(query) {

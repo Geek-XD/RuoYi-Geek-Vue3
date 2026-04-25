@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import modal from "@/plugins/modal";
+import modal from "@ruoyi/core/plugins/modal";
 import useAppStore from "@/store/modules/app";
 import { computed, ref } from "vue";
 

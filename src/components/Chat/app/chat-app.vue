@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { nextTick, ref, watch } from 'vue';
 import ChatInput from '../components/chat-input.vue';
-import { createMessage } from '@/types/Message';
-import socketclient from "@/plugins/socketclient";
+import { createMessage } from '@ruoyi/core/types/Message';
+import socketclient from "@ruoyi/core/plugins/socketclient";
 import { parseTime } from '@/utils/ruoyi';
 const message = ref("");
 const username = ref("Ricky");

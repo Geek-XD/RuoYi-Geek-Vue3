@@ -66,7 +66,7 @@
 
 <script setup name="AuthUser">
 import selectUser from "./selectUser";
-import { allocatedUserList, authUserCancel, authUserCancelAll } from "@/api/system/role";
+import { allocatedUserList, authUserCancel, authUserCancelAll } from "@ruoyi/core/api/system/role";
 
 const route = useRoute();
 const { proxy } = getCurrentInstance();

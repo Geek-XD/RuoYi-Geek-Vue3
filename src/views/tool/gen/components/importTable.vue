@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { listDbTable, importTable } from "@/api/tool/gen";
-import { modal } from "@/plugins";
+import { modal } from "@ruoyi/core/plugins";
 import { resetForm } from "@/utils/ruoyi";
 import { reactive, ref } from "vue";
 import type { ElTable } from "element-plus";

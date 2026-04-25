@@ -1,5 +1,5 @@
 import { getGenTable, updateGenTable } from "@/api/tool/gen";
-import { modal } from "@/plugins";
+import { modal } from "@ruoyi/core/plugins";
 import { createGlobalState } from "@vueuse/core";
 import { ref } from "vue";
 

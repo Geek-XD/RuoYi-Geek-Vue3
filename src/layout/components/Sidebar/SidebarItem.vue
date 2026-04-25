@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLink from './Link.vue'
 import { computed, ref } from 'vue';
-import { RouteItem } from '@/types/route';
+import { RouteItem } from '@ruoyi/core/types/route';
 import { isExternal } from '@/utils/validate'
 import { getNormalPath } from '@/utils/ruoyi'
 

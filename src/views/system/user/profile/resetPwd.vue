@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { updateUserPwd } from "@/api/system/user";
+import { updateUserPwd } from "@ruoyi/core/api/system/user";
 
 const { proxy } = getCurrentInstance();
 
