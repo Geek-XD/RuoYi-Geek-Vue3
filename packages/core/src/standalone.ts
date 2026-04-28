@@ -119,6 +119,13 @@ export interface CreateStandaloneAppOptions {
   setup?: (context: { app: ReturnType<typeof createApp>; router: Router }) => void
 }
 
+export type CreateModuleStandaloneAppOptions = Omit<CreateStandaloneAppOptions, 'routes'>
+
+export interface DefineStandaloneModuleAppOptions {
+  routes: RouteItem[]
+  homeRoute?: RouteLocationRaw
+}
+
 export function createStandaloneRouter(options: CreateStandaloneRouterOptions) {
   const history = options.history ?? (options.useHash ? createWebHashHistory(options.base) : createWebHistory(options.base))
   const routes: RouteRecordRaw[] = [
@@ -182,4 +189,14 @@ export function createStandaloneApp(options: CreateStandaloneAppOptions) {
   }
 
   return { app, router }
+}
+
+export function defineStandaloneModuleApp(definition: DefineStandaloneModuleAppOptions) {
+  return function createModuleStandaloneApp(options: CreateModuleStandaloneAppOptions = {}) {
+    return createStandaloneApp({
+      ...options,
+      routes: definition.routes,
+      homeRoute: options.homeRoute || definition.homeRoute
+    })
+  }
 }

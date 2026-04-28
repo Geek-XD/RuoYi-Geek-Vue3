@@ -13,6 +13,7 @@
     "./directive/*": "./src/directive/*",
     "./hook": "./src/hook/index.ts",
     "./runtime": "./src/runtime.ts",
+    "./qiankun": "./src/qiankun.ts",
     "./standalone": "./src/standalone.ts",
     "./store": "./src/store/index.ts",
     "./store/*": "./src/store/*",

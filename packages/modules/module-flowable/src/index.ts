@@ -1,14 +1,15 @@
-import { defineFrontendModule } from '@ruoyi/core/types/module'
-import { flowablePageRoutes, resolveFlowableView } from './routes'
+import { defineAppModule } from '@ruoyi/core/types/module'
+import { flowablePageRoutes } from './routes'
 
-const flowableModule = defineFrontendModule({
+const flowableViews = import.meta.glob('./view/**/*.vue')
+
+const flowableModule = defineAppModule({
   key: 'flowable',
   name: '流程模块',
   description: '流程设计、待办、已办与我的流程相关页面',
-  version: '1.0.0',
-  routeBase: '/flowable',
   pageRoutes: flowablePageRoutes,
-  resolveView: resolveFlowableView
+  viewModules: flowableViews,
+  homeRoute: '/flowable/definition'
 })
 
 export default flowableModule

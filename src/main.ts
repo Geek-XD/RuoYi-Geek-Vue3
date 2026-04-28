@@ -86,7 +86,7 @@ installTabRuntime({
 
 app.use(router).use(store).use(plugins).use(directive).use(compomemts)
 
-import VForm3 from '@lib/vform/designer.umd.js'  //引入VForm 3库
+import VForm3 from '@lib/vform/designer.js'  //引入VForm 3库
 import '@lib/vform/designer.style.css'  //引入VForm3样式
 app.use(VForm3)
 

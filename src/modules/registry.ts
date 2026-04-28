@@ -1,25 +1,25 @@
-import type { FrontendModule, FrontendModuleManifest, ResolvedModuleView } from '@ruoyi/core/types/module'
+import type { FrontendModuleManifest, FrontendRemoteModuleDefinition, RegisteredFrontendModule, ResolvedModuleView } from '@ruoyi/core/types/module'
 import { parseModuleView } from '@ruoyi/core/types/module'
-import flowableModule from '@ruoyi/module-flowable'
-import formModule from '@ruoyi/module-form'
-import messageModule from '@ruoyi/module-message'
-import onlineModule from '@ruoyi/module-online'
-import payModule from '@ruoyi/module-pay'
+import { installedModules } from './catalog'
 
-const installedModules: FrontendModule[] = [
-  flowableModule,
-  formModule,
-  messageModule,
-  onlineModule,
-  payModule
-]
+function getInstalledModule(moduleKey: string): RegisteredFrontendModule | undefined {
+  return installedModules.find(module => module.manifest.key === moduleKey)
+}
 
 export function getInstalledModuleManifest(moduleKey: string): FrontendModuleManifest | undefined {
-  return installedModules.find(module => module.manifest.key === moduleKey)?.manifest
+  return getInstalledModule(moduleKey)?.manifest
 }
 
 export function hasInstalledModule(moduleKey: string): boolean {
-  return installedModules.some(module => module.manifest.key === moduleKey)
+  return Boolean(getInstalledModule(moduleKey))
+}
+
+export function isRemoteModule(moduleKey: string): boolean {
+  return getInstalledModule(moduleKey)?.mode === 'remote'
+}
+
+export function getInstalledRemoteModule(moduleKey: string): FrontendRemoteModuleDefinition | undefined {
+  return getInstalledModule(moduleKey)?.remote
 }
 
 export function resolveRegisteredModulePage(view: string): ResolvedModuleView | undefined {
@@ -28,7 +28,7 @@ export function resolveRegisteredModulePage(view: string): ResolvedModuleView | 
     return undefined
   }
 
-  const installedModule = installedModules.find(module => module.manifest.key === parsedView.moduleKey)
+  const installedModule = getInstalledModule(parsedView.moduleKey)
   if (!installedModule) {
     return parsedView
   }
@@ -55,6 +55,9 @@ export function resolveRegisteredModuleView(view: string) {
   }
 
   for (const module of installedModules) {
+    if (module.mode === 'remote') {
+      continue
+    }
     const resolver = module.resolveView
     if (!resolver) {
       continue

@@ -8,12 +8,13 @@ import type { RouteRecordRaw } from 'vue-router'
 import { RouteItem } from '@ruoyi/core/types/route'
 import { constantRoutes } from '@/router/routes/staticRoutes'
 import { dynamicRoutes } from '@/router/routes/asyncRoutes'
-import { getInstalledModuleManifest, hasInstalledModule, resolveRegisteredModulePage, resolveRegisteredModuleView } from '@/modules/registry'
+import { getInstalledModuleManifest, hasInstalledModule, isRemoteModule, resolveRegisteredModulePage, resolveRegisteredModuleView } from '@/modules/registry'
 import { deepClone } from '@/utils'
 import { getRouters } from '@/api/login'
 
 const Layout = () => import('@/layout/index.vue')
 const ModuleUnavailablePage = () => import('@/views/error/module-unavailable.vue')
+const RemoteModulePage = () => import('@/modules/RemoteModulePage.vue')
 
 // 兼容壳应用内的传统 views 页面
 const appViewModules = import.meta.glob(['/src/views/**/*.vue', '/src/view/**/*.vue'])
@@ -209,6 +210,9 @@ const loadView = (view: string, route?: RouteItem): Component | (() => Promise<C
     if (!hasInstalledModule(resolvedModulePage.moduleKey)) {
       return ModuleUnavailablePage
     }
+    if (isRemoteModule(resolvedModulePage.moduleKey)) {
+      return RemoteModulePage
+    }
   }
 
   const registeredModuleView = resolveRegisteredModuleView(view)
@@ -217,6 +221,9 @@ const loadView = (view: string, route?: RouteItem): Component | (() => Promise<C
   }
 
   if (resolvedModulePage && !registeredModuleView) {
+    if (isRemoteModule(resolvedModulePage.moduleKey)) {
+      return RemoteModulePage
+    }
     return ModuleUnavailablePage
   }
 

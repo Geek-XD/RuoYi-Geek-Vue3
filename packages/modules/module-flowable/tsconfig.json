@@ -2,10 +2,14 @@
   "extends": "../../../tsconfig.json",
   "include": ["src/**/*"],
   "compilerOptions": {
-    "rootDir": "../..",
+    "rootDir": "../../..",
     "baseUrl": ".",
     "noEmit": true,
     "paths": {
+      "@": ["../../../src"],
+      "@/*": ["../../../src/*"],
+      "@lib": ["../../../lib"],
+      "@lib/*": ["../../../lib/*"],
       "@ruoyi/core": ["../../core/src"],
       "@ruoyi/core/*": ["../../core/src/*"],
       "@flowable": ["./src"],

@@ -5,8 +5,13 @@
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
+  "scripts": {
+    "dev:qiankun": "vite --config ./vite.config.js",
+    "build:qiankun": "vite build --config ./vite.config.js"
+  },
   "exports": {
     ".": "./src/index.ts",
+    "./qiankun": "./src/qiankun.ts",
     "./routes": "./src/routes.ts",
     "./standalone": "./src/standalone.ts"
   },

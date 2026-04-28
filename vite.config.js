@@ -16,19 +16,11 @@ export default defineConfig(({ mode, command }) => {
       // https://cn.vitejs.dev/config/#resolve-alias
       alias: [
         { find: '@/annotation', replacement: path.resolve(__dirname, './packages/core/src/annotation') },
-        { find: '@/directive', replacement: path.resolve(__dirname, './packages/core/src/directive') },
         { find: '@/hook', replacement: path.resolve(__dirname, './packages/core/src/hook') },
         { find: '@/store', replacement: path.resolve(__dirname, './packages/core/src/store') },
         { find: '@/utils', replacement: path.resolve(__dirname, './packages/core/src/utils') },
-        { find: '~', replacement: path.resolve(__dirname, './') },
         { find: '@lib', replacement: path.resolve(__dirname, './lib') },
-        { find: '@modules', replacement: path.resolve(__dirname, './src/modules') },
         { find: '@ruoyi/core', replacement: path.resolve(__dirname, './packages/core/src') },
-        { find: '@ruoyi/module-flowable', replacement: path.resolve(__dirname, './packages/modules/module-flowable/src/index.ts') },
-        { find: '@ruoyi/module-form', replacement: path.resolve(__dirname, './packages/modules/module-form/src/index.ts') },
-        { find: '@ruoyi/module-message', replacement: path.resolve(__dirname, './packages/modules/module-message/src/index.ts') },
-        { find: '@ruoyi/module-online', replacement: path.resolve(__dirname, './packages/modules/module-online/src/index.ts') },
-        { find: '@ruoyi/module-pay', replacement: path.resolve(__dirname, './packages/modules/module-pay/src/index.ts') },
         { find: '@flowable', replacement: path.resolve(__dirname, './packages/modules/module-flowable/src') },
         { find: '@form', replacement: path.resolve(__dirname, './packages/modules/module-form/src') },
         { find: '@message', replacement: path.resolve(__dirname, './packages/modules/module-message/src') },
@@ -79,11 +71,6 @@ export default defineConfig(({ mode, command }) => {
           }
         ]
       }
-    },
-    optimizeDeps: {
-      include: [
-        '@lib/vform/designer.umd.js',
-      ]
     },
     build: {
       commonjsOptions: {

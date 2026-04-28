@@ -37,3 +37,20 @@ declare module '*.mjs' {
   const value: any;
   export default value;
 }
+
+declare module 'vite-plugin-qiankun/dist/helper' {
+  export const qiankunWindow: Window & {
+    __POWERED_BY_QIANKUN__?: boolean;
+  };
+
+  export function renderWithQiankun(lifecycles: {
+    bootstrap?: (props?: unknown) => unknown;
+    mount: (props?: unknown) => unknown;
+    update?: (props?: unknown) => unknown;
+    unmount: (props?: unknown) => unknown;
+  }): void;
+}
+
+interface Window {
+  __POWERED_BY_QIANKUN__?: boolean;
+}

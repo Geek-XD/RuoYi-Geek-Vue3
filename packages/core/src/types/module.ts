@@ -17,9 +17,31 @@ export interface FrontendModuleManifest {
   pages: FrontendModulePageDefinition[]
 }
 
+export interface FrontendModuleRuntime {
+  routeBase: string
+  homeRoute: string
+  demoRoute?: string
+  standaloneRoutes: RouteItem[]
+  resolveRoutePath: (routePath?: string) => string
+}
+
 export interface FrontendModule {
   manifest: FrontendModuleManifest
   resolveView?: (view: string) => (() => Promise<Component>) | undefined
+  runtime?: FrontendModuleRuntime
+}
+
+export type FrontendModuleRuntimeMode = 'local' | 'remote'
+
+export interface FrontendRemoteModuleDefinition {
+  entry: string
+  name?: string
+  props?: Record<string, unknown>
+}
+
+export interface RegisteredFrontendModule extends FrontendModule {
+  mode: FrontendModuleRuntimeMode
+  remote?: FrontendRemoteModuleDefinition
 }
 
 export type FrontendModulePageRoute = RouteItem & {
@@ -43,8 +65,25 @@ export interface DefineFrontendModuleOptions {
   resolveView?: (view: string) => (() => Promise<Component>) | undefined
 }
 
+export interface DefineAppModuleOptions extends Omit<DefineFrontendModuleOptions, 'version'> {
+  version?: string
+  homeRoute?: string
+  demoRoute?: string
+}
+
 export interface CreateModuleRoutesOptions {
   routeBase?: string
+}
+
+interface DefineRegisteredFrontendModuleOptions {
+  module: FrontendModule
+  mode?: FrontendModuleRuntimeMode
+  remote?: FrontendRemoteModuleDefinition
+}
+
+interface DefineInstalledModulesOptions {
+  env?: Record<string, string | undefined>
+  remoteNamePrefix?: string
 }
 
 export interface ResolvedModuleView {
@@ -119,7 +158,104 @@ function collectModuleCapabilities(pageRoutes: FrontendModulePageRoute[] = []) {
   return collectModulePages(pageRoutes).map((page) => `${page.view.split('/')[0]}.${page.routeKey}`)
 }
 
-export function defineFrontendModule(options: DefineFrontendModuleOptions): FrontendModule {
+function joinRoutePath(basePath: string, routePath: string) {
+  return `${basePath.replace(/\/$/, '')}/${routePath.replace(/^\//, '')}`
+}
+
+function collectModuleRouteAliases(
+  routeBase: string,
+  pageRoutes: FrontendModulePageRoute[] = [],
+  parentPath?: string
+) {
+  const aliases: Record<string, string> = {}
+
+  pageRoutes.forEach((route) => {
+    const canonicalPath = joinRoutePath(parentPath || routeBase, route.path)
+    const legacyPath = `/${route.meta.view.replace(/^\//, '')}`
+
+    if (legacyPath !== canonicalPath) {
+      aliases[legacyPath] = canonicalPath
+    }
+
+    if (route.children?.length) {
+      Object.assign(aliases, collectModuleRouteAliases(routeBase, route.children, canonicalPath))
+    }
+  })
+
+  return aliases
+}
+
+function splitRouteLocation(routePath: string) {
+  const queryIndex = routePath.indexOf('?')
+  const hashIndex = routePath.indexOf('#')
+  let suffixIndex = routePath.length
+
+  if (queryIndex !== -1) {
+    suffixIndex = queryIndex
+  }
+
+  if (hashIndex !== -1 && hashIndex < suffixIndex) {
+    suffixIndex = hashIndex
+  }
+
+  return {
+    pathname: routePath.slice(0, suffixIndex),
+    suffix: routePath.slice(suffixIndex)
+  }
+}
+
+function createModuleRoutePathResolver(
+  routeBase: string,
+  pageRoutes: FrontendModulePageRoute[] = [],
+  fallbackRoute: string
+) {
+  const normalizedRouteBase = routeBase.replace(/\/$/, '')
+  const routeAliases = collectModuleRouteAliases(normalizedRouteBase, pageRoutes)
+
+  return (routePath?: string) => {
+    if (!routePath) {
+      return fallbackRoute
+    }
+
+    const { pathname, suffix } = splitRouteLocation(routePath)
+    const normalizedPath = routeAliases[pathname] || pathname
+
+    if (normalizedPath !== normalizedRouteBase && !normalizedPath.startsWith(`${normalizedRouteBase}/`)) {
+      return fallbackRoute
+    }
+
+    return `${normalizedPath}${suffix}`
+  }
+}
+
+function createFrontendModuleRuntime(
+  moduleKey: string,
+  routeBase: string,
+  pageRoutes: FrontendModulePageRoute[] = [],
+  resolveView: ((view: string) => (() => Promise<Component>) | undefined) | undefined,
+  homeRoute?: string,
+  demoRoute?: string
+) {
+  if (!resolveView) {
+    return undefined
+  }
+
+  const normalizedRouteBase = routeBase.replace(/\/$/, '')
+  const normalizedHomeRoute = homeRoute || normalizedRouteBase
+  const fallbackRoute = demoRoute || normalizedHomeRoute
+
+  return {
+    routeBase: normalizedRouteBase,
+    homeRoute: normalizedHomeRoute,
+    demoRoute,
+    standaloneRoutes: createModuleRoutesFromPages(moduleKey, pageRoutes, resolveView, {
+      routeBase: normalizedRouteBase
+    }),
+    resolveRoutePath: createModuleRoutePathResolver(normalizedRouteBase, pageRoutes, fallbackRoute)
+  }
+}
+
+function defineFrontendModule(options: DefineFrontendModuleOptions): FrontendModule {
   const pageRoutes = options.pageRoutes || []
   const pages = collectModulePages(pageRoutes)
   const capabilities = collectModuleCapabilities(pageRoutes)
@@ -135,6 +271,89 @@ export function defineFrontendModule(options: DefineFrontendModuleOptions): Fron
     },
     resolveView: options.resolveView || (options.viewModules ? createModuleViewResolver(options.key, options.viewModules) : undefined)
   }
+}
+
+function defineRegisteredFrontendModule(options: DefineRegisteredFrontendModuleOptions): RegisteredFrontendModule {
+  return {
+    manifest: options.module.manifest,
+    resolveView: options.mode === 'remote' ? undefined : options.module.resolveView,
+    runtime: options.module.runtime,
+    mode: options.mode || 'local',
+    remote: options.mode === 'remote' ? options.remote : undefined
+  }
+}
+
+function defineLocalFrontendModule(module: FrontendModule): RegisteredFrontendModule {
+  return defineRegisteredFrontendModule({
+    module,
+    mode: 'local'
+  })
+}
+
+function defineRemoteFrontendModule(module: FrontendModule, remote: FrontendRemoteModuleDefinition): RegisteredFrontendModule {
+  return defineRegisteredFrontendModule({
+    module,
+    mode: 'remote',
+    remote
+  })
+}
+
+function readFrontendModuleEnv(
+  env: Record<string, string | undefined>,
+  moduleKey: string,
+  suffix: 'MODE' | 'ENTRY'
+) {
+  const normalizedModuleKey = moduleKey.replace(/-/g, '_').toUpperCase()
+  return env[`VITE_MODULE_${normalizedModuleKey}_${suffix}`]
+}
+
+function defineInstalledModule(
+  module: FrontendModule,
+  options: DefineInstalledModulesOptions = {}
+): RegisteredFrontendModule {
+  const env = options.env || {}
+  const remoteNamePrefix = options.remoteNamePrefix || 'ruoyi-'
+  const mode = readFrontendModuleEnv(env, module.manifest.key, 'MODE')
+  const entry = readFrontendModuleEnv(env, module.manifest.key, 'ENTRY')
+
+  if (mode === 'remote' && entry) {
+    return defineRemoteFrontendModule(module, {
+      entry,
+      name: `${remoteNamePrefix}${module.manifest.key}`,
+      props: {
+        routeBase: module.manifest.routeBase
+      }
+    })
+  }
+
+  return defineLocalFrontendModule(module)
+}
+
+function resolveAppModuleEnv() {
+  return import.meta.env as Record<string, string | undefined>
+}
+
+// 应用层唯一需要关心的模块声明入口：本地 / qiankun 的兼容注册由内部统一处理。
+export function defineAppModule(options: DefineAppModuleOptions): RegisteredFrontendModule {
+  const routeBase = options.routeBase || `/${options.key}`
+  const module = defineFrontendModule({
+    ...options,
+    version: options.version || '1.0.0',
+    routeBase
+  })
+
+  module.runtime = createFrontendModuleRuntime(
+    options.key,
+    routeBase,
+    options.pageRoutes,
+    module.resolveView,
+    options.homeRoute,
+    options.demoRoute
+  )
+
+  return defineInstalledModule(module, {
+    env: resolveAppModuleEnv()
+  })
 }
 
 function resolvePageRouteComponent(
