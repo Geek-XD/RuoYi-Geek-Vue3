@@ -1,6 +1,6 @@
 import { RouteLocationItem } from "@ruoyi/core/types/route";
 import { defineStore } from "pinia";
-import { RouteLocationNormalizedLoaded, RouteLocationNormalizedLoadedGeneric, RouteRecordName } from "vue-router";
+import { RouteLocationNormalizedLoaded, RouteLocationNormalizedLoadedGeneric } from "vue-router";
 type MatchPattern = string | RegExp;
 const useTagsViewStore = defineStore("tags-view", {
   state: () => ({

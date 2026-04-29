@@ -26,11 +26,7 @@ export interface DefineQiankunModuleEntryOptions<TApp, TProps extends QiankunMod
   resolveMountTarget?: (container?: Element | ShadowRoot) => QiankunMountTarget
 }
 
-interface StandaloneQiankunModuleApp {
-  app: App
-  router: Router
-}
-
+type StandaloneQiankunModuleApp = { app: App, router: Router }
 export interface DefineAppModuleQiankunEntryOptions<TProps extends AccessControlledQiankunModuleProps = AccessControlledQiankunModuleProps> {
   module: Pick<RegisteredFrontendModule, 'manifest' | 'runtime'>
   createHistory?: () => RouterHistory
@@ -50,33 +46,17 @@ export function defineQiankunModuleEntry<TApp, TProps extends QiankunModuleProps
 ) {
   let moduleApp: TApp | undefined
   let removeRouteSyncGuard: (() => void) | undefined
+  const resolveMountTarget = (container?: Element | ShadowRoot) => (options.resolveMountTarget || defaultResolveMountTarget)(container)
 
-  function resolveMountTarget(container?: Element | ShadowRoot) {
-    return (options.resolveMountTarget || defaultResolveMountTarget)(container)
-  }
-
-  function bindRouteBridge(router: Router, props: TProps) {
+  function render(props: TProps = {} as TProps) {
+    const mountTarget = (options.resolveMountTarget || defaultResolveMountTarget)(props.container)
+    if (!moduleApp) moduleApp = options.createApp({ mountTarget, props })
+    const router = options.getRouter(moduleApp)
     removeRouteSyncGuard?.()
     removeRouteSyncGuard = router.afterEach((to) => {
       props.onNavigate?.(to.fullPath)
     })
-  }
-
-  function render(props: TProps = {} as TProps) {
-    const mountTarget = resolveMountTarget(props.container)
-
-    if (moduleApp) {
-      const router = options.getRouter(moduleApp)
-      bindRouteBridge(router, props)
-      void options.syncRoute?.(router, props)
-      return moduleApp
-    }
-
-    moduleApp = options.createApp({ mountTarget, props })
-    const router = options.getRouter(moduleApp)
-    bindRouteBridge(router, props)
     void options.syncRoute?.(router, props)
-
     return moduleApp
   }
 
@@ -91,45 +71,38 @@ export function defineQiankunModuleEntry<TApp, TProps extends QiankunModuleProps
       render((props || {}) as TProps)
     },
     unmount(props: unknown) {
-      if (!moduleApp) {
-        return
-      }
-
+      if (!moduleApp) return
       const nextProps = (props || {}) as TProps
-
       removeRouteSyncGuard?.()
       removeRouteSyncGuard = undefined
       options.unmountApp(moduleApp, nextProps)
-
       const mountTarget = resolveMountTarget(nextProps.container)
       if (mountTarget instanceof Element) {
         mountTarget.innerHTML = ''
       }
-
       moduleApp = undefined
     }
   })
 
-  if (!qiankunWindow.__POWERED_BY_QIANKUN__ && options.getDemoProps) {
-    render(options.getDemoProps())
-  }
-
+  if (!qiankunWindow.__POWERED_BY_QIANKUN__ && options.getDemoProps) render(options.getDemoProps())
   return { render }
 }
 
-export function defineAppModuleQiankunEntry<TProps extends AccessControlledQiankunModuleProps = AccessControlledQiankunModuleProps>(
+export function defineAppModuleQiankunEntry<TProps extends AccessControlledQiankunModuleProps>(
   options: DefineAppModuleQiankunEntryOptions<TProps>
 ) {
   const runtime = options.module.runtime
-
-  if (!runtime) {
-    throw new Error(`App module runtime is not available for ${options.module.manifest.key}`)
-  }
-
+  if (!runtime) throw new Error(`App module runtime is not available for ${options.module.manifest.key}`)
+  const moduleRuntime = runtime
   const createModuleStandaloneApp = defineStandaloneModuleApp({
-    routes: runtime.standaloneRoutes,
-    homeRoute: runtime.homeRoute
+    routes: moduleRuntime.standaloneRoutes,
+    homeRoute: moduleRuntime.homeRoute
   })
+
+  function resolveStandaloneRoutePath() {
+    if (typeof window === 'undefined') return moduleRuntime.demoRoute || moduleRuntime.homeRoute
+    return moduleRuntime.resolveRoutePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
+  }
 
   return defineQiankunModuleEntry<StandaloneQiankunModuleApp, TProps>({
     createApp: ({ mountTarget, props }) => createModuleStandaloneApp({
@@ -144,10 +117,7 @@ export function defineAppModuleQiankunEntry<TProps extends AccessControlledQiank
     getRouter: (app) => app.router,
     syncRoute: (router, props) => {
       const targetRoute = runtime.resolveRoutePath(props.routePath)
-      if (router.currentRoute.value.fullPath === targetRoute) {
-        return Promise.resolve()
-      }
-
+      if (router.currentRoute.value.fullPath === targetRoute) return Promise.resolve()
       return router.replace(targetRoute)
     },
     unmountApp: (app, props) => {
@@ -155,7 +125,7 @@ export function defineAppModuleQiankunEntry<TProps extends AccessControlledQiank
       app.app.unmount()
     },
     getDemoProps: () => ({
-      routePath: runtime.demoRoute || runtime.homeRoute
+      routePath: resolveStandaloneRoutePath()
     }) as TProps
   })
 }

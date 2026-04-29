@@ -42,43 +42,20 @@ const runtimeState: {
   user?: UserRuntime
 } = {}
 
-export function installAuthRuntime(runtime: AuthRuntime) {
-  runtimeState.auth = runtime
-}
-
-export function installRequestRuntime(runtime: RequestRuntime) {
-  runtimeState.request = runtime
-}
-
-export function installTabRuntime(runtime: TabRuntime) {
-  runtimeState.tab = runtime
-}
-
-export function installUserRuntime(runtime: UserRuntime) {
-  runtimeState.user = runtime
-}
-
+export const installAuthRuntime = (runtime: AuthRuntime) => runtimeState.auth = runtime
+export const installRequestRuntime = (runtime: RequestRuntime) => runtimeState.request = runtime
+export const installTabRuntime = (runtime: TabRuntime) => runtimeState.tab = runtime
+export const installUserRuntime = (runtime: UserRuntime) => runtimeState.user = runtime
+export const getRequestRuntime = () => runtimeState.request
 export function getAuthRuntime() {
-  if (!runtimeState.auth) {
-    throw new Error('Core auth runtime is not installed')
-  }
+  if (!runtimeState.auth) throw new Error('Core auth runtime is not installed')
   return runtimeState.auth
 }
-
-export function getRequestRuntime() {
-  return runtimeState.request
-}
-
 export function getTabRuntime() {
-  if (!runtimeState.tab) {
-    throw new Error('Core tab runtime is not installed')
-  }
+  if (!runtimeState.tab) throw new Error('Core tab runtime is not installed')
   return runtimeState.tab
 }
-
 export function getUserRuntime() {
-  if (!runtimeState.user) {
-    throw new Error('Core user runtime is not installed')
-  }
+  if (!runtimeState.user) throw new Error('Core user runtime is not installed')
   return runtimeState.user
 }

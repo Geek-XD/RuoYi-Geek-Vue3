@@ -8,7 +8,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { RouteItem } from '@ruoyi/core/types/route'
 import { constantRoutes } from '@/router/routes/staticRoutes'
 import { dynamicRoutes } from '@/router/routes/asyncRoutes'
-import { getInstalledModuleManifest, hasInstalledModule, isRemoteModule, resolveRegisteredModulePage, resolveRegisteredModuleView } from '@/modules/registry'
+import { getInstalledModuleManifest, getInstalledModulePageRoutes, hasInstalledModule, isRemoteModule, resolveRegisteredModulePage, resolveRegisteredModuleView } from '@/modules/registry'
 import { deepClone } from '@/utils'
 import { getRouters } from '@/api/login'
 
@@ -21,12 +21,8 @@ const appViewModules = import.meta.glob(['/src/views/**/*.vue', '/src/view/**/*.
 const hostViewPrefixes = new Set(
   Object.keys(appViewModules)
     .map((path) => {
-      if (path.includes('views/')) {
-        return path.split('views/')[1].split('/')[0]
-      }
-      if (path.includes('view/')) {
-        return path.split('view/')[1].split('/')[0]
-      }
+      if (path.includes('views/')) return path.split('views/')[1].split('/')[0]
+      if (path.includes('view/')) return path.split('view/')[1].split('/')[0]
       return ''
     })
     .filter(Boolean)
@@ -86,18 +82,103 @@ const usePermissionStore = defineStore(
           getRouters().then(res => {
             const sidebarRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
             const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
+            const modulePageRoutes = buildSupplementalModuleRoutes(rewriteRoutes)
+            const accessRoutes = [...rewriteRoutes, ...modulePageRoutes]
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route as RouteRecordRaw) })
-            this.setRoutes(rewriteRoutes)
+            this.setRoutes(accessRoutes)
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
             this.setTopbarRoutes(sidebarRoutes)
-            resolve(rewriteRoutes)
+            resolve(accessRoutes)
           })
         })
       }
     }
   })
+
+function joinRoutePath(parentPath: string | undefined, routePath: string) {
+  if (!routePath) return parentPath || '/'
+  if (routePath.startsWith('/')) return routePath
+  if (!parentPath || parentPath === '/') return `/${routePath.replace(/^\//, '')}`
+  return `${parentPath.replace(/\/$/, '')}/${routePath.replace(/^\//, '')}`
+}
+
+function collectExistingRoutePaths(routes: RouteItem[]) {
+  const routePaths = new Set<string>()
+
+  const visit = (items: RouteItem[], parentPath?: string) => {
+    items.forEach((route) => {
+      const routePath = joinRoutePath(parentPath, route.path)
+      routePaths.add(routePath)
+      if (route.children?.length) visit(route.children, routePath)
+    })
+  }
+
+  visit(routes)
+  return routePaths
+}
+
+function collectRouteEntries(routes: RouteItem[], parentPath?: string) {
+  const routeEntries: Array<{ path: string; route: RouteItem }> = []
+
+  const visit = (items: RouteItem[], currentParentPath?: string) => {
+    items.forEach((route) => {
+      const routePath = joinRoutePath(currentParentPath, route.path)
+      routeEntries.push({ path: routePath, route })
+      if (route.children?.length) visit(route.children, routePath)
+    })
+  }
+
+  visit(routes, parentPath)
+  return routeEntries
+}
+
+function findNearestVisibleRouteEntry(routePath: string, routes: RouteItem[]) {
+  return collectRouteEntries(routes)
+    .filter(({ route }) => route.hidden !== true)
+    .reduce<{ path: string; route: RouteItem } | undefined>((matchedEntry, currentEntry) => {
+      if (routePath !== currentEntry.path && !routePath.startsWith(`${currentEntry.path}/`)) return matchedEntry
+      if (!matchedEntry || currentEntry.path.length > matchedEntry.path.length) return currentEntry
+      return matchedEntry
+    }, undefined)
+}
+
+function buildSupplementalModuleRoutes(existingRoutes: RouteItem[]) {
+  const routePaths = collectExistingRoutePaths(existingRoutes)
+
+  return getInstalledModulePageRoutes().flatMap((page) => {
+    if (routePaths.has(page.path)) return []
+    routePaths.add(page.path)
+    const matchedEntry = findNearestVisibleRouteEntry(page.path, existingRoutes)
+    const inheritedMeta = matchedEntry?.route.meta
+    const routeMeta = {
+      ...inheritedMeta,
+      title: page.title,
+      moduleKey: page.moduleKey,
+      routeKey: page.routeKey,
+      moduleName: page.moduleName,
+      activeMenu: inheritedMeta?.activeMenu || matchedEntry?.path
+    }
+
+    const childRoute: RouteItem = {
+      path: '',
+      name: `ModulePage__${page.moduleKey}__${page.routeKey.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      hidden: true,
+      meta: routeMeta
+    }
+
+    childRoute.component = loadView(page.view, childRoute)
+
+    return [{
+      path: page.path,
+      component: Layout,
+      hidden: true,
+      meta: routeMeta,
+      children: [childRoute]
+    } satisfies RouteItem]
+  })
+}
 
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem[] {
@@ -183,15 +264,15 @@ function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
   return res
 }
 
+function isHostViewNamespace(view: string) {
+  const [prefix] = view.split('/')
+  return Boolean(prefix) && hostViewPrefixes.has(prefix)
+}
+
 const loadView = (view: string, route?: RouteItem): Component | (() => Promise<Component>) => {
   const appView = resolveAppView(view)
-  if (appView) {
-    return appView
-  }
-
-  if (isHostViewNamespace(view)) {
-    return () => Promise.resolve({} as Component)
-  }
+  if (appView) return appView
+  if (isHostViewNamespace(view)) return () => Promise.resolve({} as Component)
 
   const resolvedModulePage = resolveRegisteredModulePage(view)
   if (resolvedModulePage) {
@@ -243,11 +324,6 @@ function resolveAppView(view: string) {
     }
   }
   return undefined
-}
-
-function isHostViewNamespace(view: string) {
-  const [prefix] = view.split('/')
-  return Boolean(prefix) && hostViewPrefixes.has(prefix)
 }
 
 export default usePermissionStore

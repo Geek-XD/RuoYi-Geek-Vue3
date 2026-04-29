@@ -107,7 +107,11 @@ export function defineQiankunModuleViteConfig({
       cacheDir: resolveFromWorkspace(workspaceRoot, `./node_modules/.vite/${moduleKey}-subapp`),
       base: '/',
       plugins: [
-        ...createVitePlugins(env, isBuild),
+        ...createVitePlugins(env, isBuild, {
+          svgIconOptions: {
+            workspaceRoot
+          }
+        }),
         qiankun(subappName, {
           useDevMode: !isBuild
         })

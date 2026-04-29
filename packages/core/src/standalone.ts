@@ -1,21 +1,11 @@
-import { createApp, defineComponent, h, onMounted, type Component, type Plugin } from 'vue'
-import {
-  RouterView,
-  createRouter,
-  createWebHashHistory,
-  createWebHistory,
-  useRoute,
-  useRouter,
-  type RouteLocationRaw,
-  type RouteRecordRaw,
-  type Router,
-  type RouterHistory,
-  type RouterScrollBehavior
-} from 'vue-router'
+import { createApp, defineComponent, h, onMounted } from 'vue'
+import type { Component, Plugin } from 'vue'
+import { RouterView, createRouter, createWebHashHistory, createWebHistory, useRoute, useRouter } from 'vue-router'
+import type { RouteLocationRaw, RouteRecordRaw, Router, RouterHistory, RouterScrollBehavior } from 'vue-router'
 import directive from './directive'
 import plugins from './plugins'
-import { installAuthRuntime, installRequestRuntime, installTabRuntime } from './runtime'
 import store from './store'
+import { installAuthRuntime, installRequestRuntime, installTabRuntime } from './runtime'
 import type { RouteItem } from './types/route'
 import { useDict } from './utils/dict'
 import { download } from './utils/request'
@@ -44,14 +34,6 @@ const StandaloneRedirect = defineComponent({
   }
 })
 
-function createRedirectRoute(): RouteRecordRaw {
-  return {
-    path: '/redirect/:pathMatch(.*)*',
-    component: StandaloneRedirect,
-    meta: { hidden: true }
-  }
-}
-
 function installGlobalMethods(app: ReturnType<typeof createApp>) {
   app.config.globalProperties.useDict = useDict
   app.config.globalProperties.download = download
@@ -69,9 +51,7 @@ function installStandaloneRuntime(router: Router, homeRoute: RouteLocationRaw, p
     getRoles: () => roles
   })
 
-  installRequestRuntime({
-    onUnauthorized
-  })
+  installRequestRuntime({ onUnauthorized })
 
   // 独立模式默认不依赖宿主 TagsView，保留最小 tab 能力即可。
   installTabRuntime({
@@ -130,7 +110,11 @@ export function createStandaloneRouter(options: CreateStandaloneRouterOptions) {
   const history = options.history ?? (options.useHash ? createWebHashHistory(options.base) : createWebHistory(options.base))
   const routes: RouteRecordRaw[] = [
     ...(options.beforeRoutes || []),
-    ...(options.includeRedirectRoute === false ? [] : [createRedirectRoute()]),
+    ...(options.includeRedirectRoute === false ? [] : [{
+      path: '/redirect/:pathMatch(.*)*',
+      component: StandaloneRedirect,
+      meta: { hidden: true }
+    }]),
     ...(options.routes as RouteRecordRaw[]),
     ...(options.afterRoutes || [])
   ]
@@ -160,43 +144,21 @@ export function createStandaloneApp(options: CreateStandaloneAppOptions) {
     options.onUnauthorized
   )
 
-  if (options.installGlobals !== false) {
-    installGlobalMethods(app)
-  }
-
-  if (options.installStore !== false) {
-    app.use(store)
-  }
-
+  if (options.installGlobals !== false) installGlobalMethods(app)
+  if (options.installStore !== false) app.use(store)
   app.use(router)
-
-  if (options.installPlugins !== false) {
-    app.use(plugins)
-  }
-
-  if (options.installDirective !== false) {
-    app.use(directive)
-  }
-
-  options.additionalPlugins?.forEach((plugin) => {
-    app.use(plugin)
-  })
-
+  if (options.installPlugins !== false) app.use(plugins)
+  if (options.installDirective !== false) app.use(directive)
+  options.additionalPlugins?.forEach((plugin) => app.use(plugin))
   options.setup?.({ app, router })
-
-  if (options.mount) {
-    app.mount(options.mount)
-  }
-
+  if (options.mount) app.mount(options.mount)
   return { app, router }
 }
 
 export function defineStandaloneModuleApp(definition: DefineStandaloneModuleAppOptions) {
-  return function createModuleStandaloneApp(options: CreateModuleStandaloneAppOptions = {}) {
-    return createStandaloneApp({
-      ...options,
-      routes: definition.routes,
-      homeRoute: options.homeRoute || definition.homeRoute
-    })
-  }
+  return (options: CreateModuleStandaloneAppOptions = {}) => createStandaloneApp({
+    ...options,
+    routes: definition.routes,
+    homeRoute: options.homeRoute || definition.homeRoute
+  })
 }
