@@ -50,25 +50,11 @@ const moduleKey = computed(() => {
   return resolveModuleKeyFromPath(props.routePath || route.path)
 })
 
-const moduleManifest = computed(() => {
-  return getInstalledModuleManifest(moduleKey.value)
-})
-
-const remoteModule = computed(() => {
-  return getInstalledRemoteModule(moduleKey.value)
-})
-
-const moduleRoutePath = computed(() => {
-  return props.routePath || route.fullPath
-})
-
-const moduleDisplayName = computed(() => {
-  return moduleManifest.value?.name || moduleKey.value || '远程模块'
-})
-
-const remoteModuleEntry = computed(() => {
-  return remoteModule.value?.entry || ''
-})
+const moduleManifest = computed(() => getInstalledModuleManifest(moduleKey.value))
+const remoteModule = computed(() => getInstalledRemoteModule(moduleKey.value))
+const moduleRoutePath = computed(() => props.routePath || route.fullPath)
+const moduleDisplayName = computed(() => moduleManifest.value?.name || moduleKey.value || '远程模块')
+const remoteModuleEntry = computed(() => remoteModule.value?.entry || '')
 
 function buildRemoteProps() {
   return {
@@ -152,14 +138,8 @@ async function mountRemoteModule() {
 }
 
 async function updateRemoteRoute() {
-  if (!microApp) {
-    return
-  }
-
-  if (moduleRoutePath.value === lastSyncedRoutePath) {
-    return
-  }
-
+  if (!microApp) return
+  if (moduleRoutePath.value === lastSyncedRoutePath) return
   lastSyncedRoutePath = moduleRoutePath.value
   if (typeof microApp.update === 'function') {
     await microApp.update(buildRemoteProps())
