@@ -2,7 +2,7 @@
 import { SchemaForm, SchemaTable } from "@/components/Schema";
 import { usePage } from "@/hook";
 import { modal } from "@ruoyi/core/plugins";
-import { PayInvoice } from "@/entity/pay/PayInvoice";
+import { PayInvoice } from "@ruoyi/module-pay/entity/PayInvoice";
 import { onMounted, ref } from "vue";
 const {
   handleQuery,

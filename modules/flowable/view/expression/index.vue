@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import { listExpression, getExpression, delExpression, addExpression, updateExpression } from "@modules/flowable/api/expression";
+import { listExpression, getExpression, delExpression, addExpression, updateExpression } from "@ruoyi/module-flowable/api/expression";
 
 export default {
   name: "FlowExp",
@@ -252,3 +252,4 @@ export default {
   }
 };
 </script>
+

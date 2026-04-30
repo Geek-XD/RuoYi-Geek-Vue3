@@ -18,6 +18,11 @@ export default defineConfig(({ mode, command }) => {
         // 设置路径
         '~': path.resolve(__dirname, './'),
         '@ruoyi/core': path.resolve(__dirname, './packages/core'),
+        '@ruoyi/module-flowable': path.resolve(__dirname, './modules/flowable'),
+        '@ruoyi/module-form': path.resolve(__dirname, './modules/form'),
+        '@ruoyi/module-message': path.resolve(__dirname, './modules/message'),
+        '@ruoyi/module-online': path.resolve(__dirname, './modules/online'),
+        '@ruoyi/module-pay': path.resolve(__dirname, './modules/pay'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),

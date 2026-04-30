@@ -90,7 +90,7 @@
 
 <script setup name="MessageSystem">
 import { ref, reactive, toRefs, getCurrentInstance } from 'vue';
-import { delMessageSystem, listMessageSystem, getMessageSystem, getUpdate } from "@modules/message/api/messageSystem";
+import { delMessageSystem, listMessageSystem, getMessageSystem, getUpdate } from "@ruoyi/module-message/api/messageSystem";
 import AddMessage from './components/addMessage.vue';
 
 const { proxy } = getCurrentInstance();

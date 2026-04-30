@@ -225,7 +225,7 @@
 </template>
 
 <script setup>
-import { listMb, getMb, delMb, addMb, updateMb } from "@modules/online/api/mb";
+import { listMb, getMb, delMb, addMb, updateMb } from "@ruoyi/module-online/api/mb";
 import mybatisInput from './mybatis-input.vue'
 import onlinePreview from './online-preview.vue'
 

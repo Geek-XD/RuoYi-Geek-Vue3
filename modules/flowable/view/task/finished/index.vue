@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { finishedList, delDeployment, revokeProcess } from "@modules/flowable/api/finished";
+import { finishedList, delDeployment, revokeProcess } from "@ruoyi/module-flowable/api/finished";
 
 export default {
   name: "Deploy",
@@ -193,3 +193,4 @@ export default {
   }
 };
 </script>
+

@@ -1,5 +1,5 @@
 <script setup>
-import { listDbColumn, listDbTable } from '@modules/online/api/db';
+import { listDbColumn, listDbTable } from '@ruoyi/module-online/api/db';
 import { reactive } from 'vue';
 const total = ref(0);
 const queryParams = ref({

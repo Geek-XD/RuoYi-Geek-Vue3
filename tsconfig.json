@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "packages/core/**/*.ts", "packages/core/**/*.d.ts", "packages/core/**/*.vue", "modules/**/*.ts", "modules/**/*.d.ts", "modules/**/*.tsx", "modules/**/*.vue"],
+  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "packages/core/**/*.ts", "packages/core/**/*.d.ts", "packages/core/**/*.vue", "modules/**/*.ts", "modules/**/*.d.ts", "modules/**/*.tsx", "modules/**/*.vue", "modules/pay/entity"],
   "exclude": ["node_modules", "dist", "**/*.js"],
   "compilerOptions": {
     "types":["vite/client"],
@@ -22,6 +22,16 @@
     "paths": {
       "@ruoyi/core": ["./packages/core"],
       "@ruoyi/core/*": ["./packages/core/*"],
+      "@ruoyi/module-flowable": ["./modules/flowable"],
+      "@ruoyi/module-flowable/*": ["./modules/flowable/*"],
+      "@ruoyi/module-form": ["./modules/form"],
+      "@ruoyi/module-form/*": ["./modules/form/*"],
+      "@ruoyi/module-message": ["./modules/message"],
+      "@ruoyi/module-message/*": ["./modules/message/*"],
+      "@ruoyi/module-online": ["./modules/online"],
+      "@ruoyi/module-online/*": ["./modules/online/*"],
+      "@ruoyi/module-pay": ["./modules/pay"],
+      "@ruoyi/module-pay/*": ["./modules/pay/*"],
       "@": ["./src"],
       "@/*": ["./src/*"],
       "@lib": ["./lib"],

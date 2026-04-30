@@ -69,7 +69,7 @@
 </template>
 
 <script setup name="Variable">
-import { listVariable, getVariable, delVariable, addVariable, updateVariable } from "@modules/message/api/variable";
+import { listVariable, getVariable, delVariable, addVariable, updateVariable } from "@ruoyi/module-message/api/variable";
 import { ElMessage } from "element-plus";
 import VariableFormDialog from "./components/VariableFormDialog.vue";
 const { proxy } = getCurrentInstance();

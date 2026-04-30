@@ -98,12 +98,12 @@
 </template>
 
 <script>
-import FlowUser from '@modules/flowable/components/Flow/User'
-import FlowRole from '@modules/flowable/components/Flow/Role'
-import FlowExp from '@modules/flowable/components/Flow/Expression'
-import ElInputTag from '@modules/flowable/components/Flow/ElInputTag'
+import FlowUser from '@ruoyi/module-flowable/components/Flow/User'
+import FlowRole from '@ruoyi/module-flowable/components/Flow/Role'
+import FlowExp from '@ruoyi/module-flowable/components/Flow/Expression'
+import ElInputTag from '@ruoyi/module-flowable/components/Flow/ElInputTag'
 import { StrUtil } from '@ruoyi/core/utils/StrUtil'
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 export default {
   name: "TaskPanel",
   components: {

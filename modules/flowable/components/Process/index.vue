@@ -60,7 +60,7 @@ import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 // 引入flowable的节点文件
 import FlowableModule from './flowable/flowable.json'
 import customControlsModule from './customPanel'
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 export default {
   name: "BpmnModel",
   components: { Designer },

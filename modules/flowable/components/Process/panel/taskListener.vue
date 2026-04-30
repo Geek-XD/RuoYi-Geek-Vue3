@@ -212,14 +212,14 @@
   </div>
 </template>
 <script>
-import { listListener } from "@modules/flowable/api/listener";
+import { listListener } from "@ruoyi/module-flowable/api/listener";
 import {
   changeListenerObject,
   createListenerObject,
   createSystemListenerObject,
   updateElementExtensions
 } from "../common/bpmnUtils";
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 
 export default {
@@ -499,3 +499,4 @@ export default {
   margin-right: 10px;
 }
 </style>
+

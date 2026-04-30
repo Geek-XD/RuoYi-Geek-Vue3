@@ -63,9 +63,9 @@
 </template>
 
 <script>
-import { flowRecord } from "@modules/flowable/api/finished";
-import { getProcessVariables, flowXmlAndNode } from "@modules/flowable/api/definition";
-import BpmnViewer from '@modules/flowable/components/Process/viewer';
+import { flowRecord } from "@ruoyi/module-flowable/api/finished";
+import { getProcessVariables, flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
 
 export default {
   name: "Record",
@@ -198,3 +198,4 @@ export default {
   background: #E1F3D8;
 }
 </style>
+

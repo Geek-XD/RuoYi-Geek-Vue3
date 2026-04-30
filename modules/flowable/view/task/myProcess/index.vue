@@ -104,9 +104,9 @@
 </template>
 
 <script>
-import { delDeployment } from "@modules/flowable/api/finished";
-import { myProcessList, stopProcess } from "@modules/flowable/api/process";
-import { listDefinition } from "@modules/flowable/api/definition";
+import { delDeployment } from "@ruoyi/module-flowable/api/finished";
+import { myProcessList, stopProcess } from "@ruoyi/module-flowable/api/process";
+import { listDefinition } from "@ruoyi/module-flowable/api/definition";
 export default {
   name: "Deploy",
   components: {
@@ -291,3 +291,4 @@ export default {
   }
 };
 </script>
+

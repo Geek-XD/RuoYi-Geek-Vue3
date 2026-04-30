@@ -121,7 +121,7 @@
 </template>
 
 <script>
-import { listListener, getListener, delListener, addListener, updateListener } from "@modules/flowable/api/listener";
+import { listListener, getListener, delListener, addListener, updateListener } from "@ruoyi/module-flowable/api/listener";
 
 export default {
   name: "Listener",
@@ -290,3 +290,4 @@ export default {
   }
 };
 </script>
+

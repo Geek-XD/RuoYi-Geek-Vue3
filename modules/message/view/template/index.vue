@@ -76,8 +76,8 @@
 </template>
 
 <script setup name="Template">
-import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@modules/message/api/template";
-import { selectVariable } from "@modules/message/api/variable";
+import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@ruoyi/module-message/api/template";
+import { selectVariable } from "@ruoyi/module-message/api/variable";
 import TemplateFormDialog from './components/TemplateFormDialog.vue';
 
 const { proxy } = getCurrentInstance();

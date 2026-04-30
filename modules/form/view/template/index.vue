@@ -95,8 +95,8 @@
 </template>
 
 <script setup name="Template">
-import { addData } from "@modules/form/api/data";
-import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@modules/form/api/template";
+import { addData } from "@ruoyi/module-form/api/data";
+import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@ruoyi/module-form/api/template";
 import tab from "@ruoyi/core/plugins/tab";
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -285,3 +285,4 @@ onMounted(() => {
   getList();
 });
 </script>
+

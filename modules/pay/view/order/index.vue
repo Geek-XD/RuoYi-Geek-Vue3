@@ -1,12 +1,12 @@
 <script setup name="Order" lang="ts">
-import { refundOrder, updateOrderStatus } from "@modules/pay/api/order";
+import { refundOrder, updateOrderStatus } from "@ruoyi/module-pay/api/order";
 import { ref } from "vue";
-import { PayOrder } from "@/entity/pay/PayOrder";
+import { PayOrder } from "@ruoyi/module-pay/entity/PayOrder";
 import { usePage } from "@/hook";
 import { modal } from "@ruoyi/core/plugins";
 import { parseTime } from "@ruoyi/core/utils/ruoyi";
 import { getSchemaName, getSchemas } from "@/annotation/Schema";
-import PayTest from "@modules/pay/view/paytest/index.vue";
+import PayTest from "@ruoyi/module-pay/view/paytest/index.vue";
 const {
   queryParams,
   handleQuery,

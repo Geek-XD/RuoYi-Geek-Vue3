@@ -35,7 +35,7 @@
 
 <script>
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 export default {
   name: "PropertiesPanel",
   props: {
@@ -137,3 +137,4 @@ export default {
   }
 };
 </script>
+

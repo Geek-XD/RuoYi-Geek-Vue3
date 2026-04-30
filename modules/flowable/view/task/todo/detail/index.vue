@@ -126,12 +126,12 @@
 </template>
 
 <script>
-import { flowRecord } from "@modules/flowable/api/finished";
-import FlowUser from '@modules/flowable/components/Flow/User'
-import FlowRole from '@modules/flowable/components/Flow/Role'
-import { flowXmlAndNode } from "@modules/flowable/api/definition";
-import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@modules/flowable/api/todo";
-import BpmnViewer from '@modules/flowable/components/Process/viewer';
+import { flowRecord } from "@ruoyi/module-flowable/api/finished";
+import FlowUser from '@ruoyi/module-flowable/components/Flow/User'
+import FlowRole from '@ruoyi/module-flowable/components/Flow/Role'
+import { flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
+import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@ruoyi/module-flowable/api/todo";
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
 
 export default {
   name: "Record",
@@ -448,3 +448,4 @@ export default {
   background: #E1F3D8;
 }
 </style>
+

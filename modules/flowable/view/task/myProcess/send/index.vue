@@ -38,12 +38,12 @@
 </template>
 
 <script>
-import { definitionStart, flowXmlAndNode } from "@modules/flowable/api/definition";
-import BpmnViewer from '@modules/flowable/components/Process/viewer';
-import { flowFormData } from "@modules/flowable/api/process";
-import { getNextFlowNodeByStart } from "@modules/flowable/api/todo";
-import FlowUser from '@modules/flowable/components/Flow/User'
-import FlowRole from '@modules/flowable/components/Flow/Role'
+import { definitionStart, flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
+import { flowFormData } from "@ruoyi/module-flowable/api/process";
+import { getNextFlowNodeByStart } from "@ruoyi/module-flowable/api/todo";
+import FlowUser from '@ruoyi/module-flowable/components/Flow/User'
+import FlowRole from '@ruoyi/module-flowable/components/Flow/Role'
 
 export default {
   name: "Record",
@@ -249,3 +249,4 @@ export default {
   background: #E1F3D8;
 }
 </style>
+

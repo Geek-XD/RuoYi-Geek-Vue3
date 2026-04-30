@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { todoList, delDeployment } from "@modules/flowable/api/todo";
+import { todoList, delDeployment } from "@ruoyi/module-flowable/api/todo";
 
 export default {
   name: "Deploy",
@@ -179,3 +179,4 @@ export default {
   }
 };
 </script>
+

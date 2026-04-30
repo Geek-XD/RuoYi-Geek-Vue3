@@ -13,9 +13,9 @@
 
 <script>
 
-import { listAllForm } from '@modules/flowable/api/form'
+import { listAllForm } from '@ruoyi/module-flowable/api/form'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 export default {
   name: "FormPanel",
   /** 组件传值  */
@@ -77,3 +77,4 @@ export default {
 
 
 </script>
+

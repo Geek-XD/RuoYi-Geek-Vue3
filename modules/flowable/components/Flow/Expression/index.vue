@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { listExpression } from "@modules/flowable/api/expression";
+import { listExpression } from "@ruoyi/module-flowable/api/expression";
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 
 export default {
@@ -127,3 +127,4 @@ export default {
   }
 };
 </script>
+

@@ -78,10 +78,10 @@ import FormPanel from './panel/formPanel'
 import PropertiesPanel from './panel/PropertiesPanel'
 import OtherPanel from './panel/otherPanel'
 import { translateNodeName } from "./common/bpmnUtils";
-import modelerStore from '@modules/flowable/components/Process/common/global'
-import FlowUser from "@modules/flowable/components/Flow/User/index.vue";
-import FlowRole from "@modules/flowable/components/Flow/Role/index.vue";
-import FlowExp from "@modules/flowable/components/Flow/Expression/index.vue";
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
+import FlowUser from "@ruoyi/module-flowable/components/Flow/User/index.vue";
+import FlowRole from "@ruoyi/module-flowable/components/Flow/Role/index.vue";
+import FlowExp from "@ruoyi/module-flowable/components/Flow/Expression/index.vue";
 import { onMounted, ref, watch } from 'vue'
 
 defineOptions({ name: 'Designer' })
@@ -151,3 +151,4 @@ onMounted(() => {
   getActiveElement();
 });
 </script>
+

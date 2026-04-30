@@ -173,10 +173,10 @@
 </template>
 
 <script>
-import { listDefinition, updateState, delDeployment, definitionStart, flowXmlAndNode } from "@modules/flowable/api/definition";
+import { listDefinition, updateState, delDeployment, definitionStart, flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
 import { getToken } from "@ruoyi/core/utils/auth";
-import { getForm, addDeployForm, listForm } from "@modules/flowable/api/form";
-import BpmnViewer from '@modules/flowable/components/Process/viewer';
+import { getForm, addDeployForm, listForm } from "@ruoyi/module-flowable/api/form";
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
 import Model from './model';
 
 export default {

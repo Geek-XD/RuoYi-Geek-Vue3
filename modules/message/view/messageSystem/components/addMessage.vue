@@ -77,8 +77,8 @@
 
 <script setup>
 import { ref, getCurrentInstance, watch, nextTick } from 'vue';
-import { batchAddMessage } from '@modules/message/api/messageSystem';
-import { selecTemplates } from '@modules/message/api/template';
+import { batchAddMessage } from '@ruoyi/module-message/api/messageSystem';
+import { selecTemplates } from '@ruoyi/module-message/api/template';
 import { ElMessage } from 'element-plus';
 import RecipientSelector from './recipientSelector.vue';
 

@@ -76,7 +76,7 @@
 </template>
 
 <script setup name="Data">
-import { listData, getData, delData, addData, updateData } from "@modules/form/api/data";
+import { listData, getData, delData, addData, updateData } from "@ruoyi/module-form/api/data";
 
 const { proxy } = getCurrentInstance();
 
@@ -237,3 +237,4 @@ function handleExport() {
 
 getList();
 </script>
+

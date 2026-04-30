@@ -11,12 +11,12 @@
   </div>
 </template>
 <script>
-import { readXml, roleList, saveXml, userList, expList } from "@modules/flowable/api/definition";
-import BpmnModel from '@modules/flowable/components/Process'
+import { readXml, roleList, saveXml, userList, expList } from "@ruoyi/module-flowable/api/definition";
+import BpmnModel from '@ruoyi/module-flowable/components/Process'
 import vkBeautify from 'vkbeautify'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 export default {
   name: "Model",
   components: {

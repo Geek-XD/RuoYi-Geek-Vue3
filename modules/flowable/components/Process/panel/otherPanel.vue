@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 export default {
   name: "OtherPanel",
@@ -63,3 +63,4 @@ export default {
 
 
 </script>
+

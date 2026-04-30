@@ -61,7 +61,7 @@
 </template>
 <script>
 import { StrUtil } from '@ruoyi/core/utils/StrUtil'
-import modelerStore from '@modules/flowable/components/Process/common/global'
+import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 
 export default {
   name: "MultiInstance",
@@ -233,3 +233,4 @@ export default {
 <style lang="scss">
 @use '../style/process-panel' as *;
 </style>
+

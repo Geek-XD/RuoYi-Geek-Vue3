@@ -28,7 +28,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { getSystemResource } from '@modules/message/api/messageSystem';
+import { getSystemResource } from '@ruoyi/module-message/api/messageSystem';
 import { ElMessage } from 'element-plus';
 
 const props = defineProps({
@@ -236,3 +236,4 @@ defineExpose({
   }
 });
 </script>
+
