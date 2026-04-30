@@ -2,14 +2,12 @@
 import { useDynamicTitle } from '@ruoyi/core/utils/dynamicTitle'
 import useAppStore from '@ruoyi/core/store/modules/app'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
-import usePermissionStore from '@ruoyi/core/store/modules/permission'
 import { handleThemeStyle } from '@ruoyi/core/utils/theme'
 import { computed, ref } from 'vue'
 import type { MenuLayout } from '@/settings'
 import { modal } from '@ruoyi/core/plugins'
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
-const permissionStore = usePermissionStore()
 const showSettings = ref(false);
 const theme = ref(settingsStore.theme);
 const sideTheme = ref(settingsStore.sideTheme);
@@ -22,7 +20,6 @@ const menuLayout = computed({
     settingsStore.changeSetting({ key: 'menuLayout', value: val })
     if (val === 'left') {
       appStore.toggleSideBarHide(false)
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes)
     } else if (val === 'top') {
       appStore.toggleSideBarHide(true)
     } else {

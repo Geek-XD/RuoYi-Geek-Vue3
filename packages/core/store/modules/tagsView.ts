@@ -1,4 +1,3 @@
-import { RouteLocationNormalizedLoaded } from "@ruoyi/core/types/route";
 import { defineStore } from "pinia";
 import { RouteLocationNormalizedLoaded, RouteLocationNormalizedLoadedGeneric, RouteRecordName } from "vue-router";
 type MatchPattern = string | RegExp;

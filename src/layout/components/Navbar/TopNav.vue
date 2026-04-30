@@ -63,7 +63,8 @@ function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): R
 }
 
 function syncSidebarMenus(activePath: string) {
-  const routes = permissionStore.setSidebarRoutersByTopMenu(activePath)
+  permissionStore.setActiveTopMenuPath(activePath)
+  const routes = permissionStore.sidebarRouters
   if (routes.length === 0) {
     appStore.toggleSideBarHide(true)
   }

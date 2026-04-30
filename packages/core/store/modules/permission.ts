@@ -3,6 +3,7 @@ import { router } from '../../router'
 import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
 import InnerLink from '@/layout/components/InnerLink/index.vue'
+import useSettingsStore from './settings'
 import { defineStore } from 'pinia'
 import type { Component } from 'vue'
 import { RouteItem } from '@ruoyi/core/types/route'
@@ -27,8 +28,13 @@ interface PermissionState {
   addRoutes: RouteItem[]
   defaultRoutes: RouteItem[]
   menuRouters: RouteItem[]
-  topbarRouters: RouteItem[]
-  sidebarRouters: RouteItem[]
+  activeTopMenuPath: string
+}
+
+interface PermissionGetters {
+  [typekey: string]: any
+  topbarRouters: (state: PermissionState) => RouteItem[]
+  sidebarRouters: (state: PermissionState) => RouteItem[]
 }
 
 /**
@@ -38,66 +44,64 @@ interface PermissionState {
  * 1. generateRoutes方法负责生成所有路由：
  *    - 从后端获取动态路由数据
  *    - 处理动态路由数据（过滤、转换组件等）
- *    - 根据设置决定TopNav菜单的数据来源
+ *    - 初始化菜单源数据与当前顶级菜单上下文
  * 
- * 2. TopNav菜单数据生成规则：
- *    - 启用TopNav导入本地路由：constantRoutes + defaultRoutes
- *    - 关闭TopNav导入本地路由：仅使用defaultRoutes
- *    - 通过settingsStore.topNavMixMenu控制
+ * 2. 菜单布局规则：
+ *    - top: 顶栏显示一级菜单，侧栏为空
+ *    - left: 顶栏为空，侧栏显示完整菜单树
+ *    - mix: 顶栏显示一级菜单，侧栏显示当前顶级菜单下的子菜单
  */
 
-const usePermissionStore = defineStore(
-  'permission',
-  {
-    state: (): PermissionState => ({
-      routes: [],
-      addRoutes: [],
-      defaultRoutes: [],
-      menuRouters: [],
-      topbarRouters: [],
-      sidebarRouters: []
-    }),
-    actions: {
-      setRoutes(routes: RouteItem[]) {
-        this.routes = [...constantRoutes, ...routes];
-      },
-      setDefaultRoutes(routes: RouteItem[]) {
-        this.defaultRoutes = deepClone(routes);
-      },
-      setMenuRouters(routes: RouteItem[]) {
-        this.menuRouters = deepClone(routes)
-      },
-      setTopbarRoutes(routes: RouteItem[]) {
-        this.topbarRouters = buildTopbarMenus(routes)
-      },
-      /** 设置侧边栏路由 */
-      setSidebarRouters(routes: RouteItem[]) {
-        this.sidebarRouters = deepClone(routes);
-      },
-      setSidebarRoutersByTopMenu(activePath: string) {
-        const routes = buildSidebarMenus(this.menuRouters, activePath)
-        this.setSidebarRouters(routes)
-        return routes
-      },
-      generateRoutes(): Promise<RouteItem[]> {
-        return new Promise(resolve => {
-          // 向后端请求路由数据
-          getRouters().then(res => {
-            const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
-            const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
-            const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-            asyncRoutes.forEach(route => { router.addRoute(route) })
-            this.setRoutes(rewriteRoutes)
-            this.setMenuRouters(menuRoutes)
-            this.setSidebarRouters(menuRoutes)
-            this.setDefaultRoutes(menuRoutes)
-            this.setTopbarRoutes(menuRoutes)
-            resolve(rewriteRoutes)
-          })
-        })
-      }
+const usePermissionStore = defineStore<string, PermissionState, PermissionGetters>('permission', {
+  state: (): PermissionState => ({
+    routes: [],
+    addRoutes: [],
+    defaultRoutes: [],
+    menuRouters: [],
+    activeTopMenuPath: ''
+  }),
+  getters: {
+    topbarRouters(state): RouteItem[] {
+      if (useSettingsStore().isLeftMenu) return []
+      else return buildTopbarMenus(state.menuRouters)
+    },
+    sidebarRouters(state): RouteItem[] {
+      if (useSettingsStore().isTopMenu) return []
+      else if (useSettingsStore().isLeftMenu) return state.menuRouters
+      else return buildMixSidebarMenus(state.menuRouters, state.activeTopMenuPath)
     }
-  })
+  },
+  actions: {
+    setRoutes(routes: RouteItem[]) {
+      this.routes = [...constantRoutes, ...routes];
+    },
+    setDefaultRoutes(routes: RouteItem[]) {
+      this.defaultRoutes = deepClone(routes);
+    },
+    setMenuRouters(routes: RouteItem[]) {
+      this.menuRouters = deepClone(routes)
+    },
+    setActiveTopMenuPath(activePath: string) {
+      this.activeTopMenuPath = activePath
+    },
+    generateRoutes(): Promise<RouteItem[]> {
+      return new Promise(resolve => {
+        // 向后端请求路由数据
+        getRouters().then(res => {
+          const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
+          const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
+          const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+          asyncRoutes.forEach(route => { router.addRoute(route) })
+          this.setRoutes(rewriteRoutes)
+          this.setMenuRouters(menuRoutes)
+          this.setDefaultRoutes(menuRoutes)
+          this.setActiveTopMenuPath(router.currentRoute.value.path)
+          resolve(rewriteRoutes)
+        })
+      })
+    }
+  }
+})
 
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem[] {
@@ -250,7 +254,7 @@ function buildTopbarMenus(routes: RouteItem[]): RouteItem[] {
 }
 
 const matchesMenuPath = (activePath: string, topPath: string) => activePath === topPath || activePath.startsWith(`${topPath}/`)
-function buildSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
+function buildMixSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
   if (!activePath) return []
 
   for (const route of routes) {
