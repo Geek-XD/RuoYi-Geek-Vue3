@@ -17,11 +17,9 @@
 * 2. 路由配置中可使用meta.isTopMenu控制菜单行为
 */
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { constantRoutes } from "@ruoyi/core/router/routes/staticRoutes"
 import { isHttp } from '@ruoyi/core/utils/validate'
-import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import useAppStore from '@ruoyi/core/store/modules/app'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import usePermissionStore from '@ruoyi/core/store/modules/permission'
@@ -43,120 +41,12 @@ const router = useRouter();
 // 主题颜色
 const theme = computed(() => settingsStore.theme);
 // 所有的路由信息
-const routers = computed(() => permissionStore.topbarRouters);
+const topMenus = computed(() => permissionStore.topbarRouters);
 const isMixMenu = computed(() => settingsStore.isMixMenu)
 const isTopMenu = computed(() => settingsStore.isTopMenu)
 
-function normalizeMenu(route: RouteItem, parentPath?: string): RouteItem {
-  const currentPath = resolvePath(route.path, parentPath)
-  const currentRoute = {
-    ...route,
-    path: currentPath,
-    parentPath
-  } as RouteItem & { parentPath?: string }
-
-  if (!currentRoute.meta) {
-    currentRoute.meta = {}
-  }
-  if (!currentRoute.meta.icon) {
-    currentRoute.meta.icon = 'dashboard'
-  }
-
-  if (route.children?.length) {
-    currentRoute.children = route.children
-      .filter(item => item.hidden !== true)
-      .map(child => normalizeMenu(child, currentPath))
-  }
-
-  return currentRoute
-}
-
-function resolvePath(path: string, parentPath?: string) {
-  if (isHttp(path)) {
-    return path
-  }
-  if (!parentPath || path.startsWith('/')) {
-    return getNormalPath(path)
-  }
-  return getNormalPath(`${parentPath}/${path}`)
-}
-
 function getMenuChildren(route: RouteItem) {
   return (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
-}
-
-// 顶部显示菜单
-const topMenus = computed(() => {
-  const menus: RouteItem[] = [];
-  routers.value.forEach((menu) => {
-    if (menu.hidden !== true) {
-      if (menu.path === "" || menu.path === "/") {
-        if (menu.children?.[0]) {
-          const child = menu.children[0]
-          const childPath = resolvePath(child.path, menu.path || '/')
-          const normalizedChild = normalizeMenu({
-            ...child,
-            path: childPath,
-            meta: {
-              ...child.meta,
-              icon: child.meta?.icon || 'dashboard'
-            }
-          })
-          menus.push(normalizedChild)
-        }
-      } else if (menu.meta?.isTopMenu && menu.children?.[0]) {
-        const firstChild = normalizeMenu({
-          ...menu.children[0],
-          path: menu.path,
-          meta: {
-            ...menu.children[0].meta,
-            icon: menu.children[0].meta?.icon || menu.meta?.icon || 'dashboard'
-          }
-        })
-        menus.push(firstChild)
-      } else {
-        menus.push(normalizeMenu(menu))
-      }
-    }
-  })
-  return menus;
-})
-
-// 设置子路由
-const childrenMenus = computed(() => {
-  const menuChildren: RouteItem[] = [];
-  routers.value.forEach((router) => {
-    const children = getMenuChildren(router)
-    for (const item of children) {
-      if (item.parentPath === undefined) {
-        if (router.path === "/") {
-          item.path = "/" + item.path;
-        } else if (!isHttp(item.path)) {
-          item.path = router.path + "/" + item.path;
-        }
-        item.parentPath = router.path;
-      }
-      menuChildren.push(item);
-    }
-  })
-  return constantRoutes.concat(menuChildren);
-})
-
-function activeRoutes(key: string) {
-  const routes: RouteItem[] = [];
-  if (childrenMenus.value && childrenMenus.value.length > 0) {
-    childrenMenus.value.forEach((item) => {
-      if (key == item.parentPath || (key == "index" && "" == item.path)) {
-        routes.push(item);
-      }
-    });
-  }
-  if (routes.length > 0) {
-    permissionStore.setSidebarRouters(routes);
-  } else {
-    appStore.toggleSideBarHide(true);
-  }
-  return routes;
 }
 
 function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): RouteItem | undefined {
@@ -172,10 +62,17 @@ function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): R
   return undefined
 }
 
+function syncSidebarMenus(activePath: string) {
+  const routes = permissionStore.setSidebarRoutersByTopMenu(activePath)
+  if (routes.length === 0) {
+    appStore.toggleSideBarHide(true)
+  }
+  return routes
+}
+
 // 默认激活的菜单
 const activeMenu = computed(() => {
   const path = route.path;
-  let activePath = path;
   if (isTopMenu.value) {
     const matchedTopMenu = topMenus.value.find(item => path === item.path || path.startsWith(`${item.path}/`))
     if (matchedTopMenu) {
@@ -185,23 +82,33 @@ const activeMenu = computed(() => {
   }
   if (path !== undefined && path.lastIndexOf("/") > 0 && hideList.indexOf(path) === -1) {
     const tmpPath = path.substring(1, path.length);
-    activePath = "/" + tmpPath.substring(0, tmpPath.indexOf("/"));
-    if (!route.meta.link) {
-      appStore.toggleSideBarHide(false);
+    const splitIndex = tmpPath.indexOf("/")
+    if (splitIndex > -1) {
+      return "/" + tmpPath.substring(0, splitIndex);
     }
-  } else {
-    activePath = path;
-    appStore.toggleSideBarHide(true);
   }
-  activeRoutes(activePath);
-  return activePath;
+  return path;
 })
 
-// 当前激活菜单的 index
-const currentIndex = ref<string | null>(null);
+watch([activeMenu, isTopMenu, () => route.path, () => route.meta.link], ([menuPath, topMenuEnabled, currentPath, currentLink]) => {
+  if (topMenuEnabled) {
+    appStore.toggleSideBarHide(true)
+    return
+  }
+
+  if (hideList.includes(currentPath)) {
+    appStore.toggleSideBarHide(true)
+    return
+  }
+
+  const routes = syncSidebarMenus(menuPath)
+  if (routes.length > 0 && !currentLink) {
+    appStore.toggleSideBarHide(false)
+  }
+}, { immediate: true })
+
 function handleSelect(key: string) {
-  currentIndex.value = key;
-  const topRoute = findTopMenuByPath(key) || routers.value.find(item => item.path === key);
+  const topRoute = findTopMenuByPath(key)
   if (isHttp(key)) {
     window.open(key, "_blank");
     return
@@ -219,8 +126,10 @@ function handleSelect(key: string) {
     return
   }
 
-  activeRoutes(key);
-  appStore.toggleSideBarHide(false);
+  const routes = syncSidebarMenus(key)
+  if (routes.length > 0) {
+    appStore.toggleSideBarHide(false)
+  }
 }
 
 /** 顶部栏初始数 */
@@ -241,8 +150,7 @@ onMounted(() => { setVisibleNumber() })
         <span>{{ item.meta?.title }}</span>
       </el-menu-item>
 
-      <top-nav-item v-else-if="index < visibleNumber" :item="item" :resolve-path="resolvePath"
-        :get-children="getMenuChildren" :style="{ '--theme': theme }" />
+      <top-nav-item v-else-if="index < visibleNumber" :item="item" :style="{ '--theme': theme }" />
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
@@ -253,8 +161,7 @@ onMounted(() => { setVisibleNumber() })
           <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
           <span>{{ item.meta?.title }}</span>
         </el-menu-item>
-        <top-nav-item v-else-if="index >= visibleNumber" :item="item" :resolve-path="resolvePath"
-          :get-children="getMenuChildren" />
+        <top-nav-item v-else-if="index >= visibleNumber" :item="item" />
       </template>
     </el-sub-menu>
   </el-menu>

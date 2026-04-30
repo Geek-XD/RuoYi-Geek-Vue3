@@ -9,10 +9,13 @@ import { RouteItem } from '@ruoyi/core/types/route'
 import { constantRoutes } from '../../router/routes/staticRoutes'
 import { dynamicRoutes } from '../../router/routes/asyncRoutes'
 import { deepClone } from '@ruoyi/core/utils'
+import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
+import { isHttp } from '@ruoyi/core/utils/validate'
 import { getRouters } from '@/api/login'
 
 // 从工作区根目录收集宿主页面与业务模块页面。
-const modules = import.meta.glob([
+type ModuleLoader = () => Promise<Component>
+const modules: Record<string, ModuleLoader> = import.meta.glob([
   '/src/views/**/*.vue',
   '/modules/**/view/**/*.vue',
   '/modules/**/views/**/*.vue'
@@ -23,6 +26,7 @@ interface PermissionState {
   routes: RouteItem[]
   addRoutes: RouteItem[]
   defaultRoutes: RouteItem[]
+  menuRouters: RouteItem[]
   topbarRouters: RouteItem[]
   sidebarRouters: RouteItem[]
 }
@@ -49,6 +53,7 @@ const usePermissionStore = defineStore(
       routes: [],
       addRoutes: [],
       defaultRoutes: [],
+      menuRouters: [],
       topbarRouters: [],
       sidebarRouters: []
     }),
@@ -59,25 +64,34 @@ const usePermissionStore = defineStore(
       setDefaultRoutes(routes: RouteItem[]) {
         this.defaultRoutes = deepClone(routes);
       },
+      setMenuRouters(routes: RouteItem[]) {
+        this.menuRouters = deepClone(routes)
+      },
       setTopbarRoutes(routes: RouteItem[]) {
-        this.topbarRouters = deepClone(routes);
+        this.topbarRouters = buildTopbarMenus(routes)
       },
       /** 设置侧边栏路由 */
       setSidebarRouters(routes: RouteItem[]) {
         this.sidebarRouters = deepClone(routes);
       },
+      setSidebarRoutersByTopMenu(activePath: string) {
+        const routes = buildSidebarMenus(this.menuRouters, activePath)
+        this.setSidebarRouters(routes)
+        return routes
+      },
       generateRoutes(): Promise<RouteItem[]> {
         return new Promise(resolve => {
           // 向后端请求路由数据
           getRouters().then(res => {
-            const sidebarRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
+            const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
             const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
-            this.setSidebarRouters(sidebarRoutes)
-            this.setDefaultRoutes(sidebarRoutes)
-            this.setTopbarRoutes(sidebarRoutes)
+            this.setMenuRouters(menuRoutes)
+            this.setSidebarRouters(menuRoutes)
+            this.setDefaultRoutes(menuRoutes)
+            this.setTopbarRoutes(menuRoutes)
             resolve(rewriteRoutes)
           })
         })
@@ -169,29 +183,108 @@ function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
   return res
 }
 
+const getVisibleChildren = (route: RouteItem) => (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
+function resolveMenuPath(path: string, parentPath?: string): string {
+  if (isHttp(path)) return path
+  if (!parentPath || path.startsWith('/')) return getNormalPath(path)
+  return getNormalPath(`${parentPath}/${path}`)
+}
+
+function normalizeTopbarRoute(route: RouteItem, parentPath?: string): RouteItem {
+  const currentPath = resolveMenuPath(route.path, parentPath)
+  const currentRoute = {
+    ...route,
+    path: currentPath,
+    parentPath,
+    meta: {
+      ...route.meta,
+      icon: route.meta?.icon || 'dashboard'
+    }
+  } as RouteItem
+
+  const children = getVisibleChildren(route)
+  if (children.length) {
+    currentRoute.children = children.map(child => normalizeTopbarRoute(child, currentPath))
+  } else {
+    delete currentRoute.children
+  }
+
+  return currentRoute
+}
+
+function buildTopbarMenus(routes: RouteItem[]): RouteItem[] {
+  const menus: RouteItem[] = []
+
+  routes.forEach(menu => {
+    if (menu.hidden === true) return
+    const children = getVisibleChildren(menu)
+    if ((menu.path === '' || menu.path === '/') && children[0]) {
+      const child = children[0]
+      menus.push(normalizeTopbarRoute({
+        ...child,
+        path: resolveMenuPath(child.path, menu.path || '/'),
+        meta: {
+          ...child.meta,
+          icon: child.meta?.icon || 'dashboard'
+        }
+      }))
+      return
+    }
+
+    if (menu.meta?.isTopMenu && children[0]) {
+      menus.push(normalizeTopbarRoute({
+        ...children[0],
+        path: menu.path,
+        meta: {
+          ...children[0].meta,
+          icon: children[0].meta?.icon || menu.meta?.icon || 'dashboard'
+        }
+      }))
+      return
+    }
+
+    menus.push(normalizeTopbarRoute(menu))
+  })
+
+  return menus
+}
+
+const matchesMenuPath = (activePath: string, topPath: string) => activePath === topPath || activePath.startsWith(`${topPath}/`)
+function buildSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
+  if (!activePath) return []
+
+  for (const route of routes) {
+    if (route.hidden === true) continue
+    const children = getVisibleChildren(route)
+    if (!children.length) continue
+    if (route.path === '' || route.path === '/') continue
+    const topPath = resolveMenuPath(route.path)
+    if (!matchesMenuPath(activePath, topPath)) continue
+    const sidebarRoutes = deepClone(children)
+    sidebarRoutes.forEach(item => item.path = resolveMenuPath(item.path, route.path))
+    return sidebarRoutes
+  }
+
+  return []
+}
+
 const resolveViewKey = (path: string): string => {
   const normalizedPath = path.replace(/^\//, '')
   const moduleViewMatch = normalizedPath.match(/^modules\/([^/]+)\/view[s]?\/(.+)\.vue$/)
-  if (moduleViewMatch) {
-    return `${moduleViewMatch[1]}/${moduleViewMatch[2]}`
-  }
-
+  if (moduleViewMatch) return `${moduleViewMatch[1]}/${moduleViewMatch[2]}`
   const hostViewMatch = normalizedPath.match(/^src\/views\/(.+)\.vue$/)
-  if (hostViewMatch) {
-    return hostViewMatch[1]
-  }
-
+  if (hostViewMatch) return hostViewMatch[1]
   return ''
 }
 
-const loadView = (view: string): (() => Promise<Component>) => {
+const loadView = (view: string): ModuleLoader => {
   const normalizedView = view.replace(/^\//, '').replace(/\.vue$/, '').replace(/\/$/, '')
   const candidates = new Set([normalizedView, `${normalizedView}/index`])
 
   for (const path in modules) {
     const resolvedViewKey = resolveViewKey(path)
     if (candidates.has(resolvedViewKey)) {
-      return modules[path] as () => Promise<Component>
+      return modules[path]
     }
   }
 

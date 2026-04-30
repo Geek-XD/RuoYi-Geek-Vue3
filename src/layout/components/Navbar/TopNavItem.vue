@@ -3,14 +3,14 @@ import type { RouteItem } from '@ruoyi/core/types/route'
 
 defineOptions({ name: 'TopNavItem' })
 
-const props = defineProps<{
-  item: RouteItem
-  resolvePath: (path: string, parentPath?: string) => string
-  getChildren: (route: RouteItem) => RouteItem[]
-}>()
+const props = defineProps<{ item: RouteItem }>()
 
 function getItemIndex(route: RouteItem) {
-  return props.resolvePath(route.path, route.parentPath)
+  return route.path
+}
+
+function getChildren(route: RouteItem) {
+  return (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
 }
 </script>
 
@@ -25,7 +25,6 @@ function getItemIndex(route: RouteItem) {
       <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
       <span>{{ item.meta?.title }}</span>
     </template>
-    <top-nav-item v-for="child in getChildren(item)" :key="getItemIndex(child)" :item="child"
-      :resolve-path="resolvePath" :get-children="getChildren" />
+    <top-nav-item v-for="child in getChildren(item)" :key="getItemIndex(child)" :item="child" />
   </el-sub-menu>
 </template>
