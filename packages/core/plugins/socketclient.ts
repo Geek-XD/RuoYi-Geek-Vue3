@@ -1,4 +1,4 @@
-import { Message } from '@/types/Message';
+import { Message } from '@ruoyi/module-message/types/Message';
 import { getToken } from '@ruoyi/core/utils/auth'
 import { StrUtil } from '@ruoyi/core/utils/StrUtil';
 let _socket: WebSocket;

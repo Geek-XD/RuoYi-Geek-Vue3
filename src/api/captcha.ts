@@ -1,4 +1,4 @@
-import { CaptchaVO } from '@/types/user'
+import { CaptchaVO } from '@ruoyi/core/types/user'
 import request from '@ruoyi/core/utils/request'
 
 export function getCaptcha(data: CaptchaVO) {

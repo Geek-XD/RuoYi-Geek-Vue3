@@ -7,5 +7,10 @@
     "./api/*": "./api/*",
     "./view/*": "./view/*",
     "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@ruoyi/core": "0.1.0",
+    "element-plus": "2.13.2",
+    "vue": "3.5.27"
   }
 }

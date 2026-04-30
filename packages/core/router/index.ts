@@ -4,9 +4,9 @@ import { configureNProgress } from './utils/utils'
 import { setupBeforeEachGuard } from './guards/beforeEach'
 import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
-import { RouteItem } from '@/types/route'
+import { RouteItem } from '@ruoyi/core/types/route'
 
-const modules = import.meta.glob('/modules/**/router/index.{ts,js}', { eager: true });
+const modules = import.meta.glob('/modules/**/routes/index.{ts,js}', { eager: true });
 const asyncRoutes: RouteItem[] = [];
 
 for (const key in modules) {

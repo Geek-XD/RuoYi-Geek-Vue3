@@ -1,4 +1,4 @@
-import { RouteItem } from '@/types/route'
+import { RouteItem } from '@ruoyi/core/types/route'
 const Layout = () => import('@/layout/index.vue')
 
 // 公共路由,配置详情请参见RouteItem定义

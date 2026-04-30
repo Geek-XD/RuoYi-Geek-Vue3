@@ -2,10 +2,10 @@
 import { refundOrder, updateOrderStatus } from "@ruoyi/module-pay/api/order";
 import { ref } from "vue";
 import { PayOrder } from "@ruoyi/module-pay/entity/PayOrder";
-import { usePage } from "@/hook";
+import { usePage } from "@ruoyi/core/hook";
 import { modal } from "@ruoyi/core/plugins";
 import { parseTime } from "@ruoyi/core/utils/ruoyi";
-import { getSchemaName, getSchemas } from "@/annotation/Schema";
+import { getSchemaName, getSchemas } from "@ruoyi/core/annotation/Schema";
 import PayTest from "@ruoyi/module-pay/view/paytest/index.vue";
 const {
   queryParams,

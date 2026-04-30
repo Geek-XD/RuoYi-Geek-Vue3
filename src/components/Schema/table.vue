@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getSchemas } from "@/annotation/Schema";
+import { getSchemas } from "@ruoyi/core/annotation/Schema";
 import { computed, ref } from "vue";
 const props = defineProps<{
   target: new (...args: any[]) => any;

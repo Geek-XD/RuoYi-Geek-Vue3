@@ -1,4 +1,4 @@
-import { RouteItem } from '@/types/route'
+import { RouteItem } from '@ruoyi/core/types/route'
 const Layout = () => import('@/layout/index.vue')
 // 动态路由，基于用户权限动态去加载，配置详情请参见RouteItem定义
 export const dynamicRoutes: RouteItem[] = [

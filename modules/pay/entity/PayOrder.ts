@@ -1,5 +1,5 @@
-import Api from "@/annotation/Api";
-import Schema from "@/annotation/Schema";
+import Api from "@ruoyi/core/annotation/Api";
+import Schema from "@ruoyi/core/annotation/Schema";
 
 @Api("/pay/order")
 export class PayOrder {

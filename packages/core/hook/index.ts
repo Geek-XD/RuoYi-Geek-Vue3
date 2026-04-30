@@ -1,6 +1,6 @@
 import { Ref, ref } from "vue"
-import { Page, RequestPageType } from "@/annotation/Api"
-import { ApiService } from '@/annotation/Api'
+import { Page, RequestPageType } from "@ruoyi/core/annotation/Api"
+import { ApiService } from '@ruoyi/core/annotation/Api'
 export function usePageTable<T>(target: new (...args: any[]) => T) {
     /** 当前记录数：用于记录查询句柄最后一次调用返回的总记录数 */
     const total = ref<number>(0)

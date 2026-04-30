@@ -160,7 +160,7 @@ import { formatDate } from '@ruoyi/core/utils'
 import profile from '@/assets/images/profile.jpg'
 import useUserStore from '@ruoyi/core/store/modules/user'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
-import { GeekResponseForList } from '@/types/request'
+import { GeekResponseForList } from '@ruoyi/core/types/request'
 const router = useRouter()
 interface Feature {
   icon: string;

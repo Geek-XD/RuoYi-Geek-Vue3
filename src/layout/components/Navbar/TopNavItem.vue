@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RouteItem } from '@/types/route'
+import type { RouteItem } from '@ruoyi/core/types/route'
 
 defineOptions({ name: 'TopNavItem' })
 

@@ -13,7 +13,7 @@ let downloadLoadingInstance: any;
 export let isRelogin = { show: false };
 //@ts-ignore
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
-import { GeekRequestConfig, GeekResponse } from '@/types/request'
+import { GeekRequestConfig, GeekResponse } from '@ruoyi/core/types/request'
 import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 // 创建axios实例
 const service = axios.create({

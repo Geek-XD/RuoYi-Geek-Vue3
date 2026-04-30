@@ -1,6 +1,6 @@
 <script setup name="Invoice" lang="ts">
 import { SchemaForm, SchemaTable } from "@/components/Schema";
-import { usePage } from "@/hook";
+import { usePage } from "@ruoyi/core/hook";
 import { modal } from "@ruoyi/core/plugins";
 import { PayInvoice } from "@ruoyi/module-pay/entity/PayInvoice";
 import { onMounted, ref } from "vue";

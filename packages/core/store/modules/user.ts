@@ -2,7 +2,7 @@ import { login, logout, getInfo, register, verifyPhoneCode, verifyEmailCode } fr
 import { getToken, setToken, removeToken } from '@ruoyi/core/utils/auth'
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
-import { LoginForm, RegisterForm, RoleInfo, UserInfo } from '@/types/user'
+import { LoginForm, RegisterForm, RoleInfo, UserInfo } from '@ruoyi/core/types/user'
 import { ElMessageBox } from 'element-plus'
 import { router } from '../../router'
 

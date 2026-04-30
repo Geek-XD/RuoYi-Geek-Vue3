@@ -26,7 +26,6 @@ export default defineConfig(({ mode, command }) => {
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),
-        '@modules': path.resolve(__dirname, './modules'),
       },
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']

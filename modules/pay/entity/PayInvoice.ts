@@ -1,6 +1,6 @@
-import Api from "@/annotation/Api";
-import Schema from "@/annotation/Schema";
-import SchemaComponent from "@/annotation/SchemaComponent";
+import Api from "@ruoyi/core/annotation/Api";
+import Schema from "@ruoyi/core/annotation/Schema";
+import SchemaComponent from "@ruoyi/core/annotation/SchemaComponent";
 import { ElInput } from "element-plus";
 import { h } from "vue";
 import { parseTime } from "@ruoyi/core/utils/ruoyi";

@@ -6,7 +6,7 @@ import usePermissionStore from '@ruoyi/core/store/modules/permission'
 import { tab } from '@ruoyi/core/plugins'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
 import { RouteLocationNormalizedGeneric, useRoute, useRouter } from 'vue-router'
-import { RouteItem } from '@/types/route'
+import { RouteItem } from '@ruoyi/core/types/route'
 import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 
 const visible = ref(false);
