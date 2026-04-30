@@ -13,8 +13,8 @@ import { deepClone } from '@ruoyi/core/utils'
 import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import { isHttp } from '@ruoyi/core/utils/validate'
 import { getRouters } from '@/api/login'
+import { h } from 'vue'
 
-// 从工作区根目录收集宿主页面与业务模块页面。
 type ModuleLoader = () => Promise<Component>
 const modules: Record<string, ModuleLoader> = import.meta.glob([
   '/src/views/**/*.vue',
@@ -22,11 +22,8 @@ const modules: Record<string, ModuleLoader> = import.meta.glob([
   '/modules/**/views/**/*.vue'
 ])
 
-// 定义 store 状态接口
 interface PermissionState {
   routes: RouteItem[]
-  addRoutes: RouteItem[]
-  defaultRoutes: RouteItem[]
   menuRouters: RouteItem[]
   activeTopMenuPath: string
 }
@@ -37,26 +34,14 @@ interface PermissionGetters {
   sidebarRouters: (state: PermissionState) => RouteItem[]
 }
 
-/**
- * 权限管理模块
- * 
- * 路由生成说明：
- * 1. generateRoutes方法负责生成所有路由：
- *    - 从后端获取动态路由数据
- *    - 处理动态路由数据（过滤、转换组件等）
- *    - 初始化菜单源数据与当前顶级菜单上下文
- * 
- * 2. 菜单布局规则：
- *    - top: 顶栏显示一级菜单，侧栏为空
- *    - left: 顶栏为空，侧栏显示完整菜单树
- *    - mix: 顶栏显示一级菜单，侧栏显示当前顶级菜单下的子菜单
- */
+interface PermissionActions {
+  setActiveTopMenuPath: (activePath: string) => void
+  generateRoutes: () => Promise<RouteItem[]>
+}
 
-const usePermissionStore = defineStore<string, PermissionState, PermissionGetters>('permission', {
-  state: (): PermissionState => ({
+const usePermissionStore = defineStore<string, PermissionState, PermissionGetters, PermissionActions>('permission', {
+  state: () => ({
     routes: [],
-    addRoutes: [],
-    defaultRoutes: [],
     menuRouters: [],
     activeTopMenuPath: ''
   }),
@@ -72,15 +57,6 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
     }
   },
   actions: {
-    setRoutes(routes: RouteItem[]) {
-      this.routes = [...constantRoutes, ...routes];
-    },
-    setDefaultRoutes(routes: RouteItem[]) {
-      this.defaultRoutes = deepClone(routes);
-    },
-    setMenuRouters(routes: RouteItem[]) {
-      this.menuRouters = deepClone(routes)
-    },
     setActiveTopMenuPath(activePath: string) {
       this.activeTopMenuPath = activePath
     },
@@ -92,9 +68,8 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
           const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
           const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
           asyncRoutes.forEach(route => { router.addRoute(route) })
-          this.setRoutes(rewriteRoutes)
-          this.setMenuRouters(menuRoutes)
-          this.setDefaultRoutes(menuRoutes)
+          this.routes = [...constantRoutes, ...rewriteRoutes];
+          this.menuRouters = deepClone(menuRoutes);
           this.setActiveTopMenuPath(router.currentRoute.value.path)
           resolve(rewriteRoutes)
         })
@@ -114,21 +89,13 @@ function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
-    if (route.component) {
-      // Layout ParentView 组件特殊处理
-      if (typeof route.component === 'string') {
-        if (route.component === 'Layout') {
-          route.component = Layout
-        } else if (route.component === 'ParentView') {
-          route.component = ParentView
-        } else if (route.component === 'InnerLink') {
-          route.component = InnerLink
-        } else {
-          route.component = loadView(route.component)
-        }
-      }
+    if (typeof route.component === 'string') {
+      const components: { [key: string]: Component | undefined } = { Layout, ParentView, InnerLink }
+      const component = components[route.component]
+      if (component) route.component = component
+      else route.component = loadView(route.component)
     }
-    if (route.children != null && route.children && route.children.length) {
+    if (!!route.children && route.children.length) {
       route.children = filterAsyncRouter(route.children, type)
     } else {
       delete route['children']
@@ -148,8 +115,8 @@ function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem
 function filterChildren(childrenMap: RouteItem[], lastRouter?: RouteItem): RouteItem[] {
   const children: RouteItem[] = []
   childrenMap.forEach((el) => {
-    const item = { ...el, hidden: false } // 确保hidden属性存在
-    if (el.children && el.children.length) {
+    const item = { hidden: false, ...el, } // 确保hidden属性存在
+    if (!!el.children && el.children.length) {
       if (el.component === 'ParentView' && !lastRouter) {
         el.children.forEach((c: RouteItem) => {
           c.path = el.path + '/' + c.path
@@ -287,12 +254,10 @@ const loadView = (view: string): ModuleLoader => {
 
   for (const path in modules) {
     const resolvedViewKey = resolveViewKey(path)
-    if (candidates.has(resolvedViewKey)) {
-      return modules[path]
-    }
+    if (candidates.has(resolvedViewKey)) return modules[path]
   }
 
-  return () => Promise.resolve({} as Component)
+  return () => Promise.resolve(h('div'))
 }
 
 export default usePermissionStore

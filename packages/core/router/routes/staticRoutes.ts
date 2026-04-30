@@ -59,19 +59,19 @@ export const constantRoutes: RouteItem[] = [
   {
     path: '/laboratory',
     component: Layout,
-    meta: { title: '实验室', icon: 'dashboard' },
+    meta: { title: '新功能', icon: 'dashboard' },
     children: [
       {
-        path: 'threeTest',
+        path: 'IM',
         component: () => import('@/views/laboratory/three/gltfmode.vue'),
-        name: 'threeTest',
-        meta: { title: 'three实验室', icon: 'dashboard' }
+        name: 'IM',
+        meta: { title: '信息模型展示', icon: 'dashboard' }
       },
       {
-        path: "websocket",
+        path: "chat",
         component: () => import('@/views/laboratory/chat/websocket.vue'),
-        name: 'websocket',
-        meta: { title: 'websocket实验室', icon: 'dashboard' }
+        name: 'Chat',
+        meta: { title: '聊天室', icon: 'dashboard' }
       }
     ]
   },
