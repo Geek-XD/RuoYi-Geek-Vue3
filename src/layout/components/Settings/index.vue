@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useDynamicTitle } from '@/utils/dynamicTitle'
-import useAppStore from '@/store/modules/app'
-import useSettingsStore from '@/store/modules/settings'
-import usePermissionStore from '@/store/modules/permission'
-import { handleThemeStyle } from '@/utils/theme'
+import { useDynamicTitle } from '@ruoyi/core/utils/dynamicTitle'
+import useAppStore from '@ruoyi/core/store/modules/app'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
+import { handleThemeStyle } from '@ruoyi/core/utils/theme'
 import { computed, ref } from 'vue'
 import type { MenuLayout } from '@/settings'
-import { modal } from '@/plugins'
+import { modal } from '@ruoyi/core/plugins'
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()

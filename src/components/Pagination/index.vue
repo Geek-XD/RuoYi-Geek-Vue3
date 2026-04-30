@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { scrollTo } from '@/utils/scroll-to'
+import { scrollTo } from '@ruoyi/core/utils/scroll-to'
 import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import modal from "@/plugins/modal";
-import useAppStore from "@/store/modules/app";
+import modal from "@ruoyi/core/plugins/modal";
+import useAppStore from "@ruoyi/core/store/modules/app";
 import { computed, ref } from "vue";
 
 const appStore = useAppStore();

@@ -3,8 +3,8 @@ import { refundOrder, updateOrderStatus } from "@/modules/pay/api/order";
 import { ref } from "vue";
 import { PayOrder } from "@/entity/pay/PayOrder";
 import { usePage } from "@/hook";
-import { modal } from "@/plugins";
-import { parseTime } from "@/utils/ruoyi";
+import { modal } from "@ruoyi/core/plugins";
+import { parseTime } from "@ruoyi/core/utils/ruoyi";
 import { getSchemaName, getSchemas } from "@/annotation/Schema";
 import PayTest from "@modules/pay/view/paytest/index.vue";
 const {

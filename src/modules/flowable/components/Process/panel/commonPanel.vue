@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { StrUtil } from '@/utils/StrUtil'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 import modelerStore from '@modules/flowable/components/Process/common/global'
 export default {
   name: "CommonPanel",

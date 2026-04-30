@@ -2,7 +2,7 @@
 import { listMenu } from "@/api/system/menu";
 import { onMounted, ref, watch } from "vue";
 import { GenColumn, genTableState } from ".";
-import { handleTree } from "@/utils/ruoyi";
+import { handleTree } from "@ruoyi/core/utils/ruoyi";
 
 const subColumns = ref<GenColumn[]>([]);
 const menuOptions = ref<any[]>([]);

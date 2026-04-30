@@ -1,4 +1,4 @@
-import useUserStore from '@/store/modules/user'
+import useUserStore from '@ruoyi/core/store/modules/user'
 
 /**
  * 字符权限校验

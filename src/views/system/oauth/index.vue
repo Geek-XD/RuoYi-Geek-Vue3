@@ -1,8 +1,8 @@
 <script setup name="Oauth" lang="ts">
 import { listOauth, delOauth } from "@/api/system/oauth";
-import { modal } from "@/plugins";
-import { download } from "@/utils/request";
-import { resetForm } from "@/utils/ruoyi";
+import { modal } from "@ruoyi/core/plugins";
+import { download } from "@ruoyi/core/utils/request";
+import { resetForm } from "@ruoyi/core/utils/ruoyi";
 import { ref } from "vue";
 type OauthUser = any
 const oauthList = ref<OauthUser[]>([]);

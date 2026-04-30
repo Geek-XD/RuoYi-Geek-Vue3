@@ -1,5 +1,5 @@
 <script setup>
-import request from '@/utils/request';
+import request from '@ruoyi/core/utils/request';
 import { computed } from 'vue';
 
 const porp = defineProps(["path", "tag", "sqlText", "parameterType", "resultMap", "tagId", "method"])
@@ -30,7 +30,7 @@ const generated = reactive({
       title: "api.js",
       code: "",
       generated: () => {
-        let code = "import request from '@/utils/request'\n"
+        let code = "import request from '@ruoyi/core/utils/request'\n"
         code += "export function " + porp.tagId;
         if (porp.method === 'get' || porp.method === 'GET') {
           code += "(params){\n"

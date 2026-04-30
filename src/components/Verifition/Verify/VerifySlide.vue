@@ -47,7 +47,7 @@
  * VerifySlide
  * @description 滑块
  */
-import { aesEncrypt } from '@/utils/jsencrypt'
+import { aesEncrypt } from '@ruoyi/core/utils/jsencrypt'
 import { getCaptcha } from '@/api/captcha'
 import { resetSize } from './verifyutil'
 import { nextTick, onMounted, reactive, ref, watch, getCurrentInstance, useTemplateRef } from 'vue'

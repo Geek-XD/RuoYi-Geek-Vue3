@@ -4,9 +4,10 @@ import { configureNProgress } from './utils/utils'
 import { setupBeforeEachGuard } from './guards/beforeEach'
 import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
+import { RouteItem } from '@/types/route'
 
-const modules = import.meta.glob('../**/router/index.{ts,js}', { eager: true });
-const asyncRoutes: any[] = [];
+const modules = import.meta.glob('/src/modules/**/router/index.{ts,js}', { eager: true });
+const asyncRoutes: RouteItem[] = [];
 
 for (const key in modules) {
   const mod = (modules as Record<string, any>)[key];
@@ -16,7 +17,7 @@ for (const key in modules) {
 }
 
 if (asyncRoutes.length) {
-  (constantRoutes as any[]).push(...asyncRoutes);
+  constantRoutes.push(...asyncRoutes);
 }
 
 export const router = createRouter({

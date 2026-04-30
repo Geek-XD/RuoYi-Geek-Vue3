@@ -15,7 +15,7 @@ import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 import QuillBetterTable from 'quill-better-table'
 import 'quill-better-table/dist/quill-better-table.css'
-import { getToken } from "@/utils/auth";
+import { getToken } from "@ruoyi/core/utils/auth";
 import { ElMessage } from 'element-plus'
 Quill.register({ 'modules/better-table': QuillBetterTable }, true)
 const props = defineProps({

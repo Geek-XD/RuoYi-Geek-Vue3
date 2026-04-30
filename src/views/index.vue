@@ -154,11 +154,11 @@
 <script setup name="Index" lang="ts">
 import { ref, onMounted } from 'vue'
 import { listNotice } from '@/api/system/notice'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@ruoyi/core/utils/ruoyi'
 import { Bell, ArrowRight } from '@element-plus/icons-vue'
-import { formatDate } from '@/utils'
+import { formatDate } from '@ruoyi/core/utils'
 import profile from '@/assets/images/profile.jpg'
-import useUserStore from '@/store/modules/user'
+import useUserStore from '@ruoyi/core/store/modules/user'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { GeekResponseForList } from '@/types/request'
 const router = useRouter()

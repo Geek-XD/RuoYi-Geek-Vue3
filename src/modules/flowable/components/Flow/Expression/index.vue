@@ -33,7 +33,7 @@
 
 <script>
 import { listExpression } from "@modules/flowable/api/expression";
-import { StrUtil } from "@/utils/StrUtil";
+import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 
 export default {
   name: "Expression",

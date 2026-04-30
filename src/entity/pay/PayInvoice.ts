@@ -3,7 +3,7 @@ import Schema from "@/annotation/Schema";
 import SchemaComponent from "@/annotation/SchemaComponent";
 import { ElInput } from "element-plus";
 import { h } from "vue";
-import { parseTime } from "@/utils/ruoyi";
+import { parseTime } from "@ruoyi/core/utils/ruoyi";
 
 @Api("/pay/invoice")
 export class PayInvoice {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isExternal } from "@/utils/validate";
+import { isExternal } from "@ruoyi/core/utils/validate";
 import { computed } from "vue";
 
 const props = withDefaults(defineProps<{

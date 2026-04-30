@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, nextTick } from 'vue';
-import useSettingsStore from '@/store/modules/settings'
-import { getDarkColor, getLightColor, handleThemeStyle } from '@/utils/theme'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
+import { getDarkColor, getLightColor, handleThemeStyle } from '@ruoyi/core/utils/theme'
 const settingsStore = useSettingsStore()
 onMounted(() => {
   nextTick(() => {

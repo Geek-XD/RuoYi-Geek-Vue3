@@ -50,7 +50,7 @@
 
 <script>
 import { listUser, deptTreeSelect } from "@/api/system/user";
-import { StrUtil } from '@/utils/StrUtil'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 
 export default {
   name: "FlowUser",

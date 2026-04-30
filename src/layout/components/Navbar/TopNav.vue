@@ -19,13 +19,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { constantRoutes } from "@/router/routes/staticRoutes"
-import { isHttp } from '@/utils/validate'
-import { getNormalPath } from '@/utils/ruoyi'
-import useAppStore from '@/store/modules/app'
-import useSettingsStore from '@/store/modules/settings'
-import usePermissionStore from '@/store/modules/permission'
-import { RoutesAlias } from '@/router/routesAlias'
+import { constantRoutes } from "@ruoyi/core/router/routes/staticRoutes"
+import { isHttp } from '@ruoyi/core/utils/validate'
+import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
+import useAppStore from '@ruoyi/core/store/modules/app'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 import { useEventListener } from "@vueuse/core"
 import type { RouteItem } from '@/types/route'
 import TopNavItem from './TopNavItem.vue'

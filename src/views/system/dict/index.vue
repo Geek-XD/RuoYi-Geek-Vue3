@@ -118,7 +118,7 @@
 </template>
 
 <script setup name="Dict">
-import useDictStore from '@/store/modules/dict'
+import useDictStore from '@ruoyi/core/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 
 const { proxy } = getCurrentInstance();

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getTemplate, updateTemplate, addTemplate } from '@modules/form/api/template';
-import modal from '@/plugins/modal';
+import modal from '@ruoyi/core/plugins/modal';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();

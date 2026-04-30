@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { getToken } from "@/utils/auth";
+import { getToken } from "@ruoyi/core/utils/auth";
 import { ref, computed, watch, getCurrentInstance } from "vue";
 
 const props = defineProps({

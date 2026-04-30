@@ -6,7 +6,7 @@ export default [
     hidden: true,
     children: [
       {
-        path: 'definition/model/',
+        path: 'definition/model',
         component: () => import('@/modules/flowable/view/definition/model.vue'),
         name: 'Model',
         hidden: true,

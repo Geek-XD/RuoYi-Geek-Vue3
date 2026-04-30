@@ -2,8 +2,8 @@
 import { nextTick, ref, watch } from 'vue';
 import ChatInput from '../components/chat-input.vue';
 import { createMessage } from '@/types/Message';
-import socketclient from "@/plugins/socketclient";
-import { parseTime } from '@/utils/ruoyi';
+import socketclient from "@ruoyi/core/plugins/socketclient";
+import { parseTime } from '@ruoyi/core/utils/ruoyi';
 const message = ref("");
 const username = ref("Ricky");
 import profile from '@/assets/images/profile.jpg'

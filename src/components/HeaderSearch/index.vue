@@ -36,9 +36,9 @@
 
 <script setup>
 import Fuse from 'fuse.js'
-import { getNormalPath } from '@/utils/ruoyi'
-import { isHttp } from '@/utils/validate'
-import usePermissionStore from '@/store/modules/permission'
+import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
+import { isHttp } from '@ruoyi/core/utils/validate'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
 
 const search = ref('');
 const options = ref([]);

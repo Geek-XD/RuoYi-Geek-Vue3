@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useTagsViewStore from '@/store/modules/tagsView'
+import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouteLocationNormalizedGeneric } from 'vue-router';
 

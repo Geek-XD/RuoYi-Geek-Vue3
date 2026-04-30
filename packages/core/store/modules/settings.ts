@@ -1,5 +1,5 @@
 import defaultSettings, { resolveMenuLayout, type MenuLayout } from '@/settings'
-import { useDynamicTitle } from '@/utils/dynamicTitle'
+import { useDynamicTitle } from '@ruoyi/core/utils/dynamicTitle'
 import { defineStore } from 'pinia'
 const { theme, sideTheme, showSettings, menuLayout, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
 

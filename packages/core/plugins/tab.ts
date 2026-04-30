@@ -1,7 +1,7 @@
-import useTagsViewStore from '@/store/modules/tagsView'
-import { router } from '@/router'
+import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
+import { router } from '@ruoyi/core/router'
 import { RouteLocationNormalizedLoaded, RouteLocationRaw } from 'vue-router';
-import { RoutesAlias } from '@/router/routesAlias';
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias';
 
 export default {
   /**

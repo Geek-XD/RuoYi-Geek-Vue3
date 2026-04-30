@@ -1,15 +1,15 @@
-import { RouteLocationItem } from "@/types/route";
+import { RouteLocationNormalizedLoaded } from "@/types/route";
 import { defineStore } from "pinia";
 import { RouteLocationNormalizedLoaded, RouteLocationNormalizedLoadedGeneric, RouteRecordName } from "vue-router";
 type MatchPattern = string | RegExp;
 const useTagsViewStore = defineStore("tags-view", {
   state: () => ({
-    visitedViews: Array<RouteLocationItem>(),
+    visitedViews: Array<RouteLocationNormalizedLoaded>(),
     cachedViews: Array<MatchPattern>(),
     iframeViews: Array<RouteLocationNormalizedLoadedGeneric & { title: string }>(),
   }),
   actions: {
-    addView(view: RouteLocationItem) {
+    addView(view: RouteLocationNormalizedLoaded) {
       if (typeof view.meta?.group === 'function') view.meta.group = view.meta.group(view)
       if (typeof view.meta?.title === 'function') view.meta.title = view.meta.title(view)
       this.addVisitedView(view);
@@ -23,7 +23,7 @@ const useTagsViewStore = defineStore("tags-view", {
         })
       );
     },
-    addVisitedView(view: RouteLocationItem) {
+    addVisitedView(view: RouteLocationNormalizedLoaded) {
       if (this.visitedViews.some((v) => v.path === view.path)) return;
       const _view = view.meta?.group ? this.visitedViews.find((v) => v.meta?.group == view.meta?.group) : undefined
       if (_view) {
@@ -36,15 +36,15 @@ const useTagsViewStore = defineStore("tags-view", {
         );
       }
     },
-    addCachedView(view: RouteLocationItem) {
+    addCachedView(view: RouteLocationNormalizedLoaded) {
       if (this.cachedViews.includes(String(view.name))) return;
       if (!view.meta?.noCache) {
         this.cachedViews.push(String(view.name));
       }
     },
-    delView(view: RouteLocationItem) {
+    delView(view: RouteLocationNormalizedLoaded) {
       return new Promise<{
-        visitedViews: RouteLocationItem[],
+        visitedViews: RouteLocationNormalizedLoaded[],
         cachedViews: MatchPattern[],
         lastPath: string | undefined
       }>((resolve) => {
@@ -79,14 +79,14 @@ const useTagsViewStore = defineStore("tags-view", {
         resolve([...this.iframeViews]);
       });
     },
-    delCachedView(view: RouteLocationItem) {
+    delCachedView(view: RouteLocationNormalizedLoaded) {
       return new Promise((resolve) => {
         const index = this.cachedViews.indexOf(String(view.name));
         index > -1 && this.cachedViews.splice(index, 1);
         resolve([...this.cachedViews]);
       });
     },
-    delOthersViews(view: RouteLocationItem) {
+    delOthersViews(view: RouteLocationNormalizedLoaded) {
       return new Promise((resolve) => {
         this.delOthersVisitedViews(view);
         this.delOthersCachedViews(view);
@@ -96,7 +96,7 @@ const useTagsViewStore = defineStore("tags-view", {
         });
       });
     },
-    delOthersVisitedViews(view: RouteLocationItem) {
+    delOthersVisitedViews(view: RouteLocationNormalizedLoaded) {
       return new Promise((resolve) => {
         this.visitedViews = this.visitedViews.filter((v) => {
           return v.meta?.affix || v.path === view.path;
@@ -107,7 +107,7 @@ const useTagsViewStore = defineStore("tags-view", {
         resolve([...this.visitedViews]);
       });
     },
-    delOthersCachedViews(view: RouteLocationItem) {
+    delOthersCachedViews(view: RouteLocationNormalizedLoaded) {
       return new Promise((resolve) => {
         const index = this.cachedViews.indexOf(String(view.name));
         if (index > -1) {
@@ -120,7 +120,7 @@ const useTagsViewStore = defineStore("tags-view", {
     },
     delAllViews() {
       return new Promise<{
-        visitedViews: RouteLocationItem[],
+        visitedViews: RouteLocationNormalizedLoaded[],
         cachedViews: MatchPattern[]
       }>((resolve) => {
         this.delAllVisitedViews();
@@ -154,7 +154,7 @@ const useTagsViewStore = defineStore("tags-view", {
       }
     },
     delRightTags(view: RouteLocationNormalizedLoaded) {
-      return new Promise<RouteLocationItem[]>((resolve) => {
+      return new Promise<RouteLocationNormalizedLoaded[]>((resolve) => {
         const index = this.visitedViews.findIndex((v) => v.path === view.path);
         if (index === -1) {
           return;
@@ -177,7 +177,7 @@ const useTagsViewStore = defineStore("tags-view", {
       });
     },
     delLeftTags(view: RouteLocationNormalizedLoaded) {
-      return new Promise<RouteLocationItem[]>((resolve) => {
+      return new Promise<RouteLocationNormalizedLoaded[]>((resolve) => {
         const index = this.visitedViews.findIndex((v) => v.path === view.path);
         if (index === -1) {
           return;

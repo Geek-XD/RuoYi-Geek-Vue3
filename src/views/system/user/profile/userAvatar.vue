@@ -50,7 +50,7 @@
 import "vue-cropper/dist/index.css";
 import { VueCropper } from "vue-cropper";
 import { uploadAvatar } from "@/api/system/user";
-import useUserStore from "@/store/modules/user";
+import useUserStore from "@ruoyi/core/store/modules/user";
 
 const userStore = useUserStore();
 const { proxy } = getCurrentInstance();

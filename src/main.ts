@@ -6,9 +6,9 @@ import '@/assets/styles/index.scss' // global css
 import App from './App.vue'
 const app = createApp(App)
 
-import { download } from '@/utils/request'
-import { useDict } from '@/utils/dict'
-import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/ruoyi'
+import { download } from '@ruoyi/core/utils/request'
+import { useDict } from '@ruoyi/core/utils/dict'
+import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@ruoyi/core/utils/ruoyi'
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict
 app.config.globalProperties.download = download
@@ -20,10 +20,10 @@ app.config.globalProperties.selectDictLabel = selectDictLabel
 app.config.globalProperties.selectDictLabels = selectDictLabels
 
 
-import router from './router'           // 引入路由
-import store from './store'             // 引入状态管理
-import plugins from './plugins'         // 引入插件
-import directive from './directive'     // 引入指令
+import router from '@ruoyi/core/router'           // 引入路由
+import store from '@ruoyi/core/store'             // 引入状态管理
+import plugins from '@ruoyi/core/plugins'         // 引入插件
+import directive from '@ruoyi/core/directive'     // 引入指令
 import compomemts from './components'   // 引入全局组件
 app.use(router).use(store).use(plugins).use(directive).use(compomemts)
 

@@ -1,7 +1,7 @@
 <script setup name="Invoice" lang="ts">
 import { SchemaForm, SchemaTable } from "@/components/Schema";
 import { usePage } from "@/hook";
-import { modal } from "@/plugins";
+import { modal } from "@ruoyi/core/plugins";
 import { PayInvoice } from "@/entity/pay/PayInvoice";
 import { onMounted, ref } from "vue";
 const {

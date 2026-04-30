@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import iframeToggle from "./IframeToggle/index.vue"
 import copyright from "./Copyright/index.vue"
-import useTagsViewStore from '@/store/modules/tagsView'
+import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
 
 
 const tagsViewStore = useTagsViewStore()

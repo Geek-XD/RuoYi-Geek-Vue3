@@ -102,7 +102,7 @@ import FlowUser from '@modules/flowable/components/Flow/User'
 import FlowRole from '@modules/flowable/components/Flow/Role'
 import FlowExp from '@modules/flowable/components/Flow/Expression'
 import ElInputTag from '@modules/flowable/components/Flow/ElInputTag'
-import { StrUtil } from '@/utils/StrUtil'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 import modelerStore from '@modules/flowable/components/Process/common/global'
 export default {
   name: "TaskPanel",

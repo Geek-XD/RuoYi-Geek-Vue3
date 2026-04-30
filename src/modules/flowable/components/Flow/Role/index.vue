@@ -50,7 +50,7 @@
 
 <script>
 import { listRole } from "@/api/system/role";
-import { StrUtil } from "@/utils/StrUtil";
+import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 
 export default {
   name: "FlowRole",

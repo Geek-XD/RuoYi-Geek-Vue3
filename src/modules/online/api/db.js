@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 
 export function listDbTable(params) {

@@ -3,7 +3,7 @@
 * Copyright (c) 2019 ruoyi
 */
 
-import useUserStore from '@/store/modules/user'
+import useUserStore from '@ruoyi/core/store/modules/user'
 import type { Directive } from "vue";
 const vHasRole: Directive = {
   mounted(el, binding, vnode) {

@@ -1,6 +1,10 @@
 {
   "name": "ruoyi-geek-vue3",
   "version": "3.9.1-G",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "description": "若依Geek管理系统",
   "author": "Geek-XD",
   "license": "MIT",
@@ -20,6 +24,7 @@
     "url": "https://gitee.com/geek-xd/ruo-yi-vue3-geek.git"
   },
   "dependencies": {
+    "@ruoyi/core": "0.1.0",
     "@element-plus/icons-vue": "2.3.2",
     "@vueuse/core": "14.2.0",
     "axios": "1.13.4",

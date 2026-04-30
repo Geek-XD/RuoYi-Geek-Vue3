@@ -1,18 +1,22 @@
-import auth from '@/plugins/auth'
-import { router } from '@/router'
+import auth from '@ruoyi/core/plugins/auth'
+import { router } from '../../router'
 import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
 import InnerLink from '@/layout/components/InnerLink/index.vue'
 import { defineStore } from 'pinia'
 import type { Component } from 'vue'
 import { RouteItem } from '@/types/route'
-import { constantRoutes } from '@/router/routes/staticRoutes'
-import { dynamicRoutes } from '@/router/routes/asyncRoutes'
-import { deepClone } from '@/utils'
+import { constantRoutes } from '../../router/routes/staticRoutes'
+import { dynamicRoutes } from '../../router/routes/asyncRoutes'
+import { deepClone } from '@ruoyi/core/utils'
 import { getRouters } from '@/api/login'
 
-// 匹配views里面所有的.vue文件
-const modules = import.meta.glob(['../../**/views/**/*.vue', '../../**/view/**/*.vue'])
+// 从工作区根目录收集宿主页面与业务模块页面。
+const modules = import.meta.glob([
+  '/src/views/**/*.vue',
+  '/src/modules/**/view/**/*.vue',
+  '/src/modules/**/views/**/*.vue'
+])
 
 // 定义 store 状态接口
 interface PermissionState {
@@ -165,25 +169,33 @@ function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
   return res
 }
 
+const resolveViewKey = (path: string): string => {
+  const normalizedPath = path.replace(/^\//, '')
+  const moduleViewMatch = normalizedPath.match(/^src\/modules\/([^/]+)\/view[s]?\/(.+)\.vue$/)
+  if (moduleViewMatch) {
+    return `${moduleViewMatch[1]}/${moduleViewMatch[2]}`
+  }
+
+  const hostViewMatch = normalizedPath.match(/^src\/views\/(.+)\.vue$/)
+  if (hostViewMatch) {
+    return hostViewMatch[1]
+  }
+
+  return ''
+}
+
 const loadView = (view: string): (() => Promise<Component>) => {
-  let res: (() => Promise<Component>) | undefined
+  const normalizedView = view.replace(/^\//, '').replace(/\.vue$/, '').replace(/\/$/, '')
+  const candidates = new Set([normalizedView, `${normalizedView}/index`])
+
   for (const path in modules) {
-    // 要考虑views 或者view 两种情况
-    let dir = ''
-    if (path.includes('modules/')) {
-      dir += path.split('modules/')[1].split('/view')[0]
-      dir += "/"
-    }
-    if (path.includes('views/')) {
-      dir += path.split('views/')[1].split('.vue')[0]
-    } else if (path.includes('view/')) {
-      dir += path.split('view/')[1].split('.vue')[0]
-    }
-    if (dir === view) {
-      res = modules[path] as () => Promise<Component>
+    const resolvedViewKey = resolveViewKey(path)
+    if (candidates.has(resolvedViewKey)) {
+      return modules[path] as () => Promise<Component>
     }
   }
-  return res || (() => Promise.resolve({} as Component))
+
+  return () => Promise.resolve({} as Component)
 }
 
 export default usePermissionStore

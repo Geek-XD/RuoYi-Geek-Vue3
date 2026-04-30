@@ -1,4 +1,4 @@
-import useDictStore from '@/store/modules/dict'
+import useDictStore from '@ruoyi/core/store/modules/dict'
 import { getDicts } from '@/api/system/dict/data'
 import { toRefs, ref, Ref } from 'vue';
 

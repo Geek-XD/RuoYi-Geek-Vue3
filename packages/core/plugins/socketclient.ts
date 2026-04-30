@@ -1,6 +1,6 @@
 import { Message } from '@/types/Message';
-import { getToken } from '@/utils/auth'
-import { StrUtil } from '@/utils/StrUtil';
+import { getToken } from '@ruoyi/core/utils/auth'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil';
 let _socket: WebSocket;
 let _callback: { [key: string]: (data: any) => void } = {}
 type ConnectSocketOption = {

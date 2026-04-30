@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 查询已办任务列表
 export function finishedList(query) {

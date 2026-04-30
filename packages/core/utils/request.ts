@@ -1,12 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-import { getToken } from '@/utils/auth'
-import errorCode from '@/utils/errorCode'
-import { tansParams, blobValidate } from '@/utils/ruoyi'
-import cache from '@/plugins/cache'
+import { getToken } from '@ruoyi/core/utils/auth'
+import errorCode from '@ruoyi/core/utils/errorCode'
+import { tansParams, blobValidate } from '@ruoyi/core/utils/ruoyi'
+import cache from '@ruoyi/core/plugins/cache'
 import { saveAs } from 'file-saver'
-import useUserStore from '@/store/modules/user'
-import { router } from '@/router'
+import useUserStore from '@ruoyi/core/store/modules/user'
+import { router } from '@ruoyi/core/router'
 
 let downloadLoadingInstance: any;
 // 是否显示重新登录
@@ -14,7 +14,7 @@ export let isRelogin = { show: false };
 //@ts-ignore
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 import { GeekRequestConfig, GeekResponse } from '@/types/request'
-import { RoutesAlias } from '@/router/routesAlias'
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 // 创建axios实例
 const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分

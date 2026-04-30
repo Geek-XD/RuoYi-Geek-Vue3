@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 我的发起的流程
 export function myProcessList(query) {

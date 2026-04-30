@@ -2,8 +2,8 @@
 import AppLink from './Link.vue'
 import { computed, ref } from 'vue';
 import { RouteItem } from '@/types/route';
-import { isExternal } from '@/utils/validate'
-import { getNormalPath } from '@/utils/ruoyi'
+import { isExternal } from '@ruoyi/core/utils/validate'
+import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 
 const props = defineProps<{
   item: RouteItem;

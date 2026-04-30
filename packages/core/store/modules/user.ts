@@ -1,10 +1,10 @@
 import { login, logout, getInfo, register, verifyPhoneCode, verifyEmailCode } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken } from '@ruoyi/core/utils/auth'
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
 import { LoginForm, RegisterForm, RoleInfo, UserInfo } from '@/types/user'
 import { ElMessageBox } from 'element-plus'
-import { router } from '@/router'
+import { router } from '../../router'
 
 const useUserStore = defineStore(
   'user',

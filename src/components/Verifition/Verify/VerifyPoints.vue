@@ -46,7 +46,7 @@
  * VerifyPoints
  * @description 点选
  */
-import { aesEncrypt } from '@/utils/jsencrypt'
+import { aesEncrypt } from '@ruoyi/core/utils/jsencrypt'
 import { getCaptcha } from '@/api/captcha'
 import { resetSize } from './verifyutil'
 import { nextTick, onMounted, reactive, ref, getCurrentInstance, useTemplateRef } from 'vue'

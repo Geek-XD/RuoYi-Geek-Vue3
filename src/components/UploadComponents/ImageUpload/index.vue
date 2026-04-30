@@ -27,9 +27,9 @@
 </template>
 
 <script setup>
-import { getToken } from "@/utils/auth";
-import { isExternal } from "@/utils/validate";
-import modal from "@/plugins/modal";
+import { getToken } from "@ruoyi/core/utils/auth";
+import { isExternal } from "@ruoyi/core/utils/validate";
+import modal from "@ruoyi/core/plugins/modal";
 
 const props = defineProps({
   modelValue: [String, Object, Array],

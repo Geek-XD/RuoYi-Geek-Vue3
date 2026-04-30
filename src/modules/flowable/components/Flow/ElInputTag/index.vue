@@ -29,7 +29,7 @@
 
 
 <script>
-import {StrUtil} from '@/utils/StrUtil'
+import {StrUtil} from '@ruoyi/core/utils/StrUtil'
 
 export default {
   name: "ElInputTag",

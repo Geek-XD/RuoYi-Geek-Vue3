@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
 import { createTable } from "@/api/tool/gen";
-import { modal } from "@/plugins/index";
+import { modal } from "@ruoyi/core/plugins";
 import { computed, onMounted, reactive, ref } from "vue";
 const emit = defineEmits(["ok"]);
 

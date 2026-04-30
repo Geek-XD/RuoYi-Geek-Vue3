@@ -17,6 +17,7 @@ export default defineConfig(({ mode, command }) => {
       alias: {
         // 设置路径
         '~': path.resolve(__dirname, './'),
+        '@ruoyi/core': path.resolve(__dirname, './packages/core'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),

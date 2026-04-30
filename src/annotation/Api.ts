@@ -1,5 +1,5 @@
 
-import request, { download } from '@/utils/request'
+import request, { download } from '@ruoyi/core/utils/request'
 type Nullish<T> = {
     [P in keyof T]: T[P] | null;
 };

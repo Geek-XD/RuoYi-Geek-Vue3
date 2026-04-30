@@ -16,7 +16,7 @@
 
 <script>
 import modelerStore from '@modules/flowable/components/Process/common/global'
-import { StrUtil } from "@/utils/StrUtil";
+import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 export default {
   name: "OtherPanel",
   /** 组件传值  */

@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@ruoyi/core/utils/request'
 
 // 查询消息管理列表
 export function listMessageSystem(query) {

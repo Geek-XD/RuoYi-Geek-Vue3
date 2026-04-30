@@ -1,0 +1,23 @@
+{
+  "name": "@ruoyi/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./directive": "./directive/index.ts",
+    "./directive/*": "./directive/*",
+    "./plugins": "./plugins/index.ts",
+    "./plugins/*": "./plugins/*",
+    "./router": "./router/index.ts",
+    "./router/*": "./router/*",
+    "./store": "./store/index.ts",
+    "./store/*": "./store/*",
+    "./utils": "./utils/index.js",
+    "./utils/*": "./utils/*",
+    "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}

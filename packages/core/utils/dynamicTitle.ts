@@ -1,5 +1,5 @@
 import defaultSettings from '@/settings'
-import useSettingsStore from '@/store/modules/settings'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import { StrUtil } from './StrUtil';
 
 /**

@@ -1,6 +1,6 @@
 <script setup>
-import usePermissionStore from '@/store/modules/permission'
-import { RoutesAlias } from '@/router/routesAlias'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted } from 'vue';
 

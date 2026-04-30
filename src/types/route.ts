@@ -1,18 +1,5 @@
-import { Component } from "vue"
-import { LocationQueryRaw, RouteLocationNormalized, RouteRecordNameGeneric, RouteRecordRaw } from "vue-router"
-
-type RouteMeta = {
-  noCache?: boolean
-  title?: string | ((route: RouteItem) => string)
-  icon?: string
-  breadcrumb?: boolean
-  activeMenu?: string
-  group?: string | ((route: RouteItem) => string)
-  transition?: string
-  isTopMenu?: boolean
-  [key: string]: any
-}
-
+import type { Component } from "vue"
+import type { LocationQueryRaw, RouteLocationNormalizedLoaded, RouteRecordRaw } from "vue-router"
 
 /**
  * Note: 路由配置项
@@ -39,19 +26,31 @@ type RouteMeta = {
     }
  */
 
-export type RouteItem = Omit<RouteRecordRaw, 'path' | 'component' | 'redirect' | 'name' | 'meta' | 'children'> & {
-  path: string
-  parentPath?: string
-  component?: Component | string
-  redirect?: string
-  name?: RouteRecordNameGeneric
-  query?: LocationQueryRaw
-  roles?: string[]
-  permissions?: string[]
-  hidden?: boolean
-  alwaysShow?: boolean
-  meta?: RouteMeta
-  children?: RouteItem[]
+declare module 'vue-router' {
+  interface _RouteRecordBase {
+    query?: LocationQueryRaw
+    roles?: string[]
+    permissions?: string[]
+    hidden?: boolean
+    alwaysShow?: boolean
+  }
+
+  interface RouteMeta {
+    noCache?: boolean
+    title?: string | ((route: RouteLocationNormalizedLoaded) => string)
+    icon?: string
+    breadcrumb?: boolean
+    activeMenu?: string
+    group?: string | ((route: RouteLocationNormalizedLoaded) => string)
+    transition?: string
+    isTopMenu?: boolean
+    affix?: boolean
+    link?: string
+  }
 }
 
-export type RouteLocationItem = RouteLocationNormalized & RouteMeta
+export type RouteItem = RouteRecordRaw & {
+  component?: Component | string
+  parentPath?: string
+  children?: RouteItem[]
+}

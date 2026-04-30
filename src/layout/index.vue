@@ -2,8 +2,8 @@
 import { AppMain, Settings, TagsView, Sidebar, Navbar } from './components'
 import { computed, ref, useTemplateRef, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
-import useAppStore from '@/store/modules/app'
-import useSettingsStore from '@/store/modules/settings'
+import useAppStore from '@ruoyi/core/store/modules/app'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
 
 const settingsStore = useSettingsStore()
 const appStore = useAppStore()

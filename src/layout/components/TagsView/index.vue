@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import ScrollPane from './ScrollPane.vue'
-import { getNormalPath } from '@/utils/ruoyi'
-import useTagsViewStore from '@/store/modules/tagsView'
-import usePermissionStore from '@/store/modules/permission'
-import { tab } from '@/plugins'
+import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
+import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
+import { tab } from '@ruoyi/core/plugins'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
 import { RouteLocationNormalizedGeneric, useRoute, useRouter } from 'vue-router'
 import { RouteItem } from '@/types/route'
-import { RoutesAlias } from '@/router/routesAlias'
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 
 const visible = ref(false);
 const top = ref(0);
