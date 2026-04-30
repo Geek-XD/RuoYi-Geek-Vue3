@@ -3,7 +3,8 @@
   "version": "3.9.1-G",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "modules/*"
   ],
   "description": "若依Geek管理系统",
   "author": "Geek-XD",
@@ -24,7 +25,12 @@
     "url": "https://gitee.com/geek-xd/ruo-yi-vue3-geek.git"
   },
   "dependencies": {
-    "@ruoyi/core": "0.1.0",
+    "@ruoyi/core": "file:./packages/core",
+    "@ruoyi/module-flowable": "file:./modules/flowable",
+    "@ruoyi/module-online": "file:./modules/online",
+    "@ruoyi/module-pay": "file:./modules/pay",
+    "@ruoyi/module-message": "file:./modules/message",
+    "@ruoyi/module-form": "file:./modules/form",
     "@element-plus/icons-vue": "2.3.2",
     "@vueuse/core": "14.2.0",
     "axios": "1.13.4",

@@ -1,5 +1,5 @@
 <script setup name="Order" lang="ts">
-import { refundOrder, updateOrderStatus } from "@/modules/pay/api/order";
+import { refundOrder, updateOrderStatus } from "@modules/pay/api/order";
 import { ref } from "vue";
 import { PayOrder } from "@/entity/pay/PayOrder";
 import { usePage } from "@/hook";

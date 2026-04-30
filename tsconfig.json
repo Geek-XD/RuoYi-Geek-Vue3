@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "packages/core/**/*.ts", "packages/core/**/*.d.ts", "packages/core/**/*.vue"],
+  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "packages/core/**/*.ts", "packages/core/**/*.d.ts", "packages/core/**/*.vue", "modules/**/*.ts", "modules/**/*.d.ts", "modules/**/*.tsx", "modules/**/*.vue"],
   "exclude": ["node_modules", "dist", "**/*.js"],
   "compilerOptions": {
     "types":["vite/client"],
@@ -26,7 +26,8 @@
       "@/*": ["./src/*"],
       "@lib": ["./lib"],
       "@lib/*": ["./lib/*"],
-      "@modules": ["./src/modules"],
+      "@modules": ["./modules"],
+      "@modules/*": ["./modules/*"],
       "vue": ["./node_modules/vue"],
       "tslib" : ["./node_modules/tslib/tslib.d.ts"]
     }

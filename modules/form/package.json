@@ -1,0 +1,11 @@
+{
+  "name": "@ruoyi/module-form",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./api/*": "./api/*",
+    "./view/*": "./view/*",
+    "./package.json": "./package.json"
+  }
+}

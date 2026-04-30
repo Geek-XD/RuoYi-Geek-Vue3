@@ -6,7 +6,7 @@ import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
 import { RouteItem } from '@/types/route'
 
-const modules = import.meta.glob('/src/modules/**/router/index.{ts,js}', { eager: true });
+const modules = import.meta.glob('/modules/**/router/index.{ts,js}', { eager: true });
 const asyncRoutes: RouteItem[] = [];
 
 for (const key in modules) {

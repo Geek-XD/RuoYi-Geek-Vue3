@@ -14,8 +14,8 @@ import { getRouters } from '@/api/login'
 // 从工作区根目录收集宿主页面与业务模块页面。
 const modules = import.meta.glob([
   '/src/views/**/*.vue',
-  '/src/modules/**/view/**/*.vue',
-  '/src/modules/**/views/**/*.vue'
+  '/modules/**/view/**/*.vue',
+  '/modules/**/views/**/*.vue'
 ])
 
 // 定义 store 状态接口
@@ -171,7 +171,7 @@ function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
 
 const resolveViewKey = (path: string): string => {
   const normalizedPath = path.replace(/^\//, '')
-  const moduleViewMatch = normalizedPath.match(/^src\/modules\/([^/]+)\/view[s]?\/(.+)\.vue$/)
+  const moduleViewMatch = normalizedPath.match(/^modules\/([^/]+)\/view[s]?\/(.+)\.vue$/)
   if (moduleViewMatch) {
     return `${moduleViewMatch[1]}/${moduleViewMatch[2]}`
   }

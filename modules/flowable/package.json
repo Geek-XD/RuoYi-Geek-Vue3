@@ -1,0 +1,14 @@
+{
+  "name": "@ruoyi/module-flowable",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./api/*": "./api/*",
+    "./components/*": "./components/*",
+    "./router": "./router/index.ts",
+    "./router/*": "./router/*",
+    "./view/*": "./view/*",
+    "./package.json": "./package.json"
+  }
+}
