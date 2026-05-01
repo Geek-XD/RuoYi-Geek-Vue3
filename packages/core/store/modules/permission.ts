@@ -18,7 +18,6 @@ import { h } from 'vue'
 type ModuleLoader = () => Promise<Component>
 const modules: Record<string, ModuleLoader> = import.meta.glob([
   '/src/views/**/*.vue',
-  '/modules/**/view/**/*.vue',
   '/modules/**/views/**/*.vue'
 ])
 
