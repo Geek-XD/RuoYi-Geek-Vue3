@@ -90,13 +90,10 @@ function initFuse(list) {
     distance: 100,
     maxPatternLength: 32,
     minMatchCharLength: 1,
-    keys: [{
-      name: 'title',
-      weight: 0.7
-    }, {
-      name: 'path',
-      weight: 0.3
-    }]
+    keys: [
+      { name: 'title', weight: 0.7 },
+      { name: 'path', weight: 0.3 }
+    ]
   })
 }
 // Filter out the routes that can be displayed in the sidebar

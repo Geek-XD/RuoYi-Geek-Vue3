@@ -6,7 +6,7 @@
   "exports": {
     "./api/*": "./api/*",
     "./entity/*": "./entity/*",
-    "./view/*": "./view/*",
+    "./views/*": "./views/*",
     "./package.json": "./package.json"
   },
   "peerDependencies": {

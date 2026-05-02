@@ -6,7 +6,7 @@ import { usePage } from "@ruoyi/core/hook";
 import { modal } from "@ruoyi/core/plugins";
 import { parseTime } from "@ruoyi/core/utils/ruoyi";
 import { getSchemaName, getSchemas } from "@ruoyi/core/annotation/Schema";
-import PayTest from "@ruoyi/module-pay/view/paytest/index.vue";
+import PayTest from "@ruoyi/module-pay/views/paytest/index.vue";
 const {
   queryParams,
   handleQuery,

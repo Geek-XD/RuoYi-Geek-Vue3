@@ -18,14 +18,18 @@ const privateKey = 'MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAqhHyZfSsYour
 export function encrypt(txt: string): string {
   const encryptor = new JSEncrypt()
   encryptor.setPublicKey(publicKey) // 设置公钥
-  return encryptor.encrypt(txt) // 对数据进行加密
+  const res = encryptor.encrypt(txt) // 对数据进行加密
+  if (!res) throw new Error('加密失败')
+  else return res
 }
 
 // 解密
 export function decrypt(txt: string): string {
   const encryptor = new JSEncrypt()
   encryptor.setPrivateKey(privateKey) // 设置私钥
-  return encryptor.decrypt(txt) // 对数据进行解密
+  const res = encryptor.decrypt(txt) // 对数据进行解密
+  if (!res) throw new Error('解密失败')
+  else return res
 }
 
 import CryptoJS from 'crypto-js'

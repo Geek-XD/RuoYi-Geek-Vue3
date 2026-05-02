@@ -1,19 +1,18 @@
-import auth from '@ruoyi/core/plugins/auth'
-import { router } from '../../router'
-import Layout from '@/layout/index.vue'
-import ParentView from '@/components/ParentView/index.vue'
-import InnerLink from '@/layout/components/InnerLink/index.vue'
-import useSettingsStore from './settings'
+import { h, type Component } from 'vue'
 import { defineStore } from 'pinia'
-import type { Component } from 'vue'
 import { RouteItem } from '@ruoyi/core/types/route'
-import { constantRoutes } from '../../router/routes/staticRoutes'
-import { dynamicRoutes } from '../../router/routes/asyncRoutes'
-import { deepClone } from '@ruoyi/core/utils'
 import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import { isHttp } from '@ruoyi/core/utils/validate'
+import { deepClone } from '@ruoyi/core/utils'
+import auth from '@ruoyi/core/plugins/auth'
 import { getRouters } from '@/api/login'
-import { h } from 'vue'
+import { constantRoutes } from '@ruoyi/core/router/routes/staticRoutes'
+import { dynamicRoutes } from '@ruoyi/core/router/routes/asyncRoutes'
+import { router } from '@ruoyi/core/router'
+import Layout from '@/layout/index.vue'
+import InnerLink from '@/layout/components/InnerLink/index.vue'
+import ParentView from '@/components/ParentView/index.vue'
+import useSettingsStore from './settings'
 
 type ModuleLoader = () => Promise<Component>
 const modules: Record<string, ModuleLoader> = import.meta.glob([
@@ -59,20 +58,18 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
     setActiveTopMenuPath(activePath: string) {
       this.activeTopMenuPath = activePath
     },
-    generateRoutes(): Promise<RouteItem[]> {
-      return new Promise(resolve => {
-        // 向后端请求路由数据
-        getRouters().then(res => {
-          const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
-          const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
-          const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-          asyncRoutes.forEach(route => { router.addRoute(route) })
-          this.routes = [...constantRoutes, ...rewriteRoutes];
-          this.menuRouters = deepClone(menuRoutes);
-          this.setActiveTopMenuPath(router.currentRoute.value.path)
-          resolve(rewriteRoutes)
-        })
-      })
+    async generateRoutes() {
+      const res = await getRouters()
+      const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
+      this.menuRouters = deepClone(menuRoutes);
+
+      const rewriteRoutes = filterAsyncRouter(deepClone(res.data), true)
+      const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+      asyncRoutes.forEach(route => { router.addRoute(route) })
+      this.routes = [...constantRoutes, ...rewriteRoutes];
+
+      this.setActiveTopMenuPath(router.currentRoute.value.path)
+      return rewriteRoutes
     }
   }
 })
@@ -80,10 +77,7 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap: RouteItem[], type = false): RouteItem[] {
   return asyncRouterMap.filter(route => {
-    // 确保route有hidden属性
-    if (route.hidden === undefined) {
-      route.hidden = false;
-    }
+    route.hidden = !!route.hidden // 确保hidden属性存在且为布尔值
 
     if (type && route.children) {
       route.children = filterChildren(route.children)
@@ -170,7 +164,7 @@ function normalizeTopbarRoute(route: RouteItem, parentPath?: string): RouteItem 
       ...route.meta,
       icon: route.meta?.icon || 'dashboard'
     }
-  } as RouteItem
+  }
 
   const children = getVisibleChildren(route)
   if (children.length) {

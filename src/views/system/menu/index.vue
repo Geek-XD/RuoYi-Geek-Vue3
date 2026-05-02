@@ -119,7 +119,7 @@
                      </template>
                      <el-input v-model="form.component" placeholder="请输入组件路径">
                         <template #prepend>
-                           <div style="width: 80px; text-align: center;">src/view/</div>
+                           <div style="width: 80px; text-align: center;">src/views/</div>
                         </template>
                      </el-input>
                   </el-form-item>

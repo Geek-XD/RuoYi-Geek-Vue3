@@ -6,11 +6,11 @@ import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
 import { RouteItem } from '@ruoyi/core/types/route'
 
-const modules = import.meta.glob('/modules/**/routes/index.{ts,js}', { eager: true });
+const modules: Record<string, any> = import.meta.glob('/modules/**/routes/index.{ts,js}', { eager: true });
 const asyncRoutes: RouteItem[] = [];
 
 for (const key in modules) {
-  const mod = (modules as Record<string, any>)[key];
+  const mod = modules[key];
   const list = mod.default || mod.routes || mod;
   if (Array.isArray(list)) asyncRoutes.push(...list);
   else asyncRoutes.push(list);

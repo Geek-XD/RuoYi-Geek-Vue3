@@ -1,10 +1,10 @@
 import { RouteItem } from '@ruoyi/core/types/route'
-import { LoginForm, RegisterForm } from '@ruoyi/core/types/user'
+import { LoginForm, RegisterForm, UserInfo } from '@ruoyi/core/types/user'
 import request, { getAction, postAction } from '@ruoyi/core/utils/request'
 
 export const login = (data: LoginForm) => postAction('/login', data, { isToken: false })
 export const register = (data: RegisterForm) => postAction('/register', data, { isToken: false })
-export const getInfo = () => getAction('/getInfo')
+export const getInfo = () => getAction('/getInfo') as unknown as Promise<{ user: UserInfo, roles: string[], permissions: string[], isDefaultModifyPwd: boolean, isPasswordExpired: boolean }>
 export const logout = () => postAction('/logout')
 export const getRouters = () => getAction<RouteItem[]>('/getRouters')
 

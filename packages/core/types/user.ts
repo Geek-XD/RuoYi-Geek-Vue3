@@ -64,11 +64,11 @@ export interface UserInfo {
     avatar: string | null;
     dept: DeptInfo;
     roles: RoleInfo[];
-    phonenumber?: string;
-    email?: string;
-    loginDate?: string;
-    loginIp?: string;
-    createTime?: string;
-    status?: string;
-    remark?: string;
+    phonenumber: string;
+    email: string;
+    loginDate: string;
+    loginIp: string;
+    createTime: string;
+    status: string;
+    remark: string;
 }

@@ -8,7 +8,7 @@
     "./components/*": "./components/*",
     "./router": "./router/index.ts",
     "./router/*": "./router/*",
-    "./view/*": "./view/*",
+    "./views/*": "./views/*",
     "./package.json": "./package.json"
   },
   "dependencies":{

@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     "./api/*": "./api/*",
-    "./view/*": "./view/*",
+    "./views/*": "./views/*",
     "./package.json": "./package.json"
   },
   "peerDependencies": {
