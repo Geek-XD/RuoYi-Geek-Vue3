@@ -41,7 +41,7 @@ const router = useRouter();
 // 主题颜色
 const theme = computed(() => settingsStore.theme);
 // 所有的路由信息
-const topMenus = computed(() => permissionStore.topbarRouters);
+const topbarRoutes = computed(() => permissionStore.topbarRoutes);
 const isMixMenu = computed(() => settingsStore.isMixMenu)
 const isTopMenu = computed(() => settingsStore.isTopMenu)
 
@@ -49,7 +49,7 @@ function getMenuChildren(route: RouteItem) {
   return (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
 }
 
-function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): RouteItem | undefined {
+function findTopMenuByPath(path: string, menus: RouteItem[] = topbarRoutes.value): RouteItem | undefined {
   for (const item of menus) {
     if (item.path === path) {
       return item
@@ -64,18 +64,18 @@ function findTopMenuByPath(path: string, menus: RouteItem[] = topMenus.value): R
 
 function syncSidebarMenus(activePath: string) {
   permissionStore.setActiveTopMenuPath(activePath)
-  const routes = permissionStore.sidebarRouters
-  if (routes.length === 0) {
+  const sidebarRoutes = permissionStore.sidebarRoutes
+  if (sidebarRoutes.length === 0) {
     appStore.toggleSideBarHide(true)
   }
-  return routes
+  return sidebarRoutes
 }
 
 // 默认激活的菜单
 const activeMenu = computed(() => {
   const path = route.path;
   if (isTopMenu.value) {
-    const matchedTopMenu = topMenus.value.find(item => path === item.path || path.startsWith(`${item.path}/`))
+    const matchedTopMenu = topbarRoutes.value.find(item => path === item.path || path.startsWith(`${item.path}/`))
     if (matchedTopMenu) {
       return path === matchedTopMenu.path ? matchedTopMenu.path : path
     }

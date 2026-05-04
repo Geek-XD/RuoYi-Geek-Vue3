@@ -48,7 +48,7 @@ const activeIndex = ref(-1);
 const fuse = ref(undefined);
 const headerSearchSelectRef = ref(null);
 const router = useRouter();
-const routes = computed(() => usePermissionStore().routes);
+const pageRoutes = computed(() => usePermissionStore().pageRoutes);
 const theme = computed(() => usePermissionStore().theme);
 
 const show = ref(false);
@@ -163,11 +163,11 @@ function selectActiveResult() {
 }
 
 onMounted(() => {
-  searchPool.value = generateRoutes(routes.value);
+  searchPool.value = generateRoutes(pageRoutes.value);
 })
 
 watchEffect(() => {
-  searchPool.value = generateRoutes(routes.value)
+  searchPool.value = generateRoutes(pageRoutes.value)
 })
 
 

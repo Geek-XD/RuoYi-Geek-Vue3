@@ -13,7 +13,7 @@ const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()
 
-const sidebarRouters = computed(() => permissionStore.sidebarRouters);
+const sidebarRoutes = computed(() => permissionStore.sidebarRoutes);
 const showLogo = computed(() => settingsStore.sidebarLogo);
 const sideTheme = computed(() => settingsStore.sideTheme);
 const theme = computed(() => settingsStore.theme);
@@ -35,7 +35,7 @@ const activeMenu = computed(() => {
         :background-color="sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground"
         :text-color="sideTheme === 'theme-dark' ? variables.menuColor : variables.menuLightColor"
         :active-text-color="theme" mode="vertical" unique-opened>
-        <sidebar-item v-for="(route, index) in sidebarRouters" :key="route.path + index" :item="route"
+        <sidebar-item v-for="(route, index) in sidebarRoutes" :key="route.path + index" :item="route"
           :base-path="route.path" />
       </el-menu>
     </el-scrollbar>

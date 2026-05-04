@@ -19,7 +19,7 @@ const route = useRoute();
 const router = useRouter();
 
 const visitedViews = computed(() => useTagsViewStore().visitedViews);
-const routes = computed(() => usePermissionStore().routes);
+const pageRoutes = computed(() => usePermissionStore().pageRoutes);
 
 watch(route, () => {
   addTags()
@@ -65,7 +65,7 @@ function filterAffixTags(routes: RouteItem[], basePath = '') {
   return tags
 }
 function initTags() {
-  const res = filterAffixTags(routes.value);
+  const res = filterAffixTags(pageRoutes.value);
   affixTags.value = res;
   for (const tag of res) {
     // Must have tag name

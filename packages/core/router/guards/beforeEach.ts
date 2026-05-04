@@ -32,8 +32,9 @@ export function setupBeforeEachGuard(router: Router): void {
         // 判断当前用户是否已拉取完user_info信息
         useUserStore().getInfo().then(() => {
           isRelogin.show = false
-          usePermissionStore().generateRoutes().then(accessRoutes => {
-            // 根据roles权限生成可访问的路由表
+          const permissionStore = usePermissionStore()
+          permissionStore.generateRoutes().then(accessRoutes => {
+            permissionStore.setActiveTopMenuPath(router.currentRoute.value.path)
             accessRoutes.forEach(route => {
               if (!isHttp(route.path)) {
                 router.addRoute(route) // 动态添加可访问路由表

@@ -7,7 +7,7 @@ import { onMounted } from 'vue';
 const route = useRoute()
 const router = useRouter();
 const permissionStore = usePermissionStore()
-const sidebarRouters = computed(() => permissionStore.sidebarRouters);
+const sidebarRoutes = computed(() => permissionStore.sidebarRoutes);
 const getTitle = (item) => typeof item.meta.title === 'function' ? item.meta.title(route) : item.meta.title
 function findPathNum(str, char = "/") {
   let index = str.indexOf(char)
@@ -46,7 +46,7 @@ function getBreadcrumb() {
       if (index !== 0) item = item.slice(1)
       return item
     })
-    getMatched(pathList, sidebarRouters.value, matched)
+    getMatched(pathList, sidebarRoutes.value, matched)
   } else {
     matched = route.matched.filter((item) => item.meta && item.meta.title)
   }
