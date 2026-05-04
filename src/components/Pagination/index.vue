@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { scrollTo } from '@ruoyi/core/utils/scroll-to'
-import { computed } from 'vue';
+import { useWindowScroll } from '@vueuse/core';
 
 const props = withDefaults(defineProps<{
   total: number
@@ -19,8 +18,8 @@ const props = withDefaults(defineProps<{
   hidden: false
 })
 
-const emit = defineEmits();
-
+const emit = defineEmits(['pagination']);
+const { y } = useWindowScroll({ behavior: 'smooth' })
 const pageSize = defineModel<number>('limit', { default: 20 })
 const currentPage = defineModel<number>('page', { default: 1 })
 function handleSizeChange(val: number) {
@@ -29,13 +28,13 @@ function handleSizeChange(val: number) {
   }
   emit('pagination', { page: currentPage.value, limit: val })
   if (props.autoScroll) {
-    scrollTo(0, 800)
+    y.value = 0
   }
 }
 function handleCurrentChange(val: number) {
   emit('pagination', { page: val, limit: pageSize.value })
   if (props.autoScroll) {
-    scrollTo(0, 800)
+    y.value = 0
   }
 }
 

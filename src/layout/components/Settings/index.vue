@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDynamicTitle } from '@ruoyi/core/utils/dynamicTitle'
 import useAppStore from '@ruoyi/core/store/modules/app'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import { handleThemeStyle } from '@ruoyi/core/utils/theme'
@@ -51,8 +50,7 @@ const dynamicTitle = computed({
   get: () => storeSettings.value.dynamicTitle,
   set: (val) => {
     settingsStore.changeSetting({ key: 'dynamicTitle', value: val })
-    // 动态设置网页标题
-    useDynamicTitle()
+    settingsStore.refreshDynamicTitle();
   }
 })
 

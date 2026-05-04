@@ -1,5 +1,5 @@
 import defaultSettings, { resolveMenuLayout, type MenuLayout } from '@/settings'
-import { useDynamicTitle } from '@ruoyi/core/utils/dynamicTitle'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 import { defineStore } from 'pinia'
 const { theme, sideTheme, showSettings, menuLayout, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
 
@@ -62,7 +62,14 @@ const useSettingsStore = defineStore('settings', {
     /** 设置网页标题 */
     setTitle(title: string) {
       this.title = title
-      useDynamicTitle();
+      this.refreshDynamicTitle();
+    },
+    refreshDynamicTitle() {
+      if (this.dynamicTitle && StrUtil.isNotBlank(this.title)) {
+        document.title = this.title + ' - ' + defaultSettings.title;
+      } else {
+        document.title = defaultSettings.title;
+      }
     }
   },
   getters: {

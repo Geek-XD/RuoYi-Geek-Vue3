@@ -6,7 +6,7 @@ import { toRefs, ref, Ref } from 'vue';
  * 获取字典数据
  */
 export function useDict<const T extends string[]>(...args: T) {
-  const res = ref({} as Record<T[number], Array<DictValue>>);
+  const res = ref<Partial<Record<T[number], Array<DictValue>>>>({});
   args.forEach((dictType) => {
     res.value[dictType] = [];
     const dicts = useDictStore().getDict(dictType);
@@ -24,5 +24,5 @@ export function useDict<const T extends string[]>(...args: T) {
       });
     }
   });
-  return toRefs(res.value) as { [K in T[number]]: Ref<Array<DictValue>> };
+  return toRefs(res.value);
 }

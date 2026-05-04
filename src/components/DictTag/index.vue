@@ -15,8 +15,8 @@
 import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{
-  separator: string;
-  showValue: boolean
+  separator?: string;
+  showValue?: boolean
   options?: Array<{ label: string; value: string | number; elTagType?: string; elTagClass?: string }>;
   value?: string | number | Array<string | number> | null;
 }>(), {

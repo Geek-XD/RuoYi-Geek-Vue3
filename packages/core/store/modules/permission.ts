@@ -15,10 +15,7 @@ import ParentView from '@/components/ParentView/index.vue'
 import useSettingsStore from './settings'
 
 type ModuleLoader = () => Promise<Component>
-const modules: Record<string, ModuleLoader> = import.meta.glob([
-  '/src/views/**/*.vue',
-  '/modules/**/views/**/*.vue'
-])
+const modules: Record<string, ModuleLoader> = import.meta.glob(['/**/views/**/*.vue',])
 
 interface PermissionState {
   routes: RouteItem[]
@@ -58,6 +55,7 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
     setActiveTopMenuPath(activePath: string) {
       this.activeTopMenuPath = activePath
     },
+    // TODO： 唯一用到roter暴露的两个常量的位置，检索这个函数的使用位置，尝试解耦
     async generateRoutes() {
       const res = await getRouters()
       const menuRoutes = constantRoutes.concat(filterAsyncRouter(deepClone(res.data)))
@@ -130,19 +128,14 @@ function filterChildren(childrenMap: RouteItem[], lastRouter?: RouteItem): Route
   return children
 }
 
-// 动态路由遍历，验证是否具备权限
+/** 动态路由遍历，验证是否具备权限 */
 function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
   const res: RouteItem[] = []
   routes.forEach(route => {
-    if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
-        res.push(route)
-      }
-    } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
-        res.push(route)
-      }
-    }
+    let flag = false
+    if (route.permissions) flag = flag || auth.hasPermiOr(route.permissions)
+    if (route.roles) flag = flag || auth.hasRoleOr(route.roles)
+    if (flag) res.push(route)
   })
   return res
 }
