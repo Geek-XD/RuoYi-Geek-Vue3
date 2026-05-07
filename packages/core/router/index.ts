@@ -1,24 +1,10 @@
 import { createWebHistory, createRouter, createWebHashHistory } from 'vue-router'
-import { constantRoutes } from './routes/staticRoutes'
-import { configureNProgress } from './utils/utils'
+import { getInitialRoutes } from './routeManager'
+import { configureNProgress } from './progress'
 import { setupBeforeEachGuard } from './guards/beforeEach'
 import { setupAfterEachGuard } from './guards/afterEach'
 import type { App } from 'vue'
-import { RouteItem } from '@ruoyi/core/types/route'
-import { ROUTES } from '../constant'
-
-const asyncRoutes: RouteItem[] = [];
-
-for (const key in ROUTES) {
-  const mod = ROUTES[key];
-  const list = mod.default || mod.routes || mod;
-  if (Array.isArray(list)) asyncRoutes.push(...list);
-  else asyncRoutes.push(list);
-}
-
-if (asyncRoutes.length) {
-  constantRoutes.push(...asyncRoutes);
-}
+const constantRoutes = getInitialRoutes()
 
 export const router = createRouter({
   // createWebHistory  createWebHashHistory

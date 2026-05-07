@@ -2,7 +2,7 @@ import { RouteItem } from '@ruoyi/core/types/route'
 const Layout = () => import('@/layout/index.vue')
 
 // 公共路由,配置详情请参见RouteItem定义
-export const constantRoutes: RouteItem[] = [
+export const staticRoutes: RouteItem[] = [
   {
     path: '/redirect',
     component: Layout,
@@ -91,4 +91,3 @@ export const constantRoutes: RouteItem[] = [
   },
 
 ]
-

@@ -5,6 +5,8 @@ import { defineStore } from 'pinia'
 import { LoginForm, RegisterForm, UserInfo } from '@ruoyi/core/types/user'
 import { ElMessageBox } from 'element-plus'
 import { router } from '../../router'
+import { resetAccessRoutes } from '../../router/routeManager'
+import usePermissionStore from './permission'
 
 interface UserState {
   token?: string | null
@@ -100,6 +102,8 @@ const useUserStore = defineStore('user', {
         this.token = ''
         this.roles = []
         this.permissions = []
+        resetAccessRoutes()
+        usePermissionStore().resetRouteData()
         removeToken()
       }
     }

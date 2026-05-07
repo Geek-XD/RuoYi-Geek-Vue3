@@ -145,7 +145,7 @@ onMounted(() => { setVisibleNumber() })
 <template>
   <el-menu :default-active="activeMenu" mode="horizontal" @select="handleSelect" :ellipsis="false"
     class="topmenu-container">
-    <template v-for="(item, index) in topMenus" :key="item.path">
+    <template v-for="(item, index) in topbarRoutes" :key="item.path">
       <el-menu-item v-if="index < visibleNumber && isMixMenu" :style="{ '--theme': theme }" :index="item.path">
         <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
         <span>{{ item.meta?.title }}</span>
@@ -155,9 +155,9 @@ onMounted(() => { setVisibleNumber() })
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu :style="{ '--theme': theme }" index="more" v-if="topMenus.length > visibleNumber">
+    <el-sub-menu :style="{ '--theme': theme }" index="more" v-if="topbarRoutes.length > visibleNumber">
       <template #title>更多菜单</template>
-      <template v-for="(item, index) in topMenus" :key="`${item.path}-more`">
+      <template v-for="(item, index) in topbarRoutes" :key="`${item.path}-more`">
         <el-menu-item v-if="index >= visibleNumber && isMixMenu" :index="item.path">
           <svg-icon :icon-class="item.meta?.icon || 'dashboard'" />
           <span>{{ item.meta?.title }}</span>

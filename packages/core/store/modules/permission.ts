@@ -1,13 +1,8 @@
 import { defineStore } from 'pinia'
-import { RouteItem } from '@ruoyi/core/types/route'
+import type { RouteItem } from '@ruoyi/core/types/route'
 import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import { isHttp } from '@ruoyi/core/utils/validate'
 import { deepClone } from '@ruoyi/core/utils'
-import auth from '@ruoyi/core/plugins/auth'
-import { getRouters } from '@/api/login'
-import { filterAsyncRouter } from '@ruoyi/core/router/utils/utils'
-import { constantRoutes } from '@ruoyi/core/router/routes/staticRoutes'
-import { dynamicRoutes } from '@ruoyi/core/router/routes/asyncRoutes'
 import useSettingsStore from './settings'
 
 interface PermissionState {
@@ -17,59 +12,103 @@ interface PermissionState {
 
 interface PermissionGetters {
   [key: string]: any
-  pageRoutes: (state: PermissionState) => RouteItem[]
   menuRoutes: (state: PermissionState) => RouteItem[]
+  pageRoutes: (state: PermissionState) => RouteItem[]
   topbarRoutes: () => RouteItem[]
   sidebarRoutes: () => RouteItem[]
 }
 
 interface PermissionActions {
   setActiveTopMenuPath: (activePath: string) => void
-  generateRoutes: () => Promise<RouteItem[]>
+  setRouteData: (routeTree: RouteItem[]) => void
+  resetRouteData: () => void
 }
 
 const usePermissionStore = defineStore<string, PermissionState, PermissionGetters, PermissionActions>('permission', {
   state: () => ({
-    routeTree: deepClone(constantRoutes),
+    routeTree: [],
     activeTopMenuPath: ''
   }),
   getters: {
-    pageRoutes: (state) => filterAsyncRouter(deepClone(state.routeTree), true),
-    menuRoutes: (state) => filterAsyncRouter(deepClone(state.routeTree)),
+    menuRoutes: (state) => buildMenuRoutes(deepClone(state.routeTree)),
+    pageRoutes: (state) => buildPageRoutes(deepClone(state.routeTree)),
     topbarRoutes() {
       if (useSettingsStore().isLeftMenu) return []
-      else return buildTopbarMenus(this.menuRoutes)
+      return buildTopbarMenus(this.menuRoutes)
     },
     sidebarRoutes() {
       if (useSettingsStore().isTopMenu) return []
-      else if (useSettingsStore().isLeftMenu) return this.menuRoutes
-      else return buildMixSidebarMenus(this.menuRoutes, this.activeTopMenuPath)
+      if (useSettingsStore().isLeftMenu) return this.menuRoutes
+      return buildMixSidebarMenus(this.menuRoutes, this.activeTopMenuPath)
     }
   },
   actions: {
-    setActiveTopMenuPath(activePath: string) { this.activeTopMenuPath = activePath },
-    async generateRoutes() {
-      const res = await getRouters()
-      const backendRouteTree = deepClone(res.data)
-      const accessDynamicRoutes = filterDynamicRoutes(deepClone(dynamicRoutes))
-      this.routeTree = [...deepClone(constantRoutes), ...backendRouteTree, ...deepClone(accessDynamicRoutes)]
-      const rewriteRoutes = filterAsyncRouter(deepClone(backendRouteTree), true)
-      return [...rewriteRoutes, ...accessDynamicRoutes]
+    setActiveTopMenuPath(activePath: string) {
+      this.activeTopMenuPath = activePath
+    },
+    setRouteData(routeTree) {
+      this.routeTree = deepClone(routeTree)
+    },
+    resetRouteData() {
+      this.routeTree = []
+      this.activeTopMenuPath = ''
     }
   }
 })
 
+function buildMenuRoutes(routes: RouteItem[]): RouteItem[] {
+  return routes.map(route => {
+    const currentRoute: RouteItem = {
+      ...route,
+      hidden: !!route.hidden
+    }
 
-/** 动态路由遍历，验证是否具备权限 */
-function filterDynamicRoutes(routes: readonly RouteItem[]): RouteItem[] {
-  const res: RouteItem[] = []
-  routes.forEach(route => {
-    let flag = false
-    if (route.permissions) flag = flag || auth.hasPermiOr(route.permissions)
-    if (route.roles) flag = flag || auth.hasRoleOr(route.roles)
-    if (flag) res.push(route)
+    if (route.children?.length) currentRoute.children = buildMenuRoutes(route.children)
+    else {
+      delete currentRoute.children
+      delete currentRoute.redirect
+    }
+
+    return currentRoute
   })
-  return res
+}
+
+function buildPageRoutes(routes: RouteItem[]): RouteItem[] {
+  return routes.map(route => {
+    const currentRoute: RouteItem = {
+      ...route,
+      hidden: !!route.hidden
+    }
+
+    if (route.children?.length) currentRoute.children = buildPageRoutes(flattenChildren(route.children))
+    else {
+      delete currentRoute.children
+      delete currentRoute.redirect
+    }
+
+    return currentRoute
+  })
+}
+
+function flattenChildren(childrenMap: RouteItem[], lastRoute?: RouteItem): RouteItem[] {
+  const children: RouteItem[] = []
+  childrenMap.forEach((el) => {
+    const item: RouteItem = { hidden: false, ...el }
+    if (el.children?.length && !lastRoute) {
+      el.children.forEach((child: RouteItem) => {
+        const currentChild: RouteItem = {
+          ...child,
+          path: `${el.path}/${child.path}`
+        }
+        if (currentChild.children?.length) children.push(...flattenChildren(currentChild.children, currentChild))
+        else children.push(currentChild)
+      })
+      return
+    }
+    if (lastRoute?.path) item.path = `${lastRoute.path}/${item.path}`
+    children.push(item)
+  })
+  return children
 }
 
 const getVisibleChildren = (route: RouteItem) => (route.children || []).filter((item): item is RouteItem => item.hidden !== true)
@@ -82,7 +121,7 @@ function resolveMenuPath(path: string, parentPath?: string): string {
 
 function normalizeTopbarRoute(route: RouteItem, parentPath?: string): RouteItem {
   const currentPath = resolveMenuPath(route.path, parentPath)
-  const currentRoute = {
+  const currentRoute: RouteItem = {
     ...route,
     path: currentPath,
     parentPath,
@@ -93,11 +132,8 @@ function normalizeTopbarRoute(route: RouteItem, parentPath?: string): RouteItem 
   }
 
   const children = getVisibleChildren(route)
-  if (children.length) {
-    currentRoute.children = children.map(child => normalizeTopbarRoute(child, currentPath))
-  } else {
-    delete currentRoute.children
-  }
+  if (children.length) currentRoute.children = children.map(child => normalizeTopbarRoute(child, currentPath))
+  else delete currentRoute.children
 
   return currentRoute
 }
@@ -140,6 +176,7 @@ function buildTopbarMenus(routes: RouteItem[]): RouteItem[] {
 }
 
 const matchesMenuPath = (activePath: string, topPath: string) => activePath === topPath || activePath.startsWith(`${topPath}/`)
+
 function buildMixSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
   if (!activePath) return []
 

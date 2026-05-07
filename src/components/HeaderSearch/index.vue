@@ -39,6 +39,7 @@ import Fuse from 'fuse.js'
 import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import { isHttp } from '@ruoyi/core/utils/validate'
 import usePermissionStore from '@ruoyi/core/store/modules/permission'
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
 
 const search = ref('');
 const options = ref([]);
@@ -49,7 +50,7 @@ const fuse = ref(undefined);
 const headerSearchSelectRef = ref(null);
 const router = useRouter();
 const pageRoutes = computed(() => usePermissionStore().pageRoutes);
-const theme = computed(() => usePermissionStore().theme);
+const theme = computed(() => useSettingsStore().theme);
 
 const show = ref(false);
 function click() {

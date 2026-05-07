@@ -45,16 +45,10 @@ export function validEmail(email: string) {
   return reg.test(email)
 }
 
-export function isString(str: string | String) {
-  if (typeof str === 'string' || str instanceof String) {
-    return true
-  }
-  return false
+export function isString(str: any): str is string | String {
+  return typeof str === 'string' || str instanceof String
 }
 
 export function isArray(arg: any): arg is any[] {
-  if (typeof Array.isArray === 'undefined') {
-    return Object.prototype.toString.call(arg) === '[object Array]'
-  }
-  return Array.isArray(arg)
+  return !!Array.isArray ? Object.prototype.toString.call(arg) === '[object Array]' : Array.isArray(arg)
 }
