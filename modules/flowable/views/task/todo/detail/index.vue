@@ -70,7 +70,7 @@
       </el-tabs>
       <!--审批任务-->
       <el-dialog :title="completeTitle" v-model="completeOpen" width="60%" append-to-body>
-        <el-form ref="taskForm" :model="taskForm">
+        <el-form ref="completeTaskFormRef" :model="taskForm">
           <el-form-item prop="targetKey">
             <flow-user v-if="checkSendUser" :checkType="checkType" @handleUserSelect="handleUserSelect"></flow-user>
             <flow-role v-if="checkSendRole" @handleRoleSelect="handleRoleSelect"></flow-role>
@@ -89,7 +89,7 @@
       </el-dialog>
       <!--退回流程-->
       <el-dialog :title="returnTitle" v-model="returnOpen" width="40%" append-to-body>
-        <el-form ref="taskForm" :model="taskForm" label-width="80px">
+        <el-form ref="returnTaskFormRef" :model="taskForm" label-width="80px">
           <el-form-item label="退回节点" prop="targetKey">
             <el-radio-group v-model="taskForm.targetKey">
               <el-radio-button v-for="item in returnTaskList" :key="item.id" :label="item.id">{{ item.name }}
@@ -109,7 +109,7 @@
       </el-dialog>
       <!--驳回流程-->
       <el-dialog :title="rejectTitle" v-model="rejectOpen" width="40%" append-to-body>
-        <el-form ref="taskForm" :model="taskForm" label-width="80px">
+        <el-form ref="rejectTaskFormRef" :model="taskForm" label-width="80px">
           <el-form-item label="驳回意见" prop="comment" :rules="[{ required: true, message: '请输入意见', trigger: 'blur' }]">
             <el-input style="width: 50%" type="textarea" v-model="taskForm.comment" placeholder="请输入意见" />
           </el-form-item>
@@ -125,298 +125,310 @@
   </div>
 </template>
 
-<script>
-import { flowRecord } from "@ruoyi/module-flowable/api/finished";
+<script setup>
+import { getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { flowRecord } from '@ruoyi/module-flowable/api/finished'
 import FlowUser from '@ruoyi/module-flowable/components/Flow/User'
 import FlowRole from '@ruoyi/module-flowable/components/Flow/Role'
-import { flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
-import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from "@ruoyi/module-flowable/api/todo";
-import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
+import { flowXmlAndNode } from '@ruoyi/module-flowable/api/definition'
+import { complete, rejectTask, returnList, returnTask, getNextFlowNode, delegate, flowTaskForm } from '@ruoyi/module-flowable/api/todo'
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer'
 
-export default {
-  name: "Record",
-  components: {
-    BpmnViewer,
-    FlowUser,
-    FlowRole,
-  },
-  props: {},
-  data() {
-    return {
-      eventName: "click",
-      // 流程数据
-      flowData: {},
-      activeName: '1',
-      // 遮罩层
-      loading: true,
-      flowRecordList: [], // 流程流转数据
-      rules: {}, // 表单校验
-      taskForm: {
-        returnTaskShow: false, // 是否展示回退表单
-        delegateTaskShow: false, // 是否展示回退表单
-        defaultTaskShow: true, // 默认处理
-        comment: "", // 意见内容
-        procInsId: "", // 流程实例编号
-        instanceId: "", // 流程实例编号
-        deployId: "",  // 流程定义编号
-        taskId: "",// 流程任务编号
-        procDefId: "",  // 流程编号
-        targetKey: "",
-        variables: {},
-      },
-      returnTaskList: [],  // 回退列表数据
-      completeTitle: null,
-      completeOpen: false,
-      returnTitle: null,
-      returnOpen: false,
-      rejectOpen: false,
-      rejectTitle: null,
-      checkSendUser: false, // 是否展示人员选择模块
-      checkSendRole: false,// 是否展示角色选择模块
-      checkType: 'single', // 选择类型
-      taskName: null, // 任务节点
-      startUser: null, // 发起人信息,
-      multiInstanceVars: '', // 会签节点
-      formJson: {}
-    };
-  },
-  created() {
-    if (this.$route.query) {
-      this.taskName = this.$route.query.taskName;
-      this.startUser = this.$route.query.startUser;
-      this.taskForm.deployId = this.$route.query.deployId;
-      this.taskForm.taskId = this.$route.query.taskId;
-      this.taskForm.procInsId = this.$route.query.procInsId;
-      this.taskForm.executionId = this.$route.query.executionId;
-      this.taskForm.instanceId = this.$route.query.procInsId;
-      // 流程任务获取变量信息
-      if (this.taskForm.taskId) {
-        this.getFlowTaskForm(this.taskForm.taskId);
+defineOptions({ name: 'Record' })
+
+const proxy = getCurrentInstance()?.proxy
+const route = useRoute()
+const vFormRef = ref()
+const completeTaskFormRef = ref()
+const returnTaskFormRef = ref()
+const rejectTaskFormRef = ref()
+
+const eventName = ref('click')
+const flowData = ref({})
+const activeName = ref('1')
+const loading = ref(true)
+const flowRecordList = ref([])
+const rules = reactive({})
+const taskForm = reactive({
+  returnTaskShow: false,
+  delegateTaskShow: false,
+  defaultTaskShow: true,
+  comment: '',
+  procInsId: '',
+  instanceId: '',
+  deployId: '',
+  taskId: '',
+  procDefId: '',
+  targetKey: '',
+  variables: {},
+})
+const returnTaskList = ref([])
+const completeTitle = ref(null)
+const completeOpen = ref(false)
+const returnTitle = ref(null)
+const returnOpen = ref(false)
+const rejectOpen = ref(false)
+const rejectTitle = ref(null)
+const checkSendUser = ref(false)
+const checkSendRole = ref(false)
+const checkType = ref('single')
+const taskName = ref(null)
+const startUser = ref(null)
+const multiInstanceVars = ref('')
+const formJson = ref({})
+
+function getSingleQueryValue(value) {
+  if (Array.isArray(value)) {
+    return value[0] ?? ''
+  }
+  return typeof value === 'string' ? value : ''
+}
+
+function handleClick(tab) {
+  if (tab.index === '2') {
+    flowXmlAndNode({ procInsId: taskForm.procInsId, deployId: taskForm.deployId }).then(res => {
+      flowData.value = res.data
+    })
+  }
+}
+
+function setIcon(val) {
+  if (val) {
+    return 'el-icon-check'
+  }
+  return 'el-icon-time'
+}
+
+function setColor(val) {
+  if (val) {
+    return '#2bc418'
+  }
+  return '#b3bdbb'
+}
+
+function handleUserSelect(selection) {
+  if (selection) {
+    if (selection instanceof Array) {
+      const selectVal = selection.map(item => item.userId.toString())
+      if (multiInstanceVars.value) {
+        taskForm.variables[multiInstanceVars.value] = selectVal
+      } else {
+        taskForm.variables.approval = selectVal.join(',')
       }
-      this.getFlowRecordList(this.taskForm.procInsId, this.taskForm.deployId);
+    } else {
+      taskForm.variables.approval = selection.userId.toString()
     }
-  },
-  methods: {
-    handleClick(tab, event) {
-      if (tab.index === '2') {
-        flowXmlAndNode({ procInsId: this.taskForm.procInsId, deployId: this.taskForm.deployId }).then(res => {
-          this.flowData = res.data;
-        })
-      }
-    },
-    setIcon(val) {
-      if (val) {
-        return "el-icon-check";
-      } else {
-        return "el-icon-time";
-      }
-    },
-    setColor(val) {
-      if (val) {
-        return "#2bc418";
-      } else {
-        return "#b3bdbb";
-      }
-    },
-    // 用户信息选中数据
-    handleUserSelect(selection) {
-      if (selection) {
-        if (selection instanceof Array) {
-          const selectVal = selection.map(item => item.userId.toString());
-          if (this.multiInstanceVars) {
-            this.taskForm.variables[this.multiInstanceVars] = selectVal;
-          } else {
-            this.taskForm.variables["approval"] = selectVal.join(',');
-          }
-        } else {
-          this.taskForm.variables["approval"] = selection.userId.toString();
-        }
-      }
-    },
-    // 角色信息选中数据
-    handleRoleSelect(selection, roleName) {
-      if (selection) {
-        if (selection instanceof Array) {
-          const selectVal = selection.map(item => item.roleId.toString());
-          this.taskForm.variables["approval"] = selectVal.join(',');
-        } else {
-          this.taskForm.variables["approval"] = selection;
-        }
-      }
-    },
-    /** 流程流转记录 */
-    getFlowRecordList(procInsId, deployId) {
-      const that = this
-      const params = { procInsId: procInsId, deployId: deployId }
-      flowRecord(params).then(res => {
-        that.flowRecordList = res.data.flowList;
-      }).catch(res => {
-        this.goBack();
-      })
-    },
-    /** 流程节点表单 */
-    getFlowTaskForm(taskId) {
-      if (taskId) {
-        // 提交流程申请时填写的表单存入了流程变量中后续任务处理时需要展示
-        flowTaskForm({ taskId: taskId }).then(res => {
-          // 回显表单
-          this.$refs.vFormRef.setFormJson(res.data.formJson);
-          this.formJson = res.data.formJson;
-          this.$nextTick(() => {
-            // 加载表单填写的数据
-            this.$refs.vFormRef.setFormData(res.data);
-            // this.$nextTick(() => {
-            //   // 表单禁用
-            //   this.$refs.vFormRef.disableForm();
-            // })
-          })
-        });
-      }
-    },
+  }
+}
 
-    /** 委派任务 */
-    handleDelegate() {
-      this.taskForm.delegateTaskShow = true;
-      this.taskForm.defaultTaskShow = false;
-    },
-    handleAssign() {
-
-    },
-    /** 返回页面 */
-    goBack() {
-      // 关闭当前标签页并返回上个页面
-      const obj = { path: "/task/todo", query: { t: Date.now() } };
-      this.$tab.closeOpenPage(obj);
-    },
-    /** 驳回任务 */
-    handleReject() {
-      this.rejectOpen = true;
-      this.rejectTitle = "驳回流程";
-    },
-    /** 驳回任务 */
-    taskReject() {
-      this.$refs["taskForm"].validate(valid => {
-        if (valid) {
-          rejectTask(this.taskForm).then(res => {
-            this.$modal.msgSuccess(res.msg);
-            this.goBack();
-          });
-        }
-      });
-    },
-    /** 可退回任务列表 */
-    handleReturn() {
-      this.returnOpen = true;
-      this.returnTitle = "退回流程";
-      returnList(this.taskForm).then(res => {
-        this.returnTaskList = res.data;
-      })
-    },
-    /** 提交退回任务 */
-    taskReturn() {
-      this.$refs["taskForm"].validate(valid => {
-        if (valid) {
-          returnTask(this.taskForm).then(res => {
-            this.$modal.msgSuccess(res.msg);
-            this.goBack()
-          });
-        }
-      });
-    },
-    /** 取消回退任务按钮 */
-    cancelTask() {
-      this.taskForm.returnTaskShow = false;
-      this.taskForm.defaultTaskShow = true;
-      this.returnTaskList = [];
-    },
-    /** 委派任务 */
-    submitDeleteTask() {
-      this.$refs["taskForm"].validate(valid => {
-        if (valid) {
-          delegate(this.taskForm).then(response => {
-            this.$modal.msgSuccess(response.msg);
-            this.goBack();
-          });
-        }
-      });
-    },
-    /** 取消回退任务按钮 */
-    cancelDelegateTask() {
-      this.taskForm.delegateTaskShow = false;
-      this.taskForm.defaultTaskShow = true;
-      this.returnTaskList = [];
-    },
-    /** 加载审批任务弹框 */
-    handleComplete() {
-      this.completeOpen = true;
-      this.completeTitle = "流程审批";
-      this.submitForm();
-    },
-    /** 用户审批任务 */
-    taskComplete() {
-      if (!this.taskForm.variables && this.checkSendUser) {
-        this.$modal.msgError("请选择流程接收人员!");
-        return;
-      }
-      if (!this.taskForm.variables && this.checkSendRole) {
-        this.$modal.msgError("请选择流程接收角色组!");
-        return;
-      }
-      if (!this.taskForm.comment) {
-        this.$modal.msgError("请输入审批意见!");
-        return;
-      }
-      if (this.taskForm) {
-        complete(this.taskForm).then(response => {
-          this.$modal.msgSuccess(response.msg);
-          this.goBack();
-        });
-      } else {
-        complete(this.taskForm).then(response => {
-          this.$modal.msgSuccess(response.msg);
-          this.goBack();
-        });
-      }
-    },
-    /** 申请流程表单数据提交 */
-    submitForm() {
-      // 根据当前任务或者流程设计配置的下一步节点 todo 暂时未涉及到考虑网关、表达式和多节点情况
-      const params = { taskId: this.taskForm.taskId }
-      getNextFlowNode(params).then(res => {
-        this.$refs.vFormRef.getFormData().then(formData => {
-          Object.assign(this.taskForm.variables, formData);
-          this.taskForm.variables.formJson = this.formJson;
-          console.log(this.taskForm, "流程审批提交表单数据1")
-        }).catch(error => {
-          // this.$modal.msgError(error)
-        })
-        const data = res.data;
-        if (data) {
-          if (data.dataType === 'dynamic') {
-            if (data.type === 'assignee') { // 指定人员
-              this.checkSendUser = true;
-              this.checkType = "single";
-            } else if (data.type === 'candidateUsers') {  // 候选人员(多个)
-              this.checkSendUser = true;
-              this.checkType = "multiple";
-            } else if (data.type === 'candidateGroups') { // 指定组(所属角色接收任务)
-              this.checkSendRole = true;
-            } else { // 会签
-              // 流程设计指定的 elementVariable 作为会签人员列表
-              this.multiInstanceVars = data.vars;
-              this.checkSendUser = true;
-              this.checkType = "multiple";
-            }
-          }
-        }
-      })
-    },
-    // 动态绑定操作按钮的点击事件
-    handleButtonClick(method) {
-      this[method]();
+function handleRoleSelect(selection) {
+  if (selection) {
+    if (selection instanceof Array) {
+      const selectVal = selection.map(item => item.roleId.toString())
+      taskForm.variables.approval = selectVal.join(',')
+    } else {
+      taskForm.variables.approval = selection
     }
-  },
-};
+  }
+}
+
+/** 流程流转记录 */
+function getFlowRecordList(procInsId, deployId) {
+  const params = { procInsId: procInsId, deployId: deployId }
+  flowRecord(params).then(res => {
+    flowRecordList.value = res.data.flowList
+  }).catch(() => {
+    goBack()
+  })
+}
+
+/** 流程节点表单 */
+function getFlowTaskForm(taskId) {
+  if (taskId) {
+    flowTaskForm({ taskId: taskId }).then(res => {
+      vFormRef.value?.setFormJson(res.data.formJson)
+      formJson.value = res.data.formJson
+      nextTick(() => {
+        vFormRef.value?.setFormData(res.data)
+      })
+    })
+  }
+}
+
+/** 委派任务 */
+function handleDelegate() {
+  taskForm.delegateTaskShow = true
+  taskForm.defaultTaskShow = false
+}
+
+function handleAssign() {
+}
+
+/** 返回页面 */
+function goBack() {
+  const obj = { path: '/task/todo', query: { t: Date.now() } }
+  proxy?.$tab?.closeOpenPage(obj)
+}
+
+/** 驳回任务 */
+function handleReject() {
+  rejectOpen.value = true
+  rejectTitle.value = '驳回流程'
+}
+
+function taskReject() {
+  rejectTaskFormRef.value?.validate(valid => {
+    if (valid) {
+      rejectTask(taskForm).then(res => {
+        proxy?.$modal?.msgSuccess(res.msg)
+        goBack()
+      })
+    }
+  })
+}
+
+/** 可退回任务列表 */
+function handleReturn() {
+  returnOpen.value = true
+  returnTitle.value = '退回流程'
+  returnList(taskForm).then(res => {
+    returnTaskList.value = res.data
+  })
+}
+
+/** 提交退回任务 */
+function taskReturn() {
+  returnTaskFormRef.value?.validate(valid => {
+    if (valid) {
+      returnTask(taskForm).then(res => {
+        proxy?.$modal?.msgSuccess(res.msg)
+        goBack()
+      })
+    }
+  })
+}
+
+function cancelTask() {
+  taskForm.returnTaskShow = false
+  taskForm.defaultTaskShow = true
+  returnTaskList.value = []
+}
+
+/** 委派任务 */
+function submitDeleteTask() {
+  completeTaskFormRef.value?.validate(valid => {
+    if (valid) {
+      delegate(taskForm).then(response => {
+        proxy?.$modal?.msgSuccess(response.msg)
+        goBack()
+      })
+    }
+  })
+}
+
+function cancelDelegateTask() {
+  taskForm.delegateTaskShow = false
+  taskForm.defaultTaskShow = true
+  returnTaskList.value = []
+}
+
+/** 加载审批任务弹框 */
+function handleComplete() {
+  completeOpen.value = true
+  completeTitle.value = '流程审批'
+  submitForm()
+}
+
+/** 用户审批任务 */
+function taskComplete() {
+  if (!taskForm.variables && checkSendUser.value) {
+    proxy?.$modal?.msgError('请选择流程接收人员!')
+    return
+  }
+  if (!taskForm.variables && checkSendRole.value) {
+    proxy?.$modal?.msgError('请选择流程接收角色组!')
+    return
+  }
+  if (!taskForm.comment) {
+    proxy?.$modal?.msgError('请输入审批意见!')
+    return
+  }
+  if (taskForm) {
+    complete(taskForm).then(response => {
+      proxy?.$modal?.msgSuccess(response.msg)
+      goBack()
+    })
+  } else {
+    complete(taskForm).then(response => {
+      proxy?.$modal?.msgSuccess(response.msg)
+      goBack()
+    })
+  }
+}
+
+/** 申请流程表单数据提交 */
+function submitForm() {
+  const params = { taskId: taskForm.taskId }
+  getNextFlowNode(params).then(res => {
+    vFormRef.value?.getFormData().then(formData => {
+      Object.assign(taskForm.variables, formData)
+      taskForm.variables.formJson = formJson.value
+      console.log(taskForm, '流程审批提交表单数据1')
+    }).catch(() => {
+    })
+    const data = res.data
+    if (data) {
+      if (data.dataType === 'dynamic') {
+        if (data.type === 'assignee') {
+          checkSendUser.value = true
+          checkType.value = 'single'
+        } else if (data.type === 'candidateUsers') {
+          checkSendUser.value = true
+          checkType.value = 'multiple'
+        } else if (data.type === 'candidateGroups') {
+          checkSendRole.value = true
+        } else {
+          multiInstanceVars.value = data.vars
+          checkSendUser.value = true
+          checkType.value = 'multiple'
+        }
+      }
+    }
+  })
+}
+
+function handleButtonClick(method) {
+  const actionMap = {
+    handleComplete,
+    handleReturn,
+    handleReject,
+    handleDelegate,
+    handleAssign,
+    cancelTask,
+    submitDeleteTask,
+    cancelDelegateTask,
+    taskComplete,
+    taskReturn,
+    taskReject,
+    submitForm,
+  }
+  actionMap[method]?.()
+}
+
+onMounted(() => {
+  taskName.value = getSingleQueryValue(route.query.taskName)
+  startUser.value = getSingleQueryValue(route.query.startUser)
+  taskForm.deployId = getSingleQueryValue(route.query.deployId)
+  taskForm.taskId = getSingleQueryValue(route.query.taskId)
+  taskForm.procInsId = getSingleQueryValue(route.query.procInsId)
+  taskForm.executionId = getSingleQueryValue(route.query.executionId)
+  taskForm.instanceId = getSingleQueryValue(route.query.procInsId)
+  if (taskForm.taskId) {
+    getFlowTaskForm(taskForm.taskId)
+  }
+  getFlowRecordList(taskForm.procInsId, taskForm.deployId)
+})
 </script>
 <style lang="scss" scoped>
 .test-form {
@@ -448,4 +460,3 @@ export default {
   background: #E1F3D8;
 }
 </style>
-

@@ -120,174 +120,158 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance, onMounted, reactive, ref } from 'vue';
 import { listListener, getListener, delListener, addListener, updateListener } from "@ruoyi/module-flowable/api/listener";
 
-export default {
-  name: "Listener",
-  setup() {
-    const { proxy } = getCurrentInstance();
-    const { sys_listener_value_type, sys_listener_type, sys_listener_event_type } = proxy.useDict("sys_listener_value_type", "sys_listener_type", "sys_listener_event_type");
-    return {
-      sys_listener_value_type,
-      sys_listener_type,
-      sys_listener_event_type
-    }
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 流程监听表格数据
-      listenerList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: null,
-        type: null,
-        eventType: null,
-        valueType: null,
-        value: null,
-        status: null,
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-      },
-      taskListenerEventList: [
-        { label: 'create', value: 'create' },
-        { label: 'assignment', value: 'assignment' },
-        { label: 'complete', value: 'complete' },
-        { label: 'delete', value: 'delete' },
-      ],
-      executionListenerEventList: [
-        { label: 'start', value: 'start' },
-        { label: 'end', value: 'end' },
-        { label: 'take', value: 'take' },
-      ],
-    };
-  },
-  created() {
-    this.getList();
-  },
-  methods: {
-    /** 查询流程监听列表 */
-    getList() {
-      this.loading = true;
-      listListener(this.queryParams).then(response => {
-        this.listenerList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: null,
-        name: null,
-        type: null,
-        eventType: null,
-        valueType: null,
-        value: null,
-        createTime: null,
-        updateTime: null,
-        createBy: null,
-        updateBy: null,
-        status: null,
-        remark: null
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加流程监听";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getListener(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改流程监听";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateListener(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addListener(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除流程监听编号为"' + ids + '"的数据项？').then(function () {
-        return delListener(ids);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => { });
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      this.download('system/listener/export', {
-        ...this.queryParams
-      }, `listener_${new Date().getTime()}.xlsx`)
-    }
-  }
-};
-</script>
+const { proxy } = getCurrentInstance();
+const { sys_listener_value_type, sys_listener_type, sys_listener_event_type } = proxy.useDict("sys_listener_value_type", "sys_listener_type", "sys_listener_event_type");
 
+const loading = ref(true);
+const ids = ref([]);
+const single = ref(true);
+const multiple = ref(true);
+const showSearch = ref(true);
+const total = ref(0);
+const listenerList = ref([]);
+const title = ref("");
+const open = ref(false);
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  name: null,
+  type: null,
+  eventType: null,
+  valueType: null,
+  value: null,
+  status: null,
+});
+const form = ref({});
+const rules = reactive({});
+const taskListenerEventList = [
+  { label: 'create', value: 'create' },
+  { label: 'assignment', value: 'assignment' },
+  { label: 'complete', value: 'complete' },
+  { label: 'delete', value: 'delete' },
+];
+const executionListenerEventList = [
+  { label: 'start', value: 'start' },
+  { label: 'end', value: 'end' },
+  { label: 'take', value: 'take' },
+];
+
+onMounted(() => {
+  getList();
+});
+
+/** 查询流程监听列表 */
+function getList() {
+  loading.value = true;
+  listListener(queryParams).then(response => {
+    listenerList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
+}
+
+// 取消按钮
+function cancel() {
+  open.value = false;
+  reset();
+}
+
+// 表单重置
+function reset() {
+  form.value = {
+    id: null,
+    name: null,
+    type: null,
+    eventType: null,
+    valueType: null,
+    value: null,
+    createTime: null,
+    updateTime: null,
+    createBy: null,
+    updateBy: null,
+    status: null,
+    remark: null
+  };
+  proxy.resetForm("formRef");
+}
+
+/** 搜索按钮操作 */
+function handleQuery() {
+  queryParams.pageNum = 1;
+  getList();
+}
+
+/** 重置按钮操作 */
+function resetQuery() {
+  proxy.resetForm("queryForm");
+  handleQuery();
+}
+
+// 多选框选中数据
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+
+/** 新增按钮操作 */
+function handleAdd() {
+  reset();
+  open.value = true;
+  title.value = "添加流程监听";
+}
+
+/** 修改按钮操作 */
+function handleUpdate(row) {
+  reset();
+  const id = row.id || ids.value
+  getListener(id).then(response => {
+    form.value = response.data;
+    open.value = true;
+    title.value = "修改流程监听";
+  });
+}
+
+/** 提交按钮 */
+function submitForm() {
+  formRef.value.validate(valid => {
+    if (valid) {
+      if (form.value.id != null) {
+        updateListener(form.value).then(response => {
+          proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          getList();
+        });
+      } else {
+        addListener(form.value).then(response => {
+          proxy.$modal.msgSuccess("新增成功");
+          open.value = false;
+          getList();
+        });
+      }
+    }
+  });
+}
+
+/** 删除按钮操作 */
+function handleDelete(row) {
+  const rowIds = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除流程监听编号为"' + rowIds + '"的数据项？').then(function () {
+    return delListener(rowIds);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("删除成功");
+  }).catch(() => { });
+}
+
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download('system/listener/export', {
+    ...queryParams
+  }, `listener_${new Date().getTime()}.xlsx`)
+}
+</script>

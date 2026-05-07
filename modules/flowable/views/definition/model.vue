@@ -10,110 +10,103 @@
     </el-drawer>
   </div>
 </template>
-<script>
+<script setup>
+import { getCurrentInstance, onMounted, reactive, ref } from 'vue';
 import { readXml, roleList, saveXml, userList, expList } from "@ruoyi/module-flowable/api/definition";
 import BpmnModel from '@ruoyi/module-flowable/components/Process'
 import vkBeautify from 'vkbeautify'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
-export default {
-  name: "Model",
-  components: {
-    BpmnModel,
-    vkBeautify
-  },
-  // 自定义指令
-  directives: {
-    highlight: {
-      beforeMount(el, binding) {
-        const targets = el.querySelectorAll('code');
-        let target;
-        let i;
-        for (i = 0; i < targets.length; i += 1) {
-          target = targets[i];
-          if (typeof binding.value === 'string') {
-            target.textContent = binding.value;
-          }
-          hljs.highlightBlock(target);
-        }
-      },
-      updated(el, binding) {
-        const targets = el.querySelectorAll('code');
-        let target;
-        let i;
-        for (i = 0; i < targets.length; i += 1) {
-          target = targets[i];
-          if (typeof binding.value === 'string') {
-            target.textContent = binding.value;
-            hljs.highlightBlock(target);
-          }
-        }
+import { useRoute } from 'vue-router';
+
+const { proxy } = getCurrentInstance();
+const route = useRoute();
+
+const xml = ref("");
+const modeler = ref("");
+const dataExit = ref(false);
+const xmlOpen = ref(false);
+const xmlTitle = ref('');
+const xmlData = ref('');
+
+const vHighlight = {
+  beforeMount(el, binding) {
+    const targets = el.querySelectorAll('code');
+    let target;
+    let i;
+    for (i = 0; i < targets.length; i += 1) {
+      target = targets[i];
+      if (typeof binding.value === 'string') {
+        target.textContent = binding.value;
       }
+      hljs.highlightBlock(target);
     }
   },
-  data() {
-    return {
-      xml: "", // 后端查询到的xml
-      modeler: "",
-      dataExit: false,
-      xmlOpen: false,
-      xmlTitle: '',
-      xmlData: '',
-    };
-  },
-  created() {
-    const deployId = this.$route.query && this.$route.query.deployId;
-    //  查询流程xml
-    if (deployId) {
-      this.getXmlData(deployId);
-    }
-    this.getDataList()
-  },
-  methods: {
-    /** xml 文件 */
-    getXmlData(deployId) {
-      // 发送请求，获取xml
-      readXml(deployId).then(res => {
-        this.xml = res.data;
-        this.modeler = res.data
-      })
-    },
-    /** 保存xml */
-    save(data) {
-      const params = {
-        name: data.process.name,
-        category: data.process.category,
-        xml: data.xml
+  updated(el, binding) {
+    const targets = el.querySelectorAll('code');
+    let target;
+    let i;
+    for (i = 0; i < targets.length; i += 1) {
+      target = targets[i];
+      if (typeof binding.value === 'string') {
+        target.textContent = binding.value;
+        hljs.highlightBlock(target);
       }
-      saveXml(params).then(res => {
-        this.$modal.msgSuccess(res.msg)
-        // 关闭当前标签页并返回上个页面
-        const obj = { path: "/flowable/definition", query: { t: Date.now() } };
-        this.$tab.closeOpenPage(obj);
-      })
-    },
-    /** 指定流程办理人员列表 */
-    getDataList() {
-      userList().then(res => {
-        modelerStore.userList = res.data;
-      })
-      roleList().then(res => {
-        modelerStore.roleList = res.data;
-      })
-      expList().then(res => {
-        modelerStore.expList = res.data;
-        this.dataExit = true;
-      });
-    },
-    /** 展示xml */
-    showXML(xmlData) {
-      this.xmlTitle = 'xml查看';
-      this.xmlOpen = true;
-      this.xmlData = vkBeautify.xml(xmlData);
-    },
-  },
+    }
+  }
 };
+
+onMounted(() => {
+  const deployId = route.query && route.query.deployId;
+  if (deployId) {
+    getXmlData(deployId);
+  }
+  getDataList();
+});
+
+/** xml 文件 */
+function getXmlData(deployId) {
+  readXml(deployId).then(res => {
+    xml.value = res.data;
+    modeler.value = res.data;
+  })
+}
+
+/** 保存xml */
+function save(data) {
+  const params = {
+    name: data.process.name,
+    category: data.process.category,
+    xml: data.xml
+  }
+  saveXml(params).then(res => {
+    proxy.$modal.msgSuccess(res.msg)
+    const obj = { path: "/flowable/definition", query: { t: Date.now() } };
+    proxy.$tab.closeOpenPage(obj);
+  })
+}
+
+/** 指定流程办理人员列表 */
+function getDataList() {
+  userList().then(res => {
+    modelerStore.userList = res.data;
+  })
+  roleList().then(res => {
+    modelerStore.roleList = res.data;
+  })
+  expList().then(res => {
+    modelerStore.expList = res.data;
+    dataExit.value = true;
+  });
+}
+
+/** 展示xml */
+function showXML(xmlValue) {
+  xmlTitle.value = 'xml查看';
+  xmlOpen.value = true;
+  xmlData.value = vkBeautify.xml(xmlValue);
+}
 </script>
 <style lang="scss" scoped>
 .content-box {

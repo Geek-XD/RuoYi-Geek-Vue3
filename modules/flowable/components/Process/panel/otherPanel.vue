@@ -14,53 +14,51 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
-export default {
-  name: "OtherPanel",
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      bpmnFormData: {}
-    }
-  },
 
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.resetTaskForm();
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  created() {
-
-  },
-  methods: {
-    // 方法区
-    resetFlowForm() {
-      this.bpmnFormData = JSON.parse(JSON.stringify(modelerStore.element.businessObject));
-    },
-
-    updateElementTask(key) {
-      const taskAttr = Object.create(null);
-      taskAttr[key] = this.bpmnFormData[key] || null;
-      modelerStore.modeling.updateProperties(modelerStore.element, taskAttr);
-    }
-  }
+interface OtherPanelFormData {
+  skipExpression?: string
+  isForCompensation?: string | boolean
+  triggerable?: string | boolean
+  [key: string]: unknown
 }
 
+defineOptions({ name: 'OtherPanel' })
 
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
 
+const bpmnFormData = ref<OtherPanelFormData>({})
+
+const resetFlowForm = (): void => {
+  if (!modelerStore.element?.businessObject) return
+
+  bpmnFormData.value = JSON.parse(JSON.stringify(modelerStore.element.businessObject))
+}
+
+const updateElementTask = (key: string): void => {
+  if (!modelerStore.modeling || !modelerStore.element) return
+
+  const taskAttr = Object.create(null)
+  taskAttr[key] = bpmnFormData.value[key] || null
+  modelerStore.modeling.updateProperties(modelerStore.element, taskAttr)
+}
+
+watch(
+  () => props.id,
+  (newVal: string) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      resetFlowForm()
+    }
+  },
+  { immediate: true }
+)
 </script>
 

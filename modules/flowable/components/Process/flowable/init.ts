@@ -1,9 +1,11 @@
-
-function randomStr() {
+function randomStr(): string {
   return Math.random().toString(36).slice(-8)
 }
 
-export default function() {
+export default function getInitStr(): string {
+  const processId = `flow_${randomStr()}`
+  const processName = `flow_${randomStr()}`
+
   return `<?xml version="1.0" encoding="UTF-8"?>
     <definitions
       xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -15,7 +17,7 @@ export default function() {
       xmlns:flowable="http://flowable.org/bpmn"
       targetNamespace="http://www.flowable.org/processdef"
       >
-      <process id="flow_${randomStr()}" name="flow_${randomStr()}">
+      <process id="${processId}" name="${processName}">
         <startEvent id="start_event" name="开始" />
       </process>
       <bpmndi:BPMNDiagram id="BPMNDiagram_flow">

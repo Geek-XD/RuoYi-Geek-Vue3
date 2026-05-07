@@ -59,124 +59,106 @@
   </div>
 </template>
 
-<script>
-import { todoList, delDeployment } from "@ruoyi/module-flowable/api/todo";
+<script setup>
+import { getCurrentInstance, onMounted, reactive, ref } from 'vue';
+import { todoList as todoListApi, delDeployment } from "@ruoyi/module-flowable/api/todo";
 
-export default {
-  name: "Deploy",
-  components: {},
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 流程待办任务表格数据
-      todoList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: null,
-        category: null
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {}
-    };
-  },
-  created() {
-    this.getList();
-  },
-  methods: {
-    /** 查询流程定义列表 */
-    getList() {
-      this.loading = true;
-      todoList(this.queryParams).then(response => {
-        this.todoList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
-    },
-    // 跳转到处理页面
-    handleProcess(row) {
-      this.$router.push({
-        path: '/flowable/task/todo/detail/index',
-        query: {
-          procInsId: row.procInsId,
-          executionId: row.executionId,
-          deployId: row.deployId,
-          taskId: row.taskId,
-          taskName: row.taskName,
-          startUser: row.startUserName + '-' + row.startDeptName,
-        }
-      })
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: null,
-        name: null,
-        category: null,
-        key: null,
-        tenantId: null,
-        deployTime: null,
-        derivedFrom: null,
-        derivedFromRoot: null,
-        parentDeploymentId: null,
-        engineVersion: null
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.taskId)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.taskId || this.ids;
-      this.$confirm('是否确认删除流程定义编号为"' + ids + '"的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(function () {
-        return delDeployment(ids);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      })
-    },
-  }
-};
+const { proxy } = getCurrentInstance();
+
+const loading = ref(true);
+const ids = ref([]);
+const single = ref(true);
+const multiple = ref(true);
+const showSearch = ref(true);
+const total = ref(0);
+const todoList = ref([]);
+const title = ref("");
+const open = ref(false);
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  name: null,
+  category: null
+});
+const form = ref({});
+const rules = reactive({});
+
+onMounted(() => {
+  getList();
+});
+
+/** 查询流程定义列表 */
+function getList() {
+  loading.value = true;
+  todoListApi(queryParams).then(response => {
+    todoList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
+}
+
+function handleProcess(row) {
+  proxy.$router.push({
+    path: '/flowable/task/todo/detail/index',
+    query: {
+      procInsId: row.procInsId,
+      executionId: row.executionId,
+      deployId: row.deployId,
+      taskId: row.taskId,
+      taskName: row.taskName,
+      startUser: row.startUserName + '-' + row.startDeptName,
+    }
+  })
+}
+
+function cancel() {
+  open.value = false;
+  reset();
+}
+
+function reset() {
+  form.value = {
+    id: null,
+    name: null,
+    category: null,
+    key: null,
+    tenantId: null,
+    deployTime: null,
+    derivedFrom: null,
+    derivedFromRoot: null,
+    parentDeploymentId: null,
+    engineVersion: null
+  };
+  proxy.resetForm("form");
+}
+
+function handleQuery() {
+  queryParams.pageNum = 1;
+  getList();
+}
+
+function resetQuery() {
+  proxy.resetForm("queryForm");
+  handleQuery();
+}
+
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.taskId)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+
+function handleDelete(row) {
+  const rowIds = row.taskId || ids.value;
+  proxy.$confirm('是否确认删除流程定义编号为"' + rowIds + '"的数据项?', "警告", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning"
+  }).then(function () {
+    return delDeployment(rowIds);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("删除成功");
+  })
+}
 </script>
-

@@ -68,7 +68,7 @@
 
     <!-- 添加或修改流程达式对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入表达式名称" />
         </el-form-item>
@@ -98,158 +98,144 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { reactive, ref, getCurrentInstance, onMounted } from "vue";
 import { listExpression, getExpression, delExpression, addExpression, updateExpression } from "@ruoyi/module-flowable/api/expression";
 
-export default {
-  name: "FlowExp",
-  setup() {
-    const { proxy } = getCurrentInstance();
-    const { sys_common_status, exp_data_type } = proxy.useDict("sys_common_status", "exp_data_type");
-    return {
-      sys_common_status,
-      exp_data_type
-    }
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 流程达式表格数据
-      expressionList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: null,
-        expression: null,
-        status: null,
-      },
-      // 表单参数
-      form: {
-        dataType: 'fixed'
-      },
-      // 表单校验
-      rules: {
-      }
-    };
-  },
-  created() {
-    this.getList();
-  },
-  methods: {
-    /** 查询流程达式列表 */
-    getList() {
-      this.loading = true;
-      listExpression(this.queryParams).then(response => {
-        this.expressionList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: null,
-        name: null,
-        expression: null,
-        createTime: null,
-        updateTime: null,
-        createBy: null,
-        updateBy: null,
-        status: null,
-        remark: null
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加流程表达式";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getExpression(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改流程达式";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateExpression(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addExpression(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除流程达式编号为"' + ids + '"的数据项？').then(function () {
-        return delExpression(ids);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => { });
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      this.download('system/expression/export', {
-        ...this.queryParams
-      }, `expression_${new Date().getTime()}.xlsx`)
-    }
-  }
-};
-</script>
+const { proxy } = getCurrentInstance();
+const { sys_common_status, exp_data_type } = proxy.useDict("sys_common_status", "exp_data_type");
 
+const loading = ref(true);
+const ids = ref([]);
+const single = ref(true);
+const multiple = ref(true);
+const showSearch = ref(true);
+const total = ref(0);
+const expressionList = ref([]);
+const title = ref("");
+const open = ref(false);
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  name: null,
+  expression: null,
+  status: null,
+});
+const formRef = ref();
+const form = ref({
+  dataType: 'fixed'
+});
+const rules = reactive({});
+
+onMounted(() => {
+  getList();
+});
+
+/** 查询流程达式列表 */
+function getList() {
+  loading.value = true;
+  listExpression(queryParams).then(response => {
+    expressionList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
+}
+
+// 取消按钮
+function cancel() {
+  open.value = false;
+  reset();
+}
+
+// 表单重置
+function reset() {
+  form.value = {
+    id: null,
+    name: null,
+    expression: null,
+    createTime: null,
+    updateTime: null,
+    createBy: null,
+    updateBy: null,
+    status: null,
+    remark: null
+  };
+  proxy.resetForm("formRef");
+}
+
+/** 搜索按钮操作 */
+function handleQuery() {
+  queryParams.pageNum = 1;
+  getList();
+}
+
+/** 重置按钮操作 */
+function resetQuery() {
+  proxy.resetForm("queryForm");
+  handleQuery();
+}
+
+// 多选框选中数据
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id);
+  single.value = selection.length !== 1;
+  multiple.value = !selection.length;
+}
+
+/** 新增按钮操作 */
+function handleAdd() {
+  reset();
+  open.value = true;
+  title.value = "添加流程表达式";
+}
+
+/** 修改按钮操作 */
+function handleUpdate(row) {
+  reset();
+  const id = row.id || ids.value;
+  getExpression(id).then(response => {
+    form.value = response.data;
+    open.value = true;
+    title.value = "修改流程达式";
+  });
+}
+
+/** 提交按钮 */
+function submitForm() {
+  formRef.value.validate(valid => {
+    if (valid) {
+      if (form.value.id != null) {
+        updateExpression(form.value).then(response => {
+          proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          getList();
+        });
+      } else {
+        addExpression(form.value).then(response => {
+          proxy.$modal.msgSuccess("新增成功");
+          open.value = false;
+          getList();
+        });
+      }
+    }
+  });
+}
+
+/** 删除按钮操作 */
+function handleDelete(row) {
+  const rowIds = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除流程达式编号为"' + rowIds + '"的数据项？').then(function () {
+    return delExpression(rowIds);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("删除成功");
+  }).catch(() => { });
+}
+
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download('system/expression/export', {
+    ...queryParams
+  }, `expression_${new Date().getTime()}.xlsx`)
+}
+</script>

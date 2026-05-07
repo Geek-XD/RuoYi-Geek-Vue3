@@ -37,187 +37,180 @@
   </div>
 </template>
 
-<script>
-import { definitionStart, flowXmlAndNode } from "@ruoyi/module-flowable/api/definition";
-import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer';
-import { flowFormData } from "@ruoyi/module-flowable/api/process";
-import { getNextFlowNodeByStart } from "@ruoyi/module-flowable/api/todo";
+<script setup>
+import { getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { definitionStart, flowXmlAndNode } from '@ruoyi/module-flowable/api/definition'
+import BpmnViewer from '@ruoyi/module-flowable/components/Process/viewer'
+import { flowFormData } from '@ruoyi/module-flowable/api/process'
+import { getNextFlowNodeByStart } from '@ruoyi/module-flowable/api/todo'
 import FlowUser from '@ruoyi/module-flowable/components/Flow/User'
 import FlowRole from '@ruoyi/module-flowable/components/Flow/Role'
 
-export default {
-  name: "Record",
-  components: {
-    BpmnViewer,
-    FlowUser,
-    FlowRole,
-  },
-  props: {},
-  data() {
-    return {
-      // 模型xml数据
-      flowData: {},
-      activeName: '1', // 切换tab标签
-      // 查询参数
-      queryParams: {
-        deptId: undefined
-      },
-      // 遮罩层
-      loading: true,
-      deployId: "",  // 流程定义编号
-      procDefId: "",  // 流程实例编号
-      formRenderData: {},
-      variables: [], // 流程变量数据
-      taskTitle: null,
-      taskOpen: false,
-      checkSendUser: false, // 是否展示人员选择模块
-      checkSendRole: false,// 是否展示角色选择模块
-      checkType: '', // 选择类型
-      checkValues: null, // 选中任务接收人员数据
-      formData: {}, // 填写的表单数据,
-      multiInstanceVars: '', // 会签节点
-      formJson: {} // 表单json
-    };
-  },
-  created() {
-    this.deployId = this.$route.query && this.$route.query.deployId;
-    // 初始化表单
-    this.procDefId = this.$route.query && this.$route.query.procDefId;
-    this.getFlowFormData(this.deployId);
-  },
-  methods: {
-    handleClick(tab, event) {
-      if (tab.index === '1') {
-        flowXmlAndNode({ deployId: this.deployId }).then(res => {
-          this.flowData = res.data;
-        })
-      }
-    },
-    /** 流程表单数据 */
-    getFlowFormData(deployId) {
-      const params = { deployId: deployId }
-      flowFormData(params).then(res => {
-        // 流程过程中不存在初始化表单 直接读取的流程变量中存储的表单值
-        this.$nextTick(() => {
-          // 回显数据
-          this.$refs.vFormRef.setFormJson(res.data);
-          this.formJson = res.data;
-        })
-      }).catch(res => {
-        this.goBack();
-      })
-    },
-    /** 返回页面 */
-    goBack() {
-      // 关闭当前标签页并返回上个页面
-      const obj = { path: "/task/process", query: { t: Date.now() } };
-      this.$tab.closeOpenPage(obj);
-    },
-    /** 申请流程表单数据提交 */
-    submitForm() {
-      this.$refs.vFormRef.getFormData().then(formData => {
-        // 根据当前任务或者流程设计配置的下一步节点 todo 暂时未涉及到考虑网关、表达式和多节点情况
-        getNextFlowNodeByStart({ deploymentId: this.deployId, variables: formData }).then(res => {
-          const data = res.data;
-          if (data) {
-            this.formData = formData;
-            if (data.dataType === 'dynamic') {
-              if (data.type === 'assignee') { // 指定人员
-                this.checkSendUser = true;
-                this.checkType = "single";
-              } else if (data.type === 'candidateUsers') {  // 候选人员(多个)
-                this.checkSendUser = true;
-                this.checkType = "multiple";
-              } else if (data.type === 'candidateGroups') { // 指定组(所属角色接收任务)
-                this.checkSendRole = true;
-              } else { // 会签
-                // 流程设计指定的 elementVariable 作为会签人员列表
-                this.multiInstanceVars = data.vars;
-                this.checkSendUser = true;
-                this.checkType = "multiple";
-              }
-              this.taskOpen = true;
-              this.taskTitle = "选择任务接收";
-            } else {
-              if (this.procDefId) {
-                const param = {
-                  formJson: this.formJson,
-                }
-                // 复制对象的属性值给新的对象
-                Object.assign(param, formData);
-                // 启动流程并将表单数据加入流程变量
-                definitionStart(this.procDefId, param).then(res => {
-                  this.$modal.msgSuccess(res.msg);
-                  this.goBack();
-                })
-              }
-            }
-          }
-        })
-      }).catch(error => {
-        // this.$modal.msgError(error)
-      })
-    },
-    /** 重置表单 */
-    resetForm() {
-      this.$refs.vFormRef.resetForm();
-    },
-    /** 提交流程 */
-    submitTask() {
-      if (!this.checkValues && this.checkSendUser) {
-        this.$modal.msgError("请选择任务接收!");
-        return;
-      }
-      if (!this.checkValues && this.checkSendRole) {
-        this.$modal.msgError("请选择流程接收角色组!");
-        return;
-      }
-      if (this.formData) {
-        const param = {
-          formJson: this.formJson,
-        }
-        // 复制对象的属性值给新的对象
-        Object.assign(param, this.formData);
-        if (this.multiInstanceVars) {
-          param[this.multiInstanceVars] = this.checkValues;
-        } else {
-          param["approval"] = this.checkValues;
-        }
-        // 启动流程并将表单数据加入流程变量
-        definitionStart(this.procDefId, param).then(res => {
-          this.$modal.msgSuccess(res.msg);
-          this.goBack();
-        })
-      }
-    },
-    // 用户信息选中数据
-    handleUserSelect(selection) {
-      if (selection) {
-        if (selection instanceof Array) {
-          const selectVal = selection.map(item => item.userId);
-          if (this.multiInstanceVars) {
-            this.checkValues = selectVal;
-          } else {
-            this.checkValues = selectVal.join(',');
-          }
-        } else {
-          this.checkValues = selection.userId;
-        }
-      }
-    },
-    // 角色信息选中数据
-    handleRoleSelect(selection) {
-      if (selection) {
-        if (selection instanceof Array) {
-          const selectVal = selection.map(item => item.roleId);
-          this.checkValues = selectVal.join(',')
-        } else {
-          this.checkValues = selection;
-        }
-      }
-    },
+defineOptions({ name: 'Record' })
+
+const proxy = getCurrentInstance()?.proxy
+const route = useRoute()
+const vFormRef = ref()
+
+const flowData = ref({})
+const activeName = ref('1')
+const queryParams = reactive({
+  deptId: undefined
+})
+const loading = ref(true)
+const deployId = ref('')
+const procDefId = ref('')
+const formRenderData = ref({})
+const variables = ref([])
+const taskTitle = ref(null)
+const taskOpen = ref(false)
+const checkSendUser = ref(false)
+const checkSendRole = ref(false)
+const checkType = ref('')
+const checkValues = ref(null)
+const formData = ref({})
+const multiInstanceVars = ref('')
+const formJson = ref({})
+
+function getSingleQueryValue(value) {
+  if (Array.isArray(value)) {
+    return value[0] ?? ''
   }
-};
+  return typeof value === 'string' ? value : ''
+}
+
+function handleClick(tab) {
+  if (tab.index === '1') {
+    flowXmlAndNode({ deployId: deployId.value }).then(res => {
+      flowData.value = res.data
+    })
+  }
+}
+
+/** 流程表单数据 */
+function getFlowFormData(currentDeployId) {
+  const params = { deployId: currentDeployId }
+  flowFormData(params).then(res => {
+    nextTick(() => {
+      vFormRef.value?.setFormJson(res.data)
+      formJson.value = res.data
+    })
+  }).catch(() => {
+    goBack()
+  })
+}
+
+/** 返回页面 */
+function goBack() {
+  const obj = { path: '/task/process', query: { t: Date.now() } }
+  proxy?.$tab?.closeOpenPage(obj)
+}
+
+/** 申请流程表单数据提交 */
+function submitForm() {
+  vFormRef.value?.getFormData().then(currentFormData => {
+    getNextFlowNodeByStart({ deploymentId: deployId.value, variables: currentFormData }).then(res => {
+      const data = res.data
+      if (data) {
+        formData.value = currentFormData
+        if (data.dataType === 'dynamic') {
+          if (data.type === 'assignee') {
+            checkSendUser.value = true
+            checkType.value = 'single'
+          } else if (data.type === 'candidateUsers') {
+            checkSendUser.value = true
+            checkType.value = 'multiple'
+          } else if (data.type === 'candidateGroups') {
+            checkSendRole.value = true
+          } else {
+            multiInstanceVars.value = data.vars
+            checkSendUser.value = true
+            checkType.value = 'multiple'
+          }
+          taskOpen.value = true
+          taskTitle.value = '选择任务接收'
+        } else {
+          if (procDefId.value) {
+            const param = {
+              formJson: formJson.value,
+            }
+            Object.assign(param, currentFormData)
+            definitionStart(procDefId.value, param).then(res => {
+              proxy?.$modal?.msgSuccess(res.msg)
+              goBack()
+            })
+          }
+        }
+      }
+    })
+  }).catch(() => {
+  })
+}
+
+/** 重置表单 */
+function resetForm() {
+  vFormRef.value?.resetForm()
+}
+
+/** 提交流程 */
+function submitTask() {
+  if (!checkValues.value && checkSendUser.value) {
+    proxy?.$modal?.msgError('请选择任务接收!')
+    return
+  }
+  if (!checkValues.value && checkSendRole.value) {
+    proxy?.$modal?.msgError('请选择流程接收角色组!')
+    return
+  }
+  if (formData.value) {
+    const param = {
+      formJson: formJson.value,
+    }
+    Object.assign(param, formData.value)
+    if (multiInstanceVars.value) {
+      param[multiInstanceVars.value] = checkValues.value
+    } else {
+      param.approval = checkValues.value
+    }
+    definitionStart(procDefId.value, param).then(res => {
+      proxy?.$modal?.msgSuccess(res.msg)
+      goBack()
+    })
+  }
+}
+
+function handleUserSelect(selection) {
+  if (selection) {
+    if (selection instanceof Array) {
+      const selectVal = selection.map(item => item.userId)
+      if (multiInstanceVars.value) {
+        checkValues.value = selectVal
+      } else {
+        checkValues.value = selectVal.join(',')
+      }
+    } else {
+      checkValues.value = selection.userId
+    }
+  }
+}
+
+function handleRoleSelect(selection) {
+  if (selection) {
+    if (selection instanceof Array) {
+      const selectVal = selection.map(item => item.roleId)
+      checkValues.value = selectVal.join(',')
+    } else {
+      checkValues.value = selection
+    }
+  }
+}
+
+onMounted(() => {
+  deployId.value = getSingleQueryValue(route.query.deployId)
+  procDefId.value = getSingleQueryValue(route.query.procDefId)
+  getFlowFormData(deployId.value)
+})
 </script>
 <style lang="scss" scoped>
 .test-form {
@@ -249,4 +242,3 @@ export default {
   background: #E1F3D8;
 }
 </style>
-

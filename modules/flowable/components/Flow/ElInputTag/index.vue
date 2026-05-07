@@ -28,114 +28,105 @@
 </template>
 
 
-<script>
-import {StrUtil} from '@ruoyi/core/utils/StrUtil'
+<script setup>
+import { getCurrentInstance, ref, watch } from 'vue'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 
-export default {
-  name: "ElInputTag",
-  /** 组件传值  */
-  props : {
-    value: {
-      type: String,
-      default: ""
-    },
-    addTagOnKeys: {
-      type: Array,
-      default: () => []
-    },
-    size: {
-      type: String,
-      default: 'small'
-    },
-    placeholder: String,
+defineOptions({ name: 'ElInputTag' })
+
+const props = defineProps({
+  value: {
+    type: String,
+    default: ''
   },
-  data() {
-    return {
-       newTag :"",
-       innerTags :[],
-       readOnly :true,
+  addTagOnKeys: {
+    type: Array,
+    default: () => []
+  },
+  size: {
+    type: String,
+    default: 'small'
+  },
+  placeholder: String,
+})
+
+const emit = defineEmits(['input'])
+const { proxy } = getCurrentInstance()
+
+const newTag = ref('')
+const innerTags = ref([])
+const readOnly = ref(true)
+
+watch(() => props.value, (newVal) => {
+  if (StrUtil.isNotBlank(newVal)) {
+    innerTags.value = newVal.split(',')
+  } else {
+    innerTags.value = []
+  }
+}, { immediate: true })
+
+function focusTagInput() {
+  if (readOnly.value || !proxy?.$el.querySelector('.tag-input')) {
+    return
+  }
+  proxy.$el.querySelector('.tag-input').focus()
+}
+
+function inputTag(ev) {
+  newTag.value = ev.target.value
+}
+
+function addNew(e) {
+  if (e && (!props.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
+    return
+  }
+  if (e) {
+    e.stopPropagation()
+    e.preventDefault()
+  }
+  let addSuccess = false
+  if (newTag.value.includes(',')) {
+    newTag.value.split(',').forEach(item => {
+      if (addTag(item.trim())) {
+        addSuccess = true
+      }
+    })
+  } else {
+    if (addTag(newTag.value.trim())) {
+      addSuccess = true
     }
-  },
-  /** 传值监听 */
-  watch: {
-    value: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.innerTags = newVal.split(',');
-        }else {
-          this.innerTags = [];
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  methods: {
-    focusTagInput() {
-      if (this.readOnly || !this.$el.querySelector('.tag-input')) {
-        return
-      } else {
-        this.$el.querySelector('.tag-input').focus()
-      }
-    },
-
-    inputTag(ev) {
-     this.newTag = ev.target.value
-    },
-
-    addNew(e) {
-      if (e && (!this.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
-        return
-      }
-      if (e) {
-        e.stopPropagation()
-        e.preventDefault()
-      }
-      let addSuccess = false
-      if (this.newTag.includes(',')) {
-       this.newTag.split(',').forEach(item => {
-          if (this.addTag(item.trim())) {
-            addSuccess = true
-          }
-        })
-      } else {
-        if (this.addTag(this.newTag.trim())) {
-          addSuccess = true
-        }
-      }
-      if (addSuccess) {
-        this.tagChange()
-       this.newTag = ''
-      }
-    },
-
-    addTag(tag) {
-      tag = tag.trim()
-      if (tag && !this.innerTags.includes(tag)) {
-        this.innerTags.push(tag)
-        return true
-      }
-      return false
-    },
-
-    remove(index) {
-      this.innerTags.splice(index, 1)
-      this.tagChange();
-    },
-
-    removeLastTag() {
-      if (this.newTag) {
-        return
-      }
-      this.innerTags.pop()
-      this.tagChange()
-    },
-
-    tagChange() {
-      this.$emit('input', this.innerTags)
-    }
+  }
+  if (addSuccess) {
+    tagChange()
+    newTag.value = ''
   }
 }
 
+function addTag(tag) {
+  tag = tag.trim()
+  if (tag && !innerTags.value.includes(tag)) {
+    innerTags.value.push(tag)
+    return true
+  }
+  return false
+}
+
+function remove(index) {
+  innerTags.value.splice(index, 1)
+  tagChange()
+}
+
+function removeLastTag() {
+  if (newTag.value) {
+    return
+  }
+  innerTags.value.pop()
+  tagChange()
+}
+
+function tagChange() {
+  emit('input', innerTags.value)
+}
 </script>
 
 <style scoped>

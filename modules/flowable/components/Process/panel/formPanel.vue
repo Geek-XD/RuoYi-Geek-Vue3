@@ -11,70 +11,70 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 
 import { listAllForm } from '@ruoyi/module-flowable/api/form'
+import { ref, watch } from 'vue'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
-export default {
-  name: "FormPanel",
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      formList: [], // 表单数据
-      bpmnFormData: {}
-    }
-  },
 
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          // 加载表单列表
-          this.getListForm();
-          this.resetFlowForm();
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  created() {
+interface FormOption {
+  formId: string
+  formName?: string
+  value?: string
+  [key: string]: unknown
+}
 
-  },
-  methods: {
+interface FormPanelData {
+  formKey?: string
+}
 
-    // 方法区
-    resetFlowForm() {
-      this.bpmnFormData.formKey = modelerStore.element.businessObject.formKey;
-    },
+defineOptions({ name: 'FormPanel' })
 
-    updateElementFormKey(val) {
-      if (StrUtil.isBlank(val)) {
-        delete modelerStore.element.businessObject[`formKey`]
-      } else {
-        modelerStore.modeling.updateProperties(modelerStore.element, { 'formKey': val });
-      }
-    },
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
 
-    // 获取表单信息
-    getListForm() {
-      listAllForm().then(res => {
-        res.rows.forEach(item => {
-          item.formId = item.formId.toString();
-        })
-        this.formList = res.rows;
-      })
-    }
+const formList = ref<FormOption[]>([])
+const bpmnFormData = ref<FormPanelData>({})
+
+const resetFlowForm = (): void => {
+  if (!modelerStore.element?.businessObject) return
+
+  bpmnFormData.value.formKey = modelerStore.element.businessObject.formKey
+}
+
+const updateElementFormKey = (val: string | null): void => {
+  if (!modelerStore.element?.businessObject || !modelerStore.modeling) return
+
+  if (StrUtil.isBlank(val)) {
+    delete modelerStore.element.businessObject[`formKey`]
+  } else {
+    modelerStore.modeling.updateProperties(modelerStore.element, { 'formKey': val })
   }
 }
 
+const getListForm = (): void => {
+  listAllForm().then((res: { rows: FormOption[] }) => {
+    res.rows.forEach(item => {
+      item.formId = item.formId.toString()
+    })
+    formList.value = res.rows
+  })
+}
 
+watch(
+  () => props.id,
+  (newVal: string) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      getListForm()
+      resetFlowForm()
+    }
+  },
+  { immediate: true }
+)
 </script>
 

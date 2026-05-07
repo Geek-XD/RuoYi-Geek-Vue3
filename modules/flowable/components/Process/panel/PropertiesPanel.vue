@@ -33,108 +33,131 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { getCurrentInstance, nextTick, ref, watch } from 'vue'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
-export default {
-  name: "PropertiesPanel",
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      elementPropertyList: [],
-      otherExtensionList: [],
-      propertyForm: {},
-      editingPropertyIndex: -1,
-      propertyFormModelVisible: false
-    };
-  },
-  watch: {
-    id: {
-      immediate: true,
-      handler(val) {
-        if (StrUtil.isNotBlank(val)) {
-          this.resetAttributesList();
-        }
-      }
-    }
-  },
-  methods: {
-    resetAttributesList() {
-      this.bpmnElement = modelerStore.element;
-      this.otherExtensionList = []; // 其他扩展配置
-      this.bpmnElementProperties =
-        this.bpmnElement.businessObject?.extensionElements?.values?.filter(ex => {
-          if (ex.$type !== `flowable:Properties`) {
-            this.otherExtensionList.push(ex);
-          }
-          return ex.$type === `flowable:Properties`;
-        }) ?? [];
 
-      // 保存所有的 扩展属性字段
-      this.bpmnElementPropertyList = this.bpmnElementProperties.reduce((pre, current) => pre.concat(current.values), []);
-      // 复制 显示
-      this.elementPropertyList = JSON.parse(JSON.stringify(this.bpmnElementPropertyList ?? []));
-    },
-    openAttributesForm(attr, index) {
-      this.editingPropertyIndex = index;
-      this.propertyForm = index === -1 ? {} : JSON.parse(JSON.stringify(attr));
-      this.propertyFormModelVisible = true;
-      this.$nextTick(() => {
-        if (this.$refs["attributeFormRef"]) this.$refs["attributeFormRef"].clearValidate();
-      });
-    },
-    removeAttributes(attr, index) {
-      this.$confirm("确认移除该属性吗？", "提示", {
-        confirmButtonText: "确 认",
-        cancelButtonText: "取 消"
-      })
-        .then(() => {
-          this.elementPropertyList.splice(index, 1);
-          this.bpmnElementPropertyList.splice(index, 1);
-          // 新建一个属性字段的保存列表
-          const propertiesObject = modelerStore.moddle.create(`flowable:Properties`, {
-            values: this.bpmnElementPropertyList
-          });
-          this.updateElementExtensions(propertiesObject);
-          this.resetAttributesList();
-        })
-        .catch(() => console.info("操作取消"));
-    },
-    saveAttribute() {
-      const { name, value } = this.propertyForm;
-      console.log(this.bpmnElementPropertyList);
-      if (this.editingPropertyIndex !== -1) {
-        modelerStore.modeling.updateModdleProperties(this.bpmnElement, this.bpmnElementPropertyList[this.editingPropertyIndex], {
-          name,
-          value
-        });
-      } else {
-        // 新建属性字段
-        const newPropertyObject = modelerStore.moddle.create(`flowable:Property`, { name, value });
-        // 新建一个属性字段的保存列表
-        const propertiesObject = modelerStore.moddle.create(`flowable:Properties`, {
-          values: this.bpmnElementPropertyList.concat([newPropertyObject])
-        });
-        this.updateElementExtensions(propertiesObject);
-      }
-      this.propertyFormModelVisible = false;
-      this.resetAttributesList();
-    },
-    updateElementExtensions(properties) {
-      const extensions = modelerStore.moddle.create("bpmn:ExtensionElements", {
-        values: this.otherExtensionList.concat([properties])
-      });
+interface FlowablePropertyLike {
+  name?: string
+  value?: string
+  $type?: string
+  values?: FlowablePropertyLike[]
+  [key: string]: unknown
+}
 
-      modelerStore.modeling.updateProperties(this.bpmnElement, {
-        extensionElements: extensions
+defineOptions({ name: "PropertiesPanel" })
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  },
+})
+
+const attributeFormRef = ref()
+const elementPropertyList = ref<FlowablePropertyLike[]>([])
+const otherExtensionList = ref<FlowablePropertyLike[]>([])
+const propertyForm = ref<FlowablePropertyLike>({})
+const editingPropertyIndex = ref(-1)
+const propertyFormModelVisible = ref(false)
+
+let bpmnElement: Record<string, unknown> | null = null
+let bpmnElementProperties: FlowablePropertyLike[] = []
+let bpmnElementPropertyList: FlowablePropertyLike[] = []
+
+const resetAttributesList = (): void => {
+  if (!modelerStore.element?.businessObject) return
+
+  bpmnElement = modelerStore.element;
+  otherExtensionList.value = []; // 其他扩展配置
+  bpmnElementProperties =
+    bpmnElement.businessObject?.extensionElements?.values?.filter(ex => {
+      if (ex.$type !== `flowable:Properties`) {
+        otherExtensionList.value.push(ex);
+      }
+      return ex.$type === `flowable:Properties`;
+    }) ?? [];
+
+  // 保存所有的 扩展属性字段
+  bpmnElementPropertyList = bpmnElementProperties.reduce((pre, current) => pre.concat(current.values), []);
+  // 复制 显示
+  elementPropertyList.value = JSON.parse(JSON.stringify(bpmnElementPropertyList ?? []));
+}
+
+const openAttributesForm = (attr: FlowablePropertyLike | null, index: number): void => {
+  editingPropertyIndex.value = index;
+  propertyForm.value = index === -1 ? {} : JSON.parse(JSON.stringify(attr));
+  propertyFormModelVisible.value = true;
+  nextTick(() => {
+    if (attributeFormRef.value) attributeFormRef.value.clearValidate();
+  });
+}
+
+const removeAttributes = (_attr: FlowablePropertyLike, index: number): void => {
+  if (!modelerStore.moddle) return
+
+  proxy?.$confirm("确认移除该属性吗？", "提示", {
+    confirmButtonText: "确 认",
+    cancelButtonText: "取 消"
+  })
+    .then(() => {
+      elementPropertyList.value.splice(index, 1);
+      bpmnElementPropertyList.splice(index, 1);
+      // 新建一个属性字段的保存列表
+      const propertiesObject = modelerStore.moddle.create(`flowable:Properties`, {
+        values: bpmnElementPropertyList
       });
-    }
+      updateElementExtensions(propertiesObject);
+      resetAttributesList();
+    })
+    .catch(() => console.info("操作取消"));
+}
+
+const saveAttribute = (): void => {
+  if (!modelerStore.moddle || !modelerStore.modeling || !bpmnElement) return
+
+  const { name, value } = propertyForm.value;
+  if (editingPropertyIndex.value !== -1) {
+    modelerStore.modeling.updateModdleProperties(bpmnElement, bpmnElementPropertyList[editingPropertyIndex.value], {
+      name,
+      value
+    });
+  } else {
+    // 新建属性字段
+    const newPropertyObject = modelerStore.moddle.create(`flowable:Property`, { name, value });
+    // 新建一个属性字段的保存列表
+    const propertiesObject = modelerStore.moddle.create(`flowable:Properties`, {
+      values: bpmnElementPropertyList.concat([newPropertyObject])
+    });
+    updateElementExtensions(propertiesObject);
   }
-};
+  propertyFormModelVisible.value = false;
+  resetAttributesList();
+}
+
+const updateElementExtensions = (properties: FlowablePropertyLike): void => {
+  if (!modelerStore.moddle || !modelerStore.modeling || !bpmnElement) return
+
+  const extensions = modelerStore.moddle.create("bpmn:ExtensionElements", {
+    values: otherExtensionList.value.concat([properties])
+  });
+
+  modelerStore.modeling.updateProperties(bpmnElement, {
+    extensionElements: extensions
+  });
+}
+
+const proxy = getCurrentInstance()?.proxy as { $confirm?: (...args: any[]) => Promise<void> } | undefined
+
+watch(
+  () => props.id,
+  (val: string) => {
+    if (StrUtil.isNotBlank(val)) {
+      resetAttributesList();
+    }
+  },
+  { immediate: true }
+)
 </script>
 

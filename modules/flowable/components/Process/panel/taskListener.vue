@@ -4,7 +4,6 @@
       <el-table-column label="序号" width="50px" type="index" />
       <el-table-column label="类型" width="60px" show-overflow-tooltip
         :formatter="row => listenerEventTypeObject[row.event]" />
-      <!--      <el-table-column label="事件id" min-width="70px" prop="id" show-overflow-tooltip />-->
       <el-table-column label="监听类型" width="85px" show-overflow-tooltip
         :formatter="row => listenerTypeObject[row.listenerType]" />
       <el-table-column label="操作">
@@ -49,9 +48,6 @@
               :value="i" />
           </el-select>
         </el-form-item>
-        <!--        <el-form-item label="监听器ID" prop="id" :rules="{ required: true, trigger: ['blur', 'change'] }">-->
-        <!--          <el-input v-model="listenerForm.id" clearable />-->
-        <!--        </el-form-item>-->
         <el-form-item label="监听器类型" prop="listenerType" :rules="{ required: true, trigger: ['blur', 'change'] }">
           <template #label>
             <span>
@@ -211,7 +207,9 @@
     </el-drawer>
   </div>
 </template>
-<script>
+
+<script setup lang="ts">
+import { getCurrentInstance, nextTick, reactive, ref, watch } from "vue";
 import { listListener } from "@ruoyi/module-flowable/api/listener";
 import {
   changeListenerObject,
@@ -222,270 +220,237 @@ import {
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
 
-export default {
-  name: "TaskListener",
-  // 内置监听器相关信息
-  setup() {
-    const { proxy } = getCurrentInstance();
-    const { sys_listener_value_type, sys_listener_event_type } = proxy.useDict("sys_listener_value_type", "sys_listener_event_type");
-    return {
-      // 引入字典
-      sys_listener_value_type,
-      sys_listener_event_type,
+defineOptions({ name: "TaskListener" })
+
+type PanelProxy = {
+  useDict?: (...args: string[]) => { sys_listener_value_type?: unknown[]; sys_listener_event_type?: unknown[] }
+  $confirm?: (message: string, title: string, options: { confirmButtonText: string; cancelButtonText: string }) => Promise<void>
+}
+
+const emit = defineEmits<{
+  (e: 'getTaskListenerCount', count: number): void
+}>()
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  },
+})
+
+const proxy = getCurrentInstance()?.proxy as PanelProxy | undefined
+const { sys_listener_value_type, sys_listener_event_type } = proxy?.useDict?.("sys_listener_value_type", "sys_listener_event_type") ?? {}
+
+const listenerFormRef = ref()
+const listenerFieldFormRef = ref()
+const elementListenersList = ref<any[]>([])
+const listenerForm = ref<Record<string, any>>({})
+const listenerFormModelVisible = ref(false)
+const fieldsListOfListener = ref<any[]>([])
+const bpmnElementListeners = ref<any[]>([])
+const otherExtensionList = ref<any[]>([])
+const listenerFieldForm = ref<Record<string, any>>({})
+const listenerFieldFormModelVisible = ref(false)
+const editingListenerIndex = ref(-1)
+const editingListenerFieldIndex = ref(-1)
+const listenerList = ref<any[]>([])
+const checkedListenerData = ref<any[]>([])
+const listenerSystemVisible = ref(false)
+const listenerSystemChecked = ref(true)
+const loading = ref(true)
+const total = ref(0)
+const listenerTypeObject = {
+  classListener: "Java 类",
+  expressionListener: "表达式",
+  delegateExpressionListener: "代理表达式",
+  scriptListener: "脚本"
+}
+const listenerEventTypeObject = {
+  create: "创建",
+  assignment: "指派",
+  complete: "完成",
+  delete: "删除",
+}
+const fieldTypeObject = {
+  string: "字符串",
+  expression: "表达式"
+}
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  type: 1,
+})
+
+const resetListenersList = () => {
+  bpmnElementListeners.value = modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type === `flowable:TaskListener`) ?? [];
+  elementListenersList.value = bpmnElementListeners.value.map(listener => initListenerType(listener));
+  emit('getTaskListenerCount', elementListenersList.value.length)
+}
+
+const openListenerForm = (listener, index) => {
+  if (listener) {
+    listenerForm.value = initListenerForm(listener);
+    editingListenerIndex.value = index;
+  } else {
+    listenerForm.value = {};
+    editingListenerIndex.value = -1;
+  }
+  if (listener && listener.fields) {
+    fieldsListOfListener.value = listener.fields.map(field => ({
+      ...field,
+      fieldType: field.string ? "string" : "expression"
+    }));
+  } else {
+    fieldsListOfListener.value = [];
+    listenerForm.value["fields"] = [];
+  }
+  listenerFormModelVisible.value = true;
+  nextTick(() => {
+    if (listenerFormRef.value) listenerFormRef.value.clearValidate();
+  });
+}
+
+const openListenerFieldForm = (field, index) => {
+  listenerFieldForm.value = field ? JSON.parse(JSON.stringify(field)) : {};
+  editingListenerFieldIndex.value = field ? index : -1;
+  listenerFieldFormModelVisible.value = true;
+  nextTick(() => {
+    if (listenerFieldFormRef.value) listenerFieldFormRef.value.clearValidate();
+  });
+}
+
+const saveListenerFiled = async () => {
+  let validateStatus = await listenerFieldFormRef.value.validate();
+  if (!validateStatus) return;
+  if (editingListenerFieldIndex.value === -1) {
+    fieldsListOfListener.value.push(listenerFieldForm.value);
+    listenerForm.value.fields.push(listenerFieldForm.value);
+  } else {
+    fieldsListOfListener.value.splice(editingListenerFieldIndex.value, 1, listenerFieldForm.value);
+    listenerForm.value.fields.splice(editingListenerFieldIndex.value, 1, listenerFieldForm.value);
+  }
+  listenerFieldFormModelVisible.value = false;
+  nextTick(() => (listenerFieldForm.value = {}));
+}
+
+const removeListenerField = (field, index) => {
+  proxy?.$confirm?.("确认移除该字段吗？", "提示", {
+    confirmButtonText: "确 认",
+    cancelButtonText: "取 消"
+  }).then(() => {
+    fieldsListOfListener.value.splice(index, 1);
+    listenerForm.value.fields.splice(index, 1);
+  }).catch(() => console.info("操作取消"));
+}
+
+const removeListener = (listener, index) => {
+  proxy?.$confirm?.("确认移除该监听器吗？", "提示", {
+    confirmButtonText: "确 认",
+    cancelButtonText: "取 消"
+  }).then(() => {
+    bpmnElementListeners.value.splice(index, 1);
+    elementListenersList.value.splice(index, 1);
+    updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, otherExtensionList.value.concat(bpmnElementListeners.value));
+    emit('getTaskListenerCount', elementListenersList.value.length)
+  }).catch((r) => console.info(r, "操作取消"));
+}
+
+const saveListenerConfig = async () => {
+  let validateStatus = await listenerFormRef.value.validate();
+  if (!validateStatus) return;
+  const listenerObject = createListenerObject(modelerStore.moddle, listenerForm.value, true, "flowable");
+  if (editingListenerIndex.value === -1) {
+    bpmnElementListeners.value.push(listenerObject);
+    elementListenersList.value.push(listenerForm.value);
+  } else {
+    bpmnElementListeners.value.splice(editingListenerIndex.value, 1, listenerObject);
+    elementListenersList.value.splice(editingListenerIndex.value, 1, listenerForm.value);
+  }
+  otherExtensionList.value = modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type !== `flowable:TaskListener`) ?? [];
+  updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, otherExtensionList.value.concat(bpmnElementListeners.value));
+  emit('getTaskListenerCount', elementListenersList.value.length)
+  listenerFormModelVisible.value = false;
+  listenerForm.value = {};
+}
+
+const initListenerType = (listener) => {
+  let listenerType;
+  if (listener.class) listenerType = "classListener";
+  if (listener.expression) listenerType = "expressionListener";
+  if (listener.delegateExpression) listenerType = "delegateExpressionListener";
+  if (listener.script) listenerType = "scriptListener";
+  return {
+    ...JSON.parse(JSON.stringify(listener)),
+    ...(listener.script ?? {}),
+    listenerType: listenerType
+  };
+}
+
+const initListenerForm = (listener) => {
+  let self = { ...listener };
+  if (listener.script) {
+    self = {
+      ...listener,
+      ...listener.script,
+      scriptType: listener.script.resource ? "externalScript" : "inlineScript"
     };
-  },
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      elementListenersList: [], // 监听器列表
-      listenerForm: {},// 监听器详情表单
-      listenerFormModelVisible: false, // 监听器 编辑 侧边栏显示状态
-      fieldsListOfListener: [],
-      bpmnElementListeners: [],
-      otherExtensionList: [],
-      listenerFieldForm: {}, // 监听器 注入字段 详情表单
-      listenerFieldFormModelVisible: false, // 监听器 注入字段表单弹窗 显示状态
-      editingListenerIndex: -1, // 监听器所在下标，-1 为新增
-      editingListenerFieldIndex: -1, // 字段所在下标，-1 为新增
-
-      listenerList: [],
-      checkedListenerData: [],
-      listenerSystemVisible: false,
-      listenerSystemChecked: true,
-      loading: true,
-      total: 0,
-      listenerTypeObject: {
-        classListener: "Java 类",
-        expressionListener: "表达式",
-        delegateExpressionListener: "代理表达式",
-        scriptListener: "脚本"
-      },
-      listenerEventTypeObject: {
-        create: "创建",
-        assignment: "指派",
-        complete: "完成",
-        delete: "删除",
-        // update: "更新",
-        // timeout: "超时"
-      },
-      fieldTypeObject: {
-        string: "字符串",
-        expression: "表达式"
-      },
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        type: 1,
-      },
-    }
-  },
-
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.resetListenersList();
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  created() {
-    this.getList();
-
-  },
-  methods: {
-    resetListenersList() {
-      this.bpmnElementListeners =
-        modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type === `flowable:TaskListener`) ?? [];
-      this.elementListenersList = this.bpmnElementListeners.map(listener => this.initListenerType(listener));
-      this.$emit('getTaskListenerCount', this.elementListenersList.length)
-    },
-
-    // 打开 监听器详情 侧边栏
-    openListenerForm(listener, index) {
-      if (listener) {
-        this.listenerForm = this.initListenerForm(listener);
-        this.editingListenerIndex = index;
-      } else {
-        this.listenerForm = {};
-        this.editingListenerIndex = -1; // 标记为新增
-      }
-      if (listener && listener.fields) {
-        this.fieldsListOfListener = listener.fields.map(field => ({
-          ...field,
-          fieldType: field.string ? "string" : "expression"
-        }));
-      } else {
-        this.fieldsListOfListener = [];
-        this.listenerForm["fields"] = [];
-      }
-      // 打开侧边栏并清楚验证状态
-      this.listenerFormModelVisible = true;
-      this.$nextTick(() => {
-        if (this.$refs["listenerFormRef"]) this.$refs["listenerFormRef"].clearValidate();
-      });
-    },
-
-    // 打开监听器字段编辑弹窗
-    openListenerFieldForm(field, index) {
-      this.listenerFieldForm = field ? JSON.parse(JSON.stringify(field)) : {};
-      this.editingListenerFieldIndex = field ? index : -1;
-      this.listenerFieldFormModelVisible = true;
-      this.$nextTick(() => {
-        if (this.$refs["listenerFieldFormRef"]) this.$refs["listenerFieldFormRef"].clearValidate();
-      });
-    },
-
-    // 保存监听器注入字段
-    async saveListenerFiled() {
-      let validateStatus = await this.$refs["listenerFieldFormRef"].validate();
-      if (!validateStatus) return; // 验证不通过直接返回
-      if (this.editingListenerFieldIndex === -1) {
-        this.fieldsListOfListener.push(this.listenerFieldForm);
-        this.listenerForm.fields.push(this.listenerFieldForm);
-      } else {
-        this.fieldsListOfListener.splice(this.editingListenerFieldIndex, 1, this.listenerFieldForm);
-        this.listenerForm.fields.splice(this.editingListenerFieldIndex, 1, this.listenerFieldForm);
-      }
-      this.listenerFieldFormModelVisible = false;
-      this.$nextTick(() => (this.listenerFieldForm = {}));
-    },
-
-    // 移除监听器字段
-    removeListenerField(field, index) {
-      this.$confirm("确认移除该字段吗？", "提示", {
-        confirmButtonText: "确 认",
-        cancelButtonText: "取 消"
-      }).then(() => {
-        this.fieldsListOfListener.splice(index, 1);
-        this.listenerForm.fields.splice(index, 1);
-      }).catch(() => console.info("操作取消"));
-    },
-
-    // 移除监听器
-    removeListener(listener, index) {
-      this.$confirm("确认移除该监听器吗？", "提示", {
-        confirmButtonText: "确 认",
-        cancelButtonText: "取 消"
-      }).then(() => {
-        this.bpmnElementListeners.splice(index, 1);
-        this.elementListenersList.splice(index, 1);
-        updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, this.otherExtensionList.concat(this.bpmnElementListeners));
-        this.$emit('getTaskListenerCount', this.elementListenersList.length)
-      }).catch((r) => console.info(r, "操作取消"));
-    },
-
-    // 保存监听器配置
-    async saveListenerConfig() {
-      let validateStatus = await this.$refs["listenerFormRef"].validate();
-      if (!validateStatus) return; // 验证不通过直接返回
-      const listenerObject = createListenerObject(modelerStore.moddle, this.listenerForm, true, "flowable");
-      if (this.editingListenerIndex === -1) {
-        this.bpmnElementListeners.push(listenerObject);
-        this.elementListenersList.push(this.listenerForm);
-      } else {
-        this.bpmnElementListeners.splice(this.editingListenerIndex, 1, listenerObject);
-        this.elementListenersList.splice(this.editingListenerIndex, 1, this.listenerForm);
-      }
-      // 保存其他配置
-      this.otherExtensionList = modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type !== `flowable:TaskListener`) ?? [];
-      updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, this.otherExtensionList.concat(this.bpmnElementListeners));
-      this.$emit('getTaskListenerCount', this.elementListenersList.length)
-      // 4. 隐藏侧边栏
-      this.listenerFormModelVisible = false;
-      this.listenerForm = {};
-    },
-
-    initListenerType(listener) {
-      let listenerType;
-      if (listener.class) listenerType = "classListener";
-      if (listener.expression) listenerType = "expressionListener";
-      if (listener.delegateExpression) listenerType = "delegateExpressionListener";
-      if (listener.script) listenerType = "scriptListener";
-      return {
-        ...JSON.parse(JSON.stringify(listener)),
-        ...(listener.script ?? {}),
-        listenerType: listenerType
-      };
-    },
-
-    // 初始化表单数据
-    initListenerForm(listener) {
-      let self = {
-        ...listener
-      };
-      if (listener.script) {
-        self = {
-          ...listener,
-          ...listener.script,
-          scriptType: listener.script.resource ? "externalScript" : "inlineScript"
-        };
-      }
-      if (listener.event === "timeout" && listener.eventDefinitions) {
-        if (listener.eventDefinitions.length) {
-          let k = "";
-          for (let key in listener.eventDefinitions[0]) {
-            console.log(listener.eventDefinitions, key);
-            if (key.indexOf("time") !== -1) {
-              k = key;
-              self.eventDefinitionType = key.replace("time", "").toLowerCase();
-            }
-          }
-          console.log(k);
-          self.eventTimeDefinitions = listener.eventDefinitions[0][k].body;
+  }
+  if (listener.event === "timeout" && listener.eventDefinitions) {
+    if (listener.eventDefinitions.length) {
+      let k = "";
+      for (let key in listener.eventDefinitions[0]) {
+        if (key.indexOf("time") !== -1) {
+          k = key;
+          self.eventDefinitionType = key.replace("time", "").toLowerCase();
         }
       }
-      return self;
-    },
-
-
-    /** 查询流程达式列表 */
-    getList() {
-      this.loading = true;
-      listListener(this.queryParams).then(response => {
-        this.listenerList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
-    },
-
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      // ids.value = selection.map(item => item.id);
-      // TODO 应该使用 push?
-      this.checkedListenerData = selection;
-      this.listenerSystemChecked = selection.length !== 1;
-    },
-
-    // 保存内置监听器
-    saveSystemListener() {
-      if (this.checkedListenerData.length > 0) {
-        this.checkedListenerData.forEach(value => {
-          // 保存其他配置
-          const listenerObject = createSystemListenerObject(modelerStore.moddle, value, true, "flowable");
-          this.bpmnElementListeners.push(listenerObject);
-          this.elementListenersList.push(changeListenerObject(value));
-          this.otherExtensionList = modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type !== `flowable:TaskListener`) ?? [];
-          updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, this.otherExtensionList.concat(this.bpmnElementListeners));
-        })
-        // 回传显示数量
-        this.$emit('getTaskListenerCount', this.elementListenersList.length)
-      }
-      this.checkedListenerData = [];
-      this.listenerSystemChecked = true;
-      // 隐藏侧边栏
-      this.listenerSystemVisible = false;
+      self.eventTimeDefinitions = listener.eventDefinitions[0][k].body;
     }
   }
+  return self;
 }
+
+const getList = () => {
+  loading.value = true;
+  listListener(queryParams).then(response => {
+    listenerList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
+}
+
+const handleSelectionChange = (selection) => {
+  checkedListenerData.value = selection;
+  listenerSystemChecked.value = selection.length !== 1;
+}
+
+const saveSystemListener = () => {
+  if (checkedListenerData.value.length > 0) {
+    checkedListenerData.value.forEach(value => {
+      const listenerObject = createSystemListenerObject(modelerStore.moddle, value, true, "flowable");
+      bpmnElementListeners.value.push(listenerObject);
+      elementListenersList.value.push(changeListenerObject(value));
+      otherExtensionList.value = modelerStore.element.businessObject?.extensionElements?.values?.filter(ex => ex.$type !== `flowable:TaskListener`) ?? [];
+      updateElementExtensions(modelerStore.moddle, modelerStore.modeling, modelerStore.element, otherExtensionList.value.concat(bpmnElementListeners.value));
+    })
+    emit('getTaskListenerCount', elementListenersList.value.length)
+  }
+  checkedListenerData.value = [];
+  listenerSystemChecked.value = true;
+  listenerSystemVisible.value = false;
+}
+
+watch(
+  () => props.id,
+  (newVal) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      resetListenersList();
+    }
+  },
+  { immediate: true }
+)
+
+getList();
 </script>
 
 <style lang="scss">
@@ -499,4 +464,3 @@ export default {
   margin-right: 10px;
 }
 </style>
-

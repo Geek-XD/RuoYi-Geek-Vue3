@@ -54,124 +54,121 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 import { StrUtil } from "@ruoyi/core/utils/StrUtil";
-export default {
-  name: "BpmnModel",
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      bpmnElementSource: {},
-      bpmnElementSourceRef: {},
-      bpmnFormData: {}
+
+interface ConditionFormData {
+  type?: 'normal' | 'default' | 'condition'
+  conditionType?: 'expression' | 'script' | null
+  scriptType?: 'inlineScript' | 'externalScript' | null
+  body?: string | null
+  resource?: string
+  language?: string
+  [key: string]: unknown
+}
+
+defineOptions({ name: 'BpmnModel' })
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
+
+const bpmnElementSource = ref<Record<string, unknown> | null>(null)
+const bpmnElementSourceRef = ref<Record<string, unknown> | null>(null)
+const bpmnFormData = ref<ConditionFormData>({})
+
+const resetFlowCondition = (): void => {
+  if (!modelerStore.element?.businessObject) return
+
+  bpmnFormData.value = {
+    body: null
+  }
+  bpmnElementSource.value = modelerStore.element.source
+  bpmnElementSourceRef.value = modelerStore.element.businessObject.sourceRef
+  if (bpmnElementSourceRef.value?.default?.id === modelerStore.element.id) {
+    bpmnFormData.value["type"] = "default"
+  } else if (!modelerStore.element.businessObject.conditionExpression) {
+    bpmnFormData.value["type"] = "normal"
+  } else {
+    const conditionExpression = modelerStore.element.businessObject.conditionExpression
+    bpmnFormData.value = { ...conditionExpression, type: "condition" }
+    if (bpmnFormData.value.resource) {
+      bpmnFormData.value["conditionType"] = "script"
+      bpmnFormData.value["scriptType"] = "externalScript"
+      return
     }
-  },
-
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.resetFlowCondition();
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  created() {
-
-  },
-  methods: {
-    // 方法区
-    resetFlowCondition() {
-      this.bpmnFormData = {
-        body: null
-      };
-      this.bpmnElementSource = modelerStore.element.source;
-      this.bpmnElementSourceRef = modelerStore.element.businessObject.sourceRef;
-      if (this.bpmnElementSourceRef && this.bpmnElementSourceRef.default && this.bpmnElementSourceRef.default.id === modelerStore.element.id) {
-        // 默认
-        this.bpmnFormData["type"] = "default";
-      } else if (!modelerStore.element.businessObject.conditionExpression) {
-        // 普通
-        this.bpmnFormData["type"] = "normal";
-      } else {
-        // 带条件
-        const conditionExpression = modelerStore.element.businessObject.conditionExpression;
-        this.bpmnFormData = { ...conditionExpression, type: "condition" };
-        // resource 可直接标识 是否是外部资源脚本
-        if (this.bpmnFormData.resource) {
-          this.bpmnFormData["conditionType"] = "script";
-          this.bpmnFormData["scriptType"] = "externalScript";
-          return;
-        }
-        if (conditionExpression.language) {
-          this.bpmnFormData["conditionType"] = "script";
-          this.bpmnFormData["scriptType"] = "inlineScript";
-          return;
-        }
-        this.bpmnFormData["conditionType"] = "expression";
-      }
-    },
-
-    updateFlowType(flowType) {
-      // 正常条件类
-      if (flowType === "condition") {
-        const flowConditionRef = modelerStore.moddle.create("bpmn:FormalExpression");
-        modelerStore.modeling.updateProperties(modelerStore.element, {
-          conditionExpression: flowConditionRef
-        });
-        return;
-      }
-      // 默认路径
-      if (flowType === "default") {
-        modelerStore.modeling.updateProperties(modelerStore.element, {
-          conditionExpression: null
-        });
-        modelerStore.modeling.updateProperties(this.bpmnElementSource, {
-          default: modelerStore.element
-        });
-        // 清空条件格式
-        this.bpmnFormData.conditionType = null;
-        return;
-      }
-      // 清空条件格式
-      this.bpmnFormData.conditionType = null;
-      // 正常路径，如果来源节点的默认路径是当前连线时，清除父元素的默认路径配置
-      if (this.bpmnElementSourceRef.default && this.bpmnElementSourceRef.default.id === modelerStore.element.id) {
-        modelerStore.modeling.updateProperties(this.bpmnElementSource, {
-          default: null
-        });
-      }
-      modelerStore.modeling.updateProperties(modelerStore.element, {
-        conditionExpression: null
-      });
-    },
-
-    updateFlowCondition() {
-      let { conditionType, scriptType, body, resource, language } = this.bpmnFormData;
-      let condition;
-      if (conditionType === "expression") {
-        condition = modelerStore.moddle.create("bpmn:FormalExpression", { body });
-      } else {
-        if (scriptType === "inlineScript") {
-          condition = modelerStore.moddle.create("bpmn:FormalExpression", { body, language });
-          this.bpmnFormData["resource"] = "";
-        } else {
-          this.bpmnFormData["body"] = "";
-          condition = modelerStore.moddle.create("bpmn:FormalExpression", { resource, language });
-        }
-      }
-      modelerStore.modeling.updateProperties(modelerStore.element, { conditionExpression: condition });
+    if (conditionExpression.language) {
+      bpmnFormData.value["conditionType"] = "script"
+      bpmnFormData.value["scriptType"] = "inlineScript"
+      return
     }
+    bpmnFormData.value["conditionType"] = "expression"
   }
 }
+
+const updateFlowType = (flowType: string): void => {
+  if (!modelerStore.moddle || !modelerStore.modeling || !modelerStore.element) return
+
+  if (flowType === "condition") {
+    const flowConditionRef = modelerStore.moddle.create("bpmn:FormalExpression")
+    modelerStore.modeling.updateProperties(modelerStore.element, {
+      conditionExpression: flowConditionRef
+    })
+    return
+  }
+  if (flowType === "default") {
+    modelerStore.modeling.updateProperties(modelerStore.element, {
+      conditionExpression: null
+    })
+    modelerStore.modeling.updateProperties(bpmnElementSource.value, {
+      default: modelerStore.element
+    })
+    bpmnFormData.value.conditionType = null
+    return
+  }
+  bpmnFormData.value.conditionType = null
+  if (bpmnElementSourceRef.value?.default && bpmnElementSourceRef.value.default.id === modelerStore.element.id) {
+    modelerStore.modeling.updateProperties(bpmnElementSource.value, {
+      default: null
+    })
+  }
+  modelerStore.modeling.updateProperties(modelerStore.element, {
+    conditionExpression: null
+  })
+}
+
+const updateFlowCondition = (): void => {
+  if (!modelerStore.moddle || !modelerStore.modeling || !modelerStore.element) return
+
+  let { conditionType, scriptType, body, resource, language } = bpmnFormData.value
+  let condition
+  if (conditionType === "expression") {
+    condition = modelerStore.moddle.create("bpmn:FormalExpression", { body })
+  } else {
+    if (scriptType === "inlineScript") {
+      condition = modelerStore.moddle.create("bpmn:FormalExpression", { body, language })
+      bpmnFormData.value["resource"] = ""
+    } else {
+      bpmnFormData.value["body"] = ""
+      condition = modelerStore.moddle.create("bpmn:FormalExpression", { resource, language })
+    }
+  }
+  modelerStore.modeling.updateProperties(modelerStore.element, { conditionExpression: condition })
+}
+
+watch(
+  () => props.id,
+  (newVal: string) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      resetFlowCondition()
+    }
+  },
+  { immediate: true }
+)
 </script>
 

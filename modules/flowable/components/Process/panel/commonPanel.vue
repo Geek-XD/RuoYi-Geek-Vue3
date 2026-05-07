@@ -30,105 +30,96 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { StrUtil } from '@ruoyi/core/utils/StrUtil'
+import { getCurrentInstance, ref, watch } from 'vue'
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
-export default {
-  name: "CommonPanel",
-  setup() {
-    const { proxy } = getCurrentInstance();
-    const { sys_process_category } = proxy.useDict("sys_process_category");
-    return {
-      sys_process_category
-    }
-  },
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      rules: {
-        id: [
-          { required: true, message: '节点Id 不能为空', trigger: 'blur' },
-        ],
-        name: [
-          { required: true, message: '节点名称不能为空', trigger: 'blur' },
-        ],
-      },
-      bpmnFormData: {}
-    }
-  },
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.resetTaskForm();
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
 
-  created() {
-  },
-  methods: {
-    resetTaskForm() {
-      // this.bpmnFormData = JSON.parse(JSON.stringify(modelerStore.element.businessObject));
-      this.bpmnFormData = Object.assign({}, modelerStore.element.businessObject);
-
-      // 使用 $set 确保 documentationValue 是响应式的
-      this.bpmnFormData['documentationValue'] = modelerStore.element.businessObject.documentation?.[0]?.text || '';
-    },
-    updateElementTask(key) {
-      const taskAttr = Object.create(null);
-      taskAttr[key] = this.bpmnFormData[key] || null;
-      modelerStore.modeling.updateProperties(modelerStore.element, taskAttr);
-    },
-    updateDocumentation() {
-      // 确保 modelerStore 是 BPMN.js 的 Modeler 实例
-      const modeler = modelerStore.modeler; // 获取实际的 modeler 实例
-      const moddle = modeler.get('moddle');      // 通过 modeler 获取 moddle
-      const modeling = modeler.get('modeling');  // 通过 modeler 获取 modeling
-
-      // 创建新的文档对象
-      const documentation = moddle.create('bpmn:Documentation', {
-        text: this.bpmnFormData.documentationValue
-      });
-
-      // 获取当前元素的扩展元素
-      let extensionElements = modelerStore.element.businessObject.extensionElements;
-
-      if (!extensionElements) {
-        // 如果没有扩展元素，创建一个新的
-        extensionElements = moddle.create('bpmn:ExtensionElements', {
-          values: []
-        });
-      }
-
-      // 更新文档
-      modeling.updateProperties(modelerStore.element, {
-        documentation: [documentation],
-        extensionElements: extensionElements
-      });
-
-      // 强制更新模型
-      modelerStore.modeler.get('commandStack').execute('element.updateProperties', {
-        element: modelerStore.element,
-        properties: {
-          documentation: [documentation]
-        }
-      });
-
-      this.$emit('save');
-    }
-  }
+interface CommonPanelFormData {
+  $type?: string
+  id?: string
+  name?: string
+  processCategory?: string
+  isExpanded?: boolean
+  documentationValue?: string
+  [key: string]: unknown
 }
 
+defineOptions({ name: 'CommonPanel' })
 
+const emit = defineEmits<{
+  (e: 'save'): void
+}>()
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
+
+const proxy = getCurrentInstance()?.proxy as {
+  useDict?: (...args: string[]) => { sys_process_category?: unknown[] }
+} | undefined
+const { sys_process_category = [] } = proxy?.useDict?.('sys_process_category') ?? {}
+
+const rules = {
+  id: [{ required: true, message: '节点Id 不能为空', trigger: 'blur' }],
+  name: [{ required: true, message: '节点名称不能为空', trigger: 'blur' }]
+}
+
+const bpmnFormData = ref<CommonPanelFormData>({})
+
+const resetTaskForm = (): void => {
+  if (!modelerStore.element?.businessObject) return
+
+  bpmnFormData.value = Object.assign({}, modelerStore.element.businessObject)
+  bpmnFormData.value['documentationValue'] = modelerStore.element.businessObject.documentation?.[0]?.text || ''
+}
+
+const updateElementTask = (key: string): void => {
+  if (!modelerStore.modeling || !modelerStore.element) return
+
+  const taskAttr = Object.create(null)
+  taskAttr[key] = bpmnFormData.value[key] || null
+  modelerStore.modeling.updateProperties(modelerStore.element, taskAttr)
+}
+
+const updateDocumentation = (): void => {
+  if (!modelerStore.modeler || !modelerStore.element) return
+
+  const modeler = modelerStore.modeler
+  const moddle = modeler.get('moddle')
+  const modeling = modeler.get('modeling')
+
+  const documentation = moddle.create('bpmn:Documentation', {
+    text: bpmnFormData.value.documentationValue
+  })
+
+  let extensionElements = modelerStore.element.businessObject.extensionElements
+
+  if (!extensionElements) {
+    extensionElements = moddle.create('bpmn:ExtensionElements', {
+      values: []
+    })
+  }
+
+  modeling.updateProperties(modelerStore.element, {
+    documentation: [documentation],
+    extensionElements: extensionElements
+  })
+
+  emit('save')
+}
+
+watch(
+  () => props.id,
+  (newVal: string) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      resetTaskForm()
+    }
+  },
+  { immediate: true }
+)
 </script>
 

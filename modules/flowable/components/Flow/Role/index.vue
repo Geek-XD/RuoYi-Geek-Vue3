@@ -48,128 +48,114 @@
   </div>
 </template>
 
-<script>
-import { listRole } from "@/api/system/role";
-import { StrUtil } from "@ruoyi/core/utils/StrUtil";
+<script setup>
+import { getCurrentInstance, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { listRole } from '@/api/system/role'
+import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 
-export default {
-  name: "FlowRole",
-  // 接受父组件的值
-  props: {
-    // 回显数据传值
-    selectValues: {
-      type: [Number, String, Array],
-      default: null,
-      required: false
-    },
-    checkType: {
-      type: String,
-      default: 'multiple',
-      required: false
-    },
+defineOptions({ name: 'FlowRole' })
+
+const props = defineProps({
+  selectValues: {
+    type: [Number, String, Array],
+    default: null,
+    required: false
   },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 角色表格数据
-      roleList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 5,
-        roleName: undefined,
-        roleKey: undefined,
-        status: undefined
-      },
-      // 表单参数
-      form: {},
-      radioSelected: 0, // 单选框传值
-      selectRoleList: [] // 回显数据传值
-    };
+  checkType: {
+    type: String,
+    default: 'multiple',
+    required: false
   },
-  watch: {
-    selectValues: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          if (newVal instanceof Number || newVal instanceof String) {
-            this.radioSelected = newVal
-          } else {
-            this.selectRoleList = newVal;
-          }
-        }
-      },
-      immediate: true
-    },
-    roleList: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal) && this.selectRoleList.length > 0) {
-          this.$nextTick(() => {
-            this.$refs.dataTable.clearSelection();
-            if (typeof this.selectRoleList === 'string') {
-              this.selectRoleList = this.selectRoleList.split(',');
-            }
-            this.selectRoleList?.forEach(key => {
-              this.$refs.dataTable.toggleRowSelection(newVal.find(
-                item => key == item.roleId
-              ), true)
-            });
-          });
-        }
-      }
+})
+
+const emit = defineEmits(['handleRoleSelect'])
+const { proxy } = getCurrentInstance()
+const dataTable = ref(null)
+
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const showSearch = ref(true)
+const total = ref(0)
+const roleList = ref([])
+const title = ref('')
+const open = ref(false)
+const radioSelected = ref(0)
+const selectRoleList = ref([])
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 5,
+  roleName: undefined,
+  roleKey: undefined,
+  status: undefined
+})
+const form = reactive({})
+
+watch(() => props.selectValues, (newVal) => {
+  if (StrUtil.isNotBlank(newVal)) {
+    if (newVal instanceof Number || newVal instanceof String) {
+      radioSelected.value = newVal
+    } else {
+      selectRoleList.value = newVal
     }
-  },
-  created() {
-    this.getList();
-  },
-  methods: {
-    /** 查询角色列表 */
-    getList() {
-      this.loading = true;
-      listRole(this.queryParams).then(response => {
-        this.roleList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      }
-      );
-    },
-    // 多选框选中数据
-    handleMultipleRoleSelect(selection) {
-      const idList = selection.map(item => item.roleId);
-      const nameList = selection.map(item => item.roleName);
-      this.$emit('handleRoleSelect', idList.join(','), nameList.join(','));
-    },
-    // 单选框选中数据
-    handleSingleRoleSelect(selection) {
-      this.radioSelected = selection.roleId;
-      const roleName = selection.roleName;
-      this.$emit('handleRoleSelect', this.radioSelected.toString(), roleName);
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.handleQuery();
-    },
   }
-};
+}, { immediate: true })
+
+watch(roleList, (newVal) => {
+  if (StrUtil.isNotBlank(newVal) && selectRoleList.value.length > 0) {
+    nextTick(() => {
+      dataTable.value.clearSelection()
+      if (typeof selectRoleList.value === 'string') {
+        selectRoleList.value = selectRoleList.value.split(',')
+      }
+      selectRoleList.value?.forEach(key => {
+        dataTable.value.toggleRowSelection(newVal.find(
+          item => key == item.roleId
+        ), true)
+      })
+    })
+  }
+})
+
+onMounted(() => {
+  getList()
+})
+
+/** 查询角色列表 */
+function getList() {
+  loading.value = true
+  listRole(queryParams).then(response => {
+    roleList.value = response.rows
+    total.value = response.total
+    loading.value = false
+  })
+}
+
+// 多选框选中数据
+function handleMultipleRoleSelect(selection) {
+  const idList = selection.map(item => item.roleId)
+  const nameList = selection.map(item => item.roleName)
+  emit('handleRoleSelect', idList.join(','), nameList.join(','))
+}
+
+// 单选框选中数据
+function handleSingleRoleSelect(selection) {
+  radioSelected.value = selection.roleId
+  const roleName = selection.roleName
+  emit('handleRoleSelect', radioSelected.value.toString(), roleName)
+}
+
+/** 搜索按钮操作 */
+function handleQuery() {
+  queryParams.pageNum = 1
+  getList()
+}
+
+/** 重置按钮操作 */
+function resetQuery() {
+  handleQuery()
+}
 </script>
 <style>
 /*隐藏radio展示的label及本身自带的样式*/

@@ -59,176 +59,181 @@
     </el-dialog>
   </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import { StrUtil } from '@ruoyi/core/utils/StrUtil'
 import modelerStore from '@ruoyi/module-flowable/components/Process/common/global'
 
-export default {
-  name: "MultiInstance",
-  /** 组件传值  */
-  props: {
-    id: {
-      type: String,
-      required: true
-    },
-  },
-  data() {
-    return {
-      dialogVisible: false,
-      loopCharacteristics: "",
-      loopInstanceForm: {},
-      multiLoopInstance: {},
-      defaultLoopInstanceForm: {
-        completionCondition: "",
-        loopCardinality: "",
-        extensionElements: [],
-        asyncAfter: false,
-        asyncBefore: false,
-        exclusive: false
-      },
-    }
-  },
+interface LoopInstanceFormData {
+  completionCondition?: string
+  loopCardinality?: string
+  extensionElements?: unknown[]
+  asyncAfter?: boolean
+  asyncBefore?: boolean
+  exclusive?: boolean
+  collection?: string
+  elementVariable?: string
+  timeCycle?: string
+  [key: string]: unknown
+}
 
-  /** 传值监听 */
-  watch: {
-    id: {
-      handler(newVal) {
-        if (StrUtil.isNotBlank(newVal)) {
-          this.getElementLoop(modelerStore.element.businessObject);
-        }
-      },
-      immediate: true, // 立即生效
-    },
-  },
-  created() {
+defineOptions({ name: 'MultiInstance' })
 
-  },
-  methods: {
-    // 方法区
-    getElementLoop(businessObject) {
-      if (!businessObject.loopCharacteristics) {
-        this.loopCharacteristics = "Null";
-        this.loopInstanceForm = {};
-        return;
-      }
-      if (businessObject.loopCharacteristics.$type === "bpmn:StandardLoopCharacteristics") {
-        this.loopCharacteristics = "StandardLoop";
-        this.loopInstanceForm = {};
-        return;
-      }
-      if (businessObject.loopCharacteristics.isSequential) {
-        this.loopCharacteristics = "SequentialMultiInstance";
-      } else {
-        this.loopCharacteristics = "ParallelMultiInstance";
-      }
-      // 合并配置
-      this.loopInstanceForm = {
-        ...this.defaultLoopInstanceForm,
-        ...businessObject.loopCharacteristics,
-        completionCondition: businessObject.loopCharacteristics?.completionCondition?.body ?? "",
-        loopCardinality: businessObject.loopCharacteristics?.loopCardinality?.body ?? ""
-      };
-      // 保留当前元素 businessObject 上的 loopCharacteristics 实例
-      this.multiLoopInstance = modelerStore.element.businessObject.loopCharacteristics;
-      // 更新表单
-      if (
-        businessObject.loopCharacteristics.extensionElements &&
-        businessObject.loopCharacteristics.extensionElements.values &&
-        businessObject.loopCharacteristics.extensionElements.values.length
-      ) {
-        this.loopInstanceForm["timeCycle"] = businessObject.loopCharacteristics.extensionElements.values[0].body;
-      }
-    },
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
 
-    changeLoopCharacteristicsType(type) {
-      // 切换类型取消原表单配置
-      this.loopInstanceForm = { ...this.defaultLoopInstanceForm };
-      // 取消多实例配置
-      if (type === "Null") {
-        modelerStore.modeling.updateProperties(modelerStore.element, { loopCharacteristics: null });
-        return;
-      }
-      // 配置循环
-      if (type === "StandardLoop") {
-        const loopCharacteristicsObject = modelerStore.moddle.create("bpmn:StandardLoopCharacteristics");
-        modelerStore.modeling.updateProperties(modelerStore.element, {
-          loopCharacteristics: loopCharacteristicsObject
-        });
-        this.multiLoopInstance = null;
-        return;
-      }
-      // 时序
-      if (type === "SequentialMultiInstance") {
-        this.multiLoopInstance = modelerStore.moddle.create("bpmn:MultiInstanceLoopCharacteristics", {
-          isSequential: true
-        });
-      } else {
-        this.multiLoopInstance = modelerStore.moddle.create("bpmn:MultiInstanceLoopCharacteristics");
-      }
-      modelerStore.modeling.updateProperties(modelerStore.element, {
-        loopCharacteristics: this.multiLoopInstance
-      });
-    },
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
 
-    // 循环基数
-    updateLoopCardinality(cardinality) {
-      let loopCardinality = null;
-      if (cardinality && cardinality.length) {
-        loopCardinality = modelerStore.moddle.create("bpmn:FormalExpression", { body: cardinality });
-      }
-      modelerStore.modeling.updateModdleProperties(modelerStore.element, this.multiLoopInstance, {
-        loopCardinality
-      });
-    },
+const dialogVisible = ref(false)
+const loopCharacteristics = ref('')
+const loopInstanceForm = ref<LoopInstanceFormData>({})
+const multiLoopInstance = ref<Record<string, unknown> | null>(null)
+const defaultLoopInstanceForm = {
+  completionCondition: '',
+  loopCardinality: '',
+  extensionElements: [],
+  asyncAfter: false,
+  asyncBefore: false,
+  exclusive: false
+}
 
-    // 完成条件
-    updateLoopCondition(condition) {
-      let completionCondition = null;
-      if (condition && condition.length) {
-        completionCondition = modelerStore.moddle.create("bpmn:FormalExpression", { body: condition });
-      }
-      modelerStore.modeling.updateModdleProperties(modelerStore.element, this.multiLoopInstance, {
-        completionCondition
-      });
-    },
-
-    // 重试周期
-    updateLoopTimeCycle(timeCycle) {
-      const extensionElements = modelerStore.moddle.create("bpmn:ExtensionElements", {
-        values: [
-          modelerStore.moddle.create(`flowable:FailedJobRetryTimeCycle`, {
-            body: timeCycle
-          })
-        ]
-      });
-      modelerStore.modeling.updateModdleProperties(modelerStore.element, this.multiLoopInstance, {
-        extensionElements
-      });
-    },
-
-    // 直接更新的基础信息
-    updateLoopBase() {
-      modelerStore.modeling.updateModdleProperties(modelerStore.element, this.multiLoopInstance, {
-        collection: this.loopInstanceForm.collection || null,
-        elementVariable: this.loopInstanceForm.elementVariable || null
-      });
-    },
-
-    // 各异步状态
-    updateLoopAsync(key) {
-      const { asyncBefore, asyncAfter } = this.loopInstanceForm;
-      let asyncAttr = Object.create(null);
-      if (!asyncBefore && !asyncAfter) {
-        this.loopInstanceForm["exclusive"] = false;
-        asyncAttr = { asyncBefore: false, asyncAfter: false, exclusive: false, extensionElements: null };
-      } else {
-        asyncAttr[key] = this.loopInstanceForm[key];
-      }
-      modelerStore.modeling.updateModdleProperties(modelerStore.element, this.multiLoopInstance, asyncAttr);
-    }
+const getElementLoop = (businessObject?: Record<string, unknown> | null): void => {
+  if (!businessObject?.loopCharacteristics) {
+    loopCharacteristics.value = 'Null'
+    loopInstanceForm.value = {}
+    return
+  }
+  if (businessObject.loopCharacteristics.$type === 'bpmn:StandardLoopCharacteristics') {
+    loopCharacteristics.value = 'StandardLoop'
+    loopInstanceForm.value = {}
+    return
+  }
+  if (businessObject.loopCharacteristics.isSequential) {
+    loopCharacteristics.value = 'SequentialMultiInstance'
+  } else {
+    loopCharacteristics.value = 'ParallelMultiInstance'
+  }
+  loopInstanceForm.value = {
+    ...defaultLoopInstanceForm,
+    ...businessObject.loopCharacteristics,
+    completionCondition: businessObject.loopCharacteristics?.completionCondition?.body ?? '',
+    loopCardinality: businessObject.loopCharacteristics?.loopCardinality?.body ?? ''
+  }
+  multiLoopInstance.value = modelerStore.element?.businessObject?.loopCharacteristics ?? null
+  if (
+    businessObject.loopCharacteristics.extensionElements &&
+    businessObject.loopCharacteristics.extensionElements.values &&
+    businessObject.loopCharacteristics.extensionElements.values.length
+  ) {
+    loopInstanceForm.value['timeCycle'] = businessObject.loopCharacteristics.extensionElements.values[0].body
   }
 }
 
+const changeLoopCharacteristicsType = (type: string): void => {
+  if (!modelerStore.modeling || !modelerStore.moddle || !modelerStore.element) return
+
+  loopInstanceForm.value = { ...defaultLoopInstanceForm }
+  if (type === 'Null') {
+    modelerStore.modeling.updateProperties(modelerStore.element, { loopCharacteristics: null })
+    return
+  }
+  if (type === 'StandardLoop') {
+    const loopCharacteristicsObject = modelerStore.moddle.create('bpmn:StandardLoopCharacteristics')
+    modelerStore.modeling.updateProperties(modelerStore.element, {
+      loopCharacteristics: loopCharacteristicsObject
+    })
+    multiLoopInstance.value = null
+    return
+  }
+  if (type === 'SequentialMultiInstance') {
+    multiLoopInstance.value = modelerStore.moddle.create('bpmn:MultiInstanceLoopCharacteristics', {
+      isSequential: true
+    })
+  } else {
+    multiLoopInstance.value = modelerStore.moddle.create('bpmn:MultiInstanceLoopCharacteristics')
+  }
+  modelerStore.modeling.updateProperties(modelerStore.element, {
+    loopCharacteristics: multiLoopInstance.value
+  })
+}
+
+const updateLoopCardinality = (cardinality: string): void => {
+  if (!modelerStore.modeling || !modelerStore.moddle || !modelerStore.element || !multiLoopInstance.value) return
+
+  let loopCardinality = null
+  if (cardinality && cardinality.length) {
+    loopCardinality = modelerStore.moddle.create('bpmn:FormalExpression', { body: cardinality })
+  }
+  modelerStore.modeling.updateModdleProperties(modelerStore.element, multiLoopInstance.value, {
+    loopCardinality
+  })
+}
+
+const updateLoopCondition = (condition: string): void => {
+  if (!modelerStore.modeling || !modelerStore.moddle || !modelerStore.element || !multiLoopInstance.value) return
+
+  let completionCondition = null
+  if (condition && condition.length) {
+    completionCondition = modelerStore.moddle.create('bpmn:FormalExpression', { body: condition })
+  }
+  modelerStore.modeling.updateModdleProperties(modelerStore.element, multiLoopInstance.value, {
+    completionCondition
+  })
+}
+
+const updateLoopTimeCycle = (timeCycle: string): void => {
+  if (!modelerStore.modeling || !modelerStore.moddle || !modelerStore.element || !multiLoopInstance.value) return
+
+  const extensionElements = modelerStore.moddle.create('bpmn:ExtensionElements', {
+    values: [
+      modelerStore.moddle.create(`flowable:FailedJobRetryTimeCycle`, {
+        body: timeCycle
+      })
+    ]
+  })
+  modelerStore.modeling.updateModdleProperties(modelerStore.element, multiLoopInstance.value, {
+    extensionElements
+  })
+}
+
+const updateLoopBase = (): void => {
+  if (!modelerStore.modeling || !modelerStore.element || !multiLoopInstance.value) return
+
+  modelerStore.modeling.updateModdleProperties(modelerStore.element, multiLoopInstance.value, {
+    collection: loopInstanceForm.value.collection || null,
+    elementVariable: loopInstanceForm.value.elementVariable || null
+  })
+}
+
+const updateLoopAsync = (key: string): void => {
+  if (!modelerStore.modeling || !modelerStore.element || !multiLoopInstance.value) return
+
+  const { asyncBefore, asyncAfter } = loopInstanceForm.value
+  let asyncAttr = Object.create(null)
+  if (!asyncBefore && !asyncAfter) {
+    loopInstanceForm.value['exclusive'] = false
+    asyncAttr = { asyncBefore: false, asyncAfter: false, exclusive: false, extensionElements: null }
+  } else {
+    asyncAttr[key] = loopInstanceForm.value[key]
+  }
+  modelerStore.modeling.updateModdleProperties(modelerStore.element, multiLoopInstance.value, asyncAttr)
+}
+
+watch(
+  () => props.id,
+  (newVal: string) => {
+    if (StrUtil.isNotBlank(newVal)) {
+      getElementLoop(modelerStore.element?.businessObject)
+    }
+  },
+  { immediate: true }
+)
 </script>
 <style lang="scss">
 @use '../style/process-panel' as *;
