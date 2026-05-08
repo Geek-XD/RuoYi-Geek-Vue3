@@ -1,2 +1,7 @@
-export { staticRoutes } from './staticRoutes'
-export { dynamicRoutes } from './asyncRoutes'
+import { staticRoutes } from './staticRoutes'
+import { dynamicRoutes } from './asyncRoutes'
+
+export default [
+  ...staticRoutes,
+  ...dynamicRoutes
+]

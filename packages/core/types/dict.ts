@@ -1,5 +1,5 @@
-type DictKey = string | null;
-type Dict = {
+export type DictKey = string | null;
+export type Dict = {
     createBy: string,
     createTime: string,
     updateBy: string | null,
@@ -18,7 +18,7 @@ type Dict = {
     default: boolean
 }
 
-type DictValue = {
+export type DictValue = {
     label: string,
     value: string,
     elTagType: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'text',

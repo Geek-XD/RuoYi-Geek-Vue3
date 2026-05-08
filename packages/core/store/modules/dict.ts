@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { DictKey, DictValue } from '@ruoyi/core/types/dict'
 
 const useDictStore = defineStore(
   'dict',

@@ -6,6 +6,10 @@ import '@/assets/styles/index.scss' // global css
 import App from './App.vue'
 const app = createApp(App)
 
+// 注册 core auth handlers
+import { setupCoreAuthHandlers } from '@/core/setupAuthHandlers'
+setupCoreAuthHandlers()
+
 import { download } from '@ruoyi/core/utils/request'
 import { useDict } from '@ruoyi/core/utils/dict'
 import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@ruoyi/core/utils/ruoyi'

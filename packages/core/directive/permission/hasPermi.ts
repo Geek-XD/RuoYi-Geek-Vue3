@@ -4,20 +4,15 @@
 */
 
 import useUserStore from '@ruoyi/core/store/modules/user'
+import { hasAnyPermission } from '@ruoyi/core/utils/permission'
 
 import type { Directive } from "vue";
 const vHasPermi: Directive = {
   mounted(el, binding, vnode) {
     const { value } = binding
-    const all_permission = "*:*:*";
-    const permissions = useUserStore().permissions
 
     if (value && value instanceof Array && value.length > 0) {
-      const permissionFlag = value
-
-      const hasPermissions = permissions.some(permission => {
-        return all_permission === permission || permissionFlag.includes(permission)
-      })
+      const hasPermissions = hasAnyPermission(useUserStore().permissions, value)
 
       if (!hasPermissions) {
         el.parentNode && el.parentNode.removeChild(el)

@@ -1,63 +1,37 @@
-import defaultSettings, { resolveMenuLayout, type MenuLayout } from '@/settings'
-import { StrUtil } from '@ruoyi/core/utils/StrUtil'
+import defaultSettings, { type MenuLayout } from '@/settings'
 import { defineStore } from 'pinia'
-const { theme, sideTheme, showSettings, menuLayout, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent, initDbSetting } = defaultSettings
-
-const storageSetting: typeof defaultSettings = JSON.parse(
-  localStorage.getItem('layout-setting') || '{}'
-)
+import { applySettingChange, resolveDocumentTitle, resolveInitialSettings, storageSetting } from '../helpers/settings'
 
 const useSettingsStore = defineStore('settings', {
   state: () => ({
     title: '',
     theme: '#11A983',
     sideTheme: 'theme-light',
-    showSettings: showSettings,
+    showSettings: defaultSettings.showSettings,
     menuLayout: 'left' as MenuLayout,
     topNav: false,
     tagsView: true,
     fixedHeader: true,
     sidebarLogo: true,
     dynamicTitle: true,
-    footerVisible: footerVisible,
-    footerContent: footerContent,
+    footerVisible: defaultSettings.footerVisible,
+    footerContent: defaultSettings.footerContent,
     inited: false
   }),
   actions: {
     async initSetting() {
       if (this.inited) return
       try {
+        const { initDbSetting } = defaultSettings as typeof defaultSettings & { initDbSetting: () => Promise<any> }
         const config = await initDbSetting()
-        this.theme = storageSetting.theme ?? config.theme ?? theme
-        this.sideTheme = storageSetting.sideTheme ?? config.sideTheme ?? sideTheme
-        this.menuLayout = resolveMenuLayout(storageSetting.menuLayout, storageSetting.topNav)
-        if (!storageSetting.menuLayout && !storageSetting.topNav) {
-          this.menuLayout = config.menuLayout ?? resolveMenuLayout(undefined, config.topNav ?? topNav)
-        }
-        this.topNav = this.menuLayout !== 'left'
-        this.tagsView = storageSetting.tagsView ?? config.tagsView ?? tagsView
-        this.fixedHeader = storageSetting.fixedHeader ?? config.fixedHeader ?? fixedHeader
-        this.sidebarLogo = storageSetting.sidebarLogo ?? config.sidebarLogo ?? sidebarLogo
-        this.dynamicTitle = storageSetting.dynamicTitle ?? config.dynamicTitle ?? dynamicTitle
+        Object.assign(this, resolveInitialSettings({ ...defaultSettings, ...config }))
       } finally {
         this.inited = true
       }
     },
     /** 修改布局设置 */
     changeSetting(data: { key: keyof typeof storageSetting, value: any }) {
-      const { key, value } = data
-      if (key === 'menuLayout') {
-        this.menuLayout = resolveMenuLayout(value)
-        this.topNav = this.menuLayout !== 'left'
-        return
-      }
-      if (this.hasOwnProperty(key)) {
-        //@ts-ignore
-        this[key] = value
-        if (key === 'topNav') {
-          this.menuLayout = value ? 'mix' : 'left'
-        }
-      }
+      applySettingChange(this, data.key, data.value)
     },
     /** 设置网页标题 */
     setTitle(title: string) {
@@ -65,11 +39,7 @@ const useSettingsStore = defineStore('settings', {
       this.refreshDynamicTitle();
     },
     refreshDynamicTitle() {
-      if (this.dynamicTitle && StrUtil.isNotBlank(this.title)) {
-        document.title = this.title + ' - ' + defaultSettings.title;
-      } else {
-        document.title = defaultSettings.title;
-      }
+      document.title = resolveDocumentTitle(this.title, this.dynamicTitle)
     }
   },
   getters: {

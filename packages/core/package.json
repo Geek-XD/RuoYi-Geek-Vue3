@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./adapters": "./adapters/index.ts",
+    "./adapters/*": "./adapters/*",
+    "./api": "./api/index.ts",
+    "./api/*": "./api/*",
     "./directive": "./directive/index.ts",
     "./directive/*": "./directive/*",
     "./plugins": "./plugins/index.ts",

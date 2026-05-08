@@ -1,20 +1,19 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { getToken } from '@ruoyi/core/utils/auth'
 import errorCode from '@ruoyi/core/utils/errorCode'
 import { tansParams, blobValidate } from '@ruoyi/core/utils/ruoyi'
 import cache from '@ruoyi/core/plugins/cache'
 import { saveAs } from 'file-saver'
+import { GeekRequestConfig, GeekResponse } from '@ruoyi/core/types/request'
 import useUserStore from '@ruoyi/core/store/modules/user'
 import { router } from '@ruoyi/core/router'
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 
 let downloadLoadingInstance: any;
 // 是否显示重新登录
 export let isRelogin = { show: false };
-//@ts-ignore
-axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
-import { GeekRequestConfig, GeekResponse } from '@ruoyi/core/types/request'
-import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
+axios.defaults.headers.common['Content-Type'] = 'application/json;charset=utf-8'
 // 创建axios实例
 const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
@@ -84,13 +83,12 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
     if (!isRelogin.show) {
       isRelogin.show = true;
       ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
-        isRelogin.show = false;
-        useUserStore().logOut().then(() => {
-          location.href = router.resolve(RoutesAlias.Home).href;
+        return useUserStore().logOut().then(() => {
+          location.href = router.resolve(RoutesAlias.Home).href
         })
-      }).catch(() => {
-        isRelogin.show = false;
-      });
+      }).finally(() => {
+        isRelogin.show = false
+      })
     }
     return Promise.reject(new Error('无效的会话，或者会话已过期，请重新登录。'))
   } else if (code === '500') {

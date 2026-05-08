@@ -1,27 +1,12 @@
-import useUserStore from '@ruoyi/core/store/modules/user';
+import useUserStore from '@ruoyi/core/store/modules/user'
+import { hasAnyPermission, hasAnyRole, hasAllPermissions, hasAllRoles } from '@ruoyi/core/utils/permission'
 
 function authPermission(permission: string): boolean {
-  const all_permission = "*:*:*";
-  const permissions = useUserStore().permissions;
-  if (permission && permission.length > 0) {
-    return permissions.some((v) => {
-      return all_permission === v || v === permission;
-    });
-  } else {
-    return false;
-  }
+  return permission.length > 0 && hasAnyPermission(useUserStore().permissions, [permission])
 }
 
 function authRole(role: string): boolean {
-  const super_admin = "admin";
-  const roles = useUserStore().roles;
-  if (role && role.length > 0) {
-    return roles.some((v) => {
-      return super_admin === v || v === role;
-    });
-  } else {
-    return false;
-  }
+  return role.length > 0 && hasAnyRole(useUserStore().roles, [role])
 }
 
 export default {
@@ -39,9 +24,7 @@ export default {
    * @returns
    */
   hasPermiOr(permissions: Array<string>): boolean {
-    return permissions.some((item) => {
-      return authPermission(item);
-    });
+    return hasAnyPermission(useUserStore().permissions, permissions)
   },
   /**
    * 验证用户是否含有指定权限，必须全部拥有
@@ -49,9 +32,7 @@ export default {
    * @returns
    */
   hasPermiAnd(permissions: Array<string>): boolean {
-    return permissions.every((item) => {
-      return authPermission(item);
-    });
+    return hasAllPermissions(useUserStore().permissions, permissions)
   },
   /**
    * 验证用户是否具备某角色
@@ -67,9 +48,7 @@ export default {
    * @returns
    */
   hasRoleOr(roles: Array<string>): boolean {
-    return roles.some((item) => {
-      return authRole(item);
-    });
+    return hasAnyRole(useUserStore().roles, roles)
   },
   /**
    * 验证用户是否含有指定角色，必须全部拥有
@@ -77,8 +56,6 @@ export default {
    * @returns
    */
   hasRoleAnd(roles: Array<string>): boolean {
-    return roles.every((item) => {
-      return authRole(item);
-    });
+    return hasAllRoles(useUserStore().roles, roles)
   },
 };
