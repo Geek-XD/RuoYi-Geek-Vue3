@@ -3,6 +3,7 @@ import { getNormalPath } from '@ruoyi/core/utils/ruoyi'
 import { isHttp } from '@ruoyi/core/utils/validate'
 import { deepClone } from '@ruoyi/core/utils'
 
+/** 构建菜单路由 */
 export function buildMenuRoutes(routes: RouteItem[]): RouteItem[] {
   return routes.map(route => {
     const currentRoute: RouteItem = { ...route, hidden: !!route.hidden }
@@ -15,6 +16,7 @@ export function buildMenuRoutes(routes: RouteItem[]): RouteItem[] {
   })
 }
 
+/** 构建页面路由（扁平化） */
 export function buildPageRoutes(routes: RouteItem[]): RouteItem[] {
   return routes.map(route => {
     const currentRoute: RouteItem = { ...route, hidden: !!route.hidden }
@@ -25,6 +27,57 @@ export function buildPageRoutes(routes: RouteItem[]): RouteItem[] {
     }
     return currentRoute
   })
+}
+
+/** 构建混合侧边栏菜单 */
+export function buildMixSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
+  if (!activePath) return []
+  for (const route of routes) {
+    if (route.hidden === true) continue
+    const children = getVisibleChildren(route)
+    if (!children.length) continue
+    if (route.path === '' || route.path === '/') continue
+    const topPath = resolveMenuPath(route.path)
+    if (!matchesMenuPath(activePath, topPath)) continue
+    const sidebarRoutes = deepClone(children)
+    sidebarRoutes.forEach(item => item.path = resolveMenuPath(item.path, route.path))
+    return sidebarRoutes
+  }
+  return []
+}
+
+/** 构建顶部菜单 */
+export function buildTopbarMenus(routes: RouteItem[]): RouteItem[] {
+  const menus: RouteItem[] = []
+  routes.forEach(menu => {
+    if (menu.hidden === true) return
+    const children = getVisibleChildren(menu)
+    if ((menu.path === '' || menu.path === '/') && children[0]) {
+      const child = children[0]
+      menus.push(normalizeTopbarRoute({
+        ...child,
+        path: resolveMenuPath(child.path, menu.path || '/'),
+        meta: {
+          ...child.meta,
+          icon: child.meta?.icon || 'dashboard'
+        }
+      }))
+      return
+    }
+    if (menu.meta?.isTopMenu && children[0]) {
+      menus.push(normalizeTopbarRoute({
+        ...children[0],
+        path: menu.path,
+        meta: {
+          ...children[0].meta,
+          icon: children[0].meta?.icon || menu.meta?.icon || 'dashboard'
+        }
+      }))
+      return
+    }
+    menus.push(normalizeTopbarRoute(menu))
+  })
+  return menus
 }
 
 function flattenChildren(childrenMap: RouteItem[], lastRoute?: RouteItem): RouteItem[] {
@@ -70,53 +123,4 @@ function normalizeTopbarRoute(route: RouteItem, parentPath?: string): RouteItem 
   return currentRoute
 }
 
-export function buildTopbarMenus(routes: RouteItem[]): RouteItem[] {
-  const menus: RouteItem[] = []
-  routes.forEach(menu => {
-    if (menu.hidden === true) return
-    const children = getVisibleChildren(menu)
-    if ((menu.path === '' || menu.path === '/') && children[0]) {
-      const child = children[0]
-      menus.push(normalizeTopbarRoute({
-        ...child,
-        path: resolveMenuPath(child.path, menu.path || '/'),
-        meta: {
-          ...child.meta,
-          icon: child.meta?.icon || 'dashboard'
-        }
-      }))
-      return
-    }
-    if (menu.meta?.isTopMenu && children[0]) {
-      menus.push(normalizeTopbarRoute({
-        ...children[0],
-        path: menu.path,
-        meta: {
-          ...children[0].meta,
-          icon: children[0].meta?.icon || menu.meta?.icon || 'dashboard'
-        }
-      }))
-      return
-    }
-    menus.push(normalizeTopbarRoute(menu))
-  })
-  return menus
-}
-
 const matchesMenuPath = (activePath: string, topPath: string) => activePath === topPath || activePath.startsWith(`${topPath}/`)
-
-export function buildMixSidebarMenus(routes: RouteItem[], activePath: string): RouteItem[] {
-  if (!activePath) return []
-  for (const route of routes) {
-    if (route.hidden === true) continue
-    const children = getVisibleChildren(route)
-    if (!children.length) continue
-    if (route.path === '' || route.path === '/') continue
-    const topPath = resolveMenuPath(route.path)
-    if (!matchesMenuPath(activePath, topPath)) continue
-    const sidebarRoutes = deepClone(children)
-    sidebarRoutes.forEach(item => item.path = resolveMenuPath(item.path, route.path))
-    return sidebarRoutes
-  }
-  return []
-}

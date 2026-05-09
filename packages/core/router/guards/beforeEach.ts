@@ -11,7 +11,6 @@ import useSettingsStore from '../../store/modules/settings'
 import usePermissionStore from '../../store/modules/permission'
 import { isPathMatch } from '@ruoyi/core/utils/validate'
 import { RoutesAlias } from '../routesAlias'
-import { registerAccessRoutes, resolveAuthorizedRoutes } from '../routeManager'
 
 const whiteList: string[] = [RoutesAlias.Login, RoutesAlias.Register]
 const isWhiteList = (path: string) => whiteList.some(pattern => isPathMatch(pattern, path))
@@ -33,11 +32,8 @@ export function setupBeforeEachGuard(router: Router): void {
         // 判断当前用户是否已拉取完user_info信息
         useUserStore().getInfo().then(() => {
           isRelogin.show = false
-          resolveAuthorizedRoutes().then(routeData => {
-            const permissionStore = usePermissionStore()
-            permissionStore.setRouteData(routeData.routeTree)
-            permissionStore.setActiveTopMenuPath(to.path)
-            registerAccessRoutes(routeData.accessRoutes)
+          const permissionStore = usePermissionStore()
+          permissionStore.resolveAndRegisterRoutes(to.path).then(() => {
             next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
           })
         }).catch(err => {

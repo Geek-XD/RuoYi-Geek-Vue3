@@ -8,22 +8,13 @@ export function resolveMenuLayout(menuLayout?: string | null, topNav?: boolean):
   return topNav ? 'mix' : 'left'
 }
 
-interface Setting {
-  title: string;
-  theme: string;
-  sideTheme: string;
-  showSettings: boolean;
-  menuLayout: MenuLayout;
-  topNav: boolean;
-  tagsView: boolean;
-  fixedHeader: boolean;
-  sidebarLogo: boolean;
-  dynamicTitle: boolean;
-  footerVisible: boolean;
-  footerContent: string;
-  errorLog: string | string[];
-  initDbSetting: () => Promise<Setting>;
+export const ErrorCode: { [key: string]: string } = {
+  '401': '认证失败，无法访问系统资源',
+  '403': '当前操作没有权限',
+  '404': '访问资源不存在',
+  'default': '系统未知错误，请反馈给管理员'
 }
+
 const setting = {
   /** 网页标题 */
   title: import.meta.env.VITE_APP_TITLE,
@@ -62,7 +53,7 @@ const setting = {
    * 获取后端配置的设置
    * @returns Promise<Object>
    */
-  async initDbSetting(): Promise<Setting> {
+  async initDbSetting() {
     const config = (key: string, type: any, defaultValue?: any) => getConfigKey(key).then(res => {
       if (type === String) {
         return res.msg
@@ -102,7 +93,7 @@ const setting = {
       fixedHeader: await config("sys.index.fixedHeader", Boolean),
       sidebarLogo: await config("sys.index.sidebarLogo", Boolean),
       dynamicTitle: await config("sys.index.dynamicTitle", Boolean),
-    } as Setting;
+    };
   }
 }
 

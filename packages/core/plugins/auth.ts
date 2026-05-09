@@ -1,13 +1,4 @@
-import useUserStore from '@ruoyi/core/store/modules/user'
-import { hasAnyPermission, hasAnyRole, hasAllPermissions, hasAllRoles } from '@ruoyi/core/utils/permission'
-
-function authPermission(permission: string): boolean {
-  return permission.length > 0 && hasAnyPermission(useUserStore().permissions, [permission])
-}
-
-function authRole(role: string): boolean {
-  return role.length > 0 && hasAnyRole(useUserStore().roles, [role])
-}
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
 
 export default {
   /**
@@ -16,7 +7,7 @@ export default {
    * @returns
    */
   hasPermi(permission: string): boolean {
-    return authPermission(permission);
+    return permission.length > 0 && usePermissionStore().hasAnyPermission([permission]);
   },
   /**
    * 验证用户是否含有指定权限，只需包含其中一个
@@ -24,7 +15,7 @@ export default {
    * @returns
    */
   hasPermiOr(permissions: Array<string>): boolean {
-    return hasAnyPermission(useUserStore().permissions, permissions)
+    return usePermissionStore().hasAnyPermission(permissions)
   },
   /**
    * 验证用户是否含有指定权限，必须全部拥有
@@ -32,7 +23,7 @@ export default {
    * @returns
    */
   hasPermiAnd(permissions: Array<string>): boolean {
-    return hasAllPermissions(useUserStore().permissions, permissions)
+    return usePermissionStore().hasAllPermissions(permissions)
   },
   /**
    * 验证用户是否具备某角色
@@ -40,7 +31,7 @@ export default {
    * @returns
    */
   hasRole(role: string): boolean {
-    return authRole(role);
+    return role.length > 0 && usePermissionStore().hasAnyRole([role]);
   },
   /**
    * 验证用户是否含有指定角色，只需包含其中一个
@@ -48,7 +39,7 @@ export default {
    * @returns
    */
   hasRoleOr(roles: Array<string>): boolean {
-    return hasAnyRole(useUserStore().roles, roles)
+    return usePermissionStore().hasAnyRole(roles)
   },
   /**
    * 验证用户是否含有指定角色，必须全部拥有
@@ -56,6 +47,6 @@ export default {
    * @returns
    */
   hasRoleAnd(roles: Array<string>): boolean {
-    return hasAllRoles(useUserStore().roles, roles)
+    return usePermissionStore().hasAllRoles(roles)
   },
 };

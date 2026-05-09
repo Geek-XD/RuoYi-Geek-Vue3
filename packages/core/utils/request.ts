@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { getToken } from '@ruoyi/core/utils/auth'
-import errorCode from '@ruoyi/core/utils/errorCode'
+import { ErrorCode } from '@/settings'
 import { tansParams, blobValidate } from '@ruoyi/core/utils/ruoyi'
 import cache from '@ruoyi/core/plugins/cache'
 import { saveAs } from 'file-saver'
@@ -74,7 +74,7 @@ service.interceptors.response.use(<T>(res: AxiosResponse<GeekResponse<T>, any>) 
   // 未设置状态码则默认成功状态
   const code = String(res.data.code || 200);
   //获取错误信息
-  const msg = errorCode[code] || res.data.msg || errorCode['default']
+  const msg = ErrorCode[code] || res.data.msg || ErrorCode['default']
   // 二进制数据则直接返回
   if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
     return res
@@ -136,7 +136,7 @@ export async function download(url: string, params: any, filename: string, confi
     } else {
       const resText = await data.text()
       const rspObj: GeekResponse = JSON.parse(resText)
-      const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default']
+      const errMsg = ErrorCode[rspObj.code] || rspObj.msg || ErrorCode['default']
       ElMessage.error(errMsg)
     }
     downloadLoadingInstance.close()

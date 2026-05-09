@@ -5,7 +5,9 @@ import Layout from '@/layout/index.vue'
 import InnerLink from '@/layout/components/InnerLink/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
 
-// 遍历后台传来的路由字符串，转换为组件对象
+/**
+ * 遍历将路由的组件属性转换为真实组件
+ */
 export function transformAsyncRoutes(asyncRouterMap: RouteItem[], type = false): RouteItem[] {
   return asyncRouterMap.filter(route => {
     route.hidden = !!route.hidden

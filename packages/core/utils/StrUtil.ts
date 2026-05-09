@@ -13,7 +13,6 @@ export const StrUtil = {
    */
   isBlank: function (str: string) {
     return str === undefined || str == null || this.trim(str) === "";
-
   },
   /**
    * 字符串是否为非空白 空白的定义如下： <br>
@@ -38,7 +37,6 @@ export const StrUtil = {
    */
   isEmpty: function (str: string) {
     return str == null || str === "";
-
   },
   /**
    * 字符串是否为非空白 空白的定义如下： <br>

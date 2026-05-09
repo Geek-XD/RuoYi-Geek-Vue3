@@ -3,8 +3,7 @@
 * Copyright (c) 2019 ruoyi
 */
 
-import useUserStore from '@ruoyi/core/store/modules/user'
-import { hasAnyPermission } from '@ruoyi/core/utils/permission'
+import usePermissionStore from '@ruoyi/core/store/modules/permission'
 
 import type { Directive } from "vue";
 const vHasPermi: Directive = {
@@ -12,7 +11,7 @@ const vHasPermi: Directive = {
     const { value } = binding
 
     if (value && value instanceof Array && value.length > 0) {
-      const hasPermissions = hasAnyPermission(useUserStore().permissions, value)
+      const hasPermissions = usePermissionStore().hasAnyPermission(value)
 
       if (!hasPermissions) {
         el.parentNode && el.parentNode.removeChild(el)

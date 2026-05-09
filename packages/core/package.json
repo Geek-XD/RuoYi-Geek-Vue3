@@ -10,6 +10,8 @@
     "./api/*": "./api/*",
     "./directive": "./directive/index.ts",
     "./directive/*": "./directive/*",
+    "./hook": "./hook/index.ts",
+    "./hook/*": "./hook/*",
     "./plugins": "./plugins/index.ts",
     "./plugins/*": "./plugins/*",
     "./router": "./router/index.ts",
