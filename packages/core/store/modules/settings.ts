@@ -1,45 +1,68 @@
-import defaultSettings, { type MenuLayout } from '@/settings'
+import defaultSettings, { resolveMenuLayout } from '@/settings'
 import { defineStore } from 'pinia'
-import { applySettingChange, resolveDocumentTitle, resolveInitialSettings, storageSetting } from '../helpers/settings'
+import { fetchDbSettings } from '@ruoyi/core/api/settings'
+import { useLocalStorage } from '@vueuse/core';
 
+type SettingsConfig = typeof defaultSettings
+type ChangeSettingPayload = {
+  [K in keyof SettingsConfig]: { key: K, value: SettingsConfig[K] }
+}[keyof SettingsConfig]
+const storageSettings = useLocalStorage<Partial<SettingsConfig>>('layout-setting', {})
 const useSettingsStore = defineStore('settings', {
   state: () => ({
+    ...defaultSettings,
     title: '',
-    theme: '#11A983',
-    sideTheme: 'theme-light',
-    showSettings: defaultSettings.showSettings,
-    menuLayout: 'left' as MenuLayout,
-    topNav: false,
-    tagsView: true,
-    fixedHeader: true,
-    sidebarLogo: true,
-    dynamicTitle: true,
-    footerVisible: defaultSettings.footerVisible,
-    footerContent: defaultSettings.footerContent,
     inited: false
   }),
   actions: {
     async initSetting() {
       if (this.inited) return
       try {
-        const { initDbSetting } = defaultSettings as typeof defaultSettings & { initDbSetting: () => Promise<any> }
-        const config = await initDbSetting()
-        Object.assign(this, resolveInitialSettings({ ...defaultSettings, ...config }))
+        const remoteConfig = await fetchDbSettings()
+
+        const settings = {
+          ...defaultSettings,
+          ...remoteConfig,
+          ...storageSettings.value,
+        }
+        settings.menuLayout = resolveMenuLayout(settings.menuLayout, settings.topNav)
+        settings.topNav = settings.menuLayout !== 'left'
+        Object.assign(this, settings)
       } finally {
         this.inited = true
       }
     },
-    /** 修改布局设置 */
-    changeSetting(data: { key: keyof typeof storageSetting, value: any }) {
-      applySettingChange(this, data.key, data.value)
+    saveSetting() {
+      storageSettings.value = {
+        "menuLayout": this.menuLayout,
+        "topNav": this.topNav,
+        "tagsView": this.tagsView,
+        "fixedHeader": this.fixedHeader,
+        "sidebarLogo": this.sidebarLogo,
+        "dynamicTitle": this.dynamicTitle,
+        "sideTheme": this.sideTheme,
+        "theme": this.theme
+      }
     },
-    /** 设置网页标题 */
+    changeSetting(data: ChangeSettingPayload) {
+      Object.assign(this, { [data.key]: data.value })
+
+      if (data.key === 'menuLayout') {
+        this.menuLayout = resolveMenuLayout(data.value)
+      } else if (data.key === 'topNav') {
+        this.menuLayout = data.value ? 'mix' : 'left'
+      }
+
+      this.topNav = this.menuLayout !== 'left'
+    },
     setTitle(title: string) {
       this.title = title
-      this.refreshDynamicTitle();
+      this.refreshDynamicTitle()
     },
     refreshDynamicTitle() {
-      document.title = resolveDocumentTitle(this.title, this.dynamicTitle)
+      document.title = this.dynamicTitle && this.title.trim()
+        ? `${this.title} - ${defaultSettings.title}`
+        : defaultSettings.title
     }
   },
   getters: {

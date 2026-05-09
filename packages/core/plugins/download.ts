@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { saveAs } from 'file-saver'
 import { getToken } from '@ruoyi/core/utils/auth'
-import { ErrorCode } from '@/settings'
+import { ErrorCode } from '@ruoyi/core/constant/errorCode'
 import { blobValidate } from '@ruoyi/core/utils/ruoyi'
 
 const baseURL = import.meta.env.VITE_APP_BASE_API

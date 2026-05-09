@@ -6,20 +6,21 @@ type TokenResponse = {
   msg?: string
 }
 
-export interface AuthHandlers {
+export interface Handlers {
   [key: `${string}Login`]: (data: LoginForm) => Promise<TokenResponse>
   [key: `${string}Register`]: (data: RegisterForm) => Promise<unknown>
 }
 
-let authHandlers: AuthHandlers | undefined
+const authHandlers: Handlers = {}
 
-export function registerAuthHandlers(handlers: AuthHandlers) {
-  authHandlers = handlers
+export function registerHandlers<K extends keyof Handlers>(key: K, handlers: Handlers[K]) {
+  authHandlers[key] = handlers
 }
 
-export function getAuthHandlers(): AuthHandlers {
-  if (!authHandlers) {
-    throw new Error('[core] auth handlers are not registered')
+export function getHandler<K extends keyof Handlers>(key: K): Handlers[K] {
+  const handler = authHandlers[key]
+  if (!handler) {
+    throw new Error(`[core] auth handler for ${key} is not registered`)
   }
-  return authHandlers
+  return handler
 }

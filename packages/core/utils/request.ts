@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { getToken } from '@ruoyi/core/utils/auth'
-import { ErrorCode } from '@/settings'
+import { ErrorCode } from '@ruoyi/core/constant/errorCode'
 import { tansParams, blobValidate } from '@ruoyi/core/utils/ruoyi'
 import cache from '@ruoyi/core/plugins/cache'
 import { saveAs } from 'file-saver'

@@ -1,4 +1,4 @@
-import { getAuthHandlers } from '@ruoyi/core/adapters/auth'
+import { getHandler } from '@ruoyi/core/adapters/auth'
 import { getInfo, logout } from '@ruoyi/core/api/auth'
 import { getToken, setToken, removeToken } from '@ruoyi/core/utils/auth'
 import { defineStore } from 'pinia'
@@ -40,17 +40,13 @@ const useUserStore = defineStore('user', {
   actions: {
     /** 登录 */
     async login(userInfo: LoginForm, method: 'password' | 'phone' | 'email' = 'password') {
-      const auth = getAuthHandlers()
-      const handlerName = `${method}Login` as const
-      const res: any = await auth[handlerName](userInfo)
+      const res: any = await getHandler(`${method}Login`)(userInfo)
       const token = res.token ?? res.data ?? res.msg
       setToken(token)
       this.token = token
     },
     register(registerForm: RegisterForm, method: 'password' | 'phone' | 'email' = 'password') {
-      const auth = getAuthHandlers()
-      const handlerName = `${method}Register` as const
-      return auth[handlerName](registerForm)
+      return getHandler(`${method}Register`)(registerForm)
     },
     /** 获取用户信息 */
     async getInfo() {

@@ -1,2 +1,1 @@
-export { registerAuthHandlers, getAuthHandlers } from './auth'
-export type { AuthHandlers } from './auth'
+export { registerHandlers, getHandler } from './auth'

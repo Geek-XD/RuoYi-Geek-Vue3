@@ -10,11 +10,10 @@ const settingsStore = useSettingsStore()
 const showSettings = ref(false);
 const theme = ref(settingsStore.theme);
 const sideTheme = ref(settingsStore.sideTheme);
-const storeSettings = computed(() => settingsStore);
 const predefineColors = ref(["#409EFF", "#ff4500", "#ff8c00", "#ffd700", "#90ee90", "#00ced1", "#1e90ff", "#c71585"]);
 
 const menuLayout = computed({
-  get: () => storeSettings.value.menuLayout,
+  get: () => settingsStore.menuLayout,
   set: (val: MenuLayout) => {
     settingsStore.changeSetting({ key: 'menuLayout', value: val })
     if (val === 'left') {
@@ -29,25 +28,25 @@ const menuLayout = computed({
 
 /** 是否需要tagview */
 const tagsView = computed({
-  get: () => storeSettings.value.tagsView,
+  get: () => settingsStore.tagsView,
   set: (val) => settingsStore.changeSetting({ key: 'tagsView', value: val })
 })
 
 /**是否需要固定头部 */
 const fixedHeader = computed({
-  get: () => storeSettings.value.fixedHeader,
+  get: () => settingsStore.fixedHeader,
   set: (val) => settingsStore.changeSetting({ key: 'fixedHeader', value: val })
 })
 
 /**是否需要侧边栏的logo */
 const sidebarLogo = computed({
-  get: () => storeSettings.value.sidebarLogo,
+  get: () => settingsStore.sidebarLogo,
   set: (val) => settingsStore.changeSetting({ key: 'sidebarLogo', value: val })
 })
 
 /**是否需要侧边栏的动态网页的title */
 const dynamicTitle = computed({
-  get: () => storeSettings.value.dynamicTitle,
+  get: () => settingsStore.dynamicTitle,
   set: (val) => {
     settingsStore.changeSetting({ key: 'dynamicTitle', value: val })
     settingsStore.refreshDynamicTitle();
@@ -75,17 +74,7 @@ function handleTheme(val: 'theme-dark' | 'theme-light') {
 /** 保存设置 */
 function saveSetting() {
   modal.loading("正在保存到本地，请稍候...");
-  const layoutSetting = {
-    "menuLayout": storeSettings.value.menuLayout,
-    "topNav": storeSettings.value.topNav,
-    "tagsView": storeSettings.value.tagsView,
-    "fixedHeader": storeSettings.value.fixedHeader,
-    "sidebarLogo": storeSettings.value.sidebarLogo,
-    "dynamicTitle": storeSettings.value.dynamicTitle,
-    "sideTheme": storeSettings.value.sideTheme,
-    "theme": storeSettings.value.theme
-  };
-  localStorage.setItem("layout-setting", JSON.stringify(layoutSetting));
+  settingsStore.saveSetting();
   setTimeout(() => modal.closeLoading(), 1000)
 }
 
