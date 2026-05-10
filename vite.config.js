@@ -2,6 +2,14 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
 
+const ModulesAlias = function (modules) {
+  const alias = {}
+  modules.forEach((module) => {
+    alias[`@ruoyi/${module}`] = path.resolve(__dirname, `./modules/${module}`)
+  })
+  return alias
+}(['flowable', 'form', 'message', 'online', 'pay'])
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd())
@@ -18,14 +26,10 @@ export default defineConfig(({ mode, command }) => {
         // 设置路径
         '~': path.resolve(__dirname, './'),
         '@ruoyi/core': path.resolve(__dirname, './packages/core'),
-        '@ruoyi/module-flowable': path.resolve(__dirname, './modules/flowable'),
-        '@ruoyi/module-form': path.resolve(__dirname, './modules/form'),
-        '@ruoyi/module-message': path.resolve(__dirname, './modules/message'),
-        '@ruoyi/module-online': path.resolve(__dirname, './modules/online'),
-        '@ruoyi/module-pay': path.resolve(__dirname, './modules/pay'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),
+        ...ModulesAlias
       },
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']

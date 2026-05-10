@@ -6,6 +6,7 @@
   "exports": {
     "./api/*": "./api/*",
     "./views/*": "./views/*",
+    "./types/*": "./types/*",
     "./package.json": "./package.json"
   },
   "peerDependencies": {
