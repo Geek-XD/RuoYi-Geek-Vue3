@@ -4,11 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./api/*": "./api/*",
-    "./components/*": "./components/*",
-    "./router": "./router/index.ts",
-    "./router/*": "./router/*",
-    "./views/*": "./views/*",
+    "./api/*": "./src/api/*",
+    "./components/*": "./src/components/*",
+    "./router/*": "./src/router/*",
+    "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },
   "dependencies":{
