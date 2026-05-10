@@ -5,7 +5,7 @@ import createVitePlugins from './vite/plugins'
 const ModulesAlias = function (modules) {
   const alias = {}
   modules.forEach((module) => {
-    alias[`@ruoyi/${module}`] = path.resolve(__dirname, `./modules/${module}`)
+    alias[`@ruoyi/${module}`] = path.resolve(__dirname, `./modules/${module}/src`)
   })
   return alias
 }(['flowable', 'form', 'message', 'online', 'pay'])
