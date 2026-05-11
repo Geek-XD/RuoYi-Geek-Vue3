@@ -1,16 +1,33 @@
 {
-  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "packages/core/**/*.ts", "packages/core/**/*.d.ts", "packages/core/**/*.vue", "modules/**/*.ts", "modules/**/*.d.ts", "modules/**/*.tsx", "modules/**/*.vue", "modules/pay/entity", "packages/core/annotation", "packages/core/hook", "packages/core/types"],
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "packages/core/**/*.ts",
+    "packages/core/**/*.d.ts",
+    "packages/core/**/*.vue",
+    "modules/**/*.ts",
+    "modules/**/*.d.ts",
+    "modules/**/*.tsx",
+    "modules/**/*.vue",
+    "modules/pay/entity",
+    "packages/core/annotation",
+    "packages/core/hook",
+    "packages/core/types"
+  ],
   "exclude": ["node_modules", "dist", "**/*.js"],
   "compilerOptions": {
-    "types":["vite/client"],
+    "types": ["vite/client"],
     "target": "ES2022",
     "experimentalDecorators": true,
-    "noImplicitAny":true,
+    "noImplicitAny": true,
     "importHelpers": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "ignoreDeprecations": "6.0",
-    "downlevelIteration":true,
+    "downlevelIteration": true,
     "outDir": "dist/compiled",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
@@ -34,12 +51,10 @@
       "@ruoyi/module-pay/*": ["./modules/pay/src/*"],
       "@": ["./src"],
       "@/*": ["./src/*"],
-      "@": ["./src"],
-      "@/*": ["./src/*"],
       "@lib": ["./lib"],
       "@lib/*": ["./lib/*"],
       "vue": ["./node_modules/vue"],
-      "tslib" : ["./node_modules/tslib/tslib.d.ts"]
+      "tslib": ["./node_modules/tslib/tslib.d.ts"]
     }
   }
 }
