@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./api/*": "./api/*",
-    "./views/*": "./views/*",
+    "./api/*": "./src/api/*",
+    "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },
   "peerDependencies": {

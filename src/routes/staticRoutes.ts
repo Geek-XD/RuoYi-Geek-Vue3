@@ -62,12 +62,6 @@ export const staticRoutes: RouteItem[] = [
     meta: { title: '新功能', icon: 'dashboard' },
     children: [
       {
-        path: 'IM',
-        component: () => import('@/views/laboratory/three/gltfmode.vue'),
-        name: 'IM',
-        meta: { title: '信息模型展示', icon: 'dashboard' }
-      },
-      {
         path: "chat",
         component: () => import('@/views/laboratory/chat/websocket.vue'),
         name: 'Chat',

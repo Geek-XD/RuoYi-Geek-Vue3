@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./api/*": "./api/*",
-    "./entity/*": "./entity/*",
-    "./views/*": "./views/*",
+    "./api/*": "./src/api/*",
+    "./entity/*": "./src/entity/*",
+    "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },
   "peerDependencies": {
