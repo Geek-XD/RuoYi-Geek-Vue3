@@ -18,6 +18,7 @@ selenium-debug.log
 *.sln
 *.local
 
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
+# 保留锁文件以确保依赖一致性
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
