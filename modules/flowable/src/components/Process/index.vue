@@ -1,5 +1,6 @@
 <template>
-  <div v-loading="isView" class="flow-containers" :class="{ 'view-mode': isView }" @contextmenu.capture="handleContextMenu">
+  <div v-loading="isView" class="flow-containers" :class="{ 'view-mode': isView }"
+    @contextmenu.capture="handleContextMenu">
     <el-container style="height: 100%">
       <el-header style="border-bottom: 1px solid rgb(218 218 218);height: auto;padding-left:0">
         <div style="display: flex; padding: 10px 0; justify-content: space-between;">
@@ -47,21 +48,11 @@
         <designer v-if="loadCanvas" class="normalPanel"></designer>
       </el-container>
 
-      <div
-        v-if="contextMenu.visible"
-        ref="contextMenuRef"
-        class="process-context-menu"
-        :style="contextMenuStyle"
-        @contextmenu.prevent
-      >
+      <div v-if="contextMenu.visible" ref="contextMenuRef" class="process-context-menu" :style="contextMenuStyle"
+        @contextmenu.prevent>
         <div class="process-context-menu__title">{{ contextMenu.title }}</div>
-        <button
-          v-for="item in contextMenu.items"
-          :key="item.key"
-          type="button"
-          class="process-context-menu__item"
-          @click.stop="runContextMenuAction(item)"
-        >
+        <button v-for="item in contextMenu.items" :key="item.key" type="button" class="process-context-menu__item"
+          @click.stop="runContextMenuAction(item)">
           <i v-if="item.iconClass" :class="item.iconClass" class="process-context-menu__icon"></i>
           <span>{{ item.label }}</span>
         </button>
@@ -101,6 +92,8 @@ const emit = defineEmits<{
   (e: 'save', result: ProcessSaveResult): void
   (e: 'showXML', xmlStr: string): void
 }>()
+
+const vm = getCurrentInstance()?.proxy as (TabControllerLike & { $tab?: TabControllerLike }) | undefined
 
 /** 组件传值  */
 const props = withDefaults(defineProps<{
@@ -570,8 +563,6 @@ function downloadFile(filename: string, data: string | undefined, type: string):
 /** 关闭当前标签页并返回上个页面 */
 function goBack(): void {
   const obj = { path: '/flowable/definition', query: { t: Date.now() } }
-  const instance = getCurrentInstance()
-  const vm = instance?.proxy as (typeof instance.proxy & { $tab?: TabControllerLike }) | undefined
   vm?.$tab?.closeOpenPage(obj)
 }
 </script>

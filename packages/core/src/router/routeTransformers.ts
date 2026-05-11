@@ -1,9 +1,14 @@
-import { h, type Component } from 'vue'
+import { defineComponent, h, type Component } from 'vue'
 import { VIEWS } from '@ruoyi/core/constant'
 import { RouteItem } from '@ruoyi/core/types/route'
 import Layout from '@/layout/index.vue'
 import InnerLink from '@/layout/components/InnerLink/index.vue'
 import ParentView from '@/components/ParentView/index.vue'
+
+const MissingRouteView = defineComponent({
+  name: 'MissingRouteView',
+  render: () => h('div')
+})
 
 /**
  * 遍历将路由的组件属性转换为真实组件
@@ -60,12 +65,16 @@ const loadView = (view: string) => {
     if (candidates.has(resolvedViewKey)) return VIEWS[path]
   }
 
-  return () => Promise.resolve(h('div'))
+  if (import.meta.env.DEV) {
+    console.warn(`[router] unresolved view: ${view}`)
+  }
+
+  return MissingRouteView
 }
 
 const resolveViewKey = (path: string): string => {
   const normalizedPath = path.replace(/^\//, '')
-  const moduleViewMatch = normalizedPath.match(/^modules\/([^/]+)\/view[s]?\/(.+)\.vue$/)
+  const moduleViewMatch = normalizedPath.match(/^modules\/([^/]+)\/(?:src\/)?view[s]?\/(.+)\.vue$/)
   if (moduleViewMatch) return `${moduleViewMatch[1]}/${moduleViewMatch[2]}`
   const hostViewMatch = normalizedPath.match(/^src\/views\/(.+)\.vue$/)
   if (hostViewMatch) return hostViewMatch[1]
