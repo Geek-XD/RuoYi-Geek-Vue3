@@ -17,7 +17,7 @@
     "bpmnlint-loader": "^0.1.4"
   },
   "peerDependencies": {
-    "@ruoyi/core": "0.1.0",
+    "@ruoyi/core": "workspace:*",
     "diagram-js": "^15.3.0",
     "element-plus": "2.13.2",
     "highlight.js": "11.11.1",

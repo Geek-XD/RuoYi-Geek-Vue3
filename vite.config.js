@@ -5,7 +5,8 @@ import createVitePlugins from './vite/plugins'
 const ModulesAlias = function (modules) {
   const alias = {}
   modules.forEach((module) => {
-    alias[`@ruoyi/${module}`] = path.resolve(__dirname, `./modules/${module}/src`)
+    const modulePath = path.resolve(__dirname, `./modules/${module}/src`)
+    alias[`@ruoyi/module-${module}`] = modulePath
   })
   return alias
 }(['flowable', 'form', 'message', 'online', 'pay'])
@@ -25,7 +26,7 @@ export default defineConfig(({ mode, command }) => {
       alias: {
         // 设置路径
         '~': path.resolve(__dirname, './'),
-        '@ruoyi/core': path.resolve(__dirname, './packages/core'),
+        '@ruoyi/core': path.resolve(__dirname, './packages/core/src'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),

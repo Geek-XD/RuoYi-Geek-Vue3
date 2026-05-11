@@ -10,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "@ruoyi/core": "0.1.0",
+    "@ruoyi/core": "workspace:*",
     "element-plus": "2.13.2",
     "vue": "3.5.27"
   }
