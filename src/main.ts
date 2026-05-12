@@ -11,7 +11,7 @@ import { setupCoreAuthHandlers } from '@/core/setupAuthHandlers'
 setupCoreAuthHandlers()
 
 import { download } from '@ruoyi/core/utils/request'
-import { useDict } from '@ruoyi/core/hook/dict'
+import { useDict } from '@ruoyi/core/composables/dict'
 import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@ruoyi/core/utils/ruoyi'
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict
