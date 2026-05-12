@@ -277,8 +277,8 @@
 
 <script setup name="Menu">
 import { addMenu, delMenu, getMenu, listMenu, updateMenu } from "@/api/system/menu";
-import SvgIcon from "@/components/SvgIcon";
-import IconSelect from "@/components/IconSelect";
+import SvgIcon from "@ruoyi/ui/components/SvgIcon";
+import IconSelect from "@ruoyi/ui/components/IconSelect";
 import { ClickOutside as vClickOutside } from 'element-plus'
 
 const { proxy } = getCurrentInstance();

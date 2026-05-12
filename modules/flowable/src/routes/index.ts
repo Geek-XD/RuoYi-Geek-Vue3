@@ -1,4 +1,4 @@
-const Layout = () => import('@/layout/index.vue')
+const Layout = () => import('@ruoyi/ui/layout/Admin/index.vue')
 export default [
   {
     path: '/flowable',

@@ -4,7 +4,7 @@ import { ref, nextTick } from "vue";
 import socketclient from "@ruoyi/core/plugins/socketclient";
 import { parseTime } from '@ruoyi/core/utils/ruoyi';
 import { createAsyncMessage, createMessage } from '@ruoyi/module-message/types/Message';
-import { ChatLayout, ContactList, ContactItem, ChatApp } from '@/components/Chat';
+import { ChatLayout, ContactList, ContactItem, ChatApp } from '@ruoyi/ui/layout/Chat';
 import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue'
 const _contacts = [
   { id: 1, name: "梅洛迪·梅西", email: "melody@altbox.com", avatar: profile, online: true, lastMsg: "20小时前" },

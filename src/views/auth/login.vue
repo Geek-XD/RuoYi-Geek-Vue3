@@ -3,7 +3,7 @@ import { encrypt, decrypt } from "@ruoyi/core/utils/jsencrypt";
 import useUserStore from '@ruoyi/core/store/modules/user'
 import { useRouter } from "vue-router";
 import { onMounted, ref, useTemplateRef } from "vue";
-import Verify from '@/components/Verifition/Verify.vue'
+import Verify from '@ruoyi/ui/components/Verifition/Verify.vue'
 import { getCaptcha } from "@/api/captcha";
 import { sendEmailCode, sendPhoneCode } from "@/api/login";
 import { RoutesAlias } from "@ruoyi/core/router/routesAlias";

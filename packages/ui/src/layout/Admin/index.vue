@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppMain, Settings, TagsView, Sidebar, Navbar } from './components'
+import { AppMain, Settings, TagsView, Sidebar, Navbar } from './layout'
 import { computed, ref, useTemplateRef, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import useAppStore from '@ruoyi/core/store/modules/app'

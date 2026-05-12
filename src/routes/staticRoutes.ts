@@ -1,5 +1,5 @@
 import { RouteItem } from '@ruoyi/core/types/route'
-const Layout = () => import('@/layout/index.vue')
+const Layout = () => import('@ruoyi/ui/layout/Admin/index.vue')
 
 // 公共路由,配置详情请参见RouteItem定义
 export const staticRoutes: RouteItem[] = [

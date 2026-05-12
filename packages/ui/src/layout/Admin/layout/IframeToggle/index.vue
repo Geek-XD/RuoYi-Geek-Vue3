@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import InnerLink from "../InnerLink/index.vue"
+import InnerLink from "../../components/InnerLink/index.vue"
 import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
 
 const route = useRoute();

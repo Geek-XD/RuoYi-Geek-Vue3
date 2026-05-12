@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import iFrame from '@/components/iFrame'
+import iFrame from '@ruoyi/ui/components/iFrame'
 
 import { ref } from 'vue';
 

@@ -1,5 +1,5 @@
 <script setup name="Invoice" lang="ts">
-import { SchemaForm, SchemaTable } from "@/components/Schema";
+import { SchemaForm, SchemaTable } from "@ruoyi/ui/components/Schema";
 import { usePage } from "@ruoyi/core/composables";
 import { modal } from "@ruoyi/core/plugins";
 import { PayInvoice } from "@ruoyi/module-pay/entity/PayInvoice";
