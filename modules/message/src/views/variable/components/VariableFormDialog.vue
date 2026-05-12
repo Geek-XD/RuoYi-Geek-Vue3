@@ -1,6 +1,7 @@
 <template>
   <!-- 添加或修改变量管理对话框 -->
-  <el-dialog :title="title" :modelValue="visible" @update:modelValue="emit('update:visible', $event)" width="600px" append-to-body>
+  <el-dialog :title="title" :modelValue="visible" @update:modelValue="emit('update:visible', $event)" width="600px"
+    append-to-body>
     <el-form ref="variableRef" :model="form" :rules="rules" label-width="80px">
       <el-row>
         <el-col :span="24">
@@ -13,8 +14,8 @@
         <el-col :span="24">
           <el-form-item label="变量类型" prop="variableType">
             <el-radio-group v-model="form.variableType" @change="handleVariableTypeChange">
-              <el-radio label="指定文本">指定文本</el-radio>
-              <el-radio label="内置变量">内置变量</el-radio>
+              <el-radio value="指定文本">指定文本</el-radio>
+              <el-radio value="内置变量">内置变量</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -24,12 +25,7 @@
         <el-col :span="24">
           <el-form-item label="内置变量" prop="variableContent">
             <el-select v-model="form.variableContent" placeholder="请选择内置变量" style="width: 100%">
-              <el-option
-                v-for="(label, key) in builtInVariableOptions"
-                :key="key"
-                :label="label"
-                :value="key"
-              >
+              <el-option v-for="(label, key) in builtInVariableOptions" :key="key" :label="label" :value="key">
                 <span style="float: left">{{ label }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ key }}</span>
               </el-option>
@@ -40,14 +36,8 @@
       <el-row v-else-if="form.variableType === '指定文本'">
         <el-col :span="24">
           <el-form-item label="变量内容" prop="variableContent">
-            <el-input
-              v-model="form.variableContent"
-              type="textarea"
-              :rows="4"
-              placeholder="请输入变量内容"
-              maxlength="1000"
-              show-word-limit
-            />
+            <el-input v-model="form.variableContent" type="textarea" :rows="4" placeholder="请输入变量内容" maxlength="1000"
+              show-word-limit />
           </el-form-item>
         </el-col>
       </el-row>

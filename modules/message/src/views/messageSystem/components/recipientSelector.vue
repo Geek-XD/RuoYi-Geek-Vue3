@@ -2,7 +2,7 @@
   <div class="recipient-selector">
     <el-form-item label="收件人" prop="recipientType">
       <el-radio-group v-model="recipientType" @change="handleTypeChange">
-        <el-radio v-for="type in recipientTypes" :key="type.value" :label="type.value">
+        <el-radio v-for="type in recipientTypes" :key="type.value" :value="type.value">
           {{ type.label }}
         </el-radio>
       </el-radio-group>
@@ -236,4 +236,3 @@ defineExpose({
   }
 });
 </script>
-

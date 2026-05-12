@@ -30,8 +30,8 @@
       <div class="message-content">
         <el-form-item label="内容类型" prop="contentType">
           <el-radio-group v-model="contentType" @change="handleContentTypeChange">
-            <el-radio label="template">模板签名</el-radio>
-            <el-radio label="content">消息内容</el-radio>
+            <el-radio value="template">模板签名</el-radio>
+            <el-radio value="content">消息内容</el-radio>
           </el-radio-group>
         </el-form-item>
 

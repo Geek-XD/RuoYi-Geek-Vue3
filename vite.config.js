@@ -9,7 +9,7 @@ const ModulesAlias = function (modules) {
     alias[`@ruoyi/module-${module}`] = modulePath
   })
   return alias
-}(['flowable', 'form', 'message', 'online', 'pay'])
+}(['flowable', 'form', 'message', 'online', 'pay', 'im', 'ai', 'bi'])
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {

@@ -35,7 +35,7 @@
           @current-change="handleSingleUserSelect">
           <el-table-column width="55" align="center">
             <template v-slot="scope">
-              <el-radio v-model="radioSelected" :label="scope.row.userId">{{ '' }}</el-radio>
+              <el-radio v-model="radioSelected" :value="scope.row.userId">{{ '' }}</el-radio>
             </template>
           </el-table-column>
           <el-table-column v-for="column in columns" :label="column.label" align="center" :key="column.key"
