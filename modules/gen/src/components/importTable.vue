@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listDbTable, importTable } from "@/api/tool/gen";
+import { listDbTable, importTable } from "@ruoyi/module-gen/api/gen";
 import { modal } from "@ruoyi/core/plugins";
 import { resetForm } from "@ruoyi/core/utils/ruoyi";
 import { reactive, ref } from "vue";

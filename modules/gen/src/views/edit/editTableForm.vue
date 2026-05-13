@@ -1,7 +1,9 @@
 <script setup name="GenEdit" lang="ts">
 import { onMounted, ref } from 'vue';
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import { GenColumn, genTableState } from '.';
+import { GenColumn } from "@ruoyi/module-gen/types";
+import { genTableState } from "@ruoyi/module-gen/store";
+import { Dict } from '@ruoyi/core/types/dict';
 const tables = genTableState().tables;
 const info = genTableState().info;
 const columns = genTableState().columns;

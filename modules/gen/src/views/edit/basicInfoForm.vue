@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { genTableState } from '.';
+import { genTableState } from "@ruoyi/module-gen/store";
 const info = genTableState().info;
 
 // 表单校验

@@ -19,7 +19,7 @@ export function listDbTable(query) {
 
 // 查询表详细信息
 /**
- * @returns { Promise<import('@ruoyi/core/types/request').GeekResponse<import('@/views/tool/gen/edit/index').GenTableVo>> }
+ * @returns { Promise<import('@ruoyi/core/types/request').GeekResponse<import('../views/edit/index').GenTableVo>> }
  */
 export function getGenTable(tableId) {
   return request({

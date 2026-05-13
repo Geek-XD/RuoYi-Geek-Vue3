@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { createTable } from "@/api/tool/gen";
+import { createTable } from "@ruoyi/module-gen/api/gen";
 import { modal } from "@ruoyi/core/plugins";
 import { computed, onMounted, reactive, ref } from "vue";
 const emit = defineEmits(["ok"]);

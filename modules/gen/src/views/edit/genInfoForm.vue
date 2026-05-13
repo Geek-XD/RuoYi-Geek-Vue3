@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { listMenu } from "@/api/system/menu";
-import { onMounted, ref, watch } from "vue";
-import { GenColumn, genTableState } from ".";
+import { computed, onMounted, ref, watch } from "vue";
+import { GenColumn } from "@ruoyi/module-gen/types";
+import { genTableState } from "@ruoyi/module-gen/store";
 import { handleTree } from "@ruoyi/core/utils/ruoyi";
 
 const subColumns = ref<GenColumn[]>([]);
 const menuOptions = ref<any[]>([]);
 const info = genTableState().info;
 const tables = genTableState().tables;
+const subTableOptions = computed(() => {
+  return tables.value.filter(table => table.tableName !== info.value.tableName);
+});
 
 // 表单校验
 const rules = ref({
@@ -25,13 +29,8 @@ function tplSelectChange(value: string) {
   }
 }
 function setSubTableColumns(value: string) {
-  for (var item in tables.value) {
-    const name = tables.value[item].tableName;
-    if (value === name) {
-      subColumns.value = tables.value[item].columns;
-      break;
-    }
-  }
+  const table = tables.value.find(item => item.tableName === value);
+  subColumns.value = table?.columns ?? [];
 }
 /** 查询菜单下拉树结构 */
 function getMenuTreeselect() {
@@ -43,6 +42,12 @@ function getMenuTreeselect() {
 watch(() => info.value.subTableName, val => {
   setSubTableColumns(val);
   info.value.subTableFkName = "";
+});
+watch(subTableOptions, options => {
+  if (!options.some(table => table.tableName === info.value.subTableName)) {
+    info.value.subTableName = "";
+    subColumns.value = [];
+  }
 });
 watch(() => info.value.tplWebType, val => {
   if (val === '') {
@@ -234,7 +239,7 @@ onMounted(() => { getMenuTreeselect(); });
               </el-tooltip>
             </template>
             <el-select v-model="info.subTableName" placeholder="请选择">
-              <el-option v-for="(table, index) in tables" :key="index"
+              <el-option v-for="(table, index) in subTableOptions" :key="index"
                 :label="table.tableName + '：' + table.tableComment" :value="table.tableName"></el-option>
             </el-select>
           </el-form-item>

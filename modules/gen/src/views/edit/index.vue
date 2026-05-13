@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { genTableState } from ".";
+import { genTableState } from "@ruoyi/module-gen/store";
 import { onMounted, ref, useTemplateRef } from "vue";
 import basicInfoForm from "./basicInfoForm.vue";
 import genInfoForm from "./genInfoForm.vue";

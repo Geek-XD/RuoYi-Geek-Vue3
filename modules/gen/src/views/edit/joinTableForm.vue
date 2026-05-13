@@ -1,26 +1,64 @@
 <script setup lang="ts">
-import { listTable, getGenTable } from "@/api/tool/gen";
-import { ref, watch } from 'vue';
-import { GenJoin, genTableState } from ".";
+import { listTable, getGenTable } from "@ruoyi/module-gen/api/gen";
+import { computed, ref, watch } from 'vue';
+import { GenJoin } from "@ruoyi/module-gen/types";
+import { genTableState } from "@ruoyi/module-gen/store";
+
+type TableOption = { value: number; label: string };
+
 const info = genTableState().info;
 const tables = genTableState().tables;
 const tableDict = genTableState().tableDict;
 const joins = genTableState().joins;
 const selectTables = ref<number[]>([])
 const loading = ref(false);
-const options = ref<{ value: number; label: string }[]>([])
+const searchOptions = ref<TableOption[]>([])
+const isSameTableSelection = (left: number[], right: number[]) => {
+  return left.length === right.length && left.every((tableId, index) => tableId === right[index]);
+};
+
+const mergeOptions = (...lists: TableOption[][]) => {
+  const optionMap = new Map<number, TableOption>();
+  lists.forEach(list => {
+    list.forEach(option => {
+      optionMap.set(option.value, option);
+    });
+  });
+  return Array.from(optionMap.values());
+};
+
+const selectedTableOptions = computed(() => {
+  return tables.value
+    .filter(table => table.tableId !== info.value.tableId)
+    .map(table => ({ value: table.tableId, label: table.tableName }));
+});
+
+const options = computed(() => {
+  return mergeOptions(selectedTableOptions.value, searchOptions.value);
+});
+
+const joinTableIds = computed(() => {
+  return [info.value.tableId, ...selectTables.value];
+});
+
 const remoteMethod = (query: string) => {
   loading.value = true;
   listTable({ tableName: query }).then((response) => {
     loading.value = false;
-    options.value = response.rows.map((item) => ({ value: item.tableId, label: item.tableName }));
+    searchOptions.value = response.rows
+      .filter(item => item.tableId !== info.value.tableId)
+      .map((item) => ({ value: item.tableId, label: item.tableName }));
   });
 }
-watch(tables, () => {
-  tables.value?.forEach(item => tableDict.value[item.tableId] = item);
-  options.value = tables.value?.map(item => ({ value: item.tableId, label: item.tableName }));
-  selectTables.value = tables.value.map(item => item.tableId);
-})
+watch(tables, (currentTables) => {
+  currentTables.forEach(item => tableDict.value[item.tableId] = item);
+  const currentTableIds = currentTables
+    .map(item => item.tableId)
+    .filter(tableId => tableId !== info.value.tableId);
+  if (!isSameTableSelection(selectTables.value, currentTableIds)) {
+    selectTables.value = currentTableIds;
+  }
+}, { immediate: true })
 
 // 添加关联关系
 const addJoin = () => {
@@ -41,6 +79,20 @@ async function getTable(tableId: number) {
     return table;
   }
 }
+
+async function syncSelectedTables(tableIds: number[]) {
+  const nextTableIds = Array.from(new Set([info.value.tableId, ...tableIds]));
+  const currentTableIds = tables.value.map(item => item.tableId);
+  if (isSameTableSelection(currentTableIds, nextTableIds)) {
+    return;
+  }
+  tables.value = await Promise.all(nextTableIds.map(getTable));
+}
+
+watch(selectTables, tableIds => {
+  void syncSelectedTables(tableIds);
+});
+
 // 处理关联表选择变化
 const handleLeftTableChange = async (tableId: number, index: number) => {
   if (joins.value[index].newTableId === joins.value[index].leftTableId) {
@@ -107,7 +159,7 @@ const removeJoin = (index: number) => joins.value.splice(index, 1);
             <el-form-item label="左表">
               <el-select v-model="join.leftTableId" @change="(val: number) => handleLeftTableChange(val, index)"
                 placeholder="选择关联表">
-                <el-option v-for="tableId in selectTables" :key="tableId" :label="tableDict[tableId]?.tableName"
+                <el-option v-for="tableId in joinTableIds" :key="tableId" :label="tableDict[tableId]?.tableName"
                   :value="tableId" />
               </el-select>
             </el-form-item>
@@ -129,7 +181,7 @@ const removeJoin = (index: number) => joins.value.splice(index, 1);
             <el-form-item label="右表">
               <el-select v-model="join.rightTableId" @change="(val: number) => handleRightTableChange(val, index)"
                 placeholder="选择右表">
-                <el-option v-for="tableId in selectTables" :key="tableId" :label="tableDict[tableId]?.tableName"
+                <el-option v-for="tableId in joinTableIds" :key="tableId" :label="tableDict[tableId]?.tableName"
                   :value="tableId" />
               </el-select>
             </el-form-item>
