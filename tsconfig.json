@@ -37,6 +37,8 @@
       "@ruoyi/core/*": ["./packages/core/src/*"],
       "@ruoyi/ui": ["./packages/ui/src"],
       "@ruoyi/ui/*": ["./packages/ui/src/*"],
+      "@ruoyi/module-gen": ["./modules/gen/src"],
+      "@ruoyi/module-gen/*": ["./modules/gen/src/*"],
       "@ruoyi/module-flowable": ["./modules/flowable/src"],
       "@ruoyi/module-flowable/*": ["./modules/flowable/src/*"],
       "@ruoyi/module-form": ["./modules/form/src"],
