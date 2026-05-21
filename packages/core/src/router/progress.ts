@@ -1,4 +1,5 @@
 import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 /** 顶部进度条配置 */
 export const configureNProgress = () => {

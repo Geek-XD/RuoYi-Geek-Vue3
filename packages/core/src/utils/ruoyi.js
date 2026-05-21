@@ -73,7 +73,7 @@ export function selectDictLabel(datas, value) {
   if (value === undefined) {
     return "";
   }
-  var actions = [];
+  let actions = [];
   Object.keys(datas).some((key) => {
     if (datas[key].value == ('' + value)) {
       actions.push(datas[key].label);
@@ -94,11 +94,11 @@ export function selectDictLabels(datas, value, separator) {
   if (Array.isArray(value)) {
     value = value.join(",");
   }
-  var actions = [];
-  var currentSeparator = undefined === separator ? "," : separator;
-  var temp = value.split(currentSeparator);
+  let actions = [];
+  let currentSeparator = undefined === separator ? "," : separator;
+  let temp = value.split(currentSeparator);
   Object.keys(value.split(currentSeparator)).some((val) => {
-    var match = false;
+    let match = false;
     Object.keys(datas).some((key) => {
       if (datas[key].value == ('' + temp[val])) {
         actions.push(datas[key].label + currentSeparator);
@@ -114,9 +114,9 @@ export function selectDictLabels(datas, value, separator) {
 
 // 字符串格式化(%s )
 export function sprintf(str, ...args) {
-  var flag = true, i = 0;
+  let flag = true, i = 0;
   str = str.replace(/%s/g, function () {
-    var arg = args[i++];
+    let arg = args[i++];
     if (typeof arg === 'undefined') {
       flag = false;
       return '';
@@ -136,7 +136,7 @@ export function parseStrEmpty(str) {
 
 // 数据合并
 export function mergeRecursive(source, target) {
-  for (var p in target) {
+  for (let p in target) {
     try {
       if (target[p].constructor == Object) {
         source[p] = mergeRecursive(source[p], target[p]);
@@ -165,9 +165,9 @@ export function handleTree(data, id, parentId, children) {
     childrenList: children || 'children'
   };
 
-  var childrenListMap = {};
-  var nodeIds = {};
-  var tree = [];
+  let childrenListMap = {};
+  let nodeIds = {};
+  let tree = [];
 
   for (let d of data) {
     let parentId = d[config.parentId];
@@ -210,13 +210,13 @@ export function tansParams(params) {
   let result = ''
   for (const propName of Object.keys(params)) {
     const value = params[propName];
-    var part = encodeURIComponent(propName) + "=";
+    let part = encodeURIComponent(propName) + "=";
     if (value !== null && value !== "" && typeof (value) !== "undefined") {
       if (typeof value === 'object') {
         for (const key of Object.keys(value)) {
           if (value[key] !== null && value[key] !== "" && typeof (value[key]) !== 'undefined') {
             let params = propName + '[' + key + ']';
-            var subPart = encodeURIComponent(params) + "=";
+            let subPart = encodeURIComponent(params) + "=";
             result += subPart + encodeURIComponent(value[key]) + "&";
           }
         }

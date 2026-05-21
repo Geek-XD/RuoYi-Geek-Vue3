@@ -5,7 +5,7 @@ const useDictStore = defineStore(
   'dict',
   {
     state: () => ({
-      dict: new Array<{key: DictKey, value: Array<DictValue>}>()
+      dict: new Array<{ key: DictKey, value: Array<DictValue> }>()
     }),
     actions: {
       // 获取字典
@@ -24,7 +24,7 @@ const useDictStore = defineStore(
         }
       },
       // 设置字典
-      setDict(_key: DictKey, value:Array<DictValue>) {
+      setDict(_key: DictKey, value: Array<DictValue>) {
         if (_key !== null && _key !== "") {
           this.dict.push({
             key: _key,
@@ -34,7 +34,7 @@ const useDictStore = defineStore(
       },
       // 删除字典
       removeDict(_key: DictKey) {
-        var bln = false;
+        let bln = false;
         try {
           for (let i = 0; i < this.dict.length; i++) {
             if (this.dict[i].key == _key) {

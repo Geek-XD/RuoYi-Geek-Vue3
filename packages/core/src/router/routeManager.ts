@@ -1,4 +1,3 @@
-import { deepClone } from '@ruoyi/core/utils'
 import type { RouteItem } from '@ruoyi/core/types/route'
 import { ROUTES } from '@ruoyi/core/constant'
 import { router } from './index'

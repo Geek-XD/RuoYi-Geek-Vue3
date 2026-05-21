@@ -12,7 +12,7 @@ import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
 
 let downloadLoadingInstance: any;
 // 是否显示重新登录
-export let isRelogin = { show: false };
+export const isRelogin = { show: false };
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=utf-8'
 // 创建axios实例
 const service = axios.create({

@@ -66,16 +66,6 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
     permissions: () => useUserStore().permissions
   },
   actions: {
-    setActiveTopMenuPath(activePath: string) {
-      this.activeTopMenuPath = activePath
-    },
-    setRouteData(routeTree) {
-      this.routeTree = deepClone(routeTree)
-    },
-    resetRouteData() {
-      this.routeTree = []
-      this.activeTopMenuPath = ''
-    },
     hasAnyPermission(requiredPermissions: string[]): boolean {
       if (this.permissions.includes(ALL_PERMISSION)) return true
       return requiredPermissions.some(permission => this.permissions.includes(permission))
@@ -107,6 +97,16 @@ const usePermissionStore = defineStore<string, PermissionState, PermissionGetter
         console.error(`need roles! Like checkRole="['admin','editor']"`)
         return false
       }
+    },
+    setActiveTopMenuPath(activePath: string) {
+      this.activeTopMenuPath = activePath
+    },
+    setRouteData(routeTree) {
+      this.routeTree = deepClone(routeTree)
+    },
+    resetRouteData() {
+      this.routeTree = []
+      this.activeTopMenuPath = ''
     },
     /**
      * 解析并注册授权路由
