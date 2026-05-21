@@ -143,9 +143,9 @@ defineExpose({ openSetting })
       <span>菜单布局</span>
       <div class="layout-mode-group">
         <el-radio-group v-model="menuLayout" size="small">
-          <el-radio-button label="left" value="left">左侧菜单</el-radio-button>
-          <el-radio-button label="mix" value="mix">混合菜单</el-radio-button>
-          <el-radio-button label="top" value="top">顶部菜单</el-radio-button>
+          <el-radio-button value="left">左侧菜单</el-radio-button>
+          <el-radio-button value="mix">混合菜单</el-radio-button>
+          <el-radio-button value="top">顶部菜单</el-radio-button>
         </el-radio-group>
       </div>
     </div>
