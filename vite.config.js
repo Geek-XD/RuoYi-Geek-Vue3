@@ -9,7 +9,7 @@ const ModulesAlias = function (modules) {
     alias[`@ruoyi/module-${module}`] = modulePath
   })
   return alias
-}(['flowable', 'form', 'message', 'online', 'pay'])
+}(['gen','flowable', 'form', 'message', 'online', 'pay'])
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -27,6 +27,7 @@ export default defineConfig(({ mode, command }) => {
         // 设置路径
         '~': path.resolve(__dirname, './'),
         '@ruoyi/core': path.resolve(__dirname, './packages/core/src'),
+        '@ruoyi/ui': path.resolve(__dirname, './packages/ui/src'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),
@@ -77,9 +78,7 @@ export default defineConfig(({ mode, command }) => {
       }
     },
     optimizeDeps: {
-      include: [
-        '@lib/vform/designer.umd.js',
-      ]
+      include: ['@ruoyi/module-form/libs/designer.umd.js'],
     },
     build: {
       commonjsOptions: {

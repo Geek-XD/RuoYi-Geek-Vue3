@@ -29,7 +29,7 @@
       <el-table-column width="55" align="center">
         <template v-slot="scope">
           <!-- 可以手动的修改label的值，从而控制选择哪一项 -->
-          <el-radio v-model="radioSelected" :label="scope.row.roleId">{{ '' }}</el-radio>
+          <el-radio v-model="radioSelected" :value="scope.row.roleId">{{ '' }}</el-radio>
         </template>
       </el-table-column>
       <el-table-column label="角色编号" prop="roleId" />

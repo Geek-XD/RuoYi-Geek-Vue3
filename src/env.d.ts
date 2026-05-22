@@ -8,7 +8,6 @@ declare module "*.tiff";
 
 
 declare module "file-saver";
-declare module "js-cookie";
 
 declare module "*.vue" {
   import { DefineComponent } from "vue";

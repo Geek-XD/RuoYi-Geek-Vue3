@@ -1,5 +1,5 @@
 import { RouteItem } from '@ruoyi/core/types/route'
-const Layout = () => import('@/layout/index.vue')
+const Layout = () => import('@ruoyi/ui/layout/Admin/index.vue')
 // 动态路由，基于用户权限动态去加载，配置详情请参见RouteItem定义
 export const dynamicRoutes: RouteItem[] = [
   {
@@ -55,20 +55,6 @@ export const dynamicRoutes: RouteItem[] = [
         component: () => import('@/views/monitor/job/log.vue'),
         name: 'JobLog',
         meta: { title: '调度日志', activeMenu: '/monitor/job' }
-      }
-    ]
-  },
-  {
-    path: '/tool/gen-edit',
-    component: Layout,
-    hidden: true,
-    permissions: ['tool:gen:edit'],
-    children: [
-      {
-        path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/edit/index.vue'),
-        name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
   }

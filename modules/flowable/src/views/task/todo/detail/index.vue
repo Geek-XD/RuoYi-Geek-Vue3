@@ -92,7 +92,7 @@
         <el-form ref="returnTaskFormRef" :model="taskForm" label-width="80px">
           <el-form-item label="退回节点" prop="targetKey">
             <el-radio-group v-model="taskForm.targetKey">
-              <el-radio-button v-for="item in returnTaskList" :key="item.id" :label="item.id">{{ item.name }}
+              <el-radio-button v-for="item in returnTaskList" :key="item.id" :value="item.id">{{ item.name }}
               </el-radio-button>
             </el-radio-group>
           </el-form-item>

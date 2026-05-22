@@ -91,7 +91,7 @@ function jsonToTree(jsonString) {
 
   function objectToTree(o) {
     const tree = [];
-    for (var key in o) {
+    for (let key in o) {
       if (typeof o[key] === 'object') {
         tree.push({
           label: key,

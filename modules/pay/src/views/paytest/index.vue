@@ -2,8 +2,8 @@
 import profile from '@/assets/images/profile.jpg'
 import { getAction } from '@ruoyi/core/utils/request';
 import { ref } from 'vue';
-import QRCodeView from '@/components/QRCodeView/index.vue';
-import JsBarcodeView from '@/components/JsBarcodeView/index.vue';
+import QRCodeView from '@ruoyi/ui/components/QRCodeView/index.vue';
+import JsBarcodeView from '@ruoyi/ui/components/JsBarcodeView/index.vue';
 
 const props = defineProps({
     orderNumber: {

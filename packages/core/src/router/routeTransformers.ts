@@ -1,9 +1,9 @@
 import { defineComponent, h, type Component } from 'vue'
 import { VIEWS } from '@ruoyi/core/constant'
 import { RouteItem } from '@ruoyi/core/types/route'
-import Layout from '@/layout/index.vue'
-import InnerLink from '@/layout/components/InnerLink/index.vue'
-import ParentView from '@/components/ParentView/index.vue'
+import Layout from '@ruoyi/ui/layout/Admin/index.vue'
+import InnerLink from '@ruoyi/ui/layout/Admin/components/InnerLink/index.vue'
+import ParentView from '@ruoyi/ui/components/ParentView/index.vue'
 
 const MissingRouteView = defineComponent({
   name: 'MissingRouteView',

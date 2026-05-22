@@ -94,10 +94,10 @@
 
 <script setup name="Info">
 import { listInfo, delInfo, downloadFileUnified } from '@/api/file/info';
-import ImagePreview from "@/components/ImagePreview/index.vue";
-import FileUpload from "@/components/UploadComponents/FileUpload/index.vue"
-import ImageUpload from "@/components/UploadComponents/ImageUpload/index.vue"
-import ChunkUpload from "@/components/UploadComponents/ChunkUpload/index.vue"
+import ImagePreview from "@ruoyi/ui/components/ImagePreview/index.vue";
+import FileUpload from "@ruoyi/ui/components/UploadComponents/FileUpload/index.vue"
+import ImageUpload from "@ruoyi/ui/components/UploadComponents/ImageUpload/index.vue"
+import ChunkUpload from "@ruoyi/ui/components/UploadComponents/ChunkUpload/index.vue"
 import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
