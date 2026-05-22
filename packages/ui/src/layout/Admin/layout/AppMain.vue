@@ -2,13 +2,16 @@
 import iframeToggle from "./IframeToggle/index.vue"
 import copyright from "./Copyright/index.vue"
 import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
-
+import useSettingsStore from '@ruoyi/core/store/modules/settings'
+import { computed } from "vue"
 
 const tagsViewStore = useTagsViewStore()
+const settingsStore = useSettingsStore()
+const needTagsView = computed(() => settingsStore.tagsView);
+const fixedHeader = computed(() => settingsStore.fixedHeader);
 </script>
-
 <template>
-  <section class="app-main">
+  <section class="app-main" :class="{ hasTagsView: needTagsView, fixedHeader: fixedHeader }">
     <router-view v-slot="{ Component, route }">
       <transition :name="(!!route.meta && !!route.meta.transition) ? '' + route.meta.transition : 'fade-transform'"
         mode="out-in">
@@ -25,38 +28,27 @@ const tagsViewStore = useTagsViewStore()
 <style lang="scss" scoped>
 @use "@/assets/styles/variables.module.scss";
 
-.app-main:has(.copyright) {
-  padding-bottom: 36px;
-}
-
 .app-main {
-  min-height: calc(100vh - variables.$navbar-height);
+  min-height: calc(100% - variables.$navbar-height);
   width: 100%;
   position: relative;
   overflow: hidden;
-}
 
-.fixed-header+.app-main {
-  padding-top: variables.$navbar-height;
-}
-
-/** 此处受 src\layout\index.vue needTagsView控制 */
-.hasTagsView {
-  .app-main {
-    min-height: calc(100vh - (variables.$navbar-height + variables.$tags-view-height));
+  &:has(.copyright) {
+    padding-bottom: 36px;
   }
 
-  .fixed-header+.app-main {
-    padding-top: (variables.$navbar-height + variables.$tags-view-height);
+  &.hasTagsView {
+    min-height: calc(100% - variables.$navbar-height - variables.$tags-view-height);
   }
-}
-</style>
 
-<style lang="scss">
-// fix css style bug in open el-dialog
-.el-popup-parent--hidden {
-  .fixed-header {
-    padding-right: 17px;
+  &.fixedHeader {
+    padding-top: variables.$tags-view-height;
+    min-height: 100%;
+
+    &.hasTagsView {
+      padding-top: (variables.$navbar-height + variables.$tags-view-height);
+    }
   }
 }
 </style>

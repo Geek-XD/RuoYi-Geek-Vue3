@@ -4,15 +4,11 @@
          <!--部门数据-->
          <el-col :span="4" :xs="24">
             <el-card shadow="never">
-               <div class="head-container">
-                  <el-input v-model="deptName" placeholder="请输入部门名称" clearable prefix-icon="Search"
-                     style="margin-bottom: 20px" />
-               </div>
-               <div class="head-container">
-                  <el-tree :data="deptOptions" :props="{ label: 'label', children: 'children' }"
-                     :expand-on-click-node="false" :filter-node-method="filterNode" ref="deptTreeRef" node-key="id"
-                     highlight-current default-expand-all @node-click="handleNodeClick" />
-               </div>
+               <el-input v-model="deptName" placeholder="请输入部门名称" clearable prefix-icon="Search"
+                  style="margin-bottom: 20px" />
+               <el-tree :data="deptOptions" :props="{ label: 'label', children: 'children' }"
+                  :expand-on-click-node="false" :filter-node-method="filterNode" ref="deptTreeRef" node-key="id"
+                  highlight-current default-expand-all @node-click="handleNodeClick" />
             </el-card>
          </el-col>
          <!--用户数据-->
@@ -177,7 +173,7 @@
                   <el-form-item label="状态">
                      <el-radio-group v-model="form.status">
                         <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label
-                           }}</el-radio>
+                        }}</el-radio>
                      </el-radio-group>
                   </el-form-item>
                </el-col>

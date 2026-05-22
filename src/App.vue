@@ -18,9 +18,12 @@ onMounted(() => {
     <router-view />
   </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
 .app-container {
+  display: flex;
   height: 100%;
   width: 100%;
+  padding: 0;
+  margin: 0;
 }
 </style>
