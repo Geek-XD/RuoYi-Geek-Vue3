@@ -175,14 +175,15 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
 <template>
   <div id="tags-view-container" class="tags-view-container">
     <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="closeMenu">
-      <router-link v-for="tag in visitedViews" :key="tag.path" class="tags-view-item"
-        :class="isActive(tag) ? 'active' : ''" :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
-        @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
-        {{ tag.title }}
-        <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
-          <close class="el-icon-close" style="width: 1em; height: 1em;vertical-align: middle;" />
-        </span>
-      </router-link>
+      <ul class="tags-view-list">
+        <li v-for="tag in visitedViews" :key="tag.path" class="tags-view-item" :class="isActive(tag) ? 'active' : ''">
+          <router-link :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
+            @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
+            <span>{{ tag.title }}</span>
+            <close v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)" class="el-icon-close" />
+          </router-link>
+        </li>
+      </ul>
     </scroll-pane>
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">
@@ -221,59 +222,61 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
 
   .tags-view-wrapper {
     padding: 0 15px;
+    margin-top: 4px;
+
+    .tags-view-list {
+      display: flex;
+      height: 32px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
 
     .tags-view-item {
-      display: inline-block;
+      display: flex;
+      align-items: center;
       position: relative;
       cursor: pointer;
-      height: calc(variables.$tags-view-height - 10px);
-      line-height: calc(variables.$tags-view-height - 10px);
       border: 1px solid #d8dce5;
       color: #495060;
       background: #fff;
-      padding: 0 8px;
-      font-size: 13px;
-      margin-top: 4px;
-      border-radius: 5px;
+      padding: 0 10px;
+      height: 32px;
+      line-height: 16px;
+      font-size: 12px;
+      border-radius: 6px;
 
-      &+.tags-view-item {
-        margin-left: 10px;
+      a {
+        display: inline-flex;
+        align-items: center;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
       }
 
+      &+.tags-view-item {
+        margin-left: 6px;
+      }
+
+      &.active,
       &:hover {
         color: var(--el-color-primary);
       }
 
-      &.active {
-        border-color: var(--el-color-primary);
-        background-color: var(--el-color-primary);
-        color: #fff;
-
-        &::before {
-          content: "";
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
-        }
-      }
-
       :deep(.el-icon-close) {
-        width: 16px;
-        height: 16px;
-        vertical-align: 2px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 12px;
+        height: 12px;
+        margin-left: 4px;
+        flex-shrink: 0;
         border-radius: 50%;
-        text-align: center;
         transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
         transform-origin: 100% 50%;
 
-        &:before {
-          transform: scale(0.6);
-          display: inline-block;
-          vertical-align: -3px;
+        svg {
+          display: block;
         }
 
         &:hover {
