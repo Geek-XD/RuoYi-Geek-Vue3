@@ -44,7 +44,7 @@ const fixedHeader = computed(() => settingsStore.fixedHeader);
   }
 
   &.fixedHeader {
-    padding-top: variables.$tags-view-height;
+    padding-top: variables.$navbar-height;
     min-height: 100%;
 
     &.hasTagsView {
