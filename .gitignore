@@ -23,5 +23,9 @@ pnpm-lock.yaml
 yarn.lock
 .yarn
 
+modules/ai/
+modules/bi/
+modules/im/
+
 public/geo/
 public/glb/
