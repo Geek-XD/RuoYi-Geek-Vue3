@@ -173,9 +173,13 @@ onMounted(() => { setVisibleNumber() })
 
 .topmenu-container {
   --el-menu-bg-color: variables.$navbar-color;
+  --el-menu-horizontal-height: 50px;
 
   &.el-menu--horizontal>:deep(.el-menu-item) {
     float: left;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     height: variables.$navbar-height;
     line-height: variables.$navbar-height;
     color: #999093;
@@ -187,6 +191,10 @@ onMounted(() => { setVisibleNumber() })
     &:hover {
       color: var(--el-menu-active-color);
     }
+  }
+
+  &.el-menu--horizontal.el-menu {
+    border-bottom: none;
   }
 
   &.el-menu--horizontal>:deep(.el-menu-item.is-active),
@@ -203,15 +211,14 @@ onMounted(() => { setVisibleNumber() })
       height: 2px;
       background-color: var(--el-menu-active-color);
     }
-
-    &>.el-sub-menu__icon-arrow {
-      position: absolute;
-      right: -8px;
-    }
   }
 
   &.el-menu--horizontal>.el-sub-menu :deep(.el-sub-menu__title) {
     float: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     height: variables.$navbar-height;
     line-height: variables.$navbar-height;
     color: #999093;
@@ -219,5 +226,9 @@ onMounted(() => { setVisibleNumber() })
     margin: 0 10px;
   }
 
+  &.el-menu--horizontal>.el-sub-menu :deep(.el-sub-menu__icon-arrow) {
+    position: static;
+    margin: 0;
+  }
 }
 </style>

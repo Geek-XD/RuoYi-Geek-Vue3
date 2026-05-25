@@ -45,7 +45,7 @@ const settingRef = useTemplateRef('settingRef')
       @click="appStore.closeSideBar(false)" />
     <!-- 侧边栏 -->
     <sidebar v-if="showSidebar" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebarHidden }" class="main-container">
+    <div :class="{ sidebarHide: sidebarHidden }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <!-- 导航栏/面包屑 -->
         <navbar @setLayout="settingRef?.openSetting()" />
@@ -87,23 +87,10 @@ const settingRef = useTemplateRef('settingRef')
 }
 
 .fixed-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - variables.$base-sidebar-width);
-  transition: width 0.28s;
-
-  .hideSidebar & {
-    width: calc(100% - variables.$hide-sidebar-width);
-  }
-
-  .sidebarHide & {
-    width: 100%;
-  }
-
-  .mobile & {
-    width: 100%;
-  }
+  width: 100%;
 }
 </style>

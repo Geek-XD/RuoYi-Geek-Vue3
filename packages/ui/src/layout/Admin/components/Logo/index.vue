@@ -4,15 +4,25 @@ import logo from '@/assets/logo/logo.png'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import { computed } from 'vue';
 
-defineProps<{ collapse: boolean }>()
+const props = withDefaults(defineProps<{
+  collapse: boolean
+  mode?: 'sidebar' | 'navbar'
+}>(), {
+  mode: 'sidebar'
+})
 const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
-const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }));
+const sidebarTitleStyle = computed(() => ({
+  color: props.mode === 'navbar'
+    ? variables.logoLightTitleColor
+    : sideTheme.value === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor
+}));
 </script>
 <template>
-  <div class="sidebar-logo-container" :class="{ 'collapse': collapse }"
-    :style="{ backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }">
+  <div class="sidebar-logo-container" :class="[{ 'collapse': collapse }, `${mode}-mode`]" :style="mode === 'sidebar'
+    ? { backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }
+    : undefined">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
@@ -70,6 +80,28 @@ const sidebarTitleStyle = computed(() => ({ color: sideTheme.value === 'theme-da
   &.collapse {
     .sidebar-logo {
       margin-right: 0px;
+    }
+  }
+
+  &.navbar-mode {
+    width: auto;
+    background: transparent;
+    text-align: left;
+
+    .sidebar-logo-link {
+      display: inline-flex;
+      align-items: center;
+      width: auto;
+      padding: 0 12px;
+    }
+
+    .sidebar-logo {
+      margin-right: 10px;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      white-space: nowrap;
     }
   }
 }

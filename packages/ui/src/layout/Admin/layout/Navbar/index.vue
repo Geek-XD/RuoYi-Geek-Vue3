@@ -2,6 +2,7 @@
 import { ElMessageBox } from 'element-plus'
 import Breadcrumb from './Breadcrumb.vue'
 import TopNav from './TopNav.vue'
+import Logo from '@ruoyi/ui/layout/Admin/components/Logo/index.vue'
 import Hamburger from '@ruoyi/ui/components/Hamburger/index.vue'
 import Screenfull from '@ruoyi/ui/components/Screenfull/index.vue'
 import SizeSelect from '@ruoyi/ui/components/SizeSelect/index.vue'
@@ -11,12 +12,15 @@ import useUserStore from '@ruoyi/core/store/modules/user'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import { useRouter } from 'vue-router'
 import { RoutesAlias } from '@ruoyi/core/router/routesAlias'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
 const router = useRouter()
+const sidebarOption = computed(() => appStore.sidebar);
+const showTopLogo = computed(() => settingsStore.sidebarLogo && settingsStore.topNav && sidebarOption.value.hide);
+
 
 function handleCommand(command: string) {
   switch (command) {
@@ -57,14 +61,17 @@ const goto = (url: string) => window.open(url)
 </script>
 <template>
   <div class="navbar">
-    <!-- 侧边栏切换按钮 -->
-    <hamburger v-if="!settingsStore.isTopMenu" id="hamburger-container" :is-active="appStore.sidebar.opened"
-      @toggleClick="appStore.toggleSideBar(false)" />
+    <div class="navbar-left">
+      <logo v-if="showTopLogo" class="navbar-logo" :collapse="false" mode="navbar" />
+      <!-- 侧边栏切换按钮 -->
+      <hamburger v-if="!settingsStore.isTopMenu && !showTopLogo" id="hamburger-container"
+        :is-active="appStore.sidebar.opened" @toggleClick="appStore.toggleSideBar(false)" />
 
-    <!-- 顶部导航栏 -->
-    <top-nav id="topmenu-container" v-if="settingsStore.topNav" />
-    <!-- 面包屑导航栏 -->
-    <breadcrumb id="breadcrumb-container" v-else />
+      <!-- 顶部导航栏 -->
+      <top-nav id="topmenu-container" v-if="settingsStore.topNav" />
+      <!-- 面包屑导航栏 -->
+      <breadcrumb id="breadcrumb-container" v-else />
+    </div>
 
     <!-- 右侧菜单 -->
     <div class="right-menu">
@@ -121,15 +128,32 @@ const goto = (url: string) => window.open(url)
   overflow: hidden;
   position: relative;
   background: variables.$navbar-color;
+  display: flex;
+  align-items: center;
 
   @if variables.$navbar-color !=variables.$page-background-color {
     box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   }
 
-  #hamburger-container {
-    line-height: 46px;
+  .navbar-left {
+    min-width: 0;
     height: 100%;
-    float: left;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-logo {
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
+
+  #hamburger-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 100%;
     cursor: pointer;
     transition: background 0.3s;
     -webkit-tap-highlight-color: transparent;
@@ -140,12 +164,13 @@ const goto = (url: string) => window.open(url)
   }
 
   #breadcrumb-container {
-    float: left;
+    min-width: 0;
+    flex: 1;
   }
 
   #topmenu-container {
-    position: absolute;
-    left: 50px;
+    min-width: 0;
+    flex: 1;
   }
 
   .errLog-container {
@@ -154,12 +179,11 @@ const goto = (url: string) => window.open(url)
   }
 
   .right-menu {
-    float: right;
     height: 100%;
-    line-height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 
     &:focus {
       outline: none;

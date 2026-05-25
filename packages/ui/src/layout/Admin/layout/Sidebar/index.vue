@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Logo from './Logo.vue'
+import Logo from '@ruoyi/ui/layout/Admin/components/Logo/index.vue'
 import SidebarItem from './SidebarItem.vue'
 import variables from '@/assets/styles/variables.module.scss'
 import useAppStore from '@ruoyi/core/store/modules/app'
