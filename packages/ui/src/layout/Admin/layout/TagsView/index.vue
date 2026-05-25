@@ -40,6 +40,7 @@ onMounted(() => {
 
 const isActive = (r: RouteLocationNormalizedGeneric) => r.path === route.path
 const isAffix = (tag: RouteLocationNormalizedGeneric) => tag.meta && tag.meta.affix
+const getTagTitle = (tag: RouteLocationNormalizedGeneric) => String(tag.meta?.title ?? 'no-name')
 const isFirstView = () => selectedTag.value.fullPath === visitedViews.value[1]?.fullPath || selectedTag.value.fullPath === RoutesAlias.Home
 const isLastView = () => selectedTag.value.fullPath === visitedViews.value[visitedViews.value.length - 1]?.fullPath
 
@@ -179,7 +180,8 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
         <li v-for="tag in visitedViews" :key="tag.path" class="tags-view-item" :class="isActive(tag) ? 'active' : ''">
           <router-link :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
             @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
-            <span>{{ tag.title }}</span>
+            <svg-icon v-if="tag.meta?.icon" class="tags-view-icon" :icon-class="String(tag.meta.icon)" />
+            <span>{{ getTagTitle(tag) }}</span>
             <close v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)" class="el-icon-close" />
           </router-link>
         </li>
@@ -222,7 +224,6 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
 
   .tags-view-wrapper {
     padding: 0 15px;
-    margin-top: 4px;
 
     .tags-view-list {
       display: flex;
@@ -252,6 +253,13 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
         height: 100%;
         color: inherit;
         text-decoration: none;
+      }
+
+      :deep(.tags-view-icon) {
+        width: 1em;
+        height: 1em;
+        margin-right: 4px;
+        flex-shrink: 0;
       }
 
       &+.tags-view-item {
