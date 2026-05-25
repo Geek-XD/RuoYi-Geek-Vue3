@@ -187,6 +187,10 @@ onMounted(() => { setVisibleNumber() })
     margin: 0 10px;
     background-color: transparent;
 
+    &:focus,
+    &:hover {
+      background-color: transparent;
+    }
 
     &:hover {
       color: var(--el-menu-active-color);
