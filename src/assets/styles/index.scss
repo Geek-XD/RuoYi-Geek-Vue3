@@ -133,6 +133,7 @@ aside {
 
 //main-container全局样式
 .app-container {
+  flex: 1;
   padding: 20px;
 
   .el-card {

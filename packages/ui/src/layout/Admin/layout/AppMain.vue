@@ -29,10 +29,14 @@ const fixedHeader = computed(() => settingsStore.fixedHeader);
 @use "@/assets/styles/variables.module.scss";
 
 .app-main {
+  flex: 1;
   min-height: calc(100% - variables.$navbar-height);
   width: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
 
   &:has(.copyright) {
     padding-bottom: 36px;

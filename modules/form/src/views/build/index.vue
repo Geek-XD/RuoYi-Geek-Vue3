@@ -83,10 +83,8 @@ function submitFormData() {
 </template>
 <style lang="scss" scoped>
 .vForm {
-    .main-container {
+    :deep(.main-container) {
         margin-left: 0 !important;
-        height: calc(100vh - 84px) !important;
-        overflow-y: auto;
     }
 }
 </style>
