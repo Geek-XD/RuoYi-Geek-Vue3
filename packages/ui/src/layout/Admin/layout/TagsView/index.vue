@@ -180,7 +180,7 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
         <li v-for="tag in visitedViews" :key="tag.path" class="tags-view-item" :class="isActive(tag) ? 'active' : ''">
           <router-link :data-path="tag.path" :to="{ path: tag.path, query: tag.query }"
             @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''" @contextmenu.prevent="openMenu(tag, $event)">
-            <svg-icon v-if="tag.meta?.icon" class="tags-view-icon" :icon-class="String(tag.meta.icon)" />
+            <svg-icon v-if="(tag.meta?.icon ?? '#') != '#'" class="tags-view-icon" :icon-class="tag.meta.icon" />
             <span>{{ getTagTitle(tag) }}</span>
             <close v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)" class="el-icon-close" />
           </router-link>

@@ -32,7 +32,7 @@ $app-sidebar-width: 300px;
   overflow: hidden;
 
   .window-header {
-    background-color: #409eff;
+    background-color: var(--el-color-primary-light-2);
     height: $window-header-height;
   }
 
