@@ -245,7 +245,7 @@ function openMenu(tag: RouteLocationNormalizedGeneric, e: MouseEvent) {
       height: 32px;
       line-height: 16px;
       font-size: 12px;
-      border-radius: 6px;
+      border-radius: 8px;
 
       a {
         display: inline-flex;

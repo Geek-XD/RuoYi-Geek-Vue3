@@ -581,7 +581,7 @@ function goBack(): void {
   max-width: 280px;
   padding: 8px;
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--el-bg-color-overlay);
   box-shadow: var(--el-box-shadow-light);
   backdrop-filter: blur(8px);

@@ -9,7 +9,7 @@
     & .el-sub-menu .el-menu-item,
     & .el-sub-menu .el-sub-menu__title,
     .el-menu-item {
-      border-radius: 5px;
+      border-radius: 4px;
       margin: 2px auto;
       width: calc(variables.$base-sidebar-width - 40px) !important;
 
@@ -120,7 +120,7 @@
       & .submenu-title-noDropdown.el-menu-item,
       & .el-sub-menu .el-menu-item,
       & .el-sub-menu .el-sub-menu__title {
-        border-radius: 5px;
+        border-radius: 4px;
         margin: 2px auto;
         max-width: calc(variables.$base-sidebar-width - 20px) !important;
 

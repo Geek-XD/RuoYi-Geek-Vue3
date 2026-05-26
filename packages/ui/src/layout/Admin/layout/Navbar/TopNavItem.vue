@@ -54,7 +54,7 @@ function getChildren(route: RouteItem) {
   .el-sub-menu__title {
     height: 36px;
     line-height: 36px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin: 1px 0;
     padding: 0 10px;
 

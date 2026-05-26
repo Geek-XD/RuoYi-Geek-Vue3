@@ -143,7 +143,7 @@ defineExpose({
 .verifybox {
     position: relative;
     box-sizing: border-box;
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid #e4e7eb;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, .3);
@@ -330,7 +330,7 @@ defineExpose({
     box-sizing: content-box;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    border-radius: 3px;
+    border-radius: 4px;
     position: relative;
 
     .verify-refresh {

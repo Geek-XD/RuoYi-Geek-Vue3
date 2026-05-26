@@ -225,7 +225,7 @@ const removeJoin = (index: number) => joins.value.splice(index, 1);
     padding: 12px;
     border: 1px solid #dcdfe6;
     width: 550px;
-    border-radius: 12px;
+    border-radius: 16px;
   }
 }
 </style>

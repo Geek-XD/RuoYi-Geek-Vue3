@@ -141,7 +141,7 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
 
 .container-left {
   flex: 0.6;
-  border-radius: 12px;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--el-color-primary-light-3) 0%, var(--el-color-primary-dark-3) 100%);
   display: flex;
   align-items: center;

@@ -547,7 +547,7 @@ onMounted(() => {
         .feature-list-item {
           padding: 15px;
           margin-bottom: 15px;
-          border-radius: 6px;
+          border-radius: 8px;
           background-color: var(--el-fill-color-light);
 
           h4 {

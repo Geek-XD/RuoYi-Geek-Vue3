@@ -210,7 +210,7 @@ defineExpose({ openSetting })
   .setting-drawer-block-checbox-item {
     position: relative;
     margin-right: 16px;
-    border-radius: 2px;
+    border-radius: 4px;
     cursor: pointer;
 
     img {
@@ -221,7 +221,7 @@ defineExpose({ openSetting })
     .custom-img {
       width: 48px;
       height: 38px;
-      border-radius: 5px;
+      border-radius: 4px;
       box-shadow: 1px 1px 2px #898484;
     }
 

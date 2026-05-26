@@ -65,7 +65,7 @@ const realHeight = computed(() =>
 </template>
 <style lang="scss" scoped>
 .el-image {
-  border-radius: 5px;
+  border-radius: 4px;
   background-color: #ebeef5;
   box-shadow: 0 0 5px 1px #ccc;
 
