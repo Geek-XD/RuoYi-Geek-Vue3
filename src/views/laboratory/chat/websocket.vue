@@ -1,53 +1,116 @@
 <script setup lang="ts">
-import profile from '@/assets/images/profile.jpg'
-import { ref, nextTick } from "vue";
-import socketclient from "@ruoyi/core/plugins/socketclient";
+import profile from '@/assets/images/profile.jpg';
+import { ref } from 'vue';
+import socketclient from '@ruoyi/core/plugins/socketclient';
 import { parseTime } from '@ruoyi/core/utils/ruoyi';
-import { createAsyncMessage, createMessage } from '@ruoyi/module-message/types/Message';
-import { ChatLayout, ContactList, ContactItem, ChatApp } from '@ruoyi/ui/layout/Chat';
-import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue'
-const _contacts = [
-  { id: 1, name: "梅洛迪·梅西", email: "melody@altbox.com", avatar: profile, online: true, lastMsg: "20小时前" },
-  { id: 2, name: "马克·史密斯", email: "max@kt.com", avatar: profile, online: true, lastMsg: "2小时前" },
-  { id: 3, name: "肖恩·宾", email: "sean@dellito.com", avatar: profile, online: false, lastMsg: "5小时前" },
-  { id: 4, name: "Ricky", email: "ricky@domain.com", avatar: profile, online: true, lastMsg: "刚刚" }
-]
-const contacts = _contacts.concat(...Array(10).fill(_contacts)).map((c, id) => ({ ...c, name: c.name + id, id: c.id + id * 100 }))
-const currentContact = ref(_contacts[0])
-const url = ref("ws://127.0.0.1:8080/websocket/message");
+import { createAsyncMessage } from '@ruoyi/module-message/types/Message';
+import {
+  ChatLayout,
+  ContactList,
+  ContactItem,
+  ChatApp,
+  appendChatMessageChunk,
+  completeChatMessage,
+  createChatMessage,
+  type ChatMessage,
+} from '@ruoyi/ui/layout/Chat';
+import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue';
 
-const chatMessages = ref<Array<{ from: string, content: string, time: string }>>([
-  { from: "Art Bot", content: "不客气，有任何问题随时联系我。", time: "10:11" },
-  { from: "Ricky", content: "明白了，谢谢你的帮助!", time: "10:10" }
+const _contacts = [
+  { id: 1, name: '梅洛迪·梅西', email: 'melody@altbox.com', avatar: profile, online: true, lastMsg: '20小时前' },
+  { id: 2, name: '马克·史密斯', email: 'max@kt.com', avatar: profile, online: true, lastMsg: '2小时前' },
+  { id: 3, name: '肖恩·宾', email: 'sean@dellito.com', avatar: profile, online: false, lastMsg: '5小时前' },
+  { id: 4, name: 'Ricky', email: 'ricky@domain.com', avatar: profile, online: true, lastMsg: '刚刚' }
+];
+
+const contacts = _contacts.concat(...Array(10).fill(_contacts)).map((c, id) => ({ ...c, name: c.name + id, id: c.id + id * 100 }));
+const currentContact = ref(_contacts[0]);
+const url = ref('ws://127.0.0.1:8080/websocket/message');
+const wsDialogVisible = ref(false);
+const activeStreamMessage = ref<ChatMessage | null>(null);
+
+const chatMessages = ref<ChatMessage[]>([
+  createChatMessage({ role: 'assistant', from: 'Art Bot', avatar: profile, content: '不客气，有任何问题随时联系我。', time: '10:11' }),
+  createChatMessage({ role: 'user', from: 'Ricky', avatar: profile, content: '明白了，谢谢你的帮助!', time: '10:10' })
 ]);
+
+function ensureAssistantStreamMessage() {
+  if (activeStreamMessage.value) {
+    return activeStreamMessage.value;
+  }
+
+  const message = createChatMessage({
+    role: 'assistant',
+    from: 'Art Bot',
+    avatar: currentContact.value.avatar,
+    content: '',
+    time: parseTime(new Date(), '{h}:{m}'),
+    status: 'streaming',
+    streaming: true,
+  });
+  chatMessages.value.push(message);
+  activeStreamMessage.value = chatMessages.value[chatMessages.value.length - 1];
+  return activeStreamMessage.value;
+}
+
+function finishAssistantStreamMessage() {
+  if (!activeStreamMessage.value) {
+    return;
+  }
+  completeChatMessage(activeStreamMessage.value);
+  activeStreamMessage.value = null;
+}
+
+function handleIncomingMessage(msg: any) {
+  const content = String(msg?.content ?? '');
+  if (!content && !msg?.done) {
+    return;
+  }
+
+  const isStreaming = Boolean(msg?.streaming || msg?.stream || msg?.done === false || msg?.chunk);
+  if (isStreaming) {
+    appendChatMessageChunk(ensureAssistantStreamMessage(), content);
+    if (msg?.done || msg?.finishReason) {
+      finishAssistantStreamMessage();
+    }
+    return;
+  }
+
+  finishAssistantStreamMessage();
+  chatMessages.value.push(createChatMessage({
+    role: 'assistant',
+    from: 'Art Bot',
+    avatar: currentContact.value.avatar,
+    content,
+    time: parseTime(new Date(), '{h}:{m}')
+  }));
+}
+
 function join() {
   socketclient.connect({ url: url.value }).then(() => {
     socketclient.asyncSend(createAsyncMessage('admin', {
       content: '你好，我是Ricky，很高兴见到你！'
-    })).then(() => {
-      console.log("回调");
-    });
-  })
-  socketclient.onMessage((msg) => {
-    chatMessages.value.push({
-      from: "Art Bot",
-      content: msg.content,
-      time: parseTime(new Date(), '{h}:{m}')
-    });
+    }));
   });
+
+  socketclient.onMessage(handleIncomingMessage);
 }
 
 function close() {
   socketclient.close();
+  finishAssistantStreamMessage();
 }
 
-const wsDialogVisible = ref(false);
+function handleSend(content: string) {
+  socketclient.asyncSend(createAsyncMessage('admin', { content }));
+}
 </script>
+
 <template>
   <div class="app-container">
     <chat-layout>
       <template #window-header>
-        <div style="display: flex;justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between;">
           <div class="profile-section">
             <el-avatar :src="profile" size="small" />
             <div class="profile-info">
@@ -71,10 +134,16 @@ const wsDialogVisible = ref(false);
           </template>
         </ContactList>
       </template>
-      <ChatApp :currentContact="currentContact" :chatMessages="chatMessages" />
+      <ChatApp
+        :currentContact="currentContact"
+        :chatMessages="chatMessages"
+        selfName="Ricky"
+        :selfAvatar="profile"
+        @send="handleSend"
+      />
     </chat-layout>
     <el-dialog v-model="wsDialogVisible" title="设置ws" width="800">
-      <el-input class="mr20" placeholder="请输入内容..." v-model="url" />
+      <el-input v-model="url" class="mr20" placeholder="请输入内容..." />
       <template #footer>
         <el-button type="warning" @click="join">连接</el-button>
         <el-button type="danger" @click="close">断开连接</el-button>
@@ -82,6 +151,7 @@ const wsDialogVisible = ref(false);
     </el-dialog>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .app-container {
   display: flex;

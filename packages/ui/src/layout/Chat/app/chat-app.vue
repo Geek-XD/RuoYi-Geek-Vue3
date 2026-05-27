@@ -1,67 +1,172 @@
 <script lang="ts" setup>
-import { nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import ChatInput from '../components/chat-input.vue';
-import { createMessage } from '@ruoyi/module-message/types/Message';
-import socketclient from "@ruoyi/core/plugins/socketclient";
-import { parseTime } from '@ruoyi/core/utils/ruoyi';
-const message = ref("");
-const username = ref("Ricky");
-import profile from '@/assets/images/profile.jpg'
+import ChatMessageRow from '../components/chat-message-row.vue';
+import {
+  createChatMessage,
+  formatChatMessageTime,
+  normalizeChatMessage,
+} from '../utils';
+import type {
+  ChatContact,
+  ChatMessageLike,
+  ChatMessageParser,
+} from '../types';
+
+const inputValue = defineModel<string>('inputValue', { default: '' });
 const chatContainer = ref<HTMLElement>();
 
 const props = withDefaults(defineProps<{
-  currentContact: { name: string; avatar: string; online?: boolean };
-  chatMessages: Array<{ from: string; content: string; time: string }>;
+  currentContact?: ChatContact;
+  chatMessages?: Array<ChatMessageLike>;
+  selfName?: string;
+  selfAvatar?: string;
+  fallbackAvatar?: string;
+  loading?: boolean;
+  showHeader?: boolean;
+  showInput?: boolean;
+  appendOnSend?: boolean;
+  inputPlaceholder?: string;
+  inputRows?: number;
+  inputAutosize?: boolean | { minRows?: number; maxRows?: number };
+  inputDisabled?: boolean;
+  inputShowStopButton?: boolean;
+  messageParser?: ChatMessageParser;
 }>(), {
-  currentContact: () => ({ name: "Ricky", avatar: profile }),
-  chatMessages: () => []
-})
+  currentContact: () => ({ name: '会话' }),
+  chatMessages: () => [],
+  selfName: '我',
+  fallbackAvatar: '',
+  loading: false,
+  showHeader: true,
+  showInput: true,
+  appendOnSend: true,
+  inputPlaceholder: '请输入内容...',
+  inputRows: 5,
+  inputAutosize: () => ({ minRows: 3, maxRows: 6 }),
+  inputDisabled: false,
+  inputShowStopButton: false,
+});
 
-function send(msg: string) {
-  props.chatMessages.push({
-    from: username.value,
-    content: msg,
-    time: parseTime(new Date(), '{h}:{m}')
-  });
-  socketclient.send(createMessage('admin', { content: msg }));
-  message.value = "";
-}
-watch(() => props.chatMessages.length, () => {
+const emit = defineEmits<{
+  send: [message: string];
+  stop: [];
+}>();
+
+const normalizedMessages = computed(() => props.chatMessages.map((message, index) => normalizeChatMessage(message, {
+  selfName: props.selfName,
+  selfAvatar: props.selfAvatar,
+  fallbackAvatar: props.fallbackAvatar,
+  contact: props.currentContact,
+  fallbackId: message.id ?? `legacy-${index}`,
+  messageParser: props.messageParser,
+})));
+
+function scrollToBottom() {
   nextTick(() => {
-    if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-  })
-})
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+  });
+}
+
+function handleSend(message: string) {
+  const content = message.trim();
+  if (!content) {
+    return;
+  }
+
+  if (props.appendOnSend) {
+    props.chatMessages.push(createChatMessage({
+      role: 'user',
+      direction: 'outgoing',
+      from: props.selfName,
+      name: props.selfName,
+      avatar: props.selfAvatar,
+      content,
+      time: formatChatMessageTime(),
+    }));
+  }
+
+  emit('send', content);
+}
+
+watch(normalizedMessages, scrollToBottom, { deep: true, flush: 'post' });
+
+defineExpose({
+  scrollToBottom,
+});
 </script>
+
 <template>
   <div class="chat-main">
-    <div class="chat-header">
-      <div class="chat-title">
-        <el-avatar :src="currentContact.avatar" size="small" />
-        <span class="chat-name">{{ currentContact.name }}</span>
-        <span class="chat-status" v-if="currentContact.online">在线</span>
-      </div>
-    </div>
-    <div class="chat-content" ref="chatContainer">
-      <div v-for="(msg, idx) in chatMessages" :key="idx"
-        :class="['chat-bubble-row', msg.from === username ? 'self' : 'other']">
-        <el-avatar class="bubble-avatar" size="small" :src="msg.from === username ? currentContact.avatar : profile" />
-        <div class="chat-bubble">
-          <div class="bubble-header">
-            <span class="bubble-name">{{ msg.from }}</span>
-            <span class="bubble-time">{{ msg.time }}</span>
-          </div>
-          <div class="bubble-content">{{ msg.content }}</div>
+    <div v-if="showHeader" class="chat-header">
+      <slot name="header" :contact="currentContact">
+        <div class="chat-title">
+          <el-avatar :src="currentContact.avatar" size="small">
+            {{ currentContact.name?.slice(0, 1) || '?' }}
+          </el-avatar>
+          <span class="chat-name">{{ currentContact.name }}</span>
+          <span v-if="currentContact.online" class="chat-status">在线</span>
         </div>
-      </div>
+      </slot>
     </div>
-    <ChatInput @send="send" />
+
+    <div ref="chatContainer" class="chat-content">
+      <slot v-if="normalizedMessages.length === 0" name="empty" :contact="currentContact">
+        <div class="chat-empty">开始对话吧</div>
+      </slot>
+
+      <ChatMessageRow
+        v-for="message in normalizedMessages"
+        :key="message.id"
+        :message="message"
+      >
+        <template v-if="$slots['message-avatar']" #message-avatar="slotProps">
+          <slot name="message-avatar" v-bind="slotProps" />
+        </template>
+
+        <template v-if="$slots['message-header']" #message-header="slotProps">
+          <slot name="message-header" v-bind="slotProps" />
+        </template>
+
+        <template v-if="$slots['message-content']" #message-content="slotProps">
+          <slot name="message-content" v-bind="slotProps" />
+        </template>
+
+        <template v-if="$slots['message-block']" #message-block="slotProps">
+          <slot name="message-block" v-bind="slotProps" />
+        </template>
+      </ChatMessageRow>
+    </div>
+
+    <slot name="footer" :send="handleSend" :loading="loading" :inputValue="inputValue">
+      <ChatInput
+        v-if="showInput"
+        v-model="inputValue"
+        :loading="loading"
+        :disabled="inputDisabled"
+        :placeholder="inputPlaceholder"
+        :rows="inputRows"
+        :autosize="inputAutosize"
+        :show-stop-button="inputShowStopButton"
+        @send="handleSend"
+        @stop="emit('stop')"
+      >
+        <template v-if="$slots['input-actions']" #actions="slotProps">
+          <slot name="input-actions" v-bind="slotProps" />
+        </template>
+      </ChatInput>
+    </slot>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .chat-main {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 
   .chat-header {
     display: flex;
@@ -71,6 +176,7 @@ watch(() => props.chatMessages.length, () => {
     background: #fff;
     border-bottom: 1px solid #e6e6e6;
     height: 53px;
+    flex-shrink: 0;
 
     .chat-title {
       display: flex;
@@ -93,57 +199,16 @@ watch(() => props.chatMessages.length, () => {
     overflow-y: auto;
     padding: 30px 20px 20px 20px;
     flex: 1;
+    min-height: 0;
+  }
 
-    .chat-bubble-row {
-      display: flex;
-      align-items: flex-end;
-      margin-bottom: 18px;
-
-      &.self {
-        flex-direction: row-reverse;
-
-        & .chat-bubble {
-          background: #e6f7ff;
-        }
-      }
-
-      .bubble-avatar {
-        margin: 0 10px;
-      }
-
-      .chat-bubble {
-        max-width: 420px;
-        background: #fff;
-        border-radius: 8px;
-        padding: 12px 18px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        position: relative;
-
-
-        .bubble-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 4px;
-
-          .bubble-name {
-            font-size: 13px;
-            font-weight: 500;
-            color: #409eff;
-          }
-
-          .bubble-time {
-            font-size: 11px;
-            color: #bbb;
-          }
-        }
-
-        .bubble-content {
-          font-size: 15px;
-          color: #333;
-          word-break: break-all;
-        }
-      }
-    }
+  .chat-empty {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #909399;
+    font-size: 14px;
   }
 }
 </style>
