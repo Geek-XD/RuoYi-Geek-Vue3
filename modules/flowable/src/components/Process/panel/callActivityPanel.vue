@@ -25,6 +25,24 @@
       <el-form-item label="租户ID">
         <el-input v-model="bpmnFormData.calledElementTenantId" clearable @change="updateElementTask('calledElementTenantId')" />
       </el-form-item>
+
+      <el-form-item label="映射Java类">
+        <el-input
+          v-model="bpmnFormData.variableMappingClass"
+          clearable
+          placeholder="实现 VariableMappingProvider 的类全路径"
+          @change="updateVariableMapping('variableMappingClass')"
+        />
+      </el-form-item>
+
+      <el-form-item label="映射代理表达式">
+        <el-input
+          v-model="bpmnFormData.variableMappingDelegateExpression"
+          clearable
+          placeholder="${beanName}"
+          @change="updateVariableMapping('variableMappingDelegateExpression')"
+        />
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -40,6 +58,8 @@ interface CallActivityFormData {
   calledElementVersion?: string
   calledElementVersionTag?: string
   calledElementTenantId?: string
+  variableMappingClass?: string
+  variableMappingDelegateExpression?: string
   [key: string]: unknown
 }
 
@@ -65,7 +85,9 @@ const resetTaskForm = (): void => {
     calledElementBinding: businessObject.calledElementBinding || 'latest',
     calledElementVersion: businessObject.calledElementVersion || '',
     calledElementVersionTag: businessObject.calledElementVersionTag || '',
-    calledElementTenantId: businessObject.calledElementTenantId || ''
+    calledElementTenantId: businessObject.calledElementTenantId || '',
+    variableMappingClass: businessObject.variableMappingClass || '',
+    variableMappingDelegateExpression: businessObject.variableMappingDelegateExpression || ''
   }
 }
 
@@ -93,6 +115,20 @@ const updateCalledElementBinding = (binding: string): void => {
     calledElementBinding: binding || null,
     calledElementVersion: binding === 'version' ? bpmnFormData.value.calledElementVersion || null : null,
     calledElementVersionTag: binding === 'versionTag' ? bpmnFormData.value.calledElementVersionTag || null : null
+  })
+}
+
+const updateVariableMapping = (key: 'variableMappingClass' | 'variableMappingDelegateExpression'): void => {
+  const value = bpmnFormData.value[key] || null
+  const oppositeKey = key === 'variableMappingClass' ? 'variableMappingDelegateExpression' : 'variableMappingClass'
+
+  if (value) {
+    bpmnFormData.value[oppositeKey] = ''
+  }
+
+  updateElementProperties({
+    [key]: value,
+    [oppositeKey]: value ? null : bpmnFormData.value[oppositeKey] || null
   })
 }
 

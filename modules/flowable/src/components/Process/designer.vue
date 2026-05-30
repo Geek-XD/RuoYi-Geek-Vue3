@@ -115,7 +115,7 @@ const isUserTask = computed(() => elementType.value === 'UserTask')
 const isServiceTaskLike = computed(() => ['ServiceTask', 'SendTask', 'BusinessRuleTask'].includes(elementType.value))
 const isScriptTask = computed(() => elementType.value === 'ScriptTask')
 const isCallActivity = computed(() => elementType.value === 'CallActivity')
-const multiInstanceVisible = computed(() => elementType.value.includes('Task'))
+const multiInstanceVisible = computed(() => elementType.value.includes('Task') || elementType.value === 'CallActivity')
 
 watch(elementId, () => {
   regularActiveNames.value = ['common']
@@ -183,4 +183,3 @@ onMounted(() => {
   getActiveElement()
 })
 </script>
-
