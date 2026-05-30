@@ -617,7 +617,9 @@ function initializeDiagram() {
       return
     }
 
-    decorateConnection(connection)
+    queueMicrotask(() => {
+      decorateConnection(connection, false)
+    })
   })
 
   importGraph(props.nodes, props.connections)
