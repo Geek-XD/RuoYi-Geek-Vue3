@@ -80,7 +80,7 @@
 
     <!-- 添加或修改流程监听对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form :model="form" :rules="rules" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入名称" />
         </el-form-item>
@@ -105,7 +105,7 @@
         <el-form-item label="值类型" prop="valueType">
           <el-radio-group v-model="form.valueType">
             <el-radio v-for="dict in sys_listener_value_type" :key="dict.value" :value="dict.value">{{ dict.label
-            }}</el-radio>
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="执行内容" prop="value">
