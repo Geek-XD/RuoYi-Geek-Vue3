@@ -56,8 +56,11 @@
         <el-card>
           <template #header><span>缓存统计明细</span></template>
           <el-table :data="cacheStats" stripe>
-            <el-table-column label="缓存名称" prop="cacheName" min-width="180" show-overflow-tooltip />
-            <el-table-column label="备注" prop="remark" min-width="120" show-overflow-tooltip />
+            <el-table-column label="缓存名称" prop="cacheName" min-width="180" show-overflow-tooltip>
+              <template #default="scope">
+                {{ displayCacheName(scope.row.cacheName) }}
+              </template>
+            </el-table-column>
             <el-table-column label="键数量" prop="keyCount" width="100" align="center" />
             <el-table-column label="命中率" width="100" align="center">
               <template #default="scope">
@@ -266,6 +269,10 @@ function formatPercent(value) {
   return `${Number(value || 0).toFixed(2)}%`;
 }
 
+function displayCacheName(value) {
+  return String(value || '-').replace(/:$/, '');
+}
+
 function buildKeyChart() {
   if (!keyChartRef.value) {
     return;
@@ -287,7 +294,7 @@ function buildKeyChart() {
     },
     xAxis: {
       type: 'category',
-      data: topCaches.map(item => item.remark || item.cacheName),
+      data: topCaches.map(item => displayCacheName(item.cacheName)),
       axisLabel: {
         interval: 0,
         rotate: 20
@@ -331,7 +338,7 @@ function buildHitRateChart() {
     },
     xAxis: {
       type: 'category',
-      data: topCaches.map(item => item.remark || item.cacheName),
+      data: topCaches.map(item => displayCacheName(item.cacheName)),
       axisLabel: {
         interval: 0,
         rotate: 20

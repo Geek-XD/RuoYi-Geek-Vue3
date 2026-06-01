@@ -13,7 +13,6 @@
             <el-table-column label="序号" width="60" type="index" />
             <el-table-column label="缓存名称" align="center" prop="cacheName" show-overflow-tooltip
               :formatter="nameFormatter" />
-            <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip />
             <el-table-column label="操作" width="60" align="center" class-name="small-padding fixed-width">
               <template #default="scope">
                 <el-button link type="primary" icon="Delete" @click="handleClearCacheName(scope.row)" />
@@ -150,7 +149,7 @@ function handleClearCacheKey(cacheKey) {
 
 /** 列表前缀去除 */
 function nameFormatter(row) {
-  return row.cacheName.replace(":", "");
+  return row.cacheName.replace(/:$/, "");
 }
 
 /** 键名前缀去除 */
