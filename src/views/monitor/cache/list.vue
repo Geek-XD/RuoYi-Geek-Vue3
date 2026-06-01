@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div :class="{ 'app-container': !embedded }">
     <el-row :gutter="10">
       <el-col :span="8">
         <el-card style="height: calc(100vh - 125px)">
@@ -79,6 +79,13 @@
 <script setup name="CacheList">
 import { listCacheName, listCacheKey, getCacheValue, clearCacheName, clearCacheKey, clearCacheAll } from "@/api/monitor/cache";
 
+defineProps({
+  embedded: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const { proxy } = getCurrentInstance();
 
 const cacheNames = ref([]);
@@ -107,7 +114,8 @@ function refreshCacheNames() {
 /** 清理指定名称缓存 */
 function handleClearCacheName(row) {
   clearCacheName(row.cacheName).then(response => {
-    proxy.$modal.msgSuccess("清理缓存名称[" + nowCacheName.value + "]成功");
+    proxy.$modal.msgSuccess("清理缓存名称[" + row.cacheName + "]成功");
+    getCacheNames();
     getCacheKeys();
   });
 }
@@ -134,7 +142,7 @@ function refreshCacheKeys() {
 
 /** 清理指定键名缓存 */
 function handleClearCacheKey(cacheKey) {
-  clearCacheKey(cacheKey).then(response => {
+  clearCacheKey(nowCacheName.value, cacheKey).then(response => {
     proxy.$modal.msgSuccess("清理缓存键名[" + cacheKey + "]成功");
     getCacheKeys();
   });
@@ -161,6 +169,10 @@ function handleCacheValue(cacheKey) {
 function handleClearCacheAll() {
   clearCacheAll().then(response => {
     proxy.$modal.msgSuccess("清理全部缓存成功");
+    cacheKeys.value = [];
+    cacheForm.value = {};
+    nowCacheName.value = "";
+    getCacheNames();
   });
 }
 

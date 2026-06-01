@@ -1,9 +1,17 @@
 import request from '@ruoyi/core/utils/request'
 
-// 查询缓存详细
+// 查询 JetCache 监控概览
 export function getCache() {
   return request({
     url: '/monitor/cache',
+    method: 'get'
+  })
+}
+
+// 查询 Redis 远程缓存监控
+export function getRedisCache() {
+  return request({
+    url: '/monitor/cache/redis',
     method: 'get'
   })
 }
@@ -41,9 +49,9 @@ export function clearCacheName(cacheName) {
 }
 
 // 清理指定键名缓存
-export function clearCacheKey(cacheKey) {
+export function clearCacheKey(cacheName, cacheKey) {
   return request({
-    url: '/monitor/cache/clearCacheKey/' + cacheKey,
+    url: '/monitor/cache/clearCacheKey/' + cacheName + '/' + cacheKey,
     method: 'delete'
   })
 }
