@@ -1,9 +1,12 @@
+import type { Component } from 'vue';
+
 export type ChatMessageRole = 'user' | 'assistant' | 'system';
 export type ChatMessageDirection = 'incoming' | 'outgoing' | 'center';
 export type ChatMessageStatus = 'default' | 'streaming' | 'error';
+export type ChatLayoutMode = 'page' | 'window' | 'float';
 
 export interface ChatContact {
-  id?: string | number;
+  id: string | number;
   name?: string;
   avatar?: string;
   email?: string;
@@ -71,4 +74,14 @@ export interface NormalizeChatMessageOptions {
   contact?: ChatContact;
   fallbackId?: string | number;
   messageParser?: ChatMessageParser;
+}
+
+export interface ChatRailItem {
+  key: string | number;
+  label: string;
+  icon?: Component;
+  kind?: 'view' | 'action';
+  disabled?: boolean;
+  badge?: string | number;
+  dot?: boolean;
 }

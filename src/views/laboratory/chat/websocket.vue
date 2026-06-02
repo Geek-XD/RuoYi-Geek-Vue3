@@ -134,13 +134,8 @@ function handleSend(content: string) {
           </template>
         </ContactList>
       </template>
-      <ChatApp
-        :currentContact="currentContact"
-        :chatMessages="chatMessages"
-        selfName="Ricky"
-        :selfAvatar="profile"
-        @send="handleSend"
-      />
+      <ChatApp :currentContact="currentContact" :chatMessages="chatMessages" selfName="Ricky" :selfAvatar="profile"
+        @send="handleSend" />
     </chat-layout>
     <el-dialog v-model="wsDialogVisible" title="设置ws" width="800">
       <el-input v-model="url" class="mr20" placeholder="请输入内容..." />
@@ -163,7 +158,6 @@ function handleSend(content: string) {
   display: flex;
   align-items: center;
   padding: 10px 16px 10px 16px;
-  border-bottom: 1px solid #f0f0f0;
 
   .profile-info {
     display: flex;

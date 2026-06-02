@@ -99,7 +99,7 @@ function blockKey(block: ChatMessageBlock, index: number) {
 }
 
 .chat-bubble {
-  max-width: min(560px, calc(100% - 72px));
+  max-width: min(780px, calc(100% - 72px));
   background: #fff;
   border-radius: 8px;
   padding: 12px 18px;

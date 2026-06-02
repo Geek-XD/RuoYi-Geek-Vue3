@@ -10,6 +10,7 @@ const props = withDefaults(defineProps<{
   autosize?: boolean | { minRows?: number; maxRows?: number };
   loading?: boolean;
   disabled?: boolean;
+  canSend?: boolean;
   submitOnEnter?: boolean;
   clearAfterSend?: boolean;
   sendButtonText?: string;
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<{
   autosize: false,
   loading: false,
   disabled: false,
+  canSend: undefined,
   submitOnEnter: true,
   clearAfterSend: true,
   sendButtonText: '发送',
@@ -34,6 +36,7 @@ const emit = defineEmits<{
 }>();
 
 const resolvedDisabled = computed(() => props.disabled || (props.loading && props.showStopButton));
+const canSend = computed(() => props.canSend ?? Boolean(message.value.trim()));
 
 function send(e?: KeyboardEvent) {
   if (e?.isComposing || props.disabled || props.loading) {
@@ -41,7 +44,7 @@ function send(e?: KeyboardEvent) {
   }
 
   const value = message.value.trim();
-  if (!value) {
+  if (!canSend.value) {
     return;
   }
 
@@ -71,37 +74,32 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <div class="chat-input-area">
-    <el-input
-      v-model="message"
-      type="textarea"
-      :rows="rows"
-      :autosize="autosize"
-      :placeholder="placeholder"
-      :disabled="resolvedDisabled"
-      resize="none"
-      @keydown="onKeydown"
-    />
-    <slot name="actions" :send="send" :stop="stop" :disabled="disabled || loading || !message.trim()">
-      <el-button
-        v-if="showStopButton && loading"
-        type="danger"
-        @click="stop"
-        style="height: 30px;"
-      >
-        <el-icon><VideoPause /></el-icon>
-        {{ stopButtonText }}
-      </el-button>
-      <el-button
-        v-else
-        type="primary"
-        :loading="loading"
-        :disabled="disabled || !message.trim()"
-        @click="send"
-        style="height: 30px;"
-      >
-        {{ sendButtonText }}
-      </el-button>
-    </slot>
+    <div v-if="$slots.toolbar" class="chat-input-toolbar">
+      <slot name="toolbar" :send="send" :stop="stop" :disabled="resolvedDisabled" :message="message" />
+    </div>
+    <div class="chat-input-shell" :class="{ disabled: resolvedDisabled }">
+      <el-input v-model="message" type="textarea" :rows="rows" :autosize="autosize" :placeholder="placeholder"
+        :disabled="resolvedDisabled" resize="none" @keydown="onKeydown" />
+      <div class="chat-input-footer">
+        <div v-if="$slots['footer-prefix']" class="chat-footer-prefix">
+          <slot name="footer-prefix" :send="send" :stop="stop" :disabled="resolvedDisabled" :message="message" />
+        </div>
+        <div class="chat-footer-actions">
+          <slot name="actions" :send="send" :stop="stop" :disabled="disabled || loading || !canSend">
+            <el-button v-if="showStopButton && loading" type="danger" @click="stop" style="height: 34px;">
+              <el-icon>
+                <VideoPause />
+              </el-icon>
+              {{ stopButtonText }}
+            </el-button>
+            <el-button v-else type="primary" :loading="loading" :disabled="disabled || !canSend" @click="send"
+              style="height: 34px;">
+              {{ sendButtonText }}
+            </el-button>
+          </slot>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -109,16 +107,66 @@ function onKeydown(e: KeyboardEvent) {
 .chat-input-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   padding: 18px 24px;
   background: #fff;
   border-top: 1px solid #e6e6e6;
-  gap: 10px;
-  min-height: 128px;
+  gap: 12px;
+  min-height: 148px;
+}
 
-  :deep(.el-textarea__inner) {
-    box-shadow: none;
-    resize: none;
+.chat-input-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-input-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e5eaf3;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+
+  &.disabled {
+    opacity: 0.9;
   }
+}
+
+.chat-input-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chat-footer-prefix {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chat-footer-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:deep(.el-textarea__inner) {
+  box-shadow: none;
+  resize: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+  min-height: 88px !important;
+}
+
+:deep(.el-textarea__inner:focus) {
+  box-shadow: none;
 }
 </style>

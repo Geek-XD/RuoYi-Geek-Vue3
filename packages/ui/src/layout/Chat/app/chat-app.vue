@@ -30,10 +30,11 @@ const props = withDefaults(defineProps<{
   inputRows?: number;
   inputAutosize?: boolean | { minRows?: number; maxRows?: number };
   inputDisabled?: boolean;
+  inputCanSend?: boolean;
   inputShowStopButton?: boolean;
   messageParser?: ChatMessageParser;
 }>(), {
-  currentContact: () => ({ name: '会话' }),
+  currentContact: () => ({ id: Math.random().toString(36), name: '会话' }),
   chatMessages: () => [],
   selfName: '我',
   fallbackAvatar: '',
@@ -45,6 +46,7 @@ const props = withDefaults(defineProps<{
   inputRows: 5,
   inputAutosize: () => ({ minRows: 3, maxRows: 6 }),
   inputDisabled: false,
+  inputCanSend: undefined,
   inputShowStopButton: false,
 });
 
@@ -72,11 +74,11 @@ function scrollToBottom() {
 
 function handleSend(message: string) {
   const content = message.trim();
-  if (!content) {
+  if (!content && !props.inputCanSend) {
     return;
   }
 
-  if (props.appendOnSend) {
+  if (props.appendOnSend && content) {
     props.chatMessages.push(createChatMessage({
       role: 'user',
       direction: 'outgoing',
@@ -117,11 +119,7 @@ defineExpose({
         <div class="chat-empty">开始对话吧</div>
       </slot>
 
-      <ChatMessageRow
-        v-for="message in normalizedMessages"
-        :key="message.id"
-        :message="message"
-      >
+      <ChatMessageRow v-for="message in normalizedMessages" :key="message.id" :message="message">
         <template v-if="$slots['message-avatar']" #message-avatar="slotProps">
           <slot name="message-avatar" v-bind="slotProps" />
         </template>
@@ -141,18 +139,15 @@ defineExpose({
     </div>
 
     <slot name="footer" :send="handleSend" :loading="loading" :inputValue="inputValue">
-      <ChatInput
-        v-if="showInput"
-        v-model="inputValue"
-        :loading="loading"
-        :disabled="inputDisabled"
-        :placeholder="inputPlaceholder"
-        :rows="inputRows"
-        :autosize="inputAutosize"
-        :show-stop-button="inputShowStopButton"
-        @send="handleSend"
-        @stop="emit('stop')"
-      >
+      <ChatInput v-if="showInput" v-model="inputValue" :loading="loading" :disabled="inputDisabled"
+        :can-send="inputCanSend" :placeholder="inputPlaceholder" :rows="inputRows" :autosize="inputAutosize"
+        :show-stop-button="inputShowStopButton" @send="handleSend" @stop="emit('stop')">
+        <template v-if="$slots['input-toolbar']" #toolbar="slotProps">
+          <slot name="input-toolbar" v-bind="slotProps" />
+        </template>
+        <template v-if="$slots['input-footer-prefix']" #footer-prefix="slotProps">
+          <slot name="input-footer-prefix" v-bind="slotProps" />
+        </template>
         <template v-if="$slots['input-actions']" #actions="slotProps">
           <slot name="input-actions" v-bind="slotProps" />
         </template>
