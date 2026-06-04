@@ -61,9 +61,13 @@ export function createMessage(receiver: string, params: Partial<Message>): Messa
 
 export function createEventMessage(eventName: string, params: Partial<Message>): Message {
   const message = new Message();
-  Object.assign(message, params);
   message.type = MessageType.EVENT;
   message.subject = eventName;
+  // 如果没有指定 content，默认设置为 broadcast
+  if (!params.content) {
+    message.content = "broadcast";
+  }
+  Object.assign(message, params);
   return message;
 }
 

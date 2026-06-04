@@ -46,7 +46,13 @@ export default defineConfig(({ mode, command }) => {
         '/dev-api': {
           target: 'http://localhost:8080',
           changeOrigin: true,
+          ws: true,
           rewrite: (p) => p.replace(/^\/dev-api/, '')
+        },
+        '/websocket': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          ws: true
         },
         '/v3': {
           target: 'http://localhost:8080',

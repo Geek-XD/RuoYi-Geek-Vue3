@@ -3,7 +3,7 @@ import profile from '@/assets/images/profile.jpg';
 import { ref } from 'vue';
 import socketclient from '@ruoyi/core/plugins/socketclient';
 import { parseTime } from '@ruoyi/core/utils/ruoyi';
-import { createAsyncMessage } from '@ruoyi/module-message/types/Message';
+import { createAsyncMessage, createEventMessage } from '@ruoyi/core/types/Message';
 import {
   ChatLayout,
   ContactList,
@@ -15,6 +15,7 @@ import {
   type ChatMessage,
 } from '@ruoyi/ui/layout/Chat';
 import { ChatDotSquare, ChatRound } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 
 const _contacts = [
   { id: 1, name: '梅洛迪·梅西', email: 'melody@altbox.com', avatar: profile, online: true, lastMsg: '20小时前' },
@@ -28,6 +29,10 @@ const currentContact = ref(_contacts[0]);
 const url = ref('ws://127.0.0.1:8080/websocket/message');
 const wsDialogVisible = ref(false);
 const activeStreamMessage = ref<ChatMessage | null>(null);
+const eventTestDialogVisible = ref(false);
+const testEventName = ref('test-event');
+const testEventData = ref('{"message": "Hello from event test"}');
+const subscribedEvents = ref<string[]>([]);
 
 const chatMessages = ref<ChatMessage[]>([
   createChatMessage({ role: 'assistant', from: 'Art Bot', avatar: profile, content: '不客气，有任何问题随时联系我。', time: '10:11' }),
@@ -88,21 +93,107 @@ function handleIncomingMessage(msg: any) {
 
 function join() {
   socketclient.connect({ url: url.value }).then(() => {
+    ElMessage.success('WebSocket 连接成功');
     socketclient.asyncSend(createAsyncMessage('admin', {
       content: '你好，我是Ricky，很高兴见到你！'
-    }));
+    })).then((response: any) => {
+      chatMessages.value.push(createChatMessage({
+        role: 'assistant',
+        from: 'System',
+        avatar: currentContact.value.avatar,
+        content: `[回显] ${response.content}`,
+        time: parseTime(new Date(), '{h}:{i}')
+      }));
+      ElMessage.success('收到服务器回显');
+    });
   });
 
   socketclient.onMessage(handleIncomingMessage);
 }
 
 function close() {
+  // 清理所有订阅
+  subscribedEvents.value.forEach(event => {
+    socketclient.off(event);
+  });
+  subscribedEvents.value = [];
+  
   socketclient.close();
   finishAssistantStreamMessage();
 }
 
 function handleSend(content: string) {
-  socketclient.asyncSend(createAsyncMessage('admin', { content }));
+  const msg = createAsyncMessage('admin', { content });
+  
+  // 显示发送的消息
+  chatMessages.value.push(createChatMessage({
+    role: 'user',
+    from: 'Ricky',
+    avatar: profile,
+    content: content,
+    time: parseTime(new Date(), '{h}:{i}')
+  }));
+  
+  // 发送并等待回显
+  socketclient.asyncSend(msg).then((response: any) => {
+    chatMessages.value.push(createChatMessage({
+      role: 'assistant',
+      from: 'System',
+      avatar: currentContact.value.avatar,
+      content: `[回显] ${response.content}`,
+      time: parseTime(new Date(), '{h}:{i}')
+    }));
+  });
+}
+
+// 事件订阅
+function subscribeEvent() {
+  if (subscribedEvents.value.includes(testEventName.value)) {
+    ElMessage.warning('已订阅该事件');
+    return;
+  }
+
+  socketclient.on(testEventName.value, (data) => {
+    chatMessages.value.push(createChatMessage({
+      role: 'assistant',
+      from: '事件系统',
+      avatar: currentContact.value.avatar,
+      content: `[事件: ${testEventName.value}] ${JSON.stringify(data.payload || data)}`,
+      time: parseTime(new Date(), '{h}:{i}')
+    }));
+    ElMessage.success(`收到事件: ${testEventName.value}`);
+  });
+
+  subscribedEvents.value.push(testEventName.value);
+  ElMessage.success(`订阅成功: ${testEventName.value}`);
+}
+
+function unsubscribeEvent() {
+  if (!subscribedEvents.value.includes(testEventName.value)) {
+    ElMessage.warning('未订阅该事件');
+    return;
+  }
+
+  socketclient.off(testEventName.value);
+  subscribedEvents.value = subscribedEvents.value.filter(e => e !== testEventName.value);
+  ElMessage.info(`取消订阅: ${testEventName.value}`);
+}
+
+function sendTestEvent() {
+  try {
+    const data = JSON.parse(testEventData.value);
+    socketclient.send(createEventMessage(testEventName.value, { payload: data }));
+    chatMessages.value.push(createChatMessage({
+      role: 'user',
+      from: 'Ricky',
+      avatar: profile,
+      content: `[广播事件: ${testEventName.value}] ${testEventData.value}`,
+      time: parseTime(new Date(), '{h}:{i}')
+    }));
+    ElMessage.success('事件已广播');
+  } catch (error) {
+    ElMessage.error('JSON 格式错误: ' + error);
+  }
 }
 </script>
 
@@ -121,8 +212,8 @@ function handleSend(content: string) {
         </div>
       </template>
       <template #window-sidebar>
-        <div><el-button :icon="ChatDotSquare" @click="wsDialogVisible = true" /></div>
-        <div><el-button :icon="ChatRound" /></div>
+        <div><el-button :icon="ChatDotSquare" @click="wsDialogVisible = true" title="WebSocket设置" /></div>
+        <div><el-button :icon="ChatRound" @click="eventTestDialogVisible = true" title="事件测试" /></div>
       </template>
       <template #app-sidebar>
         <div class="search-section">
@@ -143,6 +234,41 @@ function handleSend(content: string) {
         <el-button type="warning" @click="join">连接</el-button>
         <el-button type="danger" @click="close">断开连接</el-button>
       </template>
+    </el-dialog>
+    <el-dialog v-model="eventTestDialogVisible" title="事件测试" width="600">
+      <el-form label-width="100px">
+        <el-form-item label="事件名称">
+          <el-input v-model="testEventName" placeholder="输入事件名称，如: test-event" />
+        </el-form-item>
+        <el-form-item label="已订阅">
+          <el-tag v-for="event in subscribedEvents" :key="event" closable
+            @close="testEventName = event; unsubscribeEvent()" style="margin-right: 8px">
+            {{ event }}
+          </el-tag>
+          <span v-if="subscribedEvents.length === 0" style="color: #999">暂无订阅</span>
+        </el-form-item>
+        <el-form-item label="订阅操作">
+          <el-space>
+            <el-button type="success" @click="subscribeEvent" :disabled="subscribedEvents.includes(testEventName)">
+              订阅事件
+            </el-button>
+            <el-button type="warning" @click="unsubscribeEvent" :disabled="!subscribedEvents.includes(testEventName)">
+              取消订阅
+            </el-button>
+          </el-space>
+        </el-form-item>
+        <el-divider />
+        <el-form-item label="广播数据">
+          <el-input v-model="testEventData" type="textarea" :rows="4"
+            placeholder='输入 JSON 数据，如: {"message": "Hello"}' />
+        </el-form-item>
+        <el-form-item label="广播操作">
+          <el-button type="primary" @click="sendTestEvent">广播事件</el-button>
+        </el-form-item>
+        <el-alert title="说明" type="info" :closable="false" description="1. 订阅事件：监听特定事件名称的消息
+2. 广播事件：向所有订阅者发送消息
+3. 收到的事件会显示在聊天窗口中" />
+      </el-form>
     </el-dialog>
   </div>
 </template>
