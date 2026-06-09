@@ -9,7 +9,7 @@ import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import usePermissionStore from '@ruoyi/core/store/modules/permission'
 import { RoutesAlias } from '../routesAlias'
 
-const whiteList: string[] = [RoutesAlias.Login, RoutesAlias.Register]
+const whiteList: string[] = [RoutesAlias.Login, RoutesAlias.Register, '/online/runtime/*']
 const isWhiteList = (path: string) => whiteList.some(pattern => isPathMatch(pattern, path))
 const computerTitle = <F extends (...args: any[]) => any>(fun?: F | string, ...args: Parameters<F>) =>
   typeof fun === 'function' ? fun(...args) : fun ?? ''

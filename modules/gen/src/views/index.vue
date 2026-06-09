@@ -75,6 +75,10 @@
               <el-button link type="primary" icon="Refresh" @click="handleSynchDb(scope.row)"
                 v-hasPermi="['tool:gen:edit']" />
             </el-tooltip>
+            <el-tooltip content="发布在线" placement="top">
+              <el-button link type="primary" icon="Connection" @click="handlePublishOnline(scope.row)"
+                v-hasPermi="['tool:gen:code']" />
+            </el-tooltip>
             <el-tooltip content="生成代码" placement="top">
               <el-button link type="primary" icon="Download" @click="handleGenTable(scope.row)"
                 v-hasPermi="['tool:gen:code']" />
@@ -104,7 +108,7 @@
 </template>
 
 <script setup name="Gen">
-import { listTable, previewTable, delTable, genCode, synchDb } from "@ruoyi/module-gen/api/gen";
+import { listTable, previewTable, delTable, genCode, synchDb, publishOnline } from "@ruoyi/module-gen/api/gen";
 import importTable from "@ruoyi/module-gen/components/importTable.vue";
 import createTable from "@ruoyi/module-gen/components/createTable.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -180,6 +184,12 @@ function handleGenTable(row) {
   } else {
     proxy.$download.zip("/tool/gen/batchGenCode?tables=" + tbNames, "ruoyi.zip");
   }
+}
+async function handlePublishOnline(row) {
+  const response = await publishOnline(row.tableId)
+  const routePath = response.data.routePath
+  proxy.$modal.msgSuccess('在线页面已发布：' + routePath)
+  window.open(router.resolve(routePath).href, '_blank')
 }
 /** 同步数据库操作 */
 function handleSynchDb(row) {

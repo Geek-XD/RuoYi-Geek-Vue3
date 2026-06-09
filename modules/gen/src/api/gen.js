@@ -86,3 +86,10 @@ export function synchDb(tableName) {
     method: 'get'
   })
 }
+
+export function publishOnline(tableId) {
+  return request({
+    url: '/tool/gen/publishOnline/' + tableId,
+    method: 'post'
+  })
+}

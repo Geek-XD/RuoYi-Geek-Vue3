@@ -35,12 +35,14 @@ const defaultMessageListeners = new Set<MessageCallback>()
 const errorListeners = new Set<ErrorCallback>()
 const closeListeners = new Set<CloseCallback>()
 
+/** 规范化路径字符串。 */
 function normalizePath(path: string) {
   if (!path) return ''
   if (path === '/') return ''
   return path.startsWith('/') ? path : `/${path}`
 }
 
+/** 解析默认 WebSocket 地址。 */
 export function resolveDefaultSocketUrl(path = '/websocket/message') {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   const baseWs = normalizePath((import.meta.env.VITE_APP_BASE_WS || '').trim())
@@ -48,6 +50,7 @@ export function resolveDefaultSocketUrl(path = '/websocket/message') {
   return `${protocol}//${window.location.host}${baseWs}${socketPath}`
 }
 
+/** 构建带鉴权参数的 WebSocket 地址。 */
 function buildSocketUrl(options: ConnectSocketOption) {
   const url = new URL(String(options.url), window.location.origin)
   const isToken = options.headers?.isToken === false
@@ -60,6 +63,7 @@ function buildSocketUrl(options: ConnectSocketOption) {
   return url.toString()
 }
 
+/** 确保当前 WebSocket 已连接。 */
 function ensureOpenSocket() {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     throw new Error('WebSocket 未连接')
@@ -67,6 +71,7 @@ function ensureOpenSocket() {
   return socket
 }
 
+/** 清理重连定时器。 */
 function clearReconnectTimer() {
   if (reconnectTimer) {
     clearTimeout(reconnectTimer)
@@ -74,6 +79,7 @@ function clearReconnectTimer() {
   }
 }
 
+/** 拒绝所有待响应请求。 */
 function rejectPendingRequests(reason: string) {
   pendingRequests.forEach((request) => {
     clearTimeout(request.timer)
@@ -82,10 +88,12 @@ function rejectPendingRequests(reason: string) {
   pendingRequests.clear()
 }
 
+/** 触发默认消息监听器。 */
 function notifyDefaultMessage(data: Message) {
   defaultMessageListeners.forEach((callback) => callback(data))
 }
 
+/** 按主题分发事件消息。 */
 function notifyEventMessage(event: string, data: Message) {
   const listeners = eventListeners.get(event)
   if (!listeners || listeners.size === 0) {
@@ -95,6 +103,7 @@ function notifyEventMessage(event: string, data: Message) {
   listeners.forEach((callback) => callback(data))
 }
 
+/** 处理收到的原始消息文本。 */
 function handleIncomingMessage(raw: string) {
   try {
     const data = JSON.parse(raw) as Message
@@ -128,10 +137,12 @@ function handleIncomingMessage(raw: string) {
   }
 }
 
+/** 发送普通消息。 */
 function sendInternal(msg: Message) {
   ensureOpenSocket().send(JSON.stringify(msg))
 }
 
+/** 发送并等待响应消息。 */
 function asyncSendInternal(msg: Message) {
   const ws = ensureOpenSocket()
   return new Promise<Message>((resolve, reject) => {
@@ -152,6 +163,7 @@ function asyncSendInternal(msg: Message) {
   })
 }
 
+/** 发送订阅控制消息。 */
 function sendSubscription(event: string, action: 'subscribe' | 'unsubscribe') {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.warn('[WS] skip subscription control because socket is not open', { event, action })
@@ -162,10 +174,12 @@ function sendSubscription(event: string, action: 'subscribe' | 'unsubscribe') {
   asyncSendInternal(controlMessage).catch(() => undefined)
 }
 
+/** 重新订阅所有事件主题。 */
 function resubscribeAllEvents() {
   eventListeners.forEach((_listeners, event) => sendSubscription(event, 'subscribe'))
 }
 
+/** 绑定当前 WebSocket 的事件处理器。 */
 function attachSocketHandlers(
   ws: WebSocket,
   resolve?: (client: WebSocket) => void,
@@ -241,6 +255,7 @@ function attachSocketHandlers(
   }
 }
 
+/** 建立或复用 WebSocket 连接。 */
 function connectInternal(options: ConnectSocketOption) {
   const nextUrl = buildSocketUrl(options)
   currentOption = {
@@ -280,6 +295,7 @@ function connectInternal(options: ConnectSocketOption) {
   return connectPromise
 }
 
+/** 移除指定事件监听器。 */
 function removeEventListener(event: string, callback?: MessageCallback) {
   const listeners = eventListeners.get(event)
   if (!listeners) {
