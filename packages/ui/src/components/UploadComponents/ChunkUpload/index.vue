@@ -7,6 +7,8 @@ const emits = defineEmits(['update:modelValue']);
 const props = withDefaults(defineProps<{
   chunkSize: number;
   maxConcurrency: number;
+  bucketName?: string;
+  useType?: string;
 }>(), {
   chunkSize: 10,
   maxConcurrency: 1
@@ -34,7 +36,9 @@ async function startUpload() {
     if (!file) throw new Error('未选择文件');
     chunkUpload.value = useChunkUpload(file, {
       chunkSize: chunkBytes.value,
-      concurrency: props.maxConcurrency
+      concurrency: props.maxConcurrency,
+      bucketName: props.bucketName,
+      useType: props.useType
     })
     await chunkUpload.value.startUpload();
     ElMessage.success('文件上传成功');

@@ -25,3 +25,7 @@ yarn.lock
 
 public/geo/
 public/glb/
+
+.codegraph
+.serena
+.omo
