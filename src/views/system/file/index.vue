@@ -5,18 +5,6 @@
         <el-form-item label="原始文件名" prop="fileName">
           <el-input v-model="queryParams.fileName" placeholder="请输入原始文件名" clearable @keyup.enter="handleQuery" />
         </el-form-item>
-        <el-form-item label="是否引用" prop="referenceFlag">
-          <el-select v-model="queryParams.referenceFlag" placeholder="全部" clearable style="width: 140px">
-            <el-option label="引用" :value="true" />
-            <el-option label="非引用" :value="false" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="引用文件ID" prop="referenceFileId">
-          <el-input v-model="queryParams.referenceFileId" placeholder="请输入引用文件ID" clearable style="width: 180px" />
-        </el-form-item>
-        <el-form-item label="来源/用处" prop="useType">
-          <el-input v-model="queryParams.useType" placeholder="请输入来源/用处" clearable style="width: 180px" />
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -28,11 +16,11 @@
       <el-row :gutter="10">
         <el-col :span="1.5">
           <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-            v-hasPermi="['system:file:remove']">删除</el-button>
+            v-hasPermi="['file:info:remove']">删除</el-button>
         </el-col>
         <el-col :span="1.5">
           <el-button type="warning" plain icon="Download" @click="handleExport"
-            v-hasPermi="['system:file:export']">导出</el-button>
+            v-hasPermi="['file:info:export']">导出</el-button>
         </el-col>
         <el-col :span="1.5">
           <el-button type="primary" plain icon="Upload" @click="openUploadDialog = true">上传</el-button>
@@ -50,23 +38,6 @@
         <el-table-column label="文件类型/后缀" align="center" prop="fileType" />
         <el-table-column label="文件大小" align="center" prop="fileSize" />
         <el-table-column label="文件MD5" align="center" prop="md5" />
-        <el-table-column label="是否引用" align="center" prop="referenceFlag" width="100">
-          <template #default="scope">
-            <el-tag :type="scope.row.referenceFileId ? 'warning' : 'success'">
-              {{ scope.row.referenceFileId ? '是' : '否' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="来源/用处" align="center" prop="useType" min-width="120" />
-        <el-table-column label="引用目标" align="center" min-width="220">
-          <template #default="scope">
-            <span v-if="scope.row.referenceFileId">
-              {{ scope.row.referenceTargetFileName || scope.row.referenceTargetFilePath || scope.row.referenceFileId }}
-            </span>
-            <span v-else>-</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="引用数量" align="center" prop="referenceCount" width="100" />
         <el-table-column label="预览" align="center">
           <template #default="scope">
             <template v-if="isImage(scope.row.fileType)">
@@ -82,10 +53,8 @@
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-              v-hasPermi="['system:file:remove']">删除</el-button>
+              v-hasPermi="['file:info:remove']">删除</el-button>
             <el-button link type="primary" icon="Download" @click="handleDownload(scope.row)">下载</el-button>
-            <el-button link type="primary" @click="handleViewReferences(scope.row)">查看引用</el-button>
-            <el-button link type="primary" @click="handleViewTarget(scope.row)">查看目标</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -96,14 +65,6 @@
 
     <el-dialog v-model="openUploadDialog" title="上传文件" width="600px" append-to-body>
       <el-form :model="uploadForm" label-width="80px">
-        <el-form-item label="存储桶">
-          <el-select v-model="uploadForm.bucketName" placeholder="请选择存储桶" style="width: 100%">
-            <el-option v-for="bucket in bucketOptions" :key="bucket" :label="bucket" :value="bucket" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="来源/用处">
-          <el-input v-model="uploadForm.useType" placeholder="请输入来源/用处" />
-        </el-form-item>
         <el-form-item label="上传类型">
           <el-radio-group v-model="uploadForm.uploadType">
             <el-radio value="image">图片</el-radio>
@@ -124,33 +85,19 @@
           </el-form-item>
         </div>
         <div v-else>
-          <ChunkUpload :chunk-size="10" :maxConcurrency="4" :bucketName="uploadForm.bucketName" :useType="uploadForm.useType"
-            @update:modelValue="onUploadSuccess" />
+          <ChunkUpload :chunk-size="10" :maxConcurrency="4" @update:modelValue="onUploadSuccess" />
         </div>
       </el-form>
-    </el-dialog>
-
-    <el-dialog v-model="openTargetDialog" title="引用目标详情" width="700px" append-to-body>
-      <el-descriptions v-if="targetDetail" :column="1" border>
-        <el-descriptions-item label="文件主键">{{ targetDetail.fileId }}</el-descriptions-item>
-        <el-descriptions-item label="原始文件名">{{ targetDetail.fileName }}</el-descriptions-item>
-        <el-descriptions-item label="统一逻辑路径">{{ targetDetail.filePath }}</el-descriptions-item>
-        <el-descriptions-item label="存储类型">{{ targetDetail.storageType }}</el-descriptions-item>
-        <el-descriptions-item label="存储桶标识">{{ targetDetail.bucketName }}</el-descriptions-item>
-        <el-descriptions-item label="文件MD5">{{ targetDetail.md5 }}</el-descriptions-item>
-        <el-descriptions-item label="来源/用处">{{ targetDetail.useType || '-' }}</el-descriptions-item>
-      </el-descriptions>
     </el-dialog>
   </div>
 </template>
 
 <script setup name="Info">
-import { listInfo, delInfo, downloadFileUnified, getInfo, getClientList } from '@/api/file/info';
+import { listInfo, delInfo, downloadFileUnified } from '@/api/file/info';
 import ImagePreview from "@ruoyi/ui/components/ImagePreview/index.vue";
 import FileUpload from "@ruoyi/ui/components/UploadComponents/FileUpload/index.vue"
 import ImageUpload from "@ruoyi/ui/components/UploadComponents/ImageUpload/index.vue"
 import ChunkUpload from "@ruoyi/ui/components/UploadComponents/ChunkUpload/index.vue"
-import { ElMessage } from 'element-plus';
 import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
@@ -162,7 +109,6 @@ const ids = ref([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const bucketOptions = ref([]);
 
 const data = reactive({
   queryParams: {
@@ -174,9 +120,6 @@ const data = reactive({
     fileType: null,
     fileSize: null,
     md5: null,
-    referenceFlag: null,
-    referenceFileId: null,
-    useType: null,
   }
 });
 
@@ -237,68 +180,34 @@ function isImage(fileType) {
 // 统一图片预览URL
 function getFileUrl(row) {
   if (!row.filePath) return '';
-  const bucketName = row.bucketName ? `/${row.bucketName}` : '';
-  return `${import.meta.env.VITE_APP_BASE_API}/file${bucketName}/preview?filePath=${encodeURIComponent(row.filePath)}`;
+  return `${import.meta.env.VITE_APP_BASE_API}/file/MASTER/preview?filePath=${encodeURIComponent(row.filePath)}`;
 }
 
 const openUploadDialog = ref(false);
-const openTargetDialog = ref(false);
-const targetDetail = ref(null);
 // 上传弹窗相关逻辑
 const uploadForm = reactive({
-  bucketName: '',
-  useType: '',
-  uploadType: 'image',
+  clientKey: '', // 形如 'minio:MASTER'
+  uploadType: 'image', // 新增上传类型，默认图片
 });
 // 兼容ImageUpload和FileUpload的上传url属性
 const uploadUrl = computed(() => {
-  const params = new URLSearchParams();
-  if (uploadForm.useType) {
-    params.set('useType', uploadForm.useType);
-  }
-  const path = uploadForm.bucketName ? `/file/${uploadForm.bucketName}/upload` : '/file/upload';
-  const query = params.toString();
-  return `${import.meta.env.VITE_APP_BASE_API}${path}${query ? `?${query}` : ''}`;
+  if (!uploadForm.clientKey) return '';
+  const [storageType, clientName] = uploadForm.clientKey.split(":");
+  return `${import.meta.env.VITE_APP_BASE_API}/file/${storageType}/${clientName}/upload`;
 });
 // FileUpload上传成功回调
-async function loadClientList() {
-  const response = await getClientList();
-  bucketOptions.value = response.data || response.rows || [];
-  if (!uploadForm.bucketName && bucketOptions.value.length > 0) {
-    uploadForm.bucketName = bucketOptions.value[0];
-  }
-}
-
 function onUploadSuccess() {
   // openUploadDialog.value = false;
   getList();
 }
-
-function handleViewReferences(row) {
-  queryParams.value.referenceFileId = row.referenceFileId || row.fileId;
-  queryParams.value.referenceFlag = true;
-  handleQuery();
-}
-
-async function handleViewTarget(row) {
-  if (!row.referenceFileId) {
-    ElMessage.warning('当前文件不是引用信息');
-    return;
-  }
-  const response = await getInfo(row.referenceFileId);
-  targetDetail.value = response.data;
-  openTargetDialog.value = true;
-}
-
 onMounted(() => {
-  loadClientList();
   getList();
 });
 
 // 统一下载方法
 function handleDownload(row) {
   downloadFileUnified({
-    bucketName: row.bucketName,
+    clientName: 'MASTER',
     filePath: row.filePath
   }).then(res => {
     if (!res) return;

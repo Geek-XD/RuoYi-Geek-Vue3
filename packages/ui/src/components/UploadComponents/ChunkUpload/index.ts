@@ -7,7 +7,7 @@ type Chunk = {
   chunk: Blob;
 };
 
-export function useChunkUpload(file?: File, options?: { chunkSize?: number; concurrency?: number; bucketName?: string; useType?: string }) {
+export function useChunkUpload(file?: File, options?: { chunkSize?: number; concurrency?: number }) {
   const chunkBytes = options?.chunkSize || 5 * 1024 * 1024; // 5MB
   const maxConcurrency = options?.concurrency || 3; // 最大并发数
   let uploadId: string | null = null;
@@ -32,18 +32,16 @@ export function useChunkUpload(file?: File, options?: { chunkSize?: number; conc
     const fileName = file.name;
     const fileSize = file.size;
     uploadedChunks.value = 0;
-    const { data } = await initMultipartUpload({ fileName, fileSize, bucketName: options?.bucketName, useType: options?.useType });
+    const { data } = await initMultipartUpload({ fileName, fileSize });
     uploadId = data.uploadId;
     filePath = data.filePath;
 
     uploadMessage.value = '初始化成功，开始上传分片...';
-    let chunkIndex = 0
     for (let i = 0; i < fileSize; i += chunkBytes) {
       chunks.push({
-        partNumber: chunkIndex + 1,
+        partNumber: i + 1,
         chunk: file.slice(i, i + chunkBytes)
       });
-      chunkIndex++
     }
 
     totalChunks.value = chunks.length;
@@ -51,7 +49,7 @@ export function useChunkUpload(file?: File, options?: { chunkSize?: number; conc
     const taskQueue = new TaskQueue(maxConcurrency);
     chunks.forEach((chunk) => taskQueue.add(async () => {
       try {
-        const { data: chunkResponse } = await uploadFileChunk(uploadId, filePath, chunk.partNumber, chunk.chunk, options?.bucketName);
+        const { data: chunkResponse } = await uploadFileChunk(uploadId, filePath, chunk.partNumber, chunk.chunk);
         if (!chunkResponse || !chunkResponse.etag) {
           throw new Error('服务器返回的分片信息无效');
         }
@@ -72,8 +70,6 @@ export function useChunkUpload(file?: File, options?: { chunkSize?: number; conc
       filePath: filePath,
       fileSize,
       fileName,
-      bucketName: options?.bucketName,
-      useType: options?.useType,
       partETags: formattedPartETags,
     });
 

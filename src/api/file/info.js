@@ -44,22 +44,12 @@ export function delInfo(fileId) {
   })
 }
 
-export function getClientList() {
-  return request({
-    url: '/file/client-list',
-    method: 'get'
-  })
-}
-
 // 统一上传接口
-export function uploadFileUnified({ bucketName, file, useType }) {
+export function uploadFileUnified({ storageType, clientName, file }) {
   const formData = new FormData();
   formData.append('file', file);
-  if (useType) {
-    formData.append('useType', useType);
-  }
   return request({
-    url: bucketName ? `/file/${bucketName}/upload` : '/file/upload',
+    url: `/file/${storageType}/${clientName}/upload`,
     method: 'post',
     headers: { 'Content-Type': 'multipart/form-data', Authorization: 'Bearer ' + getToken() },
     data: formData
@@ -67,9 +57,9 @@ export function uploadFileUnified({ bucketName, file, useType }) {
 }
 
 // 统一下载接口（返回文件流）
-export function downloadFileUnified({ bucketName, filePath }) {
+export function downloadFileUnified({ clientName, filePath }) {
   return request({
-    url: bucketName ? `/file/${bucketName}/download` : '/file/download',
+    url: `/file/${clientName}/download`,
     method: 'get',
     params: { filePath },
     responseType: 'blob',
@@ -87,8 +77,6 @@ export function initMultipartUpload(params) {
     params: {
       fileName: params.fileName,
       fileSize: params.fileSize,
-      bucketName: params.bucketName,
-      useType: params.useType,
     }
   });
 }
@@ -96,7 +84,7 @@ export function initMultipartUpload(params) {
 /**
  * 上传文件分片
  */
-export function uploadFileChunk(uploadId, filePath, partNumber, chunk, bucketName) {
+export function uploadFileChunk(uploadId, filePath, partNumber, chunk) {
   const formData = new FormData();
   formData.append('chunk', chunk);
   return request({
@@ -105,8 +93,7 @@ export function uploadFileChunk(uploadId, filePath, partNumber, chunk, bucketNam
     params: {
       uploadId,
       filePath,
-      partNumber,
-      bucketName
+      partNumber
     },
     data: formData,
     headers: {
@@ -120,7 +107,7 @@ export function uploadFileChunk(uploadId, filePath, partNumber, chunk, bucketNam
  * 完成分片上传
  */
 export function completeMultipartUpload(params) {
-  const { uploadId, filePath, fileSize, fileName, bucketName, useType, partETags } = params;
+  const { uploadId, filePath, fileSize, fileName, partETags } = params;
   return request({
     url: '/file/completeUpload',
     method: 'post',
@@ -128,9 +115,7 @@ export function completeMultipartUpload(params) {
       uploadId,
       filePath,
       fileSize,
-      fileName,
-      bucketName,
-      useType,
+      fileName
     },
     data: partETags
   });
