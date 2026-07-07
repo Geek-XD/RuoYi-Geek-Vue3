@@ -11,12 +11,14 @@ const content = computed(() => settingsStore.footerContent)
   </footer>
 </template>
 <style scoped lang="scss">
+@use "@/assets/styles/variables.module.scss";
+
 .copyright {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 36px;
+  height: variables.$copyright-height;
   padding: 10px 20px;
   text-align: right;
   background-color: #f8f8f8;

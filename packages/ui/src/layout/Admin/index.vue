@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { AppMain, Settings, TagsView, Sidebar, Navbar } from './layout'
 import { computed, ref, useTemplateRef, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import useAppStore from '@ruoyi/core/store/modules/app'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
+import { AppMain, Settings, TagsView, Sidebar, Navbar } from './layout'
+import copyright from "./layout/Copyright/index.vue"
 
 const settingsStore = useSettingsStore()
 const appStore = useAppStore()
@@ -54,6 +55,7 @@ const settingRef = useTemplateRef('settingRef')
       </div>
       <!-- 主界面区 -->
       <app-main />
+      <copyright />
       <!-- 布局设置 -->
       <settings ref="settingRef" />
     </div>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import iframeToggle from "./IframeToggle/index.vue"
-import copyright from "./Copyright/index.vue"
 import useTagsViewStore from '@ruoyi/core/store/modules/tagsView'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
 import { computed } from "vue"
@@ -21,7 +20,6 @@ const fixedHeader = computed(() => settingsStore.fixedHeader);
       </transition>
     </router-view>
     <iframe-toggle />
-    <copyright />
   </section>
 </template>
 
@@ -36,10 +34,5 @@ const fixedHeader = computed(() => settingsStore.fixedHeader);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-
-
-  &:has(.copyright) {
-    padding-bottom: 36px;
-  }
 }
 </style>
