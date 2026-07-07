@@ -139,6 +139,13 @@ aside {
   .el-card {
     --el-card-border-radius: 0.75rem;
   }
+
+  &.fill {
+    position: absolute;
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+  }
 }
 
 .components-container {
