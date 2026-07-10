@@ -279,19 +279,6 @@ function handleStatusChange(row) {
     row.status = row.status === "0" ? "1" : "0";
   });
 }
-/** 更多操作 */
-function handleCommand(command, row) {
-  switch (command) {
-    case "handleDataScope":
-      handleDataScope(row);
-      break;
-    case "handleAuthUser":
-      handleAuthUser(row);
-      break;
-    default:
-      break;
-  }
-}
 /** 分配用户 */
 function handleAuthUser(row) {
   router.push("/system/role-auth/user/" + row.roleId);
@@ -487,3 +474,13 @@ function cancelDataScope() {
 
 getList();
 </script>
+
+<style lang="scss" scoped>
+.tree-border {
+  margin-top: 5px;
+  border: 1px solid #e5e6e7;
+  background: #ffffff none;
+  border-radius: 4px;
+  width: 100%;
+}
+</style>

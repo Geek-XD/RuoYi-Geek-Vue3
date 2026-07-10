@@ -3,8 +3,7 @@ import { computed, ref, useTemplateRef, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import useAppStore from '@ruoyi/core/store/modules/app'
 import useSettingsStore from '@ruoyi/core/store/modules/settings'
-import { AppMain, Settings, TagsView, Sidebar, Navbar } from './layout'
-import copyright from "./layout/Copyright/index.vue"
+import { AppMain, Settings, TagsView, Sidebar, Navbar, Copyright } from './layout'
 
 const settingsStore = useSettingsStore()
 const appStore = useAppStore()
@@ -55,6 +54,7 @@ const settingRef = useTemplateRef('settingRef')
       </div>
       <!-- 主界面区 -->
       <app-main />
+      <!-- 版权区 -->
       <copyright />
       <!-- 布局设置 -->
       <settings ref="settingRef" />
@@ -81,10 +81,8 @@ const settingRef = useTemplateRef('settingRef')
 .drawer-bg {
   background: #000;
   opacity: 0.3;
-  width: 100%;
-  top: 0;
-  height: 100%;
   position: absolute;
+  inset: 0;
   z-index: 999;
 }
 

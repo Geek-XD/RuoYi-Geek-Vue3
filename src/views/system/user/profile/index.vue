@@ -95,3 +95,30 @@ onMounted(() => {
    getUser();
 })
 </script>
+
+<style scoped lang="scss">
+.pull-right {
+   float: right !important;
+}
+
+.list-group {
+   padding-left: 0px;
+   list-style: none;
+}
+
+.list-group-striped>.list-group-item {
+   border-left: 0;
+   border-right: 0;
+   border-radius: 0;
+   padding-left: 0;
+   padding-right: 0;
+}
+
+.list-group-item {
+   border-bottom: 1px solid #e7eaec;
+   border-top: 1px solid #e7eaec;
+   margin-bottom: -1px;
+   padding: 11px 0px;
+   font-size: 13px;
+}
+</style>

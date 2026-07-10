@@ -18,6 +18,16 @@
       "type": "msedge",
       "url": "http://localhost:80",
       "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug Edge For Attach",
+      "request": "attach",
+      "type": "msedge",
+      "port": 9222,
+      "url": "http://localhost:80",
+      "webRoot": "${workspaceFolder}"
+      // msedge --remote-debugging-port=9222
+      // msedge --remote-debugging-port=9222
     }
   ],
   "compounds": [

@@ -27,16 +27,16 @@
           </el-upload>
         </el-col>
         <el-col :lg="{ span: 1, offset: 2 }" :md="2">
-          <el-button icon="Plus" @click="changeScale(1)"/>
+          <el-button icon="Plus" @click="changeScale(1)" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="Minus" @click="changeScale(-1)"/>
+          <el-button icon="Minus" @click="changeScale(-1)" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshLeft" @click="rotateLeft()"/>
+          <el-button icon="RefreshLeft" @click="rotateLeft()" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshRight" @click="rotateRight()"/>
+          <el-button icon="RefreshRight" @click="rotateRight()" />
         </el-col>
         <el-col :lg="{ span: 2, offset: 6 }" :md="2">
           <el-button type="primary" @click="uploadImg()">提 交</el-button>
@@ -133,6 +133,17 @@ function closeDialog() {
 </script>
 
 <style lang='scss' scoped>
+.avatar-upload-preview {
+  position: absolute;
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #ccc;
+  overflow: hidden;
+}
+
 .user-info-head {
   position: relative;
   display: inline-block;

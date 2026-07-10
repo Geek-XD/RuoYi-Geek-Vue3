@@ -48,11 +48,33 @@ function handleCurrentChange(val: number) {
 </template>
 <style scoped lang="scss">
 .pagination-container {
-  padding: 32px 16px;
   position: relative;
+  height: 25px;
+  margin-bottom: 10px;
+  margin-top: 30px;
+  padding: 10px 20px;
 
   &.hidden {
     display: none;
+  }
+
+  .el-pagination {
+    right: 0;
+    position: absolute;
+  }
+}
+
+@media (max-width: 768px) {
+  .pagination-container {
+    :deep(.el-pagination) {
+      &>.el-pagination__jump {
+        display: none !important;
+      }
+
+      &>.el-pagination__sizes {
+        display: none !important;
+      }
+    }
   }
 }
 </style>

@@ -132,6 +132,10 @@ function toggleCheckAll() {
   </div>
 </template>
 <style lang='scss' scoped>
+.top-right-btn {
+  margin-left: auto;
+}
+
 :deep(.el-transfer__button) {
   // border-radius: 50%;
   display: block;
