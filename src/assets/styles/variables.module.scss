@@ -59,11 +59,6 @@ $tags-view-color: $page-background-color; // (颜色与page不相同时会自动
 // 底部版权高度
 $copyright-height: 36px;
 
-// 定义圆角规范
-$border-radius-r1: 4px;
-$border-radius-r2: 8px;
-$border-radius-r3: 16px;
-
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
 :export {
