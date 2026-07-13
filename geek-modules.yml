@@ -1,0 +1,33 @@
+# GeekXD plugins config
+# 简单 YAML 结构：modules 列表，每个包含 name / url / path
+
+modules:
+  - name: online
+    url: https://gitee.com/geek-xd/geek-module-online.git
+    path: modules/online
+    checkout: vue
+
+  - name: message
+    url: https://gitee.com/geek-xd/geek-module-message.git
+    path: modules/message
+    checkout: vue
+
+  - name: gen
+    url: https://gitee.com/geek-xd/geek-module-generator.git
+    path: modules/gen
+    checkout: vue
+
+  - name: form
+    url: https://gitee.com/geek-xd/geek-module-form.git
+    path: modules/form
+    checkout: vue
+
+  - name: flowable
+    url: https://gitee.com/geek-xd/geek-module-flowable.git
+    path: modules/flowable
+    checkout: vue
+
+  - name: pay
+    url: https://gitee.com/geek-xd/geek-scene-pay.git
+    path: modules/pay
+    checkout: vue

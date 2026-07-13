@@ -57,11 +57,10 @@ export function uploadFileUnified({ storageType, clientName, file }) {
 }
 
 // 统一下载接口（返回文件流）
-export function downloadFileUnified({ clientName, filePath }) {
+export function downloadFileUnified(fileId) {
   return request({
-    url: `/file/${clientName}/download`,
+    url: `/file/download/${fileId}`,
     method: 'get',
-    params: { filePath },
     responseType: 'blob',
     headers: { Authorization: 'Bearer ' + getToken() }
   });
