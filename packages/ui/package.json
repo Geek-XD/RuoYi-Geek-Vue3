@@ -1,0 +1,14 @@
+{
+  "name": "@ruoyi/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "pinia": "3.0.4",
+    "vue": "3.5.27",
+    "vue-router": "5.0.2"
+  }
+}

@@ -1,5 +1,5 @@
-import request from '@/utils/request'
-import { getToken } from '@/utils/auth';
+import request from '@ruoyi/core/utils/request'
+import { getToken } from '@ruoyi/core/utils/auth';
 
 // 查询文件信息列表
 export function listInfo(query) {
@@ -57,11 +57,10 @@ export function uploadFileUnified({ storageType, clientName, file }) {
 }
 
 // 统一下载接口（返回文件流）
-export function downloadFileUnified({ clientName, filePath }) {
+export function downloadFileUnified(fileId) {
   return request({
-    url: `/file/${clientName}/download`,
+    url: `/file/download/${fileId}`,
     method: 'get',
-    params: { filePath },
     responseType: 'blob',
     headers: { Authorization: 'Bearer ' + getToken() }
   });

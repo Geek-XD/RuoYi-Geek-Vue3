@@ -3,7 +3,6 @@
 @use "transition.scss";
 @use "element-ui.scss";
 @use "sidebar.scss";
-@use "btn.scss";
 @use "ruoyi.scss";
 
 body {
@@ -110,12 +109,13 @@ aside {
   background: #eef1f6;
   padding: 8px 24px;
   margin-bottom: 20px;
-  border-radius: 2px;
+  border-radius: 4px;
   display: block;
   line-height: 32px;
   font-size: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
-    "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   color: #2c3e50;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -132,20 +132,24 @@ aside {
 
 //main-container全局样式
 .app-container {
+  flex: 1;
   padding: 20px;
 
   .el-card {
     --el-card-border-radius: 0.75rem;
+  }
+
+  &.fill {
+    position: absolute;
+    overflow: auto;
+    height: 100%;
+    width: 100%;
   }
 }
 
 .components-container {
   margin: 30px 50px;
   position: relative;
-}
-
-.pagination-container {
-  margin-top: 30px;
 }
 
 .text-center {

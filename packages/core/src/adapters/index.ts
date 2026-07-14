@@ -1,0 +1,1 @@
+export { registerHandlers, getHandler } from './auth'

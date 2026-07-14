@@ -1,0 +1,8 @@
+import { Component } from "vue";
+
+export const ASSETS_ICONS = import.meta.glob('/**/assets/icons/svg/*.svg');
+export const VIEWS: Record<string, () => Promise<Component>> = import.meta.glob('/**/views/**/*.vue')
+export const ROUTES: Record<string, any> = import.meta.glob('/**/routes/index.{ts,js}', { eager: true });
+export const MODULES_APP_PLUGIN: Record<string, any> = import.meta.glob('/modules/**/src/main.{ts,js}', { eager: true });
+
+export { ErrorCode } from './errorCode'

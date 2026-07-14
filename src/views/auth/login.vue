@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { encrypt, decrypt } from "@/utils/jsencrypt";
-import useUserStore from '@/store/modules/user'
+import { encrypt, decrypt } from "@ruoyi/core/utils/jsencrypt";
+import useUserStore from '@ruoyi/core/store/modules/user'
 import { useRouter } from "vue-router";
 import { onMounted, ref, useTemplateRef } from "vue";
-import Verify from '@/components/Verifition/Verify.vue'
+import Verify from '@ruoyi/ui/components/Verifition/Verify.vue'
 import { getCaptcha } from "@/api/captcha";
 import { sendEmailCode, sendPhoneCode } from "@/api/login";
-import { RoutesAlias } from "@/router/routesAlias";
+import { RoutesAlias } from "@ruoyi/core/router/routesAlias";
 import { useStorage } from "@vueuse/core";
 
 const props = defineProps<{
@@ -147,7 +147,6 @@ onMounted(() => {
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
-
       <el-form-item prop="password">
         <el-input v-model="loginForm.password" type="password" size="large" auto-complete="off" placeholder="密码"
           show-password @keyup.enter="handleLogin">
@@ -179,11 +178,9 @@ onMounted(() => {
       <Verify v-else mode="pop" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200px' }" ref="verify"
         :check="handleCheck" />
     </el-form-item>
-
     <div style="width:100%;display:flex;justify-content:space-between;align-items:center;">
-      <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住我！</el-checkbox>
-      <el-checkbox v-if="method != 'password'" v-model="loginForm.autoRegister"
-        style="margin:0px 0px 25px 0px;">若无账号自动注册~</el-checkbox>
+      <el-checkbox v-model="loginForm.rememberMe">记住我！</el-checkbox>
+      <el-checkbox v-if="method != 'password'" v-model="loginForm.autoRegister">若无账号自动注册~</el-checkbox>
     </div>
     <el-form-item style="width:100%;">
       <el-button :loading="loading" size="large" type="primary" style="width:100%;" @click.prevent="handleLogin">
@@ -230,6 +227,7 @@ onMounted(() => {
 
 
 .register-link {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

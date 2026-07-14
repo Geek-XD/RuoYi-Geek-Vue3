@@ -100,7 +100,7 @@
             <el-form-item label="状态" prop="status">
                <el-radio-group v-model="form.status">
                   <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label
-                     }}</el-radio>
+                  }}</el-radio>
                </el-radio-group>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
@@ -118,7 +118,7 @@
 </template>
 
 <script setup name="Dict">
-import useDictStore from '@/store/modules/dict'
+import useDictStore from '@ruoyi/core/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 
 const { proxy } = getCurrentInstance();

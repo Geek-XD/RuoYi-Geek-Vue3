@@ -119,7 +119,7 @@
                      </template>
                      <el-input v-model="form.component" placeholder="请输入组件路径">
                         <template #prepend>
-                           <div style="width: 80px; text-align: center;">src/view/</div>
+                           <div style="width: 80px; text-align: center;">src/views/</div>
                         </template>
                      </el-input>
                   </el-form-item>
@@ -277,8 +277,8 @@
 
 <script setup name="Menu">
 import { addMenu, delMenu, getMenu, listMenu, updateMenu } from "@/api/system/menu";
-import SvgIcon from "@/components/SvgIcon";
-import IconSelect from "@/components/IconSelect";
+import SvgIcon from "@ruoyi/ui/components/SvgIcon";
+import IconSelect from "@ruoyi/ui/components/IconSelect";
 import { ClickOutside as vClickOutside } from 'element-plus'
 
 const { proxy } = getCurrentInstance();
@@ -361,8 +361,8 @@ function selected(name) {
 }
 /** 图标外层点击隐藏下拉列表 */
 function hideSelectIcon(event) {
-   var elem = event.relatedTarget || event.srcElement || event.target || event.currentTarget;
-   var className = elem.className;
+   let elem = event.relatedTarget || event.srcElement || event.target || event.currentTarget;
+   let className = elem.className;
    if (className !== "el-input__inner") {
       showChooseIcon.value = false;
    }

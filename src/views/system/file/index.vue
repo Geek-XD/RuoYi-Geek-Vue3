@@ -34,7 +34,7 @@
         <el-table-column label="文件主键" align="center" prop="fileId" />
         <el-table-column label="原始文件名" align="center" prop="fileName" />
         <el-table-column label="统一逻辑路径" align="center" prop="filePath" />
-        <el-table-column label="存储类型" align="center" prop="storageType" />
+        <el-table-column label="存储桶名称" align="center" prop="storageName" />
         <el-table-column label="文件类型/后缀" align="center" prop="fileType" />
         <el-table-column label="文件大小" align="center" prop="fileSize" />
         <el-table-column label="文件MD5" align="center" prop="md5" />
@@ -94,10 +94,10 @@
 
 <script setup name="Info">
 import { listInfo, delInfo, downloadFileUnified } from '@/api/file/info';
-import ImagePreview from "@/components/ImagePreview/index.vue";
-import FileUpload from "@/components/UploadComponents/FileUpload/index.vue"
-import ImageUpload from "@/components/UploadComponents/ImageUpload/index.vue"
-import ChunkUpload from "@/components/UploadComponents/ChunkUpload/index.vue"
+import ImagePreview from "@ruoyi/ui/components/ImagePreview/index.vue";
+import FileUpload from "@ruoyi/ui/components/UploadComponents/FileUpload/index.vue"
+import ImageUpload from "@ruoyi/ui/components/UploadComponents/ImageUpload/index.vue"
+import ChunkUpload from "@ruoyi/ui/components/UploadComponents/ChunkUpload/index.vue"
 import { ref, reactive, computed, onMounted, toRefs, getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
@@ -116,7 +116,6 @@ const data = reactive({
     pageSize: 10,
     fileName: null,
     filePath: null,
-    storageType: null,
     fileType: null,
     fileSize: null,
     md5: null,
@@ -180,20 +179,13 @@ function isImage(fileType) {
 // 统一图片预览URL
 function getFileUrl(row) {
   if (!row.filePath) return '';
-  return `${import.meta.env.VITE_APP_BASE_API}/file/MASTER/preview?filePath=${encodeURIComponent(row.filePath)}`;
+  return `${import.meta.env.VITE_APP_BASE_API}/file/preview/${row.fileId}`;
 }
 
 const openUploadDialog = ref(false);
 // 上传弹窗相关逻辑
 const uploadForm = reactive({
-  clientKey: '', // 形如 'minio:MASTER'
   uploadType: 'image', // 新增上传类型，默认图片
-});
-// 兼容ImageUpload和FileUpload的上传url属性
-const uploadUrl = computed(() => {
-  if (!uploadForm.clientKey) return '';
-  const [storageType, clientName] = uploadForm.clientKey.split(":");
-  return `${import.meta.env.VITE_APP_BASE_API}/file/${storageType}/${clientName}/upload`;
 });
 // FileUpload上传成功回调
 function onUploadSuccess() {
@@ -206,10 +198,7 @@ onMounted(() => {
 
 // 统一下载方法
 function handleDownload(row) {
-  downloadFileUnified({
-    clientName: 'MASTER',
-    filePath: row.filePath
-  }).then(res => {
+  downloadFileUnified(row.fileId).then(res => {
     if (!res) return;
     const blob = new Blob([res], { type: 'application/octet-stream' });
     const link = document.createElement('a');

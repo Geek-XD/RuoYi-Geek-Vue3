@@ -7,13 +7,13 @@
         <img alt="logo" src="./doc/image/logo.png">
     </span>
 </p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">RuoYi-Geek v3.8.7.3.2</h1>
+<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">RuoYi-Geek v3.9.1-G</h1>
 <h4 align="center">基于SpringBoot3+Vue3前后端分离的Java快速开发框架</h4>
 <p align="center">
 	<img src="https://img.shields.io/github/license/mashape/apistatus.svg">
 </p>
 
-# 当前版本是3.8.7.3
+# 当前版本是3.9.1-G
 
 本人的其他两个推荐搭配的项目
 
@@ -40,6 +40,24 @@ yarn dev
 # 构建测试环境 yarn build:stage
 # 构建生产环境 yarn build:prod
 # 前端访问地址 http://localhost:80
+```
+
+## 加载模块
+
+```plaintext
+用法：./geek.sh <command> [args...]
+
+command:
+  list                 列出 .gitmodules 中的所有子模块 (name / path / url)
+  add <name>           根据 .gitmodules 中的 name 添加一个子模块（git submodule add）
+  remove <name>        根据 .gitmodules 中的 name 删除一个子模块（git rm + 清理 .git/modules）
+  sync-all             按 geek-modules.yml 中的配置，依次执行 add，同步/拉取所有模块
+  remove-all           按 geek-modules.yml 中的配置，依次执行 remove，删除所有模块
+
+示例：
+  ./geek.sh list
+  ./geek.sh add gen
+  ./geek.sh remove gen
 ```
 
 ## Electron

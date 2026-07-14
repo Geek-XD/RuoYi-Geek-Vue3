@@ -132,7 +132,7 @@
 </template>
 
 <script setup name="Data">
-import useDictStore from '@/store/modules/dict'
+import useDictStore from '@ruoyi/core/store/modules/dict'
 import { optionselect as getDictOptionselect, getType } from "@/api/system/dict/type";
 import { listData, getData, delData, addData, updateData } from "@/api/system/dict/data";
 

@@ -62,8 +62,8 @@ import {
   verifyEmailCode,
   sendPhoneCode,
   verifyPhoneCode,
-  getInfo
 } from '@/api/login'
+import { getInfo } from '@ruoyi/core/api/auth'
 import { ref, reactive, computed, onUnmounted, getCurrentInstance } from 'vue'
 
 const props = defineProps({

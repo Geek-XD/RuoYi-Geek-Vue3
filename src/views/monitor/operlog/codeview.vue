@@ -94,7 +94,7 @@ const wrap = ref(true)
   .lang {
     padding: 2px 6px;
     background: #f2f3f5;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .copy-btn {

@@ -1,15 +1,29 @@
 {
-  "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "packages/core/**/*.ts",
+    "packages/core/**/*.d.ts",
+    "packages/core/**/*.vue",
+    "modules/**/*.ts",
+    "modules/**/*.d.ts",
+    "modules/**/*.tsx",
+    "modules/**/*.vue"
+  ],
   "exclude": ["node_modules", "dist", "**/*.js"],
   "compilerOptions": {
-    "types":["vite/client"],
+    "types": ["vite/client"],
     "target": "ES2022",
     "experimentalDecorators": true,
-    "noImplicitAny":true,
+    "noImplicitAny": true,
     "importHelpers": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "downlevelIteration":true,
+    "ignoreDeprecations": "6.0",
+    "downlevelIteration": true,
     "outDir": "dist/compiled",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
@@ -19,13 +33,16 @@
     "lib": ["ES2022", "dom"],
     "declaration": true,
     "paths": {
+      "@ruoyi/core": ["./packages/core/src"],
+      "@ruoyi/core/*": ["./packages/core/src/*"],
+      "@ruoyi/ui": ["./packages/ui/src"],
+      "@ruoyi/ui/*": ["./packages/ui/src/*"],
       "@": ["./src"],
       "@/*": ["./src/*"],
       "@lib": ["./lib"],
       "@lib/*": ["./lib/*"],
-      "@modules": ["./src/modules"],
       "vue": ["./node_modules/vue"],
-      "tslib" : ["./node_modules/tslib/tslib.d.ts"]
+      "tslib": ["./node_modules/tslib/tslib.d.ts"]
     }
   }
 }

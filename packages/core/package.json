@@ -1,0 +1,41 @@
+{
+  "name": "@ruoyi/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./adapters": "./src/adapters/index.ts",
+    "./adapters/*": "./src/adapters/*",
+    "./api": "./src/api/index.ts",
+    "./api/*": "./src/api/*",
+    "./directive": "./src/directive/index.ts",
+    "./directive/*": "./src/directive/*",
+    "./hook": "./src/hook/index.ts",
+    "./hook/*": "./src/hook/*",
+    "./plugins": "./src/plugins/index.ts",
+    "./plugins/*": "./src/plugins/*",
+    "./router": "./src/router/index.ts",
+    "./router/*": "./src/router/*",
+    "./store": "./src/store/index.ts",
+    "./store/*": "./src/store/*",
+    "./utils": "./src/utils/index.js",
+    "./utils/*": "./src/utils/*",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "mitt": "3.0.1",
+    "file-saver": "2.0.5",
+    "js-cookie": "3.0.5"
+  },
+  "peerDependencies": {
+    "axios": "1.13.4",
+    "nprogress": "0.2.0",
+    "pinia": "3.0.4",
+    "vue": "3.5.27",
+    "vue-router": "5.0.2"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}

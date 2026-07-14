@@ -56,6 +56,9 @@ $navbar-color: $page-background-color; // (颜色与page不相同时会自动显
 $tags-view-height: 44px;
 $tags-view-color: $page-background-color; // (颜色与page不相同时会自动显示阴影)
 
+// 底部版权高度
+$copyright-height: 36px;
+
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
 :export {
@@ -74,4 +77,5 @@ $tags-view-color: $page-background-color; // (颜色与page不相同时会自动
   dangerColor: $color-danger;
   infoColor: $color-info;
   warningColor: $color-warning;
+  copyrightHeight: $copyright-height;
 }

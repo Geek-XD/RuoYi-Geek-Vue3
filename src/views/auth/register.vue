@@ -3,10 +3,10 @@ import { ElMessageBox } from "element-plus";
 import { sendEmailCode, sendPhoneCode } from "@/api/login";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { useRouter } from "vue-router";
-import useUserStore from "@/store/modules/user";
-import { RoutesAlias } from "@/router/routesAlias";
+import useUserStore from "@ruoyi/core/store/modules/user";
+import { RoutesAlias } from "@ruoyi/core/router/routesAlias";
 import { getCaptcha } from "@/api/captcha";
-import Verify from '@/components/Verifition/Verify.vue'
+import Verify from '@ruoyi/ui/components/Verifition/Verify.vue'
 
 const router = useRouter();
 const userStore = useUserStore()

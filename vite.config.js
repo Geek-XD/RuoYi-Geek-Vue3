@@ -2,6 +2,15 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
 
+const ModulesAlias = function (modules) {
+  const alias = {}
+  modules.forEach((module) => {
+    const modulePath = path.resolve(__dirname, `./modules/${module}/src`)
+    alias[`@ruoyi/module-${module}`] = modulePath
+  })
+  return alias
+}([])
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd())
@@ -17,10 +26,12 @@ export default defineConfig(({ mode, command }) => {
       alias: {
         // 设置路径
         '~': path.resolve(__dirname, './'),
+        '@ruoyi/core': path.resolve(__dirname, './packages/core/src'),
+        '@ruoyi/ui': path.resolve(__dirname, './packages/ui/src'),
         // 设置别名
         '@': path.resolve(__dirname, './src'),
         '@lib': path.resolve(__dirname, './lib'),
-        '@modules': path.resolve(__dirname, './src/modules'),
+        ...ModulesAlias
       },
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
@@ -35,7 +46,13 @@ export default defineConfig(({ mode, command }) => {
         '/dev-api': {
           target: 'http://localhost:8080',
           changeOrigin: true,
+          ws: true,
           rewrite: (p) => p.replace(/^\/dev-api/, '')
+        },
+        '/websocket': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          ws: true
         },
         '/v3': {
           target: 'http://localhost:8080',
@@ -67,9 +84,7 @@ export default defineConfig(({ mode, command }) => {
       }
     },
     optimizeDeps: {
-      include: [
-        '@lib/vform/designer.umd.js',
-      ]
+      include: ['@ruoyi/module-form/libs/designer.umd.js'],
     },
     build: {
       commonjsOptions: {

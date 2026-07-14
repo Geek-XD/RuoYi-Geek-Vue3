@@ -4,8 +4,8 @@ import { Document, ChatDotRound, User } from '@element-plus/icons-vue';
 import { getConfigKey } from '@/api/system/config';
 import { useRoute, useRouter } from 'vue-router';
 import Oauth from "./oauth.vue";
-import { getToken } from '@/utils/auth';
-import { RoutesAlias } from '@/router/routesAlias';
+import { getToken } from '@ruoyi/core/utils/auth';
+import { RoutesAlias } from '@ruoyi/core/router/routesAlias';
 import BackgroundAnimation from './background-animation.vue';
 // 页面加载状态
 const pageLoaded = ref(false);
@@ -121,7 +121,6 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
   min-height: 600px;
   height: 70vh;
   background: var(--el-bg-color);
-  border-radius: var(--el-border-radius-large);
   box-shadow: var(--el-box-shadow);
   overflow: hidden;
   position: relative;
@@ -141,7 +140,8 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
 }
 
 .container-left {
-  width: 50%;
+  flex: 0.6;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--el-color-primary-light-3) 0%, var(--el-color-primary-dark-3) 100%);
   display: flex;
   align-items: center;
@@ -157,14 +157,13 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
 
   h1 {
     font-size: 2.5rem;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     font-weight: 600;
     text-shadow: 0 2px 4px var(--el-color-primary-dark-2);
   }
 
   p {
-    font-size: 1.1rem;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
     opacity: 0.9;
     line-height: 1.6;
   }
@@ -172,8 +171,7 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
   .features {
     display: flex;
     justify-content: space-around;
-    margin-top: 50px;
-    width: 80%;
+    width: 60%;
 
     .feature-item {
       display: flex;
@@ -191,10 +189,10 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
       }
 
       .el-icon {
-        font-size: 32px;
+        font-size: 48px;
         margin-bottom: 15px;
-        padding: 8px;
-        background: var(--el-color-primary-light-8);
+        padding: 12px;
+        background: var(--el-color-primary-light-6);
         border-radius: 50%;
         box-shadow: 0 4px 12px var(--el-color-primary-light-5);
         transition: all 0.3s ease;
@@ -223,8 +221,8 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
       }
 
       .counter-label {
-        font-size: 1.2rem;
         margin-top: 5px;
+        opacity: 0.9;
         font-weight: 500;
       }
     }
@@ -232,7 +230,7 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
 }
 
 .container-right {
-  width: 50%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -268,14 +266,18 @@ const title = computed(() => import.meta.env.VITE_APP_TITLE || '后台管理系�
   }
 
   .el-segmented {
-    background-color: var(--el-color-primary);
-    padding: 0;
-    box-shadow: var(--el-box-shadow-light);
+    $background: var(--el-color-primary-light-9);
+    border-radius: 8px;
+    background-color: $background;
+    padding: 4px;
+
+    :deep(.el-segmented__item-selected) {
+      border-radius: 8px;
+    }
 
     :deep(.el-segmented__item) {
-      border-radius: 0;
-      background-color: var(--el-color-white);
-      border-color: var(--el-color-white);
+      padding: 6px 12px;
+      background-color: $background;
     }
   }
 }
